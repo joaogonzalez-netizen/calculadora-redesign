@@ -8,7 +8,6 @@ import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
 import PastaRail from '../components/historico/PastaRail';
 import PastaPicker from '../components/historico/PastaPicker';
-import MarcadorFiltroBar from '../components/historico/MarcadorFiltroBar';
 import MarcadorPicker from '../components/historico/MarcadorPicker';
 import ClusterDrawer, { type ClusterItem } from '../components/historico/ClusterDrawer';
 import {
@@ -45,7 +44,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
   const [pastaAtiva, setPastaAtiva] = useState<string | null>(null);
   const [marcadores, setMarcadores] = useState<Marcador[]>(getMarcadores);
   const [marcadorVinculo, setMarcadorVinculo] = useState<Record<string, string>>(getHistMarcadorVinculo);
-  const [marcadoresAtivos, setMarcadoresAtivos] = useState<string[]>([]);
+  const [marcadorFiltro, setMarcadorFiltro] = useState('Todos');
 
   // Drawer de atribuição — 1 instância só, aberta na linha que o usuário clicou "Adicionar".
   const [drawerEntryId, setDrawerEntryId] = useState<number | null>(null);
@@ -60,7 +59,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     setModo(m);
     saveModoCluster(m);
     setPastaAtiva(null);
-    setMarcadoresAtivos([]);
+    setMarcadorFiltro('Todos');
   }
 
   function criarPasta(p: Pasta) {
@@ -89,10 +88,6 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     saveHistMarcadorVinculo(next);
   }
 
-  function toggleMarcadorFiltro(id: string) {
-    setMarcadoresAtivos((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  }
-
   const histFiltrado = useMemo(() => {
     let lista = [...hist];
     if (busca.trim()) {
@@ -102,11 +97,12 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     if (modo === 'pastas' && pastaAtiva) {
       lista = lista.filter((h) => (pastaAtiva === 'sem-pasta' ? !pastaVinculo[h.id] : pastaVinculo[h.id] === pastaAtiva));
     }
-    if (modo === 'marcadores' && marcadoresAtivos.length) {
-      lista = lista.filter((h) => marcadoresAtivos.includes(marcadorVinculo[h.id]));
+    if (modo === 'marcadores' && marcadorFiltro !== 'Todos') {
+      const alvo = marcadores.find((m) => m.nome === marcadorFiltro);
+      lista = lista.filter((h) => marcadorVinculo[h.id] === alvo?.id);
     }
     return lista.sort((a, b) => ((a[sortKey] as any) > (b[sortKey] as any) ? 1 : -1) * sortDir);
-  }, [hist, busca, sortKey, sortDir, modo, pastaAtiva, pastaVinculo, marcadoresAtivos, marcadorVinculo]);
+  }, [hist, busca, sortKey, sortDir, modo, pastaAtiva, pastaVinculo, marcadorFiltro, marcadores, marcadorVinculo]);
 
   function sortHist(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d * -1) as 1 | -1);
@@ -163,18 +159,11 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
       <div className="prod-filters-row">
         <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder="Buscar por nome ou canal..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
         <PopoverList label="" options={[...ORDENS_HIST]} value={ordem} onChange={mudarOrdem} />
+        {modo === 'marcadores' && (
+          <PopoverList label="Marcador" options={['Todos', ...marcadores.map((m) => m.nome)]} value={marcadorFiltro} onChange={setMarcadorFiltro} />
+        )}
         <span className="hint hist-count">{histFiltrado.length} {histFiltrado.length === 1 ? 'cálculo' : 'cálculos'}</span>
       </div>
-
-      {modo === 'marcadores' && (
-        <MarcadorFiltroBar
-          marcadores={marcadores}
-          ativos={marcadoresAtivos}
-          onToggle={toggleMarcadorFiltro}
-          onLimpar={() => setMarcadoresAtivos([])}
-          onCriar={criarMarcador}
-        />
-      )}
 
       <div className={modo === 'pastas' ? 'hist-layout-pastas' : ''}>
         {modo === 'pastas' && (

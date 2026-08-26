@@ -872,16 +872,4 @@ input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0
 .cor-swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;padding:0;}
 .cor-swatch.active{border-color:var(--text-1);}
 
-.marcador-filtro-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
-.marcador-chip{
-  padding:6px 14px;font-size:12.5px;font-weight:600;border-radius:999px;border:1.5px solid var(--border-strong);
-  background:var(--surface);color:var(--text-2);
-}
-.marcador-chip.active{color:#fff;}
-.marcador-novo-btn{display:flex;align-items:center;gap:5px;color:var(--text-3);border-style:dashed;}
-.marcador-nova-form{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#fafbfa;border-radius:999px;}
-.marcador-nova-form input{padding:6px 10px;font-size:12.5px;width:140px;}
-.marcador-limpar{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-3);background:none;border:none;}
-.marcador-limpar:hover{color:var(--text-1);}
-
 .marcador-chip-mini{padding:3px 9px;font-size:11px;font-weight:600;border-radius:999px;color:#fff;white-space:nowrap;}
