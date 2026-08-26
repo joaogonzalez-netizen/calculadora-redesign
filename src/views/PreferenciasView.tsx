@@ -3,14 +3,19 @@ import { useLibrarias } from '../context/LibrariasContext';
 import type { CustoCategoria, Filamento, Impressora, Moeda } from '../types';
 import { brl } from '../lib/format';
 import InfoDot from '../components/InfoDot';
+import {
+  getPastas, getHistPastaVinculo, removerPasta,
+  getMarcadores, getHistMarcadorVinculo, removerMarcador,
+} from '../lib/cluster';
 
-type Tab = 'moeda' | 'impressora' | 'margem' | 'vendadireta' | 'custos';
+type Tab = 'moeda' | 'impressora' | 'margem' | 'vendadireta' | 'custos' | 'organizacao';
 const TABS: { key: Tab; label: string }[] = [
   { key: 'moeda', label: 'Moeda' },
   { key: 'impressora', label: 'Impressão' },
   { key: 'margem', label: 'Precificação' },
   { key: 'vendadireta', label: 'Canal de venda' },
   { key: 'custos', label: 'Custos extras' },
+  { key: 'organizacao', label: 'Pastas & marcadores' },
 ];
 const CATS: CustoCategoria[] = ['Embalagem', 'Mão de obra', 'Acabamento', 'Outro', 'Outras'];
 const TIPOS_FIL = ['PLA', 'PETG', 'ABS', 'TPU', 'Resina'];
@@ -98,6 +103,31 @@ export default function PreferenciasView() {
   }
   function removeCustoPadrao(idx: number) {
     setCustosPadrao((p) => p.filter((_, ix) => ix !== idx));
+  }
+
+  // --- Pastas & marcadores (organização do Histórico) — leitura direta do
+  // localStorage via lib/cluster, igual ao que HistoricoView já faz. ---
+  const [pastasOrg, setPastasOrg] = useState(getPastas);
+  const [pastaVinculoOrg, setPastaVinculoOrg] = useState(getHistPastaVinculo);
+  const [marcadoresOrg, setMarcadoresOrg] = useState(getMarcadores);
+  const [marcadorVinculoOrg, setMarcadorVinculoOrg] = useState(getHistMarcadorVinculo);
+
+  function contarVinculos(vinculo: Record<string, string>, id: string) {
+    return Object.values(vinculo).filter((v) => v === id).length;
+  }
+
+  function excluirPastaOrg(id: string, nome: string) {
+    if (!confirm(`Excluir a pasta "${nome}"? Os cálculos vinculados ficam sem pasta.`)) return;
+    removerPasta(id);
+    setPastasOrg(getPastas());
+    setPastaVinculoOrg(getHistPastaVinculo());
+  }
+
+  function excluirMarcadorOrg(id: string, nome: string) {
+    if (!confirm(`Excluir o marcador "${nome}"? Os cálculos vinculados ficam sem marcador.`)) return;
+    removerMarcador(id);
+    setMarcadoresOrg(getMarcadores());
+    setMarcadorVinculoOrg(getHistMarcadorVinculo());
   }
 
   return (
@@ -287,6 +317,49 @@ export default function PreferenciasView() {
               </select>
               <button className="btn-outline" onClick={addCustoPadrao}>+ Adicionar</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'organizacao' && (
+        <div className="card pref-tab">
+          <div className="card-body" style={{ paddingTop: 22 }}>
+            <div className="custo-desc">
+              Pastas e marcadores são as duas experiências de organização do Histórico de cálculos (menu Calculadora de preços → Histórico).
+              Cada cálculo aceita só uma pasta ou um marcador por vez.
+            </div>
+
+            <div className="divider-label">Pastas ({pastasOrg.length})</div>
+            {pastasOrg.length > 0 && (
+              <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Nome</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>Cálculos</span><span />
+              </div>
+            )}
+            {pastasOrg.map((p) => (
+              <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px' }} key={p.id}>
+                <span className="pasta-dot" style={{ background: p.cor }} />
+                <span>{p.nome}</span>
+                <span style={{ textAlign: 'center', color: 'var(--text-2)' }}>{contarVinculos(pastaVinculoOrg, p.id)}</span>
+                <button className="custo-remove" onClick={() => excluirPastaOrg(p.id, p.nome)}>✕</button>
+              </div>
+            ))}
+            {!pastasOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>Nenhuma pasta criada ainda — crie uma pelo Histórico.</div>}
+
+            <div className="divider-label" style={{ marginTop: 22 }}>Marcadores ({marcadoresOrg.length})</div>
+            {marcadoresOrg.length > 0 && (
+              <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Nome</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>Cálculos</span><span />
+              </div>
+            )}
+            {marcadoresOrg.map((m) => (
+              <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px' }} key={m.id}>
+                <span className="pasta-dot" style={{ background: m.cor }} />
+                <span>{m.nome}</span>
+                <span style={{ textAlign: 'center', color: 'var(--text-2)' }}>{contarVinculos(marcadorVinculoOrg, m.id)}</span>
+                <button className="custo-remove" onClick={() => excluirMarcadorOrg(m.id, m.nome)}>✕</button>
+              </div>
+            ))}
+            {!marcadoresOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>Nenhum marcador criado ainda — crie um pelo Histórico.</div>}
           </div>
         </div>
       )}

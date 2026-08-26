@@ -10,9 +10,10 @@ import PastaRail from '../components/historico/PastaRail';
 import PastaPicker from '../components/historico/PastaPicker';
 import MarcadorFiltroBar from '../components/historico/MarcadorFiltroBar';
 import MarcadorPicker from '../components/historico/MarcadorPicker';
+import ClusterDrawer, { type ClusterItem } from '../components/historico/ClusterDrawer';
 import {
   getPastas, savePastas, getHistPastaVinculo, saveHistPastaVinculo,
-  getMarcadores, saveMarcadores, getHistMarcadoresVinculo, saveHistMarcadoresVinculo,
+  getMarcadores, saveMarcadores, getHistMarcadorVinculo, saveHistMarcadorVinculo,
   getModoCluster, saveModoCluster,
   type Pasta, type Marcador, type ModoCluster,
 } from '../lib/cluster';
@@ -43,8 +44,11 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
   const [pastaVinculo, setPastaVinculo] = useState<Record<string, string>>(getHistPastaVinculo);
   const [pastaAtiva, setPastaAtiva] = useState<string | null>(null);
   const [marcadores, setMarcadores] = useState<Marcador[]>(getMarcadores);
-  const [marcadorVinculo, setMarcadorVinculo] = useState<Record<string, string[]>>(getHistMarcadoresVinculo);
+  const [marcadorVinculo, setMarcadorVinculo] = useState<Record<string, string>>(getHistMarcadorVinculo);
   const [marcadoresAtivos, setMarcadoresAtivos] = useState<string[]>([]);
+
+  // Drawer de atribuição — 1 instância só, aberta na linha que o usuário clicou "Adicionar".
+  const [drawerEntryId, setDrawerEntryId] = useState<number | null>(null);
 
   function reload() {
     setHist([...getHistorico()]);
@@ -78,11 +82,11 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     saveMarcadores(next);
   }
 
-  function toggleMarcadorEntry(entryId: number, marcadorId: string) {
-    const atuais = marcadorVinculo[entryId] || [];
-    const next = { ...marcadorVinculo, [entryId]: atuais.includes(marcadorId) ? atuais.filter((id) => id !== marcadorId) : [...atuais, marcadorId] };
+  function escolherMarcador(entryId: number, marcadorId: string | undefined) {
+    const next = { ...marcadorVinculo };
+    if (marcadorId) next[entryId] = marcadorId; else delete next[entryId];
     setMarcadorVinculo(next);
-    saveHistMarcadoresVinculo(next);
+    saveHistMarcadorVinculo(next);
   }
 
   function toggleMarcadorFiltro(id: string) {
@@ -99,7 +103,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
       lista = lista.filter((h) => (pastaAtiva === 'sem-pasta' ? !pastaVinculo[h.id] : pastaVinculo[h.id] === pastaAtiva));
     }
     if (modo === 'marcadores' && marcadoresAtivos.length) {
-      lista = lista.filter((h) => (marcadorVinculo[h.id] || []).some((id) => marcadoresAtivos.includes(id)));
+      lista = lista.filter((h) => marcadoresAtivos.includes(marcadorVinculo[h.id]));
     }
     return lista.sort((a, b) => ((a[sortKey] as any) > (b[sortKey] as any) ? 1 : -1) * sortDir);
   }, [hist, busca, sortKey, sortDir, modo, pastaAtiva, pastaVinculo, marcadoresAtivos, marcadorVinculo]);
@@ -131,6 +135,10 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     resetCalculadora();
     onAbrirNaCalculadora();
   }
+
+  const drawerSelecionadoId = drawerEntryId === null
+    ? undefined
+    : (modo === 'pastas' ? pastaVinculo[drawerEntryId] : marcadorVinculo[drawerEntryId]);
 
   return (
     <div>
@@ -184,7 +192,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('margem')}>Margem ↕</th>
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('potMensal')}>Pot. mensal ↕</th>
                   <th style={{ padding: 10 }}>Canal</th>
-                  <th style={{ padding: 10 }}>{modo === 'pastas' ? 'Pasta' : 'Marcadores'}</th>
+                  <th style={{ padding: 10 }}>{modo === 'pastas' ? 'Pasta' : 'Marcador'}</th>
                   <th style={{ padding: 10 }}>Fonte STL</th>
                   <th style={{ padding: 10 }}>Concorrente</th>
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('id')}>Data ↕</th>
@@ -210,8 +218,8 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                     <td style={{ padding: 10 }}>{h.marketplace || '-'}</td>
                     <td style={{ padding: 10 }}>
                       {modo === 'pastas'
-                        ? <PastaPicker pastas={pastas} pastaId={pastaVinculo[h.id]} onEscolher={(pid) => escolherPasta(h.id, pid)} />
-                        : <MarcadorPicker marcadores={marcadores} selecionados={marcadorVinculo[h.id] || []} onToggle={(mid) => toggleMarcadorEntry(h.id, mid)} />}
+                        ? <PastaPicker pastas={pastas} pastaId={pastaVinculo[h.id]} onAbrir={() => setDrawerEntryId(h.id)} />
+                        : <MarcadorPicker marcadores={marcadores} marcadorId={marcadorVinculo[h.id]} onAbrir={() => setDrawerEntryId(h.id)} />}
                     </td>
                     <td style={{ padding: 10 }}>
                       {h.stlLink
@@ -237,6 +245,23 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
           </div>
         </div>
       </div>
+
+      <ClusterDrawer
+        open={drawerEntryId !== null}
+        tipo={modo === 'pastas' ? 'pasta' : 'marcador'}
+        itens={modo === 'pastas' ? pastas : marcadores}
+        selecionadoId={drawerSelecionadoId}
+        onClose={() => setDrawerEntryId(null)}
+        onSelecionar={(id) => {
+          if (drawerEntryId === null) return;
+          if (modo === 'pastas') escolherPasta(drawerEntryId, id); else escolherMarcador(drawerEntryId, id);
+        }}
+        onCriar={(item: ClusterItem) => {
+          if (drawerEntryId === null) return;
+          if (modo === 'pastas') { criarPasta(item); escolherPasta(drawerEntryId, item.id); }
+          else { criarMarcador(item); escolherMarcador(drawerEntryId, item.id); }
+        }}
+      />
 
       <HistDrawer entry={selected} onClose={() => setSelected(null)} onChange={handleChange} onAbrirNaCalculadora={onAbrirNaCalculadora} />
     </div>

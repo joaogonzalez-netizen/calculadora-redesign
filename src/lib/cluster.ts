@@ -52,10 +52,11 @@ export function saveMarcadores(arr: Marcador[]): void {
   writeJson(MARCADORES_KEY, arr);
 }
 
-export function getHistMarcadoresVinculo(): Record<string, string[]> {
-  return readJson<Record<string, string[]>>(HIST_MARCADORES_KEY, {});
+// Um cálculo tem no máximo 1 marcador — mesma regra de cardinalidade das pastas.
+export function getHistMarcadorVinculo(): Record<string, string> {
+  return readJson<Record<string, string>>(HIST_MARCADORES_KEY, {});
 }
-export function saveHistMarcadoresVinculo(v: Record<string, string[]>): void {
+export function saveHistMarcadorVinculo(v: Record<string, string>): void {
   writeJson(HIST_MARCADORES_KEY, v);
 }
 
@@ -64,4 +65,20 @@ export function getModoCluster(): ModoCluster {
 }
 export function saveModoCluster(m: ModoCluster): void {
   writeJson(HIST_MODO_KEY, m);
+}
+
+/** Remove a pasta e limpa o vínculo de quem apontava pra ela. */
+export function removerPasta(id: string): void {
+  savePastas(getPastas().filter((p) => p.id !== id));
+  const v = getHistPastaVinculo();
+  const next = Object.fromEntries(Object.entries(v).filter(([, pid]) => pid !== id));
+  saveHistPastaVinculo(next);
+}
+
+/** Remove o marcador e limpa o vínculo de quem apontava pra ele. */
+export function removerMarcador(id: string): void {
+  saveMarcadores(getMarcadores().filter((m) => m.id !== id));
+  const v = getHistMarcadorVinculo();
+  const next = Object.fromEntries(Object.entries(v).filter(([, mid]) => mid !== id));
+  saveHistMarcadorVinculo(next);
 }

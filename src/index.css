@@ -852,12 +852,21 @@ input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0
 .pasta-nova-form input{padding:8px 10px;font-size:13px;}
 .pasta-nova-actions{display:flex;gap:8px;justify-content:flex-end;}
 
-.pasta-picker-btn{
+.cluster-picker-btn{
   display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:12.5px;color:var(--text-2);
   background:none;border:1px dashed var(--border-strong);border-radius:999px;white-space:nowrap;
 }
-.pasta-picker-btn:hover{border-color:var(--text-3);}
-.pasta-picker-empty{display:flex;align-items:center;gap:5px;color:var(--text-3);}
+.cluster-picker-btn:hover{border-color:var(--text-3);}
+.cluster-picker-empty{display:flex;align-items:center;gap:5px;color:var(--text-3);}
+
+.cluster-drawer-list{display:flex;flex-direction:column;gap:2px;max-height:260px;overflow-y:auto;}
+.cluster-drawer-item{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius-s);
+  font-size:13.5px;color:var(--text-2);cursor:pointer;
+}
+.cluster-drawer-item:hover{background:#f4f5f4;}
+.cluster-drawer-item.active{background:var(--primary-tint);color:var(--primary-dark);font-weight:700;}
+.cluster-drawer-novo{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;}
 
 .cor-swatches{display:flex;gap:6px;}
 .cor-swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;padding:0;}
@@ -875,11 +884,4 @@ input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0
 .marcador-limpar{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-3);background:none;border:none;}
 .marcador-limpar:hover{color:var(--text-1);}
 
-.marcador-picker{min-width:120px;}
-.marcador-picker-chips{display:flex;align-items:center;gap:5px;flex-wrap:wrap;cursor:pointer;min-height:24px;}
 .marcador-chip-mini{padding:3px 9px;font-size:11px;font-weight:600;border-radius:999px;color:#fff;white-space:nowrap;}
-.marcador-add-btn{
-  display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;
-  border:1px dashed var(--border-strong);background:none;color:var(--text-3);flex:0 0 auto;
-}
-.marcador-add-btn:hover{border-color:var(--text-3);color:var(--text-1);}
