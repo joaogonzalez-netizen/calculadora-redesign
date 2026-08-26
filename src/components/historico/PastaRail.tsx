@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { HistoricoEntry } from '../../types';
-import { corAleatoria, type Pasta } from '../../lib/cluster';
+import { corAleatoria, LIMITE_CLUSTER, type Pasta } from '../../lib/cluster';
 import Icon from '../Icon';
 import ColorSwatches from './ColorSwatches';
 
@@ -66,6 +66,8 @@ export default function PastaRail({ pastas, vinculo, hist, ativa, onSelecionar, 
             <button type="button" className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={confirmarCriar}>Criar</button>
           </div>
         </div>
+      ) : pastas.length >= LIMITE_CLUSTER ? (
+        <div className="hint" style={{ padding: '8px 10px', color: 'var(--text-3)', fontSize: 12 }}>Limite de {LIMITE_CLUSTER} pastas atingido.</div>
       ) : (
         <button type="button" className="pasta-item pasta-nova-btn" onClick={() => setCriando(true)}>
           <Icon name="plus" size={15} />

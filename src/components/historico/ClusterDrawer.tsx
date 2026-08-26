@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { corAleatoria } from '../../lib/cluster';
+import { corAleatoria, LIMITE_CLUSTER } from '../../lib/cluster';
 import Icon from '../Icon';
 import ColorSwatches from './ColorSwatches';
 
@@ -32,6 +32,7 @@ export default function ClusterDrawer({ open, tipo, itens, selecionadoId, onClos
 
   const label = tipo === 'pasta' ? 'pasta' : 'marcador';
   const filtrados = itens.filter((i) => i.nome.toLowerCase().includes(busca.trim().toLowerCase()));
+  const noLimite = itens.length >= LIMITE_CLUSTER;
 
   function fecharEResetar() {
     setBusca('');
@@ -61,6 +62,32 @@ export default function ClusterDrawer({ open, tipo, itens, selecionadoId, onClos
           Cada cálculo pode ter só {tipo === 'pasta' ? 'uma pasta vinculada' : 'um marcador vinculado'}. Escolha um já existente ou crie um novo.
         </div>
 
+        {criando ? (
+          <div className="pasta-nova-form" style={{ padding: 0, marginBottom: 20 }}>
+            <input
+              type="text"
+              autoFocus
+              placeholder={`Nome do ${label}`}
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmarCriar(); if (e.key === 'Escape') setCriando(false); }}
+            />
+            <ColorSwatches value={cor} onChange={setCor} />
+            <div className="pasta-nova-actions">
+              <button type="button" className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setCriando(false)}>Cancelar</button>
+              <button type="button" className="btn-calc" style={{ width: 'auto', padding: '8px 16px' }} onClick={confirmarCriar}>Criar e aplicar</button>
+            </div>
+          </div>
+        ) : noLimite ? (
+          <div className="hint cluster-drawer-limite">Limite de {LIMITE_CLUSTER} {tipo === 'pasta' ? 'pastas atingido' : 'marcadores atingido'}. Exclua um pra criar outro.</div>
+        ) : (
+          <button type="button" className="btn-outline cluster-drawer-novo" onClick={() => setCriando(true)}>
+            <Icon name="plus" size={14} /> {tipo === 'pasta' ? 'Nova pasta' : 'Novo marcador'}
+          </button>
+        )}
+
+        <div className="divider-label" style={{ margin: '20px 0 14px' }}>Escolher existente</div>
+
         <div className="cl-search" style={{ marginBottom: 14 }}>
           <Icon name="search" size={15} />
           <input type="text" placeholder={`Buscar ${label}...`} value={busca} onChange={(e) => setBusca(e.target.value)} />
@@ -79,29 +106,6 @@ export default function ClusterDrawer({ open, tipo, itens, selecionadoId, onClos
           ))}
           {!filtrados.length && <div className="hint" style={{ padding: '10px 2px' }}>{tipo === 'pasta' ? 'Nenhuma pasta encontrada.' : 'Nenhum marcador encontrado.'}</div>}
         </div>
-
-        <div className="divider-label" style={{ margin: '18px 0 14px' }}>Criar {label}</div>
-        {criando ? (
-          <div className="pasta-nova-form" style={{ padding: 0 }}>
-            <input
-              type="text"
-              autoFocus
-              placeholder={`Nome do ${label}`}
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') confirmarCriar(); if (e.key === 'Escape') setCriando(false); }}
-            />
-            <ColorSwatches value={cor} onChange={setCor} />
-            <div className="pasta-nova-actions">
-              <button type="button" className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setCriando(false)}>Cancelar</button>
-              <button type="button" className="btn-calc" style={{ width: 'auto', padding: '8px 16px' }} onClick={confirmarCriar}>Criar e aplicar</button>
-            </div>
-          </div>
-        ) : (
-          <button type="button" className="btn-outline cluster-drawer-novo" onClick={() => setCriando(true)}>
-            <Icon name="plus" size={14} /> {tipo === 'pasta' ? 'Nova pasta' : 'Novo marcador'}
-          </button>
-        )}
       </div>
     </>
   );

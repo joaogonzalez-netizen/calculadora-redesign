@@ -26,6 +26,9 @@ export const HIST_MODO_KEY = 'stlseller_hist_modo_cluster';
 
 export const CORES_CLUSTER = ['#00955a', '#06b2a1', '#3b6fd4', '#8a3bd4', '#c58a00', '#d4633b', '#d43b6f'];
 
+/** Teto de pastas e de marcadores — cada lista é um filtro rápido, não uma taxonomia. */
+export const LIMITE_CLUSTER = 10;
+
 export function corAleatoria(usadas: string[]): string {
   const livre = CORES_CLUSTER.find((c) => !usadas.includes(c));
   return livre ?? CORES_CLUSTER[usadas.length % CORES_CLUSTER.length];
