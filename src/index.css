@@ -155,6 +155,10 @@ input,select{font-family:var(--font-b);}
 .hero h1{font-size:32px;font-weight:800;}
 .hero h1 .accent{color:var(--primary);}
 .hero p{margin:10px 0 0;color:var(--text-2);font-size:14.5px;max-width:560px;}
+.hero-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;}
+.hero-row .hero{flex:1;}
+.hero-row .hist-nova-btn{width:auto;white-space:nowrap;flex:0 0 auto;padding:12px 20px;margin-top:2px;}
+.hist-count{white-space:nowrap;margin-left:auto;}
 
 /* ---------- Cards ---------- */
 .card{
