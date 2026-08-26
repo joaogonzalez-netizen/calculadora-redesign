@@ -8,7 +8,8 @@ export type IconName =
   | 'gerador' | 'calculadora' | 'buscador' | 'otimizador'
   | 'config' | 'integracoes'
   | 'sino' | 'creditos' | 'chevron' | 'sync'
-  | 'eye' | 'dots' | 'search' | 'close' | 'upload';
+  | 'eye' | 'dots' | 'search' | 'close' | 'upload'
+  | 'folder' | 'tag' | 'plus';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -114,6 +115,16 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M3 4v5h5M21 20v-5h-5" />
     </>
   ),
+  folder: (
+    <path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+  ),
+  tag: (
+    <>
+      <path d="M12.6 3H7a2 2 0 0 0-2 2v5.6a2 2 0 0 0 .6 1.4l8.4 8.4a2 2 0 0 0 2.8 0l5.2-5.2a2 2 0 0 0 0-2.8L13.6 3.6a2 2 0 0 0-1-.6Z" />
+      <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
+  plus: <path d="M12 5v14M5 12h14" />,
 };
 
 interface Props {

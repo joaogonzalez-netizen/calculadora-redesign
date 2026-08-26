@@ -817,3 +817,69 @@ input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0
 .auth-card h1{font-size:20px;font-weight:800;color:var(--primary-dark);}
 .auth-card .field{text-align:left;}
 .auth-card .btn-calc{width:100%;}
+
+/* Histórico — experimento de organização (Pastas x Marcadores) */
+.cluster-modo-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.cluster-modo-toggle{display:flex;border:1px solid var(--border-strong);border-radius:var(--radius-m);overflow:hidden;}
+.cluster-modo-toggle button{
+  display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:13px;font-weight:600;
+  color:var(--text-2);background:var(--surface);border:none;border-right:1px solid var(--border-strong);
+}
+.cluster-modo-toggle button:last-child{border-right:none;}
+.cluster-modo-toggle button.active{background:var(--primary-tint);color:var(--primary-dark);}
+.cluster-modo-nota{font-style:italic;}
+
+.hist-layout-pastas{display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:start;}
+@media (max-width:900px){ .hist-layout-pastas{grid-template-columns:1fr;} }
+
+.pasta-rail{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);
+  box-shadow:var(--shadow-card);padding:10px;display:flex;flex-direction:column;gap:2px;
+}
+.pasta-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-s);
+  font-size:13px;color:var(--text-2);cursor:pointer;background:none;border:none;text-align:left;width:100%;
+}
+.pasta-item:hover{background:#f4f5f4;}
+.pasta-item.active{background:var(--primary-tint);color:var(--primary-dark);font-weight:700;}
+.pasta-item span:first-of-type{flex:0 0 auto;}
+.pasta-item span:nth-child(2){flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pasta-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+.pasta-count{font-size:11.5px;color:var(--text-3);flex:0 0 auto;}
+.pasta-item.active .pasta-count{color:var(--primary-dark);}
+.pasta-nova-btn{color:var(--text-3);margin-top:4px;}
+.pasta-nova-form{padding:10px;display:flex;flex-direction:column;gap:10px;}
+.pasta-nova-form input{padding:8px 10px;font-size:13px;}
+.pasta-nova-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+.pasta-picker-btn{
+  display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:12.5px;color:var(--text-2);
+  background:none;border:1px dashed var(--border-strong);border-radius:999px;white-space:nowrap;
+}
+.pasta-picker-btn:hover{border-color:var(--text-3);}
+.pasta-picker-empty{display:flex;align-items:center;gap:5px;color:var(--text-3);}
+
+.cor-swatches{display:flex;gap:6px;}
+.cor-swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;padding:0;}
+.cor-swatch.active{border-color:var(--text-1);}
+
+.marcador-filtro-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.marcador-chip{
+  padding:6px 14px;font-size:12.5px;font-weight:600;border-radius:999px;border:1.5px solid var(--border-strong);
+  background:var(--surface);color:var(--text-2);
+}
+.marcador-chip.active{color:#fff;}
+.marcador-novo-btn{display:flex;align-items:center;gap:5px;color:var(--text-3);border-style:dashed;}
+.marcador-nova-form{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#fafbfa;border-radius:999px;}
+.marcador-nova-form input{padding:6px 10px;font-size:12.5px;width:140px;}
+.marcador-limpar{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-3);background:none;border:none;}
+.marcador-limpar:hover{color:var(--text-1);}
+
+.marcador-picker{min-width:120px;}
+.marcador-picker-chips{display:flex;align-items:center;gap:5px;flex-wrap:wrap;cursor:pointer;min-height:24px;}
+.marcador-chip-mini{padding:3px 9px;font-size:11px;font-weight:600;border-radius:999px;color:#fff;white-space:nowrap;}
+.marcador-add-btn{
+  display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;
+  border:1px dashed var(--border-strong);background:none;color:var(--text-3);flex:0 0 auto;
+}
+.marcador-add-btn:hover{border-color:var(--text-3);color:var(--text-1);}
