@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PasswordGate from './components/PasswordGate';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import AppFooter from './components/AppFooter';
@@ -61,13 +62,15 @@ function AppShell() {
 
 function App() {
   return (
-    <LibrariasProvider>
-      <MoedaProvider>
-        <CalculadoraProvider>
-          <AppShell />
-        </CalculadoraProvider>
-      </MoedaProvider>
-    </LibrariasProvider>
+    <PasswordGate>
+      <LibrariasProvider>
+        <MoedaProvider>
+          <CalculadoraProvider>
+            <AppShell />
+          </CalculadoraProvider>
+        </MoedaProvider>
+      </LibrariasProvider>
+    </PasswordGate>
   );
 }
 
