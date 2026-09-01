@@ -7,6 +7,7 @@ import ProdutoDetailDrawer from '../components/produtos/ProdutoDetailDrawer';
 import CustoLucroDrawer from '../components/produtos/CustoLucroDrawer';
 import FiltrosAvancadosDrawer, { type FaixaFiltro } from '../components/produtos/FiltrosAvancadosDrawer';
 import PausarAnuncioModal from '../components/produtos/PausarAnuncioModal';
+import OtimizarAnuncioDrawer from '../components/produtos/OtimizarAnuncioDrawer';
 
 const STATUS_OPTS: (ProdutoStatus | 'Todos')[] = ['Todos', 'Ativo', 'Pausado', 'Esgotado'];
 const CANAL_OPTS = ['Todos', 'Mercado Livre', 'Shopee'];
@@ -40,6 +41,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
   const [detalheProduto, setDetalheProduto] = useState<Produto | null>(null);
   const [custoProduto, setCustoProduto] = useState<Produto | null>(null);
   const [pausarProduto, setPausarProduto] = useState<Produto | null>(null);
+  const [otimizarProduto, setOtimizarProduto] = useState<Produto | null>(null);
   const [statusOverride, setStatusOverride] = useState<Record<string, ProdutoStatus>>({});
 
   const [vinculos, setVinculos] = useState<ProdutoVinculos>(() => readJson(PRODUTO_VINCULOS_KEY, {}));
@@ -117,7 +119,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           <table className="prod-table">
             <thead>
               <tr>
-                <th>Produto</th><th>Marketplace</th><th>Status</th><th>Estoque</th><th>Vendidos</th><th>Preço</th><th>Produção</th><th>Ações</th>
+                <th>Produto</th><th>Marketplace</th><th>Status</th><th>Estoque</th><th>Vendidos</th><th>Preço</th><th>Produção</th><th>Otimizar</th><th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -146,6 +148,11 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                       ) : (
                         <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setCustoProduto(p)}>Vincular custo</button>
                       )}
+                    </td>
+                    <td>
+                      <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
+                        <Icon name="otimizador" size={14} /> Otimizar
+                      </button>
                     </td>
                     <td>
                       <div className="prod-acoes">
@@ -200,6 +207,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           onSave={(v) => salvarVinculo(custoProduto.id, v)}
         />
       )}
+      {otimizarProduto && <OtimizarAnuncioDrawer produto={otimizarProduto} onClose={() => setOtimizarProduto(null)} />}
       {pausarProduto && (
         <PausarAnuncioModal
           produto={pausarProduto}
