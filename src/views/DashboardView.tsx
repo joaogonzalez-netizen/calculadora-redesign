@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { INSIGHTS, KPIS, USUARIO } from '../lib/dashboardMock';
+import { INSIGHTS, KPIS } from '../lib/dashboardMock';
 import SyncBar from '../components/dashboard/SyncBar';
 import MarketplaceFilter from '../components/dashboard/MarketplaceFilter';
 import KpiCard from '../components/dashboard/KpiCard';
@@ -23,9 +23,10 @@ const MODOS: { key: ModoPainel; label: string }[] = [
 interface Props {
   onVerProdutosSemCusto: () => void;
   onIrParaCalculadora: () => void;
+  onIrParaConfiguracoes: () => void;
 }
 
-export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculadora }: Props) {
+export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculadora, onIrParaConfiguracoes }: Props) {
   const [modo, setModo] = useState<ModoPainel>(() => {
     const salvo = localStorage.getItem(PAINEL_MODO_KEY) as ModoPainel | null;
     return salvo && MODOS.some((m) => m.key === salvo) ? salvo : 'populado';
@@ -38,11 +39,8 @@ export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculado
 
   return (
     <div>
-      <div className="hero-row">
-        <div className="hero">
-          <h1>Bem-vindo, <span className="accent">{USUARIO.primeiroNome}</span></h1>
-          <p>Configure seu primeiro marketplace para começar a sincronizar pedidos e analisar lucratividade. Leva menos de 2 minutos.</p>
-        </div>
+      <div className="cluster-modo-row">
+        <span className="hint">Visualização:</span>
         <div className="cluster-modo-toggle painel-modo-toggle">
           {MODOS.map((m) => (
             <button key={m.key} type="button" className={modo === m.key ? 'active' : ''} onClick={() => trocarModo(m.key)}>{m.label}</button>
@@ -51,7 +49,7 @@ export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculado
       </div>
 
       {modo === 'vazio_marketplace' && <EmptyStateDashboard onIrParaCalculadora={onIrParaCalculadora} />}
-      {modo === 'vazio_ferramentas' && <EmptyStateFerramentas onIrParaCalculadora={onIrParaCalculadora} />}
+      {modo === 'vazio_ferramentas' && <EmptyStateFerramentas onIrParaConfiguracoes={onIrParaConfiguracoes} />}
       {modo === 'populado' && (
         <>
           <div className="sync-row">

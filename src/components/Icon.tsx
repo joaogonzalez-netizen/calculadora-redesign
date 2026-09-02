@@ -9,7 +9,7 @@ export type IconName =
   | 'config' | 'integracoes'
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
-  | 'folder' | 'tag' | 'plus' | 'clock';
+  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -131,6 +131,19 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M12 7v5l3.5 2" />
     </>
   ),
+  lock: (
+    <>
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+      <path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5" />
+    </>
+  ),
+  flag: (
+    <>
+      <path d="M5 3v18" />
+      <path d="M5 4.5c2.5-1.5 5-1.5 7.5 0s5 1.5 7.5 0v9c-2.5 1.5-5 1.5-7.5 0s-5-1.5-7.5 0Z" />
+    </>
+  ),
+  check: <path d="M4 12.5 9.5 18 20 6" />,
 };
 
 interface Props {

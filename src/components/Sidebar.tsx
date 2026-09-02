@@ -9,6 +9,7 @@ interface Props {
   histCount: number;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  mostrarPrimeirosPassos: boolean;
 }
 
 /** Grupos de FERRAMENTAS: só o da Calculadora tem telas de verdade hoje. */
@@ -22,7 +23,7 @@ const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
 
-export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed }: Props) {
+export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
   const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : null);
 
@@ -48,6 +49,13 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
       </div>
 
       <div className="nav-scroll">
+        {mostrarPrimeirosPassos && (
+          <>
+            <div className="nav-label">Onboarding</div>
+            <NavItem icon="flag" label="Primeiros passos" active={view === 'primeirospassos'} collapsed={collapsed} onClick={() => onNavigate('primeirospassos')} />
+          </>
+        )}
+
         <div className="nav-label">Principal</div>
         <NavItem icon="dashboard" label="Painel" active={view === 'dashboard'} collapsed={collapsed} onClick={() => onNavigate('dashboard')} />
         <NavItem icon="pedidos" label="Pedidos" collapsed={collapsed} />
@@ -82,7 +90,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
       </div>
 
       <div className="nav-label">Sistema</div>
-      <NavItem icon="config" label="Configurações" collapsed={collapsed} />
+      <NavItem icon="config" label="Configurações" active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
       <NavItem icon="integracoes" label="Integrações" collapsed={collapsed} />
 
       <div className="sidebar-footer">

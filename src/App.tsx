@@ -8,27 +8,44 @@ import ProdutosView from './views/ProdutosView';
 import CalculadoraView from './views/CalculadoraView';
 import HistoricoView from './views/HistoricoView';
 import PreferenciasView from './views/PreferenciasView';
+import ConfiguracoesView from './views/ConfiguracoesView';
+import PrimeirosPassosView from './views/PrimeirosPassosView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
+import { getOnboardingManual, getMarketplaceConectado } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos';
 
 function AppShell() {
   const [view, setView] = useState<View>('dashboard');
   const [histCount, setHistCount] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
   const [produtosFiltroSemCusto, setProdutosFiltroSemCusto] = useState(false);
+  const [onboardingTick, setOnboardingTick] = useState(0);
 
   const irParaProdutosSemCusto = () => { setProdutosFiltroSemCusto(true); setView('produtos'); };
+  const refreshOnboarding = () => setOnboardingTick((t) => t + 1);
 
   useEffect(() => {
     seedHistoricoExemplo(Date.now());
     setHistCount(getHistorico().length);
   }, []);
 
-  const refreshHistCount = () => setHistCount(getHistorico().length);
+  const refreshHistCount = () => { setHistCount(getHistorico().length); refreshOnboarding(); };
+
+  // onboardingTick não é lido diretamente — mudar o state força este componente
+  // a re-renderizar, e as leituras de localStorage abaixo já saem atualizadas.
+  void onboardingTick;
+  const onboardingManual = getOnboardingManual();
+  const passosCompletos = {
+    buscador: onboardingManual.buscador,
+    calculadora: histCount > 0,
+    gerador: onboardingManual.gerador,
+    marketplace: getMarketplaceConectado(),
+  };
+  const todosPassosCompletos = Object.values(passosCompletos).every(Boolean);
 
   return (
     <div className={'app' + (collapsed ? ' sidebar-collapsed' : '')}>
@@ -38,12 +55,27 @@ function AppShell() {
         histCount={histCount}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((c) => !c)}
+        mostrarPrimeirosPassos={!todosPassosCompletos}
       />
       <div className="main">
         <Topbar view={view} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' ? ' content-wide' : '')}>
-          {view === 'dashboard' && <DashboardView onVerProdutosSemCusto={irParaProdutosSemCusto} onIrParaCalculadora={() => setView('calculadora')} />}
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' ? ' content-wide' : '')}>
+          {view === 'primeirospassos' && (
+            <PrimeirosPassosView
+              passosCompletos={passosCompletos}
+              onIrParaCalculadora={() => setView('calculadora')}
+              onIrParaConfiguracoes={() => setView('configuracoes')}
+              onAtualizarPassos={refreshOnboarding}
+            />
+          )}
+          {view === 'dashboard' && (
+            <DashboardView
+              onVerProdutosSemCusto={irParaProdutosSemCusto}
+              onIrParaCalculadora={() => setView('calculadora')}
+              onIrParaConfiguracoes={() => setView('configuracoes')}
+            />
+          )}
           {view === 'produtos' && (
             <ProdutosView
               filtroSemCustoInicial={produtosFiltroSemCusto}
@@ -53,6 +85,7 @@ function AppShell() {
           {view === 'calculadora' && <CalculadoraView onSaved={refreshHistCount} />}
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
+          {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} />}
         </div>
         <AppFooter />
       </div>

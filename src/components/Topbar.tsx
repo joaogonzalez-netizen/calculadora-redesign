@@ -8,6 +8,8 @@ const TITLES: Record<View, string> = {
   calculadora: 'Calculadora de preços',
   historico: 'Histórico',
   preferencias: 'Preferências',
+  configuracoes: 'Configurações',
+  primeirospassos: 'Primeiros passos',
 };
 
 export default function Topbar({ view }: { view: View }) {
