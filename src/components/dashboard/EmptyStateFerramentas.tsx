@@ -12,20 +12,22 @@ function semAcao() { /* preview borrado — nada é clicável aqui */ }
 // Variante B do empty state — teste pra validar a hipótese do funil de adoção
 // (Gerador de anúncios e Calculadora têm muito mais uso do que a conexão de
 // marketplace). Preview do painel completo, na mesma ordem de seções do "Com
-// dados" (KPIs → insights → gráfico → top produtos/pedidos → DRE). O popup de
-// CTA fica sobre os KPIs e os insights, com fundo sólido (não vidro fosco)
-// pra se destacar bem do conteúdo borrado atrás dele.
+// dados" (KPIs → insights → gráfico → top produtos/pedidos → DRE). Os KPIs
+// ficam inteiros e visíveis (sem o popup por cima) — o popup fica só sobre a
+// seção de insights, logo abaixo, com fundo sólido pra se destacar do blur.
 export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrParaConfiguracoes: () => void }) {
   return (
     <div className="onb-preview-section">
       <div className="onb-preview-label">Veja como fica depois de conectar</div>
 
+      <div className="onb-preview-blur">
+        <div className="kpi-grid">
+          {KPIS.map((k) => <KpiCard key={k.id} kpi={k} />)}
+        </div>
+      </div>
+
       <div className="onb-preview-chart-anchor">
         <div className="onb-preview-blur">
-          <div className="kpi-grid">
-            {KPIS.map((k) => <KpiCard key={k.id} kpi={k} />)}
-          </div>
-
           <div className="insight-grid">
             {INSIGHTS.map((i) => <InsightCard key={i.id} insight={i} />)}
           </div>
