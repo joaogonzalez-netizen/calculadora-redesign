@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { Produto } from '../../lib/produtosMock';
-import { gerarSugestoes, notaGeral, type CategoriaOtimizacao } from '../../lib/otimizadorMock';
+import { gerarSugestoes, notaGeral } from '../../lib/otimizadorMock';
 import Icon from '../Icon';
 
-const ICONE_CATEGORIA: Record<CategoriaOtimizacao, string> = {
-  titulo: '🔤', descricao: '📝', preco: '💰', imagem: '🖼️',
-};
+function editarNoMarketplace(nome: string) {
+  alert(`Em breve: editar "${nome}" direto no marketplace.`);
+}
 
 function corNota(n: number) {
   if (n >= 80) return 'var(--primary-dark)';
@@ -64,15 +64,19 @@ export default function OtimizarAnuncioDrawer({ produto, onClose }: { produto: P
             {sugestoes.map((s, idx) => (
               <div className="otim-card" key={s.categoria}>
                 <div className="otim-card-head">
-                  <span className="otim-card-icon">{ICONE_CATEGORIA[s.categoria]}</span>
                   <span className="otim-card-label">{s.label}</span>
                   <span className="otim-impacto">{s.impacto}</span>
                 </div>
                 <div className="otim-problema">{s.problema}</div>
                 <div className="otim-sugestao">{s.sugestao}</div>
-                <button type="button" className="btn-outline otim-copiar" onClick={() => copiar(s.sugestao, idx)}>
-                  {copiadoIdx === idx ? 'Copiado ✓' : 'Copiar sugestão'}
-                </button>
+                <div className="otim-card-actions">
+                  <button type="button" className="btn-outline otim-copiar" onClick={() => copiar(s.sugestao, idx)}>
+                    {copiadoIdx === idx ? <><Icon name="check" size={13} /> Copiado</> : 'Copiar sugestão'}
+                  </button>
+                  <button type="button" className="btn-outline otim-copiar" onClick={() => editarNoMarketplace(produto.nome)}>
+                    Editar no marketplace
+                  </button>
+                </div>
               </div>
             ))}
 
