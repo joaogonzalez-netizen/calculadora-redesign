@@ -9,9 +9,16 @@ import TopProdutos from '../components/dashboard/TopProdutos';
 import PedidosRecentes from '../components/dashboard/PedidosRecentes';
 import DreCard from '../components/dashboard/DreCard';
 import EmptyStateDashboard from '../components/dashboard/EmptyStateDashboard';
+import EmptyStateFerramentas from '../components/dashboard/EmptyStateFerramentas';
 
-type ModoPainel = 'populado' | 'vazio';
+type ModoPainel = 'populado' | 'vazio_marketplace' | 'vazio_ferramentas';
 const PAINEL_MODO_KEY = 'stlseller_painel_modo';
+
+const MODOS: { key: ModoPainel; label: string }[] = [
+  { key: 'populado', label: 'Com dados' },
+  { key: 'vazio_marketplace', label: 'Empty · Marketplace 1º' },
+  { key: 'vazio_ferramentas', label: 'Empty · Ferramentas 1º' },
+];
 
 interface Props {
   onVerProdutosSemCusto: () => void;
@@ -19,7 +26,10 @@ interface Props {
 }
 
 export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculadora }: Props) {
-  const [modo, setModo] = useState<ModoPainel>(() => (localStorage.getItem(PAINEL_MODO_KEY) as ModoPainel) || 'populado');
+  const [modo, setModo] = useState<ModoPainel>(() => {
+    const salvo = localStorage.getItem(PAINEL_MODO_KEY) as ModoPainel | null;
+    return salvo && MODOS.some((m) => m.key === salvo) ? salvo : 'populado';
+  });
 
   function trocarModo(m: ModoPainel) {
     setModo(m);
@@ -34,14 +44,15 @@ export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculado
           <p>Configure seu primeiro marketplace para começar a sincronizar pedidos e analisar lucratividade. Leva menos de 2 minutos.</p>
         </div>
         <div className="cluster-modo-toggle painel-modo-toggle">
-          <button type="button" className={modo === 'populado' ? 'active' : ''} onClick={() => trocarModo('populado')}>Com dados</button>
-          <button type="button" className={modo === 'vazio' ? 'active' : ''} onClick={() => trocarModo('vazio')}>Empty state</button>
+          {MODOS.map((m) => (
+            <button key={m.key} type="button" className={modo === m.key ? 'active' : ''} onClick={() => trocarModo(m.key)}>{m.label}</button>
+          ))}
         </div>
       </div>
 
-      {modo === 'vazio' ? (
-        <EmptyStateDashboard onIrParaCalculadora={onIrParaCalculadora} />
-      ) : (
+      {modo === 'vazio_marketplace' && <EmptyStateDashboard onIrParaCalculadora={onIrParaCalculadora} />}
+      {modo === 'vazio_ferramentas' && <EmptyStateFerramentas onIrParaCalculadora={onIrParaCalculadora} />}
+      {modo === 'populado' && (
         <>
           <div className="sync-row">
             <SyncBar />
