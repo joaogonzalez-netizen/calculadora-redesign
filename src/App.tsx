@@ -43,7 +43,7 @@ function AppShell() {
         <Topbar view={view} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
         <div className={'content' + (view === 'dashboard' || view === 'produtos' ? ' content-wide' : '')}>
-          {view === 'dashboard' && <DashboardView onVerProdutosSemCusto={irParaProdutosSemCusto} />}
+          {view === 'dashboard' && <DashboardView onVerProdutosSemCusto={irParaProdutosSemCusto} onIrParaCalculadora={() => setView('calculadora')} />}
           {view === 'produtos' && (
             <ProdutosView
               filtroSemCustoInicial={produtosFiltroSemCusto}

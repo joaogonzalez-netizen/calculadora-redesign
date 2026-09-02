@@ -9,7 +9,7 @@ export type IconName =
   | 'config' | 'integracoes'
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
-  | 'folder' | 'tag' | 'plus';
+  | 'folder' | 'tag' | 'plus' | 'clock';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -125,6 +125,12 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   plus: <path d="M12 5v14M5 12h14" />,
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </>
+  ),
 };
 
 interface Props {
