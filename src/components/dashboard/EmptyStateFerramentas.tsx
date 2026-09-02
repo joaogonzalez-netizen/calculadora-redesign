@@ -13,26 +13,22 @@ function semAcao() { /* preview borrado — nada é clicável aqui */ }
 // (Gerador de anúncios e Calculadora têm muito mais uso do que a conexão de
 // marketplace). Preview do painel completo, na mesma ordem de seções do "Com
 // dados" (KPIs → insights → gráfico → top produtos/pedidos → DRE). O popup de
-// CTA fica só sobre o gráfico "Lucro ao longo do tempo", com fundo sólido (não
-// mais vidro fosco) pra se destacar bem do conteúdo borrado atrás dele.
+// CTA fica sobre os KPIs e os insights, com fundo sólido (não vidro fosco)
+// pra se destacar bem do conteúdo borrado atrás dele.
 export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrParaConfiguracoes: () => void }) {
   return (
     <div className="onb-preview-section">
       <div className="onb-preview-label">Veja como fica depois de conectar</div>
 
-      <div className="onb-preview-blur">
-        <div className="kpi-grid">
-          {KPIS.map((k) => <KpiCard key={k.id} kpi={k} />)}
-        </div>
-
-        <div className="insight-grid">
-          {INSIGHTS.map((i) => <InsightCard key={i.id} insight={i} />)}
-        </div>
-      </div>
-
       <div className="onb-preview-chart-anchor">
         <div className="onb-preview-blur">
-          <LucroChart />
+          <div className="kpi-grid">
+            {KPIS.map((k) => <KpiCard key={k.id} kpi={k} />)}
+          </div>
+
+          <div className="insight-grid">
+            {INSIGHTS.map((i) => <InsightCard key={i.id} insight={i} />)}
+          </div>
         </div>
         <div className="onb-preview-popup">
           <Icon name="lock" size={20} />
@@ -42,6 +38,8 @@ export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrP
       </div>
 
       <div className="onb-preview-blur">
+        <LucroChart />
+
         <div className="dash-bottom">
           <TopProdutos />
           <PedidosRecentes />
