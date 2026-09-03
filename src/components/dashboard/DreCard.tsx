@@ -52,6 +52,10 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
   const opcoesMes = useMemo(gerarOpcoesMes, []);
   const [mes, setMes] = useState(opcoesMes[0].valor);
   const mesLabel = opcoesMes.find((o) => o.valor === mes)?.label ?? opcoesMes[0].label;
+  // Teste visual: totalizadores com cor por tipo de linha (receita/dedução/
+  // subtotal/resultado), em vez do cinza neutro padrão. Só estado local —
+  // não persiste, é só pra comparar as duas versões lado a lado.
+  const [colorido, setColorido] = useState(false);
 
   return (
     <div className="card dre-card">
@@ -72,7 +76,12 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
           </button>
         </div>
 
-        <div className="dre-table">
+        <div className="cluster-modo-toggle dre-modo-toggle">
+          <button type="button" className={!colorido ? 'active' : ''} onClick={() => setColorido(false)}>Padrão</button>
+          <button type="button" className={colorido ? 'active' : ''} onClick={() => setColorido(true)}>Totalizadores coloridos</button>
+        </div>
+
+        <div className={'dre-table' + (colorido ? ' dre-colorido' : '')}>
           {DRE_LINHAS.map((l) => (
             <div key={l.label}>
               <div className={'dre-row dre-' + l.tipo}>

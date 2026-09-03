@@ -773,6 +773,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .dre-subitens{background:#fafbfa;border-top:1px solid var(--border);}
 .dre-subrow{display:flex;justify-content:space-between;padding:7px 18px 7px 34px;font-size:12.5px;color:var(--text-3);}
 .dre-caption{font-size:11.5px;color:var(--text-3);padding:6px 18px 0;line-height:1.5;}
+
+.dre-modo-toggle{margin-bottom:16px;}
+
+/* Teste: totalizadores coloridos por tipo de linha */
+.dre-colorido .dre-receita{background:#eef3fd;border-left:4px solid #3b6fd4;}
+.dre-colorido .dre-receita .dre-label,.dre-colorido .dre-receita .dre-valor{color:#2451a6;}
+.dre-colorido .dre-deducao{background:var(--red-tint);border-left:4px solid var(--red);}
+.dre-colorido .dre-deducao .dre-label{color:#a53232;}
+.dre-colorido .dre-subtotal{background:#fff6e0;border-left:4px solid var(--accent);}
+.dre-colorido .dre-subtotal .dre-label,.dre-colorido .dre-subtotal .dre-valor{color:#8a6100;}
+.dre-colorido .dre-resultado{border-left:4px solid var(--primary);}
 .dre-alerta{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   background:#fff7e6;color:#8a6100;font-size:12.5px;padding:10px 18px;margin-top:2px;
