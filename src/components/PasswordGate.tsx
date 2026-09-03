@@ -7,7 +7,10 @@ const SENHA_ACESSO = 'E6pYZhrvyr8C';
 const STORAGE_KEY = 'calculadora-auth';
 
 export default function PasswordGate({ children }: { children: ReactNode }) {
-  const [autenticado, setAutenticado] = useState(() => sessionStorage.getItem(STORAGE_KEY) === '1');
+  // localStorage (não sessionStorage) pra continuar logado entre sessões do
+  // navegador — e type="password" + autoComplete pra dar pro navegador
+  // oferecer salvar/preencher a senha sozinho.
+  const [autenticado, setAutenticado] = useState(() => localStorage.getItem(STORAGE_KEY) === '1');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState(false);
 
@@ -16,7 +19,7 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
   function entrar(e: FormEvent) {
     e.preventDefault();
     if (senha === SENHA_ACESSO) {
-      sessionStorage.setItem(STORAGE_KEY, '1');
+      localStorage.setItem(STORAGE_KEY, '1');
       setAutenticado(true);
     } else {
       setErro(true);
@@ -32,7 +35,9 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
           <label htmlFor="auth-senha">Senha</label>
           <input
             id="auth-senha"
-            type="text"
+            name="password"
+            type="password"
+            autoComplete="current-password"
             autoFocus
             className={erro ? 'input-error' : ''}
             value={senha}
