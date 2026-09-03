@@ -11,13 +11,14 @@ import PreferenciasView from './views/PreferenciasView';
 import ConfiguracoesView from './views/ConfiguracoesView';
 import PrimeirosPassosView from './views/PrimeirosPassosView';
 import CriarAnuncioView from './views/CriarAnuncioView';
+import PedidosView from './views/PedidosView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, getMarketplaceConectado } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'pedidos';
 
 function AppShell() {
   const [view, setView] = useState<View>('dashboard');
@@ -61,7 +62,7 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' ? ' content-wide' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'pedidos' ? ' content-wide' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
@@ -77,6 +78,7 @@ function AppShell() {
               onIrParaConfiguracoes={() => setView('configuracoes')}
             />
           )}
+          {view === 'pedidos' && <PedidosView />}
           {view === 'produtos' && (
             <ProdutosView
               filtroSemCustoInicial={produtosFiltroSemCusto}

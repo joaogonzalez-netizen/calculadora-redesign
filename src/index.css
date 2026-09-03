@@ -1210,3 +1210,47 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .ger-voz-tipo{font-size:12px;color:var(--text-3);margin-top:2px;}
 .ger-voz-desc{font-size:12.5px;color:var(--text-2);margin-top:4px;}
 .ger-voz-audio{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:12.5px;white-space:nowrap;flex:0 0 auto;}
+
+/* ============================================================
+   PEDIDOS
+   ============================================================ */
+.ped-status{font-size:12.5px;font-weight:700;}
+.ped-status-pago{color:var(--accent);}
+.ped-status-enviado{color:#3b6fd4;}
+.ped-status-pendente{color:var(--accent);}
+.ped-status-cancelado{color:var(--red);}
+.ped-status-entregue{color:var(--primary-dark);}
+.ped-taxa-inline{font-size:11px;color:var(--accent);margin-top:2px;}
+
+.ped-drawer{width:420px;padding:0;display:flex;flex-direction:column;}
+.ped-drawer-badges{display:flex;gap:8px;padding:0 22px 16px;border-bottom:1px solid var(--border);}
+.ped-drawer-footer{display:flex;gap:10px;padding:16px 22px 22px;border-top:1px solid var(--border);margin-top:auto;}
+.ped-drawer-footer button{flex:1;}
+
+.ped-section{margin-bottom:22px;}
+.ped-section .divider-label{margin-bottom:14px;}
+
+.ped-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ped-info-cell{background:#fafbfa;border-radius:var(--radius-m);padding:12px 14px;display:flex;flex-direction:column;gap:3px;}
+.ped-info-label{font-size:11px;color:var(--text-3);}
+.ped-info-cell b{font-size:13.5px;}
+.ped-info-meta{font-size:11.5px;color:var(--text-3);}
+
+.ped-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.ped-item-row b{font-size:13.5px;}
+
+.ped-resumo-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13.5px;color:var(--text-2);}
+.ped-resumo-taxa{color:var(--red);border-top:1px solid var(--border);margin-top:4px;padding-top:12px;}
+.ped-resumo-taxa b{color:var(--red);}
+.ped-resumo-total{border-top:1px solid var(--border);margin-top:6px;padding-top:14px;font-size:15px;font-weight:800;color:var(--text-1);}
+.ped-resumo-total b{font-family:var(--font-h);font-size:18px;}
+
+.ped-timeline{display:flex;flex-direction:column;gap:16px;}
+.ped-timeline-item{display:flex;align-items:flex-start;gap:12px;}
+.ped-timeline-marca{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);flex:0 0 auto;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+}
+.ped-timeline-item.feito .ped-timeline-marca{background:var(--primary);border-color:var(--primary);}
+.ped-timeline-item b{font-size:13.5px;display:block;margin-bottom:2px;}
+.ped-timeline-item:not(.feito) b{color:var(--text-3);}

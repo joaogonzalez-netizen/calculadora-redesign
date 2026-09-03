@@ -61,7 +61,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
 
         <div className="nav-label">Principal</div>
         <NavItem icon="dashboard" label="Painel" active={view === 'dashboard'} collapsed={collapsed} onClick={() => onNavigate('dashboard')} />
-        <NavItem icon="pedidos" label="Pedidos" collapsed={collapsed} />
+        <NavItem icon="pedidos" label="Pedidos" active={view === 'pedidos'} collapsed={collapsed} onClick={() => onNavigate('pedidos')} />
         <NavItem icon="produtos" label="Produtos" active={view === 'produtos'} collapsed={collapsed} onClick={() => onNavigate('produtos')} />
 
         <div className="nav-label">Ferramentas</div>
