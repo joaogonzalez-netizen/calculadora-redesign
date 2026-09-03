@@ -55,7 +55,7 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
   // Teste visual: totalizadores com cor por tipo de linha (receita/dedução/
   // subtotal/resultado), em vez do cinza neutro padrão. Só estado local —
   // não persiste, é só pra comparar as duas versões lado a lado.
-  const [colorido, setColorido] = useState(false);
+  const [colorido, setColorido] = useState(true);
 
   return (
     <div className="card dre-card">
