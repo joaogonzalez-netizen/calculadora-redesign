@@ -2,12 +2,14 @@ import { useState } from 'react';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
 import MarketplaceStep from '../components/gerador/MarketplaceStep';
+import InformacoesStep from '../components/gerador/InformacoesStep';
 
 // Réplica do Gerador de anúncios em produção (prints de João) — construído
 // tela por tela. Tudo mockado: sem upload real de arquivo, o clique na
 // dropzone simula uma imagem enviada (cor de placeholder), marketplace e
-// plano já vêm pré-selecionados, e os passos ainda não recebidos ficam com
-// um aviso de "em construção" dentro do mesmo wizard.
+// plano já vêm pré-selecionados, campos de Informações vêm com sugestões
+// mockadas da IA, e os passos ainda não recebidos ficam com um aviso de
+// "em construção" dentro do mesmo wizard.
 type PassoId = 'upload' | 'marketplace' | 'info' | 'textos' | 'imagens' | 'video' | 'resultado';
 
 const PASSOS = [
@@ -46,38 +48,43 @@ export default function CriarAnuncioView() {
   const idxAtual = PASSOS.findIndex((p) => p.id === passoAtual);
   const passoAnterior = idxAtual > 0 ? PASSOS[idxAtual - 1].id : null;
   const passoInfo = PASSOS[idxAtual];
+  const voltar = () => passoAnterior && setPassoAtual(passoAnterior);
 
   return (
     <div>
       <GeradorStepper passos={PASSOS} atual={passoAtual} visitados={visitados} onIrPara={irPara} />
 
-      <div className="card ger-card">
-        <div className="card-body">
-          {passoAtual === 'upload' && (
-            <UploadStep
-              imagens={imagens}
-              onAdicionar={adicionarImagem}
-              onRemover={removerImagem}
-              onContinuar={() => marcarVisitadoEIr('upload', 'marketplace')}
-            />
-          )}
-          {passoAtual === 'marketplace' && (
-            <MarketplaceStep
-              marketplace={marketplace}
-              plano={plano}
-              onSelecionarMarketplace={setMarketplace}
-              onSelecionarPlano={setPlano}
-              onVoltar={() => passoAnterior && setPassoAtual(passoAnterior)}
-              onContinuar={() => marcarVisitadoEIr('marketplace', 'info')}
-            />
-          )}
-          {passoAtual !== 'upload' && passoAtual !== 'marketplace' && (
-            <div className="ger-em-construcao">
-              <p>A etapa "{passoInfo.label}" ainda está sendo construída — manda o print dela que eu sigo daqui.</p>
-            </div>
-          )}
+      {passoAtual === 'info' ? (
+        <InformacoesStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
+      ) : (
+        <div className="card ger-card">
+          <div className="card-body">
+            {passoAtual === 'upload' && (
+              <UploadStep
+                imagens={imagens}
+                onAdicionar={adicionarImagem}
+                onRemover={removerImagem}
+                onContinuar={() => marcarVisitadoEIr('upload', 'marketplace')}
+              />
+            )}
+            {passoAtual === 'marketplace' && (
+              <MarketplaceStep
+                marketplace={marketplace}
+                plano={plano}
+                onSelecionarMarketplace={setMarketplace}
+                onSelecionarPlano={setPlano}
+                onVoltar={voltar}
+                onContinuar={() => marcarVisitadoEIr('marketplace', 'info')}
+              />
+            )}
+            {passoAtual !== 'upload' && passoAtual !== 'marketplace' && (
+              <div className="ger-em-construcao">
+                <p>A etapa "{passoInfo.label}" ainda está sendo construída — manda o print dela que eu sigo daqui.</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
