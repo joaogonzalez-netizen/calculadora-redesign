@@ -10,6 +10,7 @@ const TITLES: Record<View, string> = {
   preferencias: 'Preferências',
   configuracoes: 'Configurações',
   primeirospassos: 'Primeiros passos',
+  'gerador-criar': 'Gerar anúncio',
 };
 
 export default function Topbar({ view }: { view: View }) {

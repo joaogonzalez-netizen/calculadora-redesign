@@ -10,13 +10,14 @@ import HistoricoView from './views/HistoricoView';
 import PreferenciasView from './views/PreferenciasView';
 import ConfiguracoesView from './views/ConfiguracoesView';
 import PrimeirosPassosView from './views/PrimeirosPassosView';
+import CriarAnuncioView from './views/CriarAnuncioView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, getMarketplaceConectado } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar';
 
 function AppShell() {
   const [view, setView] = useState<View>('dashboard');
@@ -60,7 +61,7 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' ? ' content-wide' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' ? ' content-wide' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
@@ -86,6 +87,7 @@ function AppShell() {
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} />}
+          {view === 'gerador-criar' && <CriarAnuncioView />}
         </div>
         <AppFooter />
       </div>

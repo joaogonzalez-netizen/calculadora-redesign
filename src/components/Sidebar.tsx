@@ -22,15 +22,18 @@ const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
 ];
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
+const VIEWS_DO_GERADOR: View[] = ['gerador-criar'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
-  const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : null);
+  const noGerador = VIEWS_DO_GERADOR.includes(view);
+  const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : null);
 
   // O grupo da tela ativa abre sozinho ao navegar pra ela.
   useEffect(() => {
     if (naCalculadora) setAberto('calculadora');
-  }, [naCalculadora]);
+    else if (noGerador) setAberto('gerador');
+  }, [naCalculadora, noGerador]);
 
   function toggleGrupo(id: GrupoId) {
     if (collapsed) onToggleCollapsed();
@@ -64,9 +67,10 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
         <div className="nav-label">Ferramentas</div>
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;
+          const grupoAtivoGerador = g.id === 'gerador' && noGerador;
           return (
             <div key={g.id}>
-              <button type="button" className={'nav-item nav-group' + (grupoAtivo ? ' active' : '')} onClick={() => toggleGrupo(g.id)}>
+              <button type="button" className={'nav-item nav-group' + (grupoAtivo || grupoAtivoGerador ? ' active' : '')} onClick={() => toggleGrupo(g.id)}>
                 <span className="ic"><Icon name={g.icon} /></span>
                 <span className="nav-text">{g.label}</span>
                 <span className={'nav-caret' + (aberto === g.id ? ' open' : '')}>▾</span>
@@ -80,7 +84,13 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
                   <div className={view === 'preferencias' ? 'active' : ''} onClick={() => onNavigate('preferencias')}>Preferências</div>
                 </div>
               )}
-              {g.id !== 'calculadora' && aberto === g.id && !collapsed && (
+              {g.id === 'gerador' && aberto === 'gerador' && !collapsed && (
+                <div className="nav-sub">
+                  <div className={view === 'gerador-criar' ? 'active' : ''} onClick={() => onNavigate('gerador-criar')}>Criar Anúncio</div>
+                  <div onClick={() => alert('Em breve: histórico de anúncios gerados.')}>Meus Anúncios</div>
+                </div>
+              )}
+              {g.id === 'buscador' && aberto === 'buscador' && !collapsed && (
                 <div className="nav-sub"><div className="nav-sub-empty">Em breve por aqui</div></div>
               )}
             </div>
