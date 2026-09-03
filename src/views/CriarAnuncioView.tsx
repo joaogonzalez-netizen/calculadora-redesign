@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
+import MarketplaceStep from '../components/gerador/MarketplaceStep';
 
 // Réplica do Gerador de anúncios em produção (prints de João) — construído
 // tela por tela. Tudo mockado: sem upload real de arquivo, o clique na
-// dropzone simula uma imagem enviada (cor de placeholder), e os passos ainda
-// não recebidos ficam com um aviso de "em construção" dentro do mesmo wizard.
+// dropzone simula uma imagem enviada (cor de placeholder), marketplace e
+// plano já vêm pré-selecionados, e os passos ainda não recebidos ficam com
+// um aviso de "em construção" dentro do mesmo wizard.
 type PassoId = 'upload' | 'marketplace' | 'info' | 'textos' | 'imagens' | 'video' | 'resultado';
 
 const PASSOS = [
@@ -24,6 +26,8 @@ export default function CriarAnuncioView() {
   const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
   const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
   const [imagens, setImagens] = useState<string[]>([]);
+  const [marketplace, setMarketplace] = useState('ml');
+  const [plano, setPlano] = useState('premium');
 
   function adicionarImagem() {
     setImagens((prev) => (prev.length >= 5 ? prev : [...prev, CORES_MOCK[prev.length % CORES_MOCK.length]]));
@@ -34,12 +38,14 @@ export default function CriarAnuncioView() {
   function irPara(id: string) {
     if (visitados.has(id as PassoId) || id === passoAtual) setPassoAtual(id as PassoId);
   }
-  function continuarDeUpload() {
-    setVisitados((prev) => new Set(prev).add('upload'));
-    setPassoAtual('marketplace');
+  function marcarVisitadoEIr(atual: PassoId, proximo: PassoId) {
+    setVisitados((prev) => new Set(prev).add(atual));
+    setPassoAtual(proximo);
   }
 
-  const passoInfo = PASSOS.find((p) => p.id === passoAtual)!;
+  const idxAtual = PASSOS.findIndex((p) => p.id === passoAtual);
+  const passoAnterior = idxAtual > 0 ? PASSOS[idxAtual - 1].id : null;
+  const passoInfo = PASSOS[idxAtual];
 
   return (
     <div>
@@ -47,9 +53,25 @@ export default function CriarAnuncioView() {
 
       <div className="card ger-card">
         <div className="card-body">
-          {passoAtual === 'upload' ? (
-            <UploadStep imagens={imagens} onAdicionar={adicionarImagem} onRemover={removerImagem} onContinuar={continuarDeUpload} />
-          ) : (
+          {passoAtual === 'upload' && (
+            <UploadStep
+              imagens={imagens}
+              onAdicionar={adicionarImagem}
+              onRemover={removerImagem}
+              onContinuar={() => marcarVisitadoEIr('upload', 'marketplace')}
+            />
+          )}
+          {passoAtual === 'marketplace' && (
+            <MarketplaceStep
+              marketplace={marketplace}
+              plano={plano}
+              onSelecionarMarketplace={setMarketplace}
+              onSelecionarPlano={setPlano}
+              onVoltar={() => passoAnterior && setPassoAtual(passoAnterior)}
+              onContinuar={() => marcarVisitadoEIr('marketplace', 'info')}
+            />
+          )}
+          {passoAtual !== 'upload' && passoAtual !== 'marketplace' && (
             <div className="ger-em-construcao">
               <p>A etapa "{passoInfo.label}" ainda está sendo construída — manda o print dela que eu sigo daqui.</p>
             </div>

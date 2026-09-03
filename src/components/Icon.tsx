@@ -9,7 +9,7 @@ export type IconName =
   | 'config' | 'integracoes'
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
-  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check';
+  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -144,6 +144,13 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   check: <path d="M4 12.5 9.5 18 20 6" />,
+  bolt: <path d="M12.5 3 5 13.5h5.5L11 21l7.5-10.5H13L12.5 3Z" />,
+  crown: (
+    <>
+      <path d="m3 8 3.5 3L12 5l5.5 6L21 8l-1.6 9.5a1 1 0 0 1-1 .8H5.6a1 1 0 0 1-1-.8L3 8Z" />
+      <path d="M5.6 18.3h12.8" />
+    </>
+  ),
 };
 
 interface Props {
