@@ -779,10 +779,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 /* Teste: totalizadores coloridos por tipo de linha */
 .dre-colorido .dre-receita{background:#eef3fd;border-left:4px solid #3b6fd4;}
 .dre-colorido .dre-receita .dre-label,.dre-colorido .dre-receita .dre-valor{color:#2451a6;}
-.dre-colorido .dre-deducao{background:var(--red-tint);border-left:4px solid var(--red);}
-.dre-colorido .dre-deducao .dre-label{color:#a53232;}
-.dre-colorido .dre-subtotal{background:#fff6e0;border-left:4px solid var(--accent);}
-.dre-colorido .dre-subtotal .dre-label,.dre-colorido .dre-subtotal .dre-valor{color:#8a6100;}
+.dre-colorido .dre-deducao{background:none;border-left:4px solid var(--red);}
+.dre-colorido .dre-subtotal{background:none;border-left:4px solid var(--accent);}
 .dre-colorido .dre-resultado{border-left:4px solid var(--primary);}
 .dre-alerta{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
