@@ -16,7 +16,7 @@ import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
-import { getOnboardingManual, getMarketplaceConectado } from './lib/onboarding';
+import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
 export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'pedidos';
 
@@ -37,15 +37,22 @@ function AppShell() {
 
   const refreshHistCount = () => { setHistCount(getHistorico().length); refreshOnboarding(); };
 
+  // Passo "Calculadora" só conta quando o usuário de fato salva um cálculo —
+  // os 10 exemplos que vêm no seed não valem, senão o passo já nasceria feito.
+  const aoSalvarCalculo = () => {
+    marcarOnboardingManual('calculadora');
+    refreshHistCount();
+  };
+
   // onboardingTick não é lido diretamente — mudar o state força este componente
   // a re-renderizar, e as leituras de localStorage abaixo já saem atualizadas.
   void onboardingTick;
   const onboardingManual = getOnboardingManual();
   const passosCompletos = {
     buscador: onboardingManual.buscador,
-    calculadora: histCount > 0,
+    calculadora: onboardingManual.calculadora,
     gerador: onboardingManual.gerador,
-    marketplace: getMarketplaceConectado(),
+    marketplace: onboardingManual.marketplace,
   };
   const todosPassosCompletos = Object.values(passosCompletos).every(Boolean);
 
@@ -85,7 +92,7 @@ function AppShell() {
               onFiltroSemCustoConsumido={() => setProdutosFiltroSemCusto(false)}
             />
           )}
-          {view === 'calculadora' && <CalculadoraView onSaved={refreshHistCount} />}
+          {view === 'calculadora' && <CalculadoraView onSaved={aoSalvarCalculo} />}
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} />}

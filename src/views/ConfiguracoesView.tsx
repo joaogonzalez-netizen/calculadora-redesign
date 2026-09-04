@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { readJson, writeJson } from '../lib/storage';
-import { MARKETPLACES_CONECTADOS_KEY } from '../lib/onboarding';
+import { MARKETPLACES_CONECTADOS_KEY, marcarOnboardingManual } from '../lib/onboarding';
 
 interface MarketplaceConfig {
   id: string;
@@ -13,9 +13,9 @@ interface MarketplaceConfig {
 
 // Réplica da tela real de Configurações (print de João, 02/09/2026) — estado
 // inicial: Mercado Livre e Amazon conectados, Shopee não. Conectar/desconectar
-// é só local (sem integração real ainda), igual ao resto do app — mas o
-// resultado (quem está conectado) persiste em localStorage porque o checklist
-// de Primeiros passos depende desse sinal pra marcar o passo 4 como feito.
+// é só local (sem integração real ainda), igual ao resto do app. O passo 4 de
+// Primeiros passos só marca "feito" no clique real em "Conectar" — só abrir
+// essa tela (e ver ML/Amazon já conectados por padrão) não conta.
 const MARKETPLACES_CONFIG: MarketplaceConfig[] = [
   { id: 'ml', nome: 'Mercado Livre', cor: '#ffd400', formato: 'circulo', conectadoInicial: true },
   { id: 'shopee', nome: 'Shopee', cor: '#ff9900', formato: 'circulo', conectadoInicial: false },
@@ -45,15 +45,6 @@ function salvarConexoes(estado: Record<string, EstadoMp>) {
 export default function ConfiguracoesView({ onChange }: { onChange?: () => void }) {
   const [estado, setEstado] = useState<Record<string, EstadoMp>>(estadoInicial);
 
-  // Garante que o estado inicial (ex: ML/Amazon já conectados por padrão)
-  // fique salvo assim que a tela abre — sem isso, o passo 4 de Primeiros
-  // passos só marcaria "feito" depois de um clique manual em conectar.
-  useEffect(() => {
-    salvarConexoes(estado);
-    onChange?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   function atualizar(next: Record<string, EstadoMp>) {
     setEstado(next);
     salvarConexoes(next);
@@ -63,6 +54,8 @@ export default function ConfiguracoesView({ onChange }: { onChange?: () => void 
   function conectar(id: string) {
     const idFake = 'ML' + Math.floor(100000000 + Math.random() * 900000000);
     atualizar({ ...estado, [id]: { conectado: true, id: idFake } });
+    marcarOnboardingManual('marketplace');
+    onChange?.();
   }
   function desconectar(id: string) {
     atualizar({ ...estado, [id]: { conectado: false, id: '' } });
