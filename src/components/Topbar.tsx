@@ -11,6 +11,7 @@ const TITLES: Record<View, string> = {
   configuracoes: 'Configurações',
   primeirospassos: 'Primeiros passos',
   'gerador-criar': 'Gerar anúncio',
+  'gerador-meus': 'Meus anúncios',
   pedidos: 'Pedidos',
 };
 

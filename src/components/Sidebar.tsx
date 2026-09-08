@@ -22,7 +22,7 @@ const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
 ];
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
-const VIEWS_DO_GERADOR: View[] = ['gerador-criar'];
+const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
@@ -87,7 +87,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
               {g.id === 'gerador' && aberto === 'gerador' && !collapsed && (
                 <div className="nav-sub">
                   <div className={view === 'gerador-criar' ? 'active' : ''} onClick={() => onNavigate('gerador-criar')}>Criar Anúncio</div>
-                  <div onClick={() => alert('Em breve: histórico de anúncios gerados.')}>Meus Anúncios</div>
+                  <div className={view === 'gerador-meus' ? 'active' : ''} onClick={() => onNavigate('gerador-meus')}>Meus Anúncios</div>
                 </div>
               )}
               {g.id === 'buscador' && aberto === 'buscador' && !collapsed && (
