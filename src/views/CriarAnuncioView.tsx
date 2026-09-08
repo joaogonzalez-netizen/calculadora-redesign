@@ -28,7 +28,11 @@ const PASSOS = [
 
 const CORES_MOCK = ['#0d6efd', '#00955a', '#c58a00', '#8a3bd4', '#d4633b'];
 
-export default function CriarAnuncioView() {
+interface Props {
+  onIrParaConfiguracoes: () => void;
+}
+
+export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
   const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
   const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
   const [imagens, setImagens] = useState<string[]>([]);
@@ -67,7 +71,7 @@ export default function CriarAnuncioView() {
       ) : passoAtual === 'video' ? (
         <VideoStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('video', 'resultado')} />
       ) : passoAtual === 'resultado' ? (
-        <ResultadoStep onVoltar={voltar} />
+        <ResultadoStep onVoltar={voltar} onIrParaConfiguracoes={onIrParaConfiguracoes} />
       ) : (
         <div className="card ger-card">
           <div className="card-body">

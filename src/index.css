@@ -1545,6 +1545,25 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .pub-btn-descartar{width:100%;background:none;border:1.5px solid var(--red);color:var(--red);border-radius:var(--radius-m);padding:11px;font-size:13.5px;font-weight:700;}
 .pub-btn-descartar:hover{background:#fdecec;}
 
+.pub-lista-add{border:1px solid var(--border);border-radius:var(--radius-m);padding:12px 14px;margin:-2px 0 18px;background:#fafbfa;}
+.pub-lista-add-row{
+  display:flex;align-items:center;gap:10px;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--border);
+}
+.pub-lista-add-row span:first-child{flex:1;font-weight:600;}
+.pub-lista-add-row button{background:none;border:none;color:var(--text-3);display:flex;padding:2px;}
+.pub-lista-add-row button:hover{color:var(--red);}
+.pub-lista-add-form{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.pub-lista-add-form input{
+  flex:1;min-width:90px;border:1.5px solid var(--border-strong);border-radius:var(--radius-m);
+  padding:8px 11px;font-size:12.5px;
+}
+.pub-lista-add-form .btn-outline{padding:8px 14px;font-size:12.5px;white-space:nowrap;}
+
+.pub-compliance{border:1px solid var(--border);border-radius:var(--radius-m);padding:16px 18px;margin-bottom:18px;}
+.pub-compliance-item{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.5;color:var(--text-2);margin-bottom:12px;cursor:pointer;}
+.pub-compliance-item:last-of-type{margin-bottom:0;}
+.pub-compliance-item input{margin-top:2px;width:15px;height:15px;flex:0 0 auto;}
+
 /* ============================================================
    MEUS ANÚNCIOS
    ============================================================ */

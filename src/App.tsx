@@ -97,7 +97,7 @@ function AppShell() {
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} />}
-          {view === 'gerador-criar' && <CriarAnuncioView />}
+          {view === 'gerador-criar' && <CriarAnuncioView onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={() => setView('gerador-criar')} />}
         </div>
         <AppFooter />

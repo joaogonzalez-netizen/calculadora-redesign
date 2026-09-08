@@ -83,9 +83,10 @@ function SecaoHead({ titulo, aberta, creditos, onToggle }: SecaoHeadProps) {
 
 interface Props {
   onVoltar: () => void;
+  onIrParaConfiguracoes: () => void;
 }
 
-export default function ResultadoStep({ onVoltar }: Props) {
+export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props) {
   const [textosAberto, setTextosAberto] = useState(true);
   const [imagensAberto, setImagensAberto] = useState(true);
   const [videoAberto, setVideoAberto] = useState(true);
@@ -111,7 +112,12 @@ export default function ResultadoStep({ onVoltar }: Props) {
         </div>
       </div>
 
-      {publicarAberto && <PublicarAnuncioModal onFechar={() => setPublicarAberto(false)} />}
+      {publicarAberto && (
+        <PublicarAnuncioModal
+          onFechar={() => setPublicarAberto(false)}
+          onIrParaConfiguracoes={() => { setPublicarAberto(false); onIrParaConfiguracoes(); }}
+        />
+      )}
 
       <div className="ger-res-secao">
         <SecaoHead titulo="Textos" aberta={textosAberto} creditos={1} onToggle={() => setTextosAberto((v) => !v)} />

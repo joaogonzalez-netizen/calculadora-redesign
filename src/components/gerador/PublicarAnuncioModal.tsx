@@ -1,29 +1,43 @@
 import { useEffect, useState } from 'react';
 import Icon from '../Icon';
+import { readJson } from '../../lib/storage';
+import { MARKETPLACES_CONECTADOS_KEY } from '../../lib/onboarding';
 
 // Réplica do fluxo "Publicar anúncio" do Figma (STLSELLER, node 22260-24646,
-// print de João 08/09/2026) — modal de 7 passos que roda a partir do passo
-// Resultado. Tudo mockado (sem marketplace real por trás), mas as regras
-// de UX são reais: categoria sugerida carrega e pode ser trocada, frete
-// grátis reage à margem, a soma das dimensões é conferida contra o limite
-// do Mercado Envios, e o passo Confirmar calcula de verdade o que falta —
-// nada disso é hardcoded pra um único estado "feliz".
+// print de João 08/09/2026) — modal de 7 passos a partir do passo Resultado.
+// Suporta Mercado Livre (fluxo original) e Shopee (requisitos passados por
+// João em 08/09/2026): conta/loja habilitada, categoria só por árvore fixa,
+// preço/estoque/SKU, atributos condicionais por categoria, variações e
+// atacado opcionais, canal de logística obrigatório e um checklist de
+// conformidade que também bloqueia a publicação. Tudo mockado, mas as
+// regras (o que falta, o que bloqueia) são calculadas de verdade a partir
+// do estado — nada hardcoded pra um único caminho "feliz".
+type Marketplace = 'ml' | 'shopee';
 type PassoPub = 'marketplace' | 'imagens' | 'titulo' | 'categoria' | 'ficha' | 'frete' | 'confirmar';
 
-const PASSOS_PUB: { id: PassoPub; numero: number; label: string }[] = [
-  { id: 'marketplace', numero: 1, label: 'Marketplace' },
-  { id: 'imagens', numero: 2, label: 'Imagens' },
-  { id: 'titulo', numero: 3, label: 'Título e descrição' },
-  { id: 'categoria', numero: 4, label: 'Categoria' },
-  { id: 'ficha', numero: 5, label: 'Ficha técnica' },
-  { id: 'frete', numero: 6, label: 'Frete e logística' },
-  { id: 'confirmar', numero: 7, label: 'Confirmar' },
+const PASSOS_PUB: { id: PassoPub; numero: number }[] = [
+  { id: 'marketplace', numero: 1 },
+  { id: 'imagens', numero: 2 },
+  { id: 'titulo', numero: 3 },
+  { id: 'categoria', numero: 4 },
+  { id: 'ficha', numero: 5 },
+  { id: 'frete', numero: 6 },
+  { id: 'confirmar', numero: 7 },
 ];
 
-interface ImagemPub {
-  id: string;
-  label: string;
+function labelPasso(id: PassoPub, mp: Marketplace): string {
+  switch (id) {
+    case 'marketplace': return 'Marketplace';
+    case 'imagens': return 'Imagens';
+    case 'titulo': return 'Título e descrição';
+    case 'categoria': return mp === 'shopee' ? 'Categoria e dados' : 'Categoria';
+    case 'ficha': return mp === 'shopee' ? 'Variações e atacado' : 'Ficha técnica';
+    case 'frete': return 'Frete e logística';
+    case 'confirmar': return 'Confirmar';
+  }
 }
+
+interface ImagemPub { id: string; label: string; }
 const IMAGENS_PUB: ImagemPub[] = [
   { id: 'frente', label: 'Frente' },
   { id: 'lateral', label: 'Lateral' },
@@ -33,11 +47,7 @@ const IMAGENS_PUB: ImagemPub[] = [
   { id: 'escala', label: 'Escala' },
 ];
 
-interface TituloOpcao {
-  id: string;
-  texto: string;
-  tags: string;
-}
+interface TituloOpcao { id: string; texto: string; tags: string; }
 const TITULOS_PUB: TituloOpcao[] = [
   { id: 't1', texto: 'Incensário Bicho-Preguiça Divertido para Decoração do Ambiente', tags: 'bicho-preguiça, incensário, decoração' },
   { id: 't2', texto: 'Incensário Bicho-Preguiça para Quarto Infantil e Área de Lazer com Design Lúdico e Colorido para Decoração', tags: 'quarto infantil, área de lazer, lúdico' },
@@ -47,67 +57,114 @@ const TITULOS_PUB: TituloOpcao[] = [
 
 const DESCRICAO_PADRAO = 'Incensário decorativo em formato de bicho-preguiça sobre uma folha estilizada. Peça estática, ideal para quartos infantis e áreas de lazer, com acabamento em PLA de origem vegetal.';
 
-const CATEGORIAS_MANUAIS = [
+const CATEGORIAS_MANUAIS_ML = [
   'Manter sugestão do Mercado Livre',
   'Casa, Móveis e Decoração > Decoração > Enfeites',
   'Casa, Móveis e Decoração > Decoração > Incensários e Aromatizadores',
   'Brinquedos e Hobbies > Colecionáveis > Miniaturas',
 ];
 
+const CATEGORIAS_SHOPEE = [
+  'Casa e Decoração > Decoração > Enfeites e Objetos Decorativos',
+  'Casa e Decoração > Decoração > Incensários e Aromatizadores',
+  'Brinquedos e Hobbies > Colecionáveis',
+];
+
+const CANAIS_LOGISTICA_SHOPEE = ['Correios', 'Jadlog', 'Loggi', 'Shopee Envio'];
+const PRAZOS_PRE_VENDA = ['7', '14', '21', '30'];
+
 const NICHOS_SUGERIDOS = ['Decoração', 'Quarto infantil', 'Área de lazer', 'Presente', 'Genérico'];
 
 const MOCK_MARGEM = 37;
 
+interface Variacao { id: string; nome: string; estoque: string; preco: string; }
+interface FaixaAtacado { id: string; qtd: string; preco: string; }
+
 interface PubForm {
+  marketplace: Marketplace;
   imagensSelecionadas: string[];
   tituloId: string;
   descricao: string;
+  // Mercado Livre
   categoriaManual: string;
-  marca: string;
-  modelo: string;
   condicao: 'novo' | 'usado';
   tipoAnuncio: 'gratis' | 'classico' | 'premium';
-  material: string;
-  cor: string;
   acabamento: string;
   quantidade: string;
   tipoProduto: string;
   nicho: string[];
   nichoCustom: string;
   escala: string;
+  freteGratis: boolean;
+  enviosFull: boolean;
+  prazoDespacho: string;
+  // Compartilhados
+  marca: string;
+  modelo: string;
+  material: string;
+  cor: string;
   peso: string;
   altura: string;
   largura: string;
   comprimento: string;
-  freteGratis: boolean;
-  enviosFull: boolean;
-  prazoDespacho: string;
+  // Shopee
+  shopeeCategoria: string;
+  semMarca: boolean;
+  precoVenda: string;
+  estoque: string;
+  sku: string;
+  temVariacoes: boolean;
+  variacoes: Variacao[];
+  ofereceAtacado: boolean;
+  faixasAtacado: FaixaAtacado[];
+  preVenda: boolean;
+  prazoEnvioPreVenda: string;
+  canalLogistica: string;
+  complianceSemMarcaDagua: boolean;
+  complianceCategoriaPermitida: boolean;
+  complianceDescricaoConforme: boolean;
 }
 
 const FORM_INICIAL: PubForm = {
+  marketplace: 'ml',
   imagensSelecionadas: ['frente', 'lateral', 'detalhe', 'escala'],
   tituloId: 't1',
   descricao: DESCRICAO_PADRAO,
-  categoriaManual: CATEGORIAS_MANUAIS[0],
-  marca: '',
-  modelo: '',
+  categoriaManual: CATEGORIAS_MANUAIS_ML[0],
   condicao: 'novo',
   tipoAnuncio: 'classico',
-  material: 'PLA (padrão)',
-  cor: 'Verde e Marrom',
   acabamento: 'Fosco',
   quantidade: '1 unidade',
   tipoProduto: 'Incensário decorativo',
   nicho: ['Decoração'],
   nichoCustom: '',
   escala: '',
+  freteGratis: true,
+  enviosFull: false,
+  prazoDespacho: '1 dia útil',
+  marca: '',
+  modelo: '',
+  material: 'PLA (padrão)',
+  cor: 'Verde e Marrom',
   peso: '320',
   altura: '25',
   largura: '25',
   comprimento: '10',
-  freteGratis: true,
-  enviosFull: false,
-  prazoDespacho: '1 dia útil',
+  shopeeCategoria: '',
+  semMarca: false,
+  precoVenda: '89,90',
+  estoque: '25',
+  sku: '',
+  temVariacoes: false,
+  variacoes: [],
+  ofereceAtacado: false,
+  faixasAtacado: [],
+  preVenda: false,
+  prazoEnvioPreVenda: '7',
+  canalLogistica: '',
+  complianceSemMarcaDagua: false,
+  complianceCategoriaPermitida: false,
+  complianceDescricaoConforme: false,
 };
 
 const INFO_TIPO_ANUNCIO: Record<PubForm['tipoAnuncio'], { pct: string; titulo: string; desc: string }> = {
@@ -118,28 +175,37 @@ const INFO_TIPO_ANUNCIO: Record<PubForm['tipoAnuncio'], { pct: string; titulo: s
 
 interface Props {
   onFechar: () => void;
+  onIrParaConfiguracoes: () => void;
 }
 
-export default function PublicarAnuncioModal({ onFechar }: Props) {
+export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }: Props) {
   const [passo, setPasso] = useState<PassoPub>('marketplace');
   const [form, setForm] = useState<PubForm>(FORM_INICIAL);
   const [fase, setFase] = useState<'wizard' | 'publicando' | 'sucesso'>('wizard');
   const [confirmarDescarte, setConfirmarDescarte] = useState(false);
   const [categoriaCarregando, setCategoriaCarregando] = useState(true);
+  const [lojaShopeeHabilitada] = useState(() => readJson<Record<string, boolean>>(MARKETPLACES_CONECTADOS_KEY, {}).shopee === true);
+
+  const [novaVarNome, setNovaVarNome] = useState('');
+  const [novaVarEstoque, setNovaVarEstoque] = useState('');
+  const [novaVarPreco, setNovaVarPreco] = useState('');
+  const [novaFaixaQtd, setNovaFaixaQtd] = useState('');
+  const [novaFaixaPreco, setNovaFaixaPreco] = useState('');
+
+  const mp = form.marketplace;
 
   useEffect(() => {
-    if (passo !== 'categoria') return;
+    if (passo !== 'categoria' || mp !== 'ml') return;
     setCategoriaCarregando(true);
     const t = setTimeout(() => setCategoriaCarregando(false), 850);
     return () => clearTimeout(t);
-  }, [passo]);
+  }, [passo, mp]);
 
   function set<K extends keyof PubForm>(campo: K, valor: PubForm[K]) {
     setForm((prev) => ({ ...prev, [campo]: valor }));
   }
 
   const idxAtual = PASSOS_PUB.findIndex((p) => p.id === passo);
-  const passoInfo = PASSOS_PUB[idxAtual];
 
   function avancar() {
     if (idxAtual < PASSOS_PUB.length - 1) setPasso(PASSOS_PUB[idxAtual + 1].id);
@@ -172,26 +238,66 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
     setForm((prev) => ({ ...prev, nicho: prev.nicho.filter((x) => x !== n) }));
   }
 
+  function adicionarVariacao() {
+    if (!novaVarNome.trim()) return;
+    const v: Variacao = { id: 'v' + Date.now(), nome: novaVarNome.trim(), estoque: novaVarEstoque || '0', preco: novaVarPreco || form.precoVenda };
+    setForm((prev) => ({ ...prev, variacoes: [...prev.variacoes, v] }));
+    setNovaVarNome(''); setNovaVarEstoque(''); setNovaVarPreco('');
+  }
+  function removerVariacao(id: string) {
+    setForm((prev) => ({ ...prev, variacoes: prev.variacoes.filter((v) => v.id !== id) }));
+  }
+  function adicionarFaixa() {
+    if (!novaFaixaQtd.trim() || !novaFaixaPreco.trim()) return;
+    const f: FaixaAtacado = { id: 'f' + Date.now(), qtd: novaFaixaQtd, preco: novaFaixaPreco };
+    setForm((prev) => ({ ...prev, faixasAtacado: [...prev.faixasAtacado, f] }));
+    setNovaFaixaQtd(''); setNovaFaixaPreco('');
+  }
+  function removerFaixa(id: string) {
+    setForm((prev) => ({ ...prev, faixasAtacado: prev.faixasAtacado.filter((f) => f.id !== id) }));
+  }
+
   const somaDimensoes = (Number(form.altura) || 0) + (Number(form.largura) || 0) + (Number(form.comprimento) || 0);
   const excedeEnvios = somaDimensoes > 200;
 
   const tituloEscolhido = TITULOS_PUB.find((t) => t.id === form.tituloId) ?? TITULOS_PUB[0];
-  const categoriaResolvida = categoriaCarregando ? '' : (form.categoriaManual === CATEGORIAS_MANUAIS[0] ? 'Casa, Móveis e Decoração > Decoração > Incensários e Aromatizadores' : form.categoriaManual);
+  const categoriaResolvidaML = categoriaCarregando ? '' : (form.categoriaManual === CATEGORIAS_MANUAIS_ML[0] ? 'Casa, Móveis e Decoração > Decoração > Incensários e Aromatizadores' : form.categoriaManual);
+  const categoriaAtual = mp === 'shopee' ? form.shopeeCategoria : categoriaResolvidaML;
+
+  const bloqueadoNoMarketplace = mp === 'shopee' && !lojaShopeeHabilitada;
 
   const faltando: string[] = [];
   if (form.imagensSelecionadas.length === 0) faltando.push('imagens');
-  if (!form.material.trim()) faltando.push('material');
-  if (!form.tipoProduto.trim()) faltando.push('tipo de produto');
-  if (!categoriaResolvida) faltando.push('categoria');
-  if (!form.peso.trim() || !form.altura.trim() || !form.largura.trim() || !form.comprimento.trim()) faltando.push('peso/dimensões');
+  if (!categoriaAtual) faltando.push('categoria');
+  if (mp === 'ml') {
+    if (!form.material.trim()) faltando.push('material');
+    if (!form.tipoProduto.trim()) faltando.push('tipo de produto');
+    if (!form.peso.trim() || !form.altura.trim() || !form.largura.trim() || !form.comprimento.trim()) faltando.push('peso/dimensões');
+  } else {
+    if (!form.precoVenda.trim()) faltando.push('preço de venda');
+    if (!form.estoque.trim()) faltando.push('quantidade em estoque');
+    if (!form.semMarca && !form.marca.trim()) faltando.push('marca (ou marcar "sem marca")');
+    if (!form.material.trim()) faltando.push('material');
+    if (!form.cor.trim()) faltando.push('cor');
+    if (!form.altura.trim() || !form.largura.trim() || !form.comprimento.trim()) faltando.push('dimensões da embalagem');
+    if (!form.peso.trim()) faltando.push('peso do produto');
+    if (!form.canalLogistica) faltando.push('canal de logística');
+  }
+  const complianceOk = form.complianceSemMarcaDagua && form.complianceCategoriaPermitida && form.complianceDescricaoConforme;
 
-  const scoreItens = [
+  const scoreItensML = [
     { ok: form.imagensSelecionadas.length >= 4, texto: 'Suba 4+ fotos para CTR até 40% maior.' },
     { ok: !!form.material.trim(), texto: 'Informe o material principal.' },
     { ok: form.nicho.length > 0, texto: 'Adicione um nicho (ex: decoração, presente).' },
   ];
+  const scoreItensShopee = [
+    { ok: form.imagensSelecionadas.length >= 4, texto: 'Suba 4+ fotos (a Shopee aceita até 9).' },
+    { ok: !!form.sku.trim(), texto: 'Informe um SKU próprio pra facilitar seu controle de estoque.' },
+    { ok: form.temVariacoes || form.ofereceAtacado, texto: 'Configure variações ou preço por atacado, se fizer sentido.' },
+  ];
+  const scoreItens = mp === 'ml' ? scoreItensML : scoreItensShopee;
   const score = 10 + scoreItens.filter((s) => s.ok).length * 30;
-  const prontoParaPublicar = faltando.length === 0;
+  const prontoParaPublicar = faltando.length === 0 && (mp === 'ml' || complianceOk);
 
   function publicar() {
     if (!prontoParaPublicar) return;
@@ -199,17 +305,17 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
     setTimeout(() => setFase('sucesso'), 1400);
   }
 
+  const nomeMarketplace = mp === 'ml' ? 'Mercado Livre' : 'Shopee';
+
   if (fase === 'publicando') {
     return (
       <div className="pub-overlay">
         <div className="pub-modal">
           <div className="pub-status-card">
             <div className="pub-mp-badges">
-              <span className="pub-mp-badge" style={{ background: '#ff9900', color: '#fff' }}>S</span>
-              <Icon name="chevron" size={12} style={{ transform: 'rotate(180deg)', color: 'var(--text-3)' }} />
-              <span className="pub-mp-badge" style={{ background: '#ffd400', color: '#14181a' }}>ML</span>
+              <span className="pub-mp-badge" style={{ background: mp === 'shopee' ? '#ee4d2d' : '#ffd400', color: mp === 'shopee' ? '#fff' : '#14181a' }}>{mp === 'shopee' ? 'S' : 'ML'}</span>
             </div>
-            <h3>Publicando no Mercado Livre…</h3>
+            <h3>Publicando na {nomeMarketplace}…</h3>
             <p>Enviando seu anúncio. Isso leva alguns segundos.</p>
             <div className="pub-progresso-loading"><span /></div>
           </div>
@@ -225,7 +331,7 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           <div className="pub-status-card">
             <div className="pub-status-icone sucesso"><Icon name="check" size={26} /></div>
             <h3>Anúncio publicado</h3>
-            <p>Seu anúncio já está no ar no Mercado Livre. Acompanhe os primeiros acessos no painel.</p>
+            <p>Seu anúncio já está no ar na {nomeMarketplace}. Acompanhe os primeiros acessos no painel.</p>
             <button type="button" className="btn-outline" onClick={onFechar}>Voltar ao gerador</button>
           </div>
         </div>
@@ -248,16 +354,16 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           {PASSOS_PUB.map((p, i) => <span key={p.id} className={i <= idxAtual ? 'feito' : ''} />)}
         </div>
         <div className="pub-passo-info">
-          <span>Passo {passoInfo.numero} de 7</span>
-          <b>{passoInfo.label}</b>
+          <span>Passo {idxAtual + 1} de 7</span>
+          <b>{labelPasso(passo, mp)}</b>
         </div>
 
         {passo === 'marketplace' && (
           <>
             <div className="pub-secao-titulo">Onde publicar</div>
-            <div className="pub-secao-desc">Escolha o marketplace. Categoria e ficha técnica se adaptam à escolha.</div>
+            <div className="pub-secao-desc">Escolha o marketplace. Categoria e dados obrigatórios se adaptam à escolha.</div>
             <div className="pub-radio-mp">
-              <button type="button" className="pub-radio-mp-card selecionado">
+              <button type="button" className={'pub-radio-mp-card' + (mp === 'ml' ? ' selecionado' : '')} onClick={() => set('marketplace', 'ml')}>
                 <span className="pub-titulo-radio" style={{ marginTop: 3 }} />
                 <div className="pub-radio-mp-top">
                   <div>
@@ -267,17 +373,28 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
                   <span className="pub-tag-api">API conectada</span>
                 </div>
               </button>
-              <button type="button" className="pub-radio-mp-card" disabled>
+              <button type="button" className={'pub-radio-mp-card' + (mp === 'shopee' ? ' selecionado' : '')} onClick={() => set('marketplace', 'shopee')}>
                 <span className="pub-titulo-radio" style={{ marginTop: 3 }} />
                 <div className="pub-radio-mp-top">
                   <div>
                     <div className="pub-radio-mp-nome">Shopee</div>
-                    <div className="pub-radio-mp-sub">Integração em desenvolvimento</div>
+                    <div className="pub-radio-mp-sub">{lojaShopeeHabilitada ? 'Loja habilitada' : 'Loja não habilitada'}</div>
                   </div>
-                  <span className="pub-tag-soon">Em breve</span>
+                  <span className={lojaShopeeHabilitada ? 'pub-tag-api' : 'pub-tag-soon'}>{lojaShopeeHabilitada ? 'Conectada' : 'Pendente'}</span>
                 </div>
               </button>
             </div>
+
+            {bloqueadoNoMarketplace && (
+              <div className="pub-aviso pub-aviso-warn">
+                <Icon name="alert" size={14} />
+                <div>
+                  <b>Sua loja Shopee ainda não está habilitada.</b>
+                  <p style={{ margin: '4px 0 0' }}>Pra publicar, sua loja precisa ter conta verificada (KYC), um método de recebimento e ao menos um canal de logística configurados em Configurações → Marketplaces.</p>
+                  <button type="button" className="btn-outline" style={{ marginTop: 10 }} onClick={onIrParaConfiguracoes}>Ir para Configurações</button>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -285,7 +402,12 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           <>
             <div className="pub-secao-titulo">Imagens do anúncio</div>
             <div className="pub-secao-desc">Selecione as imagens geradas. A primeira selecionada vira a foto principal.</div>
-            <div className="pub-aviso pub-aviso-info"><Icon name="tag" size={14} /> Anúncios com 4+ fotos têm CTR até 40% maior. Inclua frente, lateral e foto em contexto de uso.</div>
+            <div className="pub-aviso pub-aviso-info">
+              <Icon name="tag" size={14} />
+              {mp === 'ml'
+                ? 'Anúncios com 4+ fotos têm CTR até 40% maior. Inclua frente, lateral e foto em contexto de uso.'
+                : 'A Shopee aceita até 9 fotos (12 para Shopee Mall). Inclua pelo menos 1 foto do produto, sem marca d’água ou texto promocional.'}
+            </div>
             <div className="pub-img-grid">
               {IMAGENS_PUB.map((img) => {
                 const ordem = form.imagensSelecionadas.indexOf(img.id);
@@ -324,14 +446,16 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
                       <div className="pub-titulo-texto">{t.texto}</div>
                       <div className="pub-titulo-meta">
                         <span className="pub-titulo-tags">{t.tags}</span>
-                        <span className={'pub-titulo-contagem' + (corta ? ' erro' : '')}>{chars} caracteres — {corta ? 'corta no mobile' : 'ideal para ML'}</span>
+                        <span className={'pub-titulo-contagem' + (corta ? ' erro' : '')}>{chars} caracteres — {corta ? 'corta no mobile' : 'ideal'}</span>
                       </div>
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="pub-titulo-hint">O título escolhido alimenta a sugestão de categoria do Mercado Livre no próximo passo.</div>
+            <div className="pub-titulo-hint">
+              {mp === 'ml' ? 'O título escolhido alimenta a sugestão de categoria do Mercado Livre no próximo passo.' : 'Evite promessas ou termos vetados pelas políticas de anúncio da Shopee na descrição abaixo.'}
+            </div>
             <div className="field">
               <label>Descrição *</label>
               <textarea rows={4} value={form.descricao} maxLength={4000} onChange={(e) => set('descricao', e.target.value)} />
@@ -340,7 +464,7 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           </>
         )}
 
-        {passo === 'categoria' && (
+        {passo === 'categoria' && mp === 'ml' && (
           <>
             <div className="pub-secao-titulo">Categoria e tipo de anúncio</div>
             <div className="pub-secao-desc">O Mercado Livre sugere a categoria pelo título. Confirme ou ajuste.</div>
@@ -351,10 +475,10 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
                 <span style={{ width: '45%' }} />
                 <span style={{ width: '30%', marginBottom: 0 }} />
               </div>
-            ) : form.categoriaManual === CATEGORIAS_MANUAIS[0] ? (
+            ) : form.categoriaManual === CATEGORIAS_MANUAIS_ML[0] ? (
               <div className="pub-cat-sugestao">
                 <div className="pub-cat-sugestao-head">
-                  <b>{categoriaResolvida}</b>
+                  <b>{categoriaResolvidaML}</b>
                   <span className="pub-tag-api"><Icon name="check" size={11} /> API ML</span>
                 </div>
                 <p>Sugerida a partir de "{tituloEscolhido.texto.slice(0, 40)}…"</p>
@@ -370,7 +494,7 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
             <div className="field">
               <label>Selecionar outra categoria <span className="hint" style={{ fontWeight: 400 }}>opcional</span></label>
               <select value={form.categoriaManual} onChange={(e) => set('categoriaManual', e.target.value)} disabled={categoriaCarregando}>
-                {CATEGORIAS_MANUAIS.map((c) => <option key={c} value={c}>{c}</option>)}
+                {CATEGORIAS_MANUAIS_ML.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
@@ -405,7 +529,56 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           </>
         )}
 
-        {passo === 'ficha' && (
+        {passo === 'categoria' && mp === 'shopee' && (
+          <>
+            <div className="pub-secao-titulo">Categoria e dados do produto</div>
+            <div className="pub-secao-desc">A categoria vem da árvore fixa da Shopee — não é um campo livre. Os atributos abaixo mudam conforme a categoria escolhida.</div>
+
+            <div className="field">
+              <label>Categoria *</label>
+              <select value={form.shopeeCategoria} onChange={(e) => set('shopeeCategoria', e.target.value)}>
+                <option value="">Selecione a categoria</option>
+                {CATEGORIAS_SHOPEE.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              {!form.shopeeCategoria && <div className="hint" style={{ color: 'var(--red)', marginTop: 4 }}>Selecione uma categoria para continuar.</div>}
+            </div>
+
+            <div className="row2">
+              <div className="field"><label>Preço de venda (R$) *</label><input type="text" value={form.precoVenda} onChange={(e) => set('precoVenda', e.target.value)} /></div>
+              <div className="field"><label>Quantidade em estoque *</label><input type="text" value={form.estoque} onChange={(e) => set('estoque', e.target.value)} /></div>
+            </div>
+            <div className="field"><label>SKU <span className="hint" style={{ fontWeight: 400 }}>opcional — seu controle interno</span></label><input type="text" placeholder="Ex: INC-BP-001" value={form.sku} onChange={(e) => set('sku', e.target.value)} /></div>
+
+            <div className="field">
+              <label className="switch-row" style={{ padding: 0, gap: 10 }}>
+                <input type="checkbox" checked={form.semMarca} onChange={(e) => set('semMarca', e.target.checked)} style={{ width: 16, height: 16 }} />
+                <span>Este produto não tem marca cadastrada</span>
+              </label>
+            </div>
+            {!form.semMarca && (
+              <div className="field"><label>Marca *</label><input type="text" value={form.marca} onChange={(e) => set('marca', e.target.value)} /></div>
+            )}
+
+            {form.shopeeCategoria && (
+              <>
+                <div className="divider-label">Atributos obrigatórios da categoria</div>
+                <div className="row2">
+                  <div className="field"><label>Material *</label><input type="text" value={form.material} onChange={(e) => set('material', e.target.value)} /></div>
+                  <div className="field"><label>Cor *</label><input type="text" value={form.cor} onChange={(e) => set('cor', e.target.value)} /></div>
+                </div>
+
+                <div className="field"><label>Dimensões da embalagem (cm) *</label></div>
+                <div className="row3" style={{ marginTop: -8 }}>
+                  <div className="field"><input type="text" value={form.altura} onChange={(e) => set('altura', e.target.value)} /><span className="hint">Altura</span></div>
+                  <div className="field"><input type="text" value={form.largura} onChange={(e) => set('largura', e.target.value)} /><span className="hint">Largura</span></div>
+                  <div className="field"><input type="text" value={form.comprimento} onChange={(e) => set('comprimento', e.target.value)} /><span className="hint">Comprimento</span></div>
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {passo === 'ficha' && mp === 'ml' && (
           <>
             <div className="pub-secao-titulo">Ficha técnica</div>
             <div className="pub-secao-desc">Atributos usados pelo Mercado Livre nos filtros e no ranqueamento.</div>
@@ -458,7 +631,68 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           </>
         )}
 
-        {passo === 'frete' && (
+        {passo === 'ficha' && mp === 'shopee' && (
+          <>
+            <div className="pub-secao-titulo">Variações, atacado e pré-venda</div>
+            <div className="pub-secao-desc">Tudo opcional, mas ajuda a vender mais — configure se fizer sentido pro seu produto.</div>
+
+            <div className="pub-toggle-full">
+              <div><b>Este produto tem variações?</b><p>Cada variação (tamanho, cor etc.) tem seu próprio preço e estoque.</p></div>
+              <label className="switch"><input type="checkbox" checked={form.temVariacoes} onChange={(e) => set('temVariacoes', e.target.checked)} /><span className="track" /></label>
+            </div>
+            {form.temVariacoes && (
+              <div className="pub-lista-add">
+                {form.variacoes.map((v) => (
+                  <div className="pub-lista-add-row" key={v.id}>
+                    <span>{v.nome}</span><span>{v.estoque} un.</span><span>R$ {v.preco}</span>
+                    <button type="button" onClick={() => removerVariacao(v.id)}><Icon name="close" size={12} /></button>
+                  </div>
+                ))}
+                <div className="pub-lista-add-form">
+                  <input type="text" placeholder="Nome (ex: Verde P)" value={novaVarNome} onChange={(e) => setNovaVarNome(e.target.value)} />
+                  <input type="text" placeholder="Estoque" value={novaVarEstoque} onChange={(e) => setNovaVarEstoque(e.target.value)} />
+                  <input type="text" placeholder="Preço" value={novaVarPreco} onChange={(e) => setNovaVarPreco(e.target.value)} />
+                  <button type="button" className="btn-outline" onClick={adicionarVariacao}>+ Adicionar</button>
+                </div>
+              </div>
+            )}
+
+            <div className="pub-toggle-full">
+              <div><b>Oferecer preço por atacado?</b><p>Defina faixas de desconto por quantidade mínima comprada.</p></div>
+              <label className="switch"><input type="checkbox" checked={form.ofereceAtacado} onChange={(e) => set('ofereceAtacado', e.target.checked)} /><span className="track" /></label>
+            </div>
+            {form.ofereceAtacado && (
+              <div className="pub-lista-add">
+                {form.faixasAtacado.map((f) => (
+                  <div className="pub-lista-add-row" key={f.id}>
+                    <span>A partir de {f.qtd} un.</span><span>R$ {f.preco} / un.</span>
+                    <button type="button" onClick={() => removerFaixa(f.id)}><Icon name="close" size={12} /></button>
+                  </div>
+                ))}
+                <div className="pub-lista-add-form">
+                  <input type="text" placeholder="Qtd. mínima" value={novaFaixaQtd} onChange={(e) => setNovaFaixaQtd(e.target.value)} />
+                  <input type="text" placeholder="Preço por unidade" value={novaFaixaPreco} onChange={(e) => setNovaFaixaPreco(e.target.value)} />
+                  <button type="button" className="btn-outline" onClick={adicionarFaixa}>+ Adicionar</button>
+                </div>
+              </div>
+            )}
+
+            <div className="pub-toggle-full">
+              <div><b>Configurar pré-venda?</b><p>Prazo de envio maior (7 a 30 dias) — útil pra imprimir sob demanda.</p></div>
+              <label className="switch"><input type="checkbox" checked={form.preVenda} onChange={(e) => set('preVenda', e.target.checked)} /><span className="track" /></label>
+            </div>
+            {form.preVenda && (
+              <div className="field">
+                <label>Prazo de envio (dias)</label>
+                <select value={form.prazoEnvioPreVenda} onChange={(e) => set('prazoEnvioPreVenda', e.target.value)}>
+                  {PRAZOS_PRE_VENDA.map((p) => <option key={p} value={p}>{p} dias</option>)}
+                </select>
+              </div>
+            )}
+          </>
+        )}
+
+        {passo === 'frete' && mp === 'ml' && (
           <>
             <div className="pub-secao-titulo">Frete e logística</div>
             <div className="pub-secao-desc">Pré-preenchido pela calculadora de preços quando disponível.</div>
@@ -508,19 +742,63 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           </>
         )}
 
+        {passo === 'frete' && mp === 'shopee' && (
+          <>
+            <div className="pub-secao-titulo">Frete e logística</div>
+            <div className="pub-secao-desc">Sem um canal de logística habilitado, nenhum anúncio publica na Shopee.</div>
+
+            <div className="field"><label>Peso do produto (g) *</label><input type="text" value={form.peso} onChange={(e) => set('peso', e.target.value)} /></div>
+
+            <div className="field">
+              <label>Canal de logística *</label>
+              <select value={form.canalLogistica} onChange={(e) => set('canalLogistica', e.target.value)}>
+                <option value="">Selecione um canal</option>
+                {CANAIS_LOGISTICA_SHOPEE.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              {!form.canalLogistica && <div className="hint" style={{ color: 'var(--red)', marginTop: 4 }}>Selecione ao menos um canal de logística para continuar.</div>}
+            </div>
+
+            <div className="field">
+              <label>Prazo de despacho *</label>
+              <select value={form.prazoDespacho} onChange={(e) => set('prazoDespacho', e.target.value)}>
+                {['1 dia útil', '2 dias úteis', '3 dias úteis'].map((p) => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+
         {passo === 'confirmar' && (
           <>
             <div className="pub-secao-titulo">Confirmar e publicar</div>
-            <div className="pub-secao-desc">Revise o anúncio antes de enviar ao Mercado Livre.</div>
+            <div className="pub-secao-desc">Revise o anúncio antes de enviar {mp === 'ml' ? 'ao Mercado Livre' : 'à Shopee'}.</div>
 
-            {prontoParaPublicar ? (
-              <div className="pub-aviso pub-aviso-ok"><Icon name="check" size={14} /> Anúncio pronto para publicar. Todos os campos obrigatórios estão preenchidos.</div>
+            {faltando.length === 0 ? (
+              <div className="pub-aviso pub-aviso-ok"><Icon name="check" size={14} /> Todos os campos obrigatórios estão preenchidos.</div>
             ) : (
               <div className="pub-aviso pub-aviso-warn">
                 <Icon name="alert" size={14} />
                 <div><b>Faltam campos obrigatórios.</b>
                   <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>{faltando.map((f) => <li key={f}>{f}</li>)}</ul>
                 </div>
+              </div>
+            )}
+
+            {mp === 'shopee' && (
+              <div className="pub-compliance">
+                <div className="pub-secao-titulo" style={{ fontSize: 14, marginBottom: 10 }}>Conformidade e políticas</div>
+                <label className="pub-compliance-item">
+                  <input type="checkbox" checked={form.complianceSemMarcaDagua} onChange={(e) => set('complianceSemMarcaDagua', e.target.checked)} />
+                  <span>As imagens não têm marca d'água, texto promocional excessivo ou conteúdo proibido pelas diretrizes da Shopee.</span>
+                </label>
+                <label className="pub-compliance-item">
+                  <input type="checkbox" checked={form.complianceCategoriaPermitida} onChange={(e) => set('complianceCategoriaPermitida', e.target.checked)} />
+                  <span>Este produto não pertence a categorias restritas ou proibidas na plataforma.</span>
+                </label>
+                <label className="pub-compliance-item">
+                  <input type="checkbox" checked={form.complianceDescricaoConforme} onChange={(e) => set('complianceDescricaoConforme', e.target.checked)} />
+                  <span>A descrição não contém promessas ou termos vetados pelas políticas de anúncio da Shopee.</span>
+                </label>
+                {!complianceOk && <div className="hint" style={{ color: 'var(--red)', marginTop: 6 }}>Marque os três itens para poder publicar.</div>}
               </div>
             )}
 
@@ -531,36 +809,68 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
               </div>
               <div className="pub-resumo-cel">
                 <div className="pub-resumo-label"><Icon name="gerador" size={12} /> Marketplace</div>
-                <div className="pub-resumo-valor">Mercado Livre</div>
-              </div>
-              <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="flag" size={12} /> Tipo de anúncio</div>
-                <div className="pub-resumo-valor">{INFO_TIPO_ANUNCIO[form.tipoAnuncio].titulo.split(' ·')[0]} · {INFO_TIPO_ANUNCIO[form.tipoAnuncio].pct}</div>
+                <div className="pub-resumo-valor">{nomeMarketplace}</div>
               </div>
               <div className="pub-resumo-cel">
                 <div className="pub-resumo-label"><Icon name="upload" size={12} /> Imagens</div>
                 <div className="pub-resumo-valor">{form.imagensSelecionadas.length ? `${form.imagensSelecionadas.length} fotos` : '—'}</div>
               </div>
-              <div className="pub-resumo-cel">
+              <div className="pub-resumo-cel full">
                 <div className="pub-resumo-label"><Icon name="folder" size={12} /> Categoria</div>
-                <div className="pub-resumo-valor">{categoriaResolvida || '—'}</div>
+                <div className="pub-resumo-valor">{categoriaAtual || '—'}</div>
               </div>
-              <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="calculadora" size={12} /> Material</div>
-                <div className="pub-resumo-valor">{form.material || '—'}</div>
-              </div>
-              <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="tag" size={12} /> Nicho</div>
-                <div className="pub-resumo-valor">{form.nicho.length ? form.nicho.join(', ') : '—'}</div>
-              </div>
-              <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="box" size={12} /> Peso / dimensões</div>
-                <div className="pub-resumo-valor">{form.peso}g · {somaDimensoes}cm</div>
-              </div>
-              <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="bolt" size={12} /> Frete</div>
-                <div className="pub-resumo-valor">{form.freteGratis ? 'Frete grátis ativo' : 'Frete pago pelo comprador'}</div>
-              </div>
+
+              {mp === 'ml' ? (
+                <>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="flag" size={12} /> Tipo de anúncio</div>
+                    <div className="pub-resumo-valor">{INFO_TIPO_ANUNCIO[form.tipoAnuncio].titulo.split(' ·')[0]} · {INFO_TIPO_ANUNCIO[form.tipoAnuncio].pct}</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="calculadora" size={12} /> Material</div>
+                    <div className="pub-resumo-valor">{form.material || '—'}</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="tag" size={12} /> Nicho</div>
+                    <div className="pub-resumo-valor">{form.nicho.length ? form.nicho.join(', ') : '—'}</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="box" size={12} /> Peso / dimensões</div>
+                    <div className="pub-resumo-valor">{form.peso}g · {somaDimensoes}cm</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="bolt" size={12} /> Frete</div>
+                    <div className="pub-resumo-valor">{form.freteGratis ? 'Frete grátis ativo' : 'Frete pago pelo comprador'}</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="creditos" size={12} /> Preço / estoque</div>
+                    <div className="pub-resumo-valor">R$ {form.precoVenda || '—'} · {form.estoque || '0'} un.</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="tag" size={12} /> Marca</div>
+                    <div className="pub-resumo-valor">{form.semMarca ? 'Sem marca' : (form.marca || '—')}</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="box" size={12} /> Peso / dimensões</div>
+                    <div className="pub-resumo-valor">{form.peso || '—'}g · {somaDimensoes}cm</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="bolt" size={12} /> Canal de logística</div>
+                    <div className="pub-resumo-valor">{form.canalLogistica || '—'}</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="flag" size={12} /> Variações</div>
+                    <div className="pub-resumo-valor">{form.temVariacoes ? `${form.variacoes.length} variação(ões)` : 'Nenhuma'}</div>
+                  </div>
+                  <div className="pub-resumo-cel">
+                    <div className="pub-resumo-label"><Icon name="creditos" size={12} /> Atacado / pré-venda</div>
+                    <div className="pub-resumo-valor">{form.ofereceAtacado ? `${form.faixasAtacado.length} faixa(s)` : 'Sem atacado'}{form.preVenda ? ` · pré-venda ${form.prazoEnvioPreVenda}d` : ''}</div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="pub-score">
@@ -583,7 +893,7 @@ export default function PublicarAnuncioModal({ onFechar }: Props) {
           {passo === 'confirmar' ? (
             <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!prontoParaPublicar} onClick={publicar}>Publicar anúncio</button>
           ) : (
-            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} onClick={avancar}>Continuar</button>
+            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={passo === 'marketplace' && bloqueadoNoMarketplace} onClick={avancar}>Continuar</button>
           )}
         </div>
       </div>
