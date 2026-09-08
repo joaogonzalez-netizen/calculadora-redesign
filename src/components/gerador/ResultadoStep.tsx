@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Icon from '../Icon';
+import PublicarAnuncioModal from './PublicarAnuncioModal';
 
 // Réplica do passo final "Resultado" do Gerador de anúncios em produção
 // (print de João, 08/09/2026) — resumo de tudo que foi gerado (textos,
@@ -52,9 +53,6 @@ function dataFormatada() {
 function baixarTudo() {
   alert('Em breve: baixar textos, imagens e vídeo do anúncio num pacote único.');
 }
-function publicarAnuncio() {
-  alert('Em breve: publicar este anúncio direto no marketplace escolhido.');
-}
 function regerarSecao(secao: string, creditos: number) {
   alert(`Em breve: re-gerar "${secao}" consome ${creditos} crédito${creditos > 1 ? 's' : ''}.`);
 }
@@ -92,6 +90,7 @@ export default function ResultadoStep({ onVoltar }: Props) {
   const [imagensAberto, setImagensAberto] = useState(true);
   const [videoAberto, setVideoAberto] = useState(true);
   const [imagensExpandidas, setImagensExpandidas] = useState(true);
+  const [publicarAberto, setPublicarAberto] = useState(false);
 
   return (
     <>
@@ -108,9 +107,11 @@ export default function ResultadoStep({ onVoltar }: Props) {
         </div>
         <div className="ger-res-acoes">
           <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> Baixar tudo</button>
-          <button type="button" className="btn-dark" onClick={publicarAnuncio}>Publicar anúncio</button>
+          <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>Publicar anúncio</button>
         </div>
       </div>
+
+      {publicarAberto && <PublicarAnuncioModal onFechar={() => setPublicarAberto(false)} />}
 
       <div className="ger-res-secao">
         <SecaoHead titulo="Textos" aberta={textosAberto} creditos={1} onToggle={() => setTextosAberto((v) => !v)} />

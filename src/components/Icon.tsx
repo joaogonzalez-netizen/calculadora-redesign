@@ -10,7 +10,7 @@ export type IconName =
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
   | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume'
-  | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf';
+  | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -183,6 +183,20 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <path d="M5 19c8.5 0 14-5.5 14-14 0 0-13-2-14 8-.4 3 1 5 1 5" />
       <path d="M5 19c0-4 2-7 6-9" />
+    </>
+  ),
+  alert: (
+    <>
+      <path d="M12 3.5 2.5 20h19L12 3.5Z" />
+      <path d="M12 10v4.5" />
+      <circle cx="12" cy="17.3" r="0.8" fill="currentColor" stroke="none" />
+    </>
+  ),
+  box: (
+    <>
+      <path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z" />
+      <path d="M3 8.5V16l9 4.5 9-4.5V8.5" />
+      <path d="M12 13v7.5" />
     </>
   ),
 };
