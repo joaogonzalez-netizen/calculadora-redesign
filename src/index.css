@@ -1347,6 +1347,54 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .ger-video-regerar:hover{filter:brightness(1.2);}
 .ger-video-acoes .btn-dark.pill{padding:14px 30px;}
 
+.ger-res-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:6px;}
+.ger-res-head h2{font-size:24px;font-weight:800;margin-bottom:4px;}
+.ger-res-head .sub{font-size:13.5px;color:var(--text-2);margin-bottom:8px;}
+.ger-res-meta{display:flex;gap:18px;flex-wrap:wrap;}
+.ger-res-meta span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-3);}
+.ger-res-acoes{display:flex;gap:10px;flex:0 0 auto;}
+.ger-res-acoes .btn-outline{display:flex;align-items:center;gap:6px;}
+
+.ger-res-secao{margin-top:32px;}
+.ger-res-secao-head{
+  display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+  padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:18px;
+}
+.ger-res-secao-head h3{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.ger-res-secao-head h3 svg{transform:rotate(-90deg);transition:.15s;}
+.ger-res-secao-head.fechada h3 svg{transform:rotate(90deg);}
+.ger-res-regerar{
+  background:none;border:none;color:var(--text-3);font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:5px;padding:4px;
+}
+.ger-res-regerar:hover{color:var(--text-1);}
+
+.ger-res-img-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+@media (max-width:900px){ .ger-res-img-grid{grid-template-columns:repeat(3,1fr);} }
+.ger-res-img{aspect-ratio:1;border-radius:var(--radius-m);border:1px solid var(--border);}
+
+.ger-res-img-rodape{display:flex;justify-content:space-between;margin-top:14px;}
+.ger-res-img-rodape button{
+  background:none;border:none;color:var(--primary-dark);font-weight:700;font-size:12.5px;
+  display:flex;align-items:center;gap:6px;padding:0;
+}
+.ger-res-img-rodape button:hover{filter:brightness(1.2);}
+
+.ger-res-video{
+  width:200px;aspect-ratio:9/16;background:#14171a;border-radius:var(--radius-m);position:relative;
+  display:flex;align-items:flex-end;overflow:hidden;
+}
+.ger-res-video-bar{
+  width:100%;background:rgba(255,255,255,.08);padding:9px 11px;display:flex;align-items:center;gap:8px;
+  color:#fff;font-size:11px;
+}
+.ger-res-video-bar .trilha{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px;}
+.ger-video-baixar{
+  margin-top:10px;background:none;border:none;color:var(--primary-dark);font-weight:700;font-size:12.5px;
+  display:flex;align-items:center;gap:6px;padding:0;
+}
+.ger-video-baixar:hover{filter:brightness(1.2);}
+
 /* ============================================================
    PEDIDOS
    ============================================================ */
