@@ -178,6 +178,10 @@ input,select{font-family:var(--font-b);}
 .btn-outline-red{border-color:var(--red);color:var(--red);}
 .btn-outline-red:hover{border-color:var(--red);color:var(--red);filter:brightness(1.1);}
 
+.cfg-conta-modal .pub-secao-titulo{font-size:15px;margin-bottom:14px;}
+.cfg-conta-opcoes{display:flex;flex-direction:column;gap:10px;}
+.cfg-conta-opcoes button{width:100%;padding:13px;}
+
 /* ---------- Cards ---------- */
 .card{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);
