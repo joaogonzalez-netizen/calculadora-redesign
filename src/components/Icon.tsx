@@ -9,7 +9,8 @@ export type IconName =
   | 'config' | 'integracoes'
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
-  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume';
+  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume'
+  | 'copy' | 'message' | 'thumbUp';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -155,6 +156,21 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <path d="M4 9v6h4l5 4V5L8 9H4Z" />
       <path d="M17 8.5a5 5 0 0 1 0 7" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="9" y="9" width="12" height="12" rx="2" />
+      <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+    </>
+  ),
+  message: (
+    <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" fill="currentColor" stroke="none" />
+  ),
+  thumbUp: (
+    <>
+      <path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3Z" />
+      <path d="M7 11l4.5-8a2 2 0 0 1 2.7 1.8V9h4.4a2 2 0 0 1 2 2.4l-1.6 7A2 2 0 0 1 17 20H9a2 2 0 0 1-2-2v-7Z" />
     </>
   ),
 };

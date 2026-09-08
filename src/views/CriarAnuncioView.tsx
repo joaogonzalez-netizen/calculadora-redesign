@@ -3,6 +3,7 @@ import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
 import MarketplaceStep from '../components/gerador/MarketplaceStep';
 import InformacoesStep from '../components/gerador/InformacoesStep';
+import TextosStep from '../components/gerador/TextosStep';
 
 // Réplica do Gerador de anúncios em produção (prints de João) — construído
 // tela por tela. Tudo mockado: sem upload real de arquivo, o clique na
@@ -56,6 +57,8 @@ export default function CriarAnuncioView() {
 
       {passoAtual === 'info' ? (
         <InformacoesStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
+      ) : passoAtual === 'textos' ? (
+        <TextosStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />
       ) : (
         <div className="card ger-card">
           <div className="card-body">
