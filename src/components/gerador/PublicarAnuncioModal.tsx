@@ -264,7 +264,9 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
   const categoriaResolvidaML = categoriaCarregando ? '' : (form.categoriaManual === CATEGORIAS_MANUAIS_ML[0] ? 'Casa, Móveis e Decoração > Decoração > Incensários e Aromatizadores' : form.categoriaManual);
   const categoriaAtual = mp === 'shopee' ? form.shopeeCategoria : categoriaResolvidaML;
 
-  const bloqueadoNoMarketplace = mp === 'shopee' && !lojaShopeeHabilitada;
+  // Loja Shopee não habilitada só vira aviso — não trava mais o wizard, já
+  // que hoje não há de fato uma conexão real por trás pra impedir o resto.
+  const lojaShopeeAvisoPendente = mp === 'shopee' && !lojaShopeeHabilitada;
 
   const faltando: string[] = [];
   if (form.imagensSelecionadas.length === 0) faltando.push('imagens');
@@ -385,12 +387,12 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
               </button>
             </div>
 
-            {bloqueadoNoMarketplace && (
+            {lojaShopeeAvisoPendente && (
               <div className="pub-aviso pub-aviso-warn">
                 <Icon name="alert" size={14} />
                 <div>
                   <b>Sua loja Shopee ainda não está habilitada.</b>
-                  <p style={{ margin: '4px 0 0' }}>Pra publicar, sua loja precisa ter conta verificada (KYC), um método de recebimento e ao menos um canal de logística configurados em Configurações → Marketplaces.</p>
+                  <p style={{ margin: '4px 0 0' }}>Você pode continuar preenchendo o anúncio, mas a publicação de verdade exige conta verificada (KYC), um método de recebimento e ao menos um canal de logística configurados em Configurações → Marketplaces.</p>
                   <button type="button" className="btn-outline" style={{ marginTop: 10 }} onClick={onIrParaConfiguracoes}>Ir para Configurações</button>
                 </div>
               </div>
@@ -893,7 +895,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
           {passo === 'confirmar' ? (
             <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!prontoParaPublicar} onClick={publicar}>Publicar anúncio</button>
           ) : (
-            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={passo === 'marketplace' && bloqueadoNoMarketplace} onClick={avancar}>Continuar</button>
+            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} onClick={avancar}>Continuar</button>
           )}
         </div>
       </div>
