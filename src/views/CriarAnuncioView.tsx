@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Icon from '../components/Icon';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
 import MarketplaceStep from '../components/gerador/MarketplaceStep';
@@ -52,6 +53,10 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
     setVisitados((prev) => new Set(prev).add(atual));
     setPassoAtual(proximo);
   }
+  function pularParaResumo() {
+    setVisitados(new Set(PASSOS.map((p) => p.id)));
+    setPassoAtual('resultado');
+  }
 
   const idxAtual = PASSOS.findIndex((p) => p.id === passoAtual);
   const passoAnterior = idxAtual > 0 ? PASSOS[idxAtual - 1].id : null;
@@ -60,7 +65,14 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
 
   return (
     <div>
-      <GeradorStepper passos={PASSOS} atual={passoAtual} visitados={visitados} onIrPara={irPara} />
+      <div className="ger-stepper-row">
+        <GeradorStepper passos={PASSOS} atual={passoAtual} visitados={visitados} onIrPara={irPara} />
+        {passoAtual !== 'resultado' && (
+          <button type="button" className="ger-pular-resumo" onClick={pularParaResumo}>
+            Pular para o resumo <Icon name="chevron" size={12} style={{ transform: 'rotate(180deg)' }} />
+          </button>
+        )}
+      </div>
 
       {passoAtual === 'info' ? (
         <InformacoesStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
