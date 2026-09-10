@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '../components/Icon';
 import GeradorStepper from '../components/gerador/GeradorStepper';
+import DestinoStep from '../components/gerador/DestinoStep';
 import UploadStep from '../components/gerador/UploadStep';
 import MarketplaceStep from '../components/gerador/MarketplaceStep';
 import InformacoesStep from '../components/gerador/InformacoesStep';
@@ -15,16 +16,17 @@ import ResultadoStep from '../components/gerador/ResultadoStep';
 // plano já vêm pré-selecionados, campos de Informações vêm com sugestões
 // mockadas da IA, e os passos ainda não recebidos ficam com um aviso de
 // "em construção" dentro do mesmo wizard.
-type PassoId = 'upload' | 'marketplace' | 'info' | 'textos' | 'imagens' | 'video' | 'resultado';
+type PassoId = 'destino' | 'upload' | 'marketplace' | 'info' | 'textos' | 'imagens' | 'video' | 'resultado';
 
 const PASSOS = [
-  { id: 'upload', numero: 1, label: 'Upload' },
-  { id: 'marketplace', numero: 2, label: 'Marketplace e plano' },
-  { id: 'info', numero: 3, label: 'Informações' },
-  { id: 'textos', numero: 4, label: 'Textos' },
-  { id: 'imagens', numero: 5, label: 'Imagens' },
-  { id: 'video', numero: 6, label: 'Video' },
-  { id: 'resultado', numero: 7, label: 'Resultado' },
+  { id: 'destino', numero: 1, label: 'Destino' },
+  { id: 'upload', numero: 2, label: 'Upload' },
+  { id: 'marketplace', numero: 3, label: 'Marketplace e plano' },
+  { id: 'info', numero: 4, label: 'Informações' },
+  { id: 'textos', numero: 5, label: 'Textos' },
+  { id: 'imagens', numero: 6, label: 'Imagens' },
+  { id: 'video', numero: 7, label: 'Video' },
+  { id: 'resultado', numero: 8, label: 'Resultado' },
 ] as const satisfies readonly { id: PassoId; numero: number; label: string }[];
 
 const CORES_MOCK = ['#0d6efd', '#00955a', '#c58a00', '#8a3bd4', '#d4633b'];
@@ -34,12 +36,16 @@ interface Props {
 }
 
 export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
-  const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
+  const [passoAtual, setPassoAtual] = useState<PassoId>('destino');
   const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
   const [imagens, setImagens] = useState<string[]>([]);
   const [marketplace, setMarketplace] = useState('ml');
   const [plano, setPlano] = useState('premium');
+  const [destinos, setDestinos] = useState<string[]>([]);
 
+  function alternarDestino(id: string) {
+    setDestinos((prev) => (prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]));
+  }
   function adicionarImagem() {
     setImagens((prev) => (prev.length >= 5 ? prev : [...prev, CORES_MOCK[prev.length % CORES_MOCK.length]]));
   }
@@ -74,7 +80,9 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
         )}
       </div>
 
-      {passoAtual === 'info' ? (
+      {passoAtual === 'destino' ? (
+        <DestinoStep selecionados={destinos} onAlternar={alternarDestino} onContinuar={() => marcarVisitadoEIr('destino', 'upload')} />
+      ) : passoAtual === 'info' ? (
         <InformacoesStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
       ) : passoAtual === 'textos' ? (
         <TextosStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />

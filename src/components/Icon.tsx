@@ -10,7 +10,8 @@ export type IconName =
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
   | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume'
-  | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box';
+  | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box'
+  | 'instagram' | 'facebook' | 'tiktok' | 'pinterest';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -197,6 +198,26 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z" />
       <path d="M3 8.5V16l9 4.5 9-4.5V8.5" />
       <path d="M12 13v7.5" />
+    </>
+  ),
+  instagram: (
+    <>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4.2" />
+      <circle cx="17" cy="7" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  facebook: (
+    <path d="M14.5 21v-7.2h2.4l.4-2.8h-2.8v-1.8c0-.8.2-1.4 1.4-1.4h1.5V5.3c-.3 0-1.1-.1-2.1-.1-2.1 0-3.5 1.3-3.5 3.6v2.2H9.5v2.8h2.3V21" />
+  ),
+  tiktok: (
+    <path d="M13 3v11.5a2.8 2.8 0 1 1-2-2.7M13 3c.3 2 1.8 3.6 4 4v2.2c-1.5 0-2.9-.4-4-1.2" />
+  ),
+  pinterest: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 19c.6-2.4 1.3-5.3 1.9-7.7a2.4 2.4 0 0 1 4.7.7c0 2-1.2 3.7-2.9 3.7-.8 0-1.4-.4-1.7-1" />
+      <path d="M11.4 11.3a2.4 2.4 0 0 0 .1 2.7" />
     </>
   ),
 };
