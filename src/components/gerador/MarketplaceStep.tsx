@@ -104,10 +104,22 @@ interface Props {
 
 export default function MarketplaceStep({ marketplace, plano, onSelecionarMarketplace, onSelecionarPlano, onVoltar, onContinuar }: Props) {
   const [outrosDestinos, setOutrosDestinos] = useState<string[]>([]);
+  const [destinosCustom, setDestinosCustom] = useState<string[]>([]);
+  const [novoDestinoCustom, setNovoDestinoCustom] = useState('');
   const ehOutros = marketplace === 'outros';
+  const totalDestinos = outrosDestinos.length + destinosCustom.length;
 
   function alternarDestino(id: string) {
     setOutrosDestinos((prev) => (prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]));
+  }
+  function adicionarDestinoCustom() {
+    const v = novoDestinoCustom.trim();
+    if (!v) return;
+    setDestinosCustom((prev) => (prev.some((d) => d.toLowerCase() === v.toLowerCase()) ? prev : [...prev, v]));
+    setNovoDestinoCustom('');
+  }
+  function removerDestinoCustom(nome: string) {
+    setDestinosCustom((prev) => prev.filter((d) => d !== nome));
   }
 
   return (
@@ -144,8 +156,31 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
           </div>
           <GrupoDestino titulo="Outros marketplaces" itens={OUTROS_MARKETPLACES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
           <GrupoDestino titulo="Redes sociais" itens={OUTRAS_REDES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
+
+          <div className="ger-destino-grupo">
+            <div className="ger-destino-grupo-titulo">Não é nenhum desses?</div>
+            <div className="ger-destino-custom-row">
+              <input
+                type="text"
+                placeholder="Digite pra onde mais você quer gerar esse anúncio"
+                value={novoDestinoCustom}
+                onChange={(e) => setNovoDestinoCustom(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); adicionarDestinoCustom(); } }}
+                onBlur={adicionarDestinoCustom}
+              />
+              <button type="button" className="btn-outline" onClick={adicionarDestinoCustom}>Adicionar</button>
+            </div>
+            {destinosCustom.length > 0 && (
+              <div className="ger-destino-custom-lista">
+                {destinosCustom.map((d) => (
+                  <span className="pub-chip-custom" key={d}>{d} <button type="button" onClick={() => removerDestinoCustom(d)}><Icon name="close" size={11} /></button></span>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="ger-destino-conta">
-            {outrosDestinos.length === 0 ? 'Selecione ao menos 1 destino para continuar.' : `${outrosDestinos.length} destino${outrosDestinos.length > 1 ? 's' : ''} selecionado${outrosDestinos.length > 1 ? 's' : ''}.`}
+            {totalDestinos === 0 ? 'Selecione ao menos 1 destino para continuar.' : `${totalDestinos} destino${totalDestinos > 1 ? 's' : ''} selecionado${totalDestinos > 1 ? 's' : ''}.`}
           </div>
         </div>
       )}
@@ -179,7 +214,7 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
       </div>
 
       <div className="ger-footer">
-        <button type="button" className="btn-dark pill" disabled={ehOutros && outrosDestinos.length === 0} onClick={onContinuar}>Continuar</button>
+        <button type="button" className="btn-dark pill" disabled={ehOutros && totalDestinos === 0} onClick={onContinuar}>Continuar</button>
       </div>
     </>
   );
