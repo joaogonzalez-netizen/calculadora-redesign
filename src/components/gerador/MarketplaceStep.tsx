@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Icon, { type IconName } from '../Icon';
 
 interface Marketplace {
@@ -48,6 +49,50 @@ const PLANOS: Plano[] = [
   },
 ];
 
+// Sub-escolha só aparece quando o vendedor marca "Outros" — muita gente
+// caía nessa opção por falta de destino específico, então aqui ele conta
+// exatamente pra onde vai (pode ser mais de um) e a IA ajusta o que gerar.
+interface Destino {
+  id: string;
+  nome: string;
+  icone?: IconName;
+  cor: string;
+}
+
+const OUTROS_MARKETPLACES: Destino[] = [
+  { id: 'amazon', nome: 'Amazon', cor: '#ff9900' },
+  { id: 'aliexpress', nome: 'AliExpress', cor: '#e2231a' },
+];
+
+const OUTRAS_REDES: Destino[] = [
+  { id: 'instagram', nome: 'Instagram', icone: 'instagram', cor: '#d62976' },
+  { id: 'facebook', nome: 'Facebook', icone: 'facebook', cor: '#1877f2' },
+  { id: 'tiktok', nome: 'TikTok', icone: 'tiktok', cor: '#14181a' },
+  { id: 'pinterest', nome: 'Pinterest', icone: 'pinterest', cor: '#e60023' },
+];
+
+function GrupoDestino({ titulo, itens, selecionados, onAlternar }: { titulo: string; itens: Destino[]; selecionados: string[]; onAlternar: (id: string) => void }) {
+  return (
+    <div className="ger-destino-grupo">
+      <div className="ger-destino-grupo-titulo">{titulo}</div>
+      <div className="ger-destino-grid">
+        {itens.map((d) => {
+          const ativo = selecionados.includes(d.id);
+          return (
+            <button type="button" key={d.id} className={'ger-destino-card' + (ativo ? ' selecionado' : '')} onClick={() => onAlternar(d.id)}>
+              <span className={'ger-destino-icone' + (d.icone ? ' com-glifo' : '')} style={{ background: d.cor }}>
+                {d.icone && <Icon name={d.icone} size={15} style={{ color: '#fff' }} />}
+              </span>
+              <span className="ger-destino-nome">{d.nome}</span>
+              <span className="ger-destino-check"><Icon name="check" size={12} /></span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 interface Props {
   marketplace: string;
   plano: string;
@@ -58,6 +103,13 @@ interface Props {
 }
 
 export default function MarketplaceStep({ marketplace, plano, onSelecionarMarketplace, onSelecionarPlano, onVoltar, onContinuar }: Props) {
+  const [outrosDestinos, setOutrosDestinos] = useState<string[]>([]);
+  const ehOutros = marketplace === 'outros';
+
+  function alternarDestino(id: string) {
+    setOutrosDestinos((prev) => (prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]));
+  }
+
   return (
     <>
       <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> Voltar</button>
@@ -83,6 +135,20 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
           </button>
         ))}
       </div>
+
+      {ehOutros && (
+        <div className="ger-outros-destino">
+          <div className="ger-titulo-bloco" style={{ marginBottom: 20 }}>
+            <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>Pra onde vamos gerar esse anúncio?</h3>
+            <p>Nos conte pra onde quer gerar esse anúncio e ajude a IA a gerar o melhor modelo. Você pode escolher mais de um destino.</p>
+          </div>
+          <GrupoDestino titulo="Outros marketplaces" itens={OUTROS_MARKETPLACES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
+          <GrupoDestino titulo="Redes sociais" itens={OUTRAS_REDES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
+          <div className="ger-destino-conta">
+            {outrosDestinos.length === 0 ? 'Selecione ao menos 1 destino para continuar.' : `${outrosDestinos.length} destino${outrosDestinos.length > 1 ? 's' : ''} selecionado${outrosDestinos.length > 1 ? 's' : ''}.`}
+          </div>
+        </div>
+      )}
 
       <h3 className="ger-secao-titulo">Escolha o modelo de geração</h3>
 
@@ -113,7 +179,7 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
       </div>
 
       <div className="ger-footer">
-        <button type="button" className="btn-dark pill" onClick={onContinuar}>Continuar</button>
+        <button type="button" className="btn-dark pill" disabled={ehOutros && outrosDestinos.length === 0} onClick={onContinuar}>Continuar</button>
       </div>
     </>
   );
