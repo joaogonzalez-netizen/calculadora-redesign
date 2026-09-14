@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { View } from '../App';
 import { USUARIO } from '../lib/dashboardMock';
+import { useI18n } from '../context/I18nContext';
 import Icon, { LogoMark, type IconName } from './Icon';
 
 interface Props {
@@ -15,19 +16,20 @@ interface Props {
 /** Grupos de FERRAMENTAS: só o da Calculadora tem telas de verdade hoje. */
 type GrupoId = 'gerador' | 'calculadora' | 'buscador';
 
-const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
-  { id: 'gerador', label: 'Gerador de anúncios', icon: 'gerador' },
-  { id: 'calculadora', label: 'Calculadora de preços', icon: 'calculadora' },
-  { id: 'buscador', label: 'Buscador de produtos', icon: 'buscador' },
-];
-
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
 const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
+  const { t } = useI18n();
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
   const noGerador = VIEWS_DO_GERADOR.includes(view);
   const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : null);
+
+  const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
+    { id: 'gerador', label: t('nav.geradorAnuncios'), icon: 'gerador' },
+    { id: 'calculadora', label: t('nav.calculadoraPrecos'), icon: 'calculadora' },
+    { id: 'buscador', label: t('nav.buscadorProdutos'), icon: 'buscador' },
+  ];
 
   // O grupo da tela ativa abre sozinho ao navegar pra ela.
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
 
   return (
     <div className={'sidebar' + (collapsed ? ' collapsed' : '')}>
-      <button type="button" className="sidebar-toggle" onClick={onToggleCollapsed} aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}>
+      <button type="button" className="sidebar-toggle" onClick={onToggleCollapsed} aria-label={collapsed ? t('nav.expandirMenu') : t('nav.recolherMenu')}>
         <Icon name="chevron" size={14} />
       </button>
 
@@ -54,17 +56,17 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
       <div className="nav-scroll">
         {mostrarPrimeirosPassos && (
           <>
-            <div className="nav-label">Onboarding</div>
-            <NavItem icon="flag" label="Primeiros passos" active={view === 'primeirospassos'} collapsed={collapsed} onClick={() => onNavigate('primeirospassos')} />
+            <div className="nav-label">{t('nav.onboarding')}</div>
+            <NavItem icon="flag" label={t('nav.primeirosPassos')} active={view === 'primeirospassos'} collapsed={collapsed} onClick={() => onNavigate('primeirospassos')} />
           </>
         )}
 
-        <div className="nav-label">Principal</div>
-        <NavItem icon="dashboard" label="Painel" active={view === 'dashboard'} collapsed={collapsed} onClick={() => onNavigate('dashboard')} />
-        <NavItem icon="pedidos" label="Pedidos" active={view === 'pedidos'} collapsed={collapsed} onClick={() => onNavigate('pedidos')} />
-        <NavItem icon="produtos" label="Produtos" active={view === 'produtos'} collapsed={collapsed} onClick={() => onNavigate('produtos')} />
+        <div className="nav-label">{t('nav.principal')}</div>
+        <NavItem icon="dashboard" label={t('nav.painel')} active={view === 'dashboard'} collapsed={collapsed} onClick={() => onNavigate('dashboard')} />
+        <NavItem icon="pedidos" label={t('nav.pedidos')} active={view === 'pedidos'} collapsed={collapsed} onClick={() => onNavigate('pedidos')} />
+        <NavItem icon="produtos" label={t('nav.produtos')} active={view === 'produtos'} collapsed={collapsed} onClick={() => onNavigate('produtos')} />
 
-        <div className="nav-label">Ferramentas</div>
+        <div className="nav-label">{t('nav.ferramentas')}</div>
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;
           const grupoAtivoGerador = g.id === 'gerador' && noGerador;
@@ -77,31 +79,31 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
               </button>
               {g.id === 'calculadora' && aberto === 'calculadora' && !collapsed && (
                 <div className="nav-sub">
-                  <div className={view === 'calculadora' ? 'active' : ''} onClick={() => onNavigate('calculadora')}>Nova calculadora</div>
+                  <div className={view === 'calculadora' ? 'active' : ''} onClick={() => onNavigate('calculadora')}>{t('nav.novaCalculadora')}</div>
                   <div className={view === 'historico' ? 'active' : ''} onClick={() => onNavigate('historico')}>
-                    <span>Histórico</span> <span className="nav-badge">{histCount}</span>
+                    <span>{t('nav.historico')}</span> <span className="nav-badge">{histCount}</span>
                   </div>
-                  <div className={view === 'preferencias' ? 'active' : ''} onClick={() => onNavigate('preferencias')}>Preferências</div>
+                  <div className={view === 'preferencias' ? 'active' : ''} onClick={() => onNavigate('preferencias')}>{t('nav.preferencias')}</div>
                 </div>
               )}
               {g.id === 'gerador' && aberto === 'gerador' && !collapsed && (
                 <div className="nav-sub">
-                  <div className={view === 'gerador-criar' ? 'active' : ''} onClick={() => onNavigate('gerador-criar')}>Criar Anúncio</div>
-                  <div className={view === 'gerador-meus' ? 'active' : ''} onClick={() => onNavigate('gerador-meus')}>Meus Anúncios</div>
+                  <div className={view === 'gerador-criar' ? 'active' : ''} onClick={() => onNavigate('gerador-criar')}>{t('nav.criarAnuncio')}</div>
+                  <div className={view === 'gerador-meus' ? 'active' : ''} onClick={() => onNavigate('gerador-meus')}>{t('nav.meusAnuncios')}</div>
                 </div>
               )}
               {g.id === 'buscador' && aberto === 'buscador' && !collapsed && (
-                <div className="nav-sub"><div className="nav-sub-empty">Em breve por aqui</div></div>
+                <div className="nav-sub"><div className="nav-sub-empty">{t('nav.emBrevePorAqui')}</div></div>
               )}
             </div>
           );
         })}
-        <NavItem icon="otimizador" label="Otimizador" collapsed={collapsed} muted badge="EM BREVE" />
+        <NavItem icon="otimizador" label={t('nav.otimizador')} collapsed={collapsed} muted badge={t('nav.emBreveBadge')} />
       </div>
 
-      <div className="nav-label">Sistema</div>
-      <NavItem icon="config" label="Configurações" active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
-      <NavItem icon="integracoes" label="Integrações" collapsed={collapsed} />
+      <div className="nav-label">{t('nav.sistema')}</div>
+      <NavItem icon="config" label={t('nav.configuracoes')} active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
+      <NavItem icon="integracoes" label={t('nav.integracoes')} collapsed={collapsed} />
 
       <div className="sidebar-footer">
         <div className="avatar">{USUARIO.iniciais}</div>

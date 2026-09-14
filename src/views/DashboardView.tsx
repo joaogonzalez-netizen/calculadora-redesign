@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { INSIGHTS, KPIS } from '../lib/dashboardMock';
+import { useI18n } from '../context/I18nContext';
 import SyncBar from '../components/dashboard/SyncBar';
 import MarketplaceFilter from '../components/dashboard/MarketplaceFilter';
 import KpiCard from '../components/dashboard/KpiCard';
@@ -14,10 +15,10 @@ import EmptyStateFerramentas from '../components/dashboard/EmptyStateFerramentas
 type ModoPainel = 'populado' | 'vazio_marketplace' | 'vazio_ferramentas';
 const PAINEL_MODO_KEY = 'stlseller_painel_modo';
 
-const MODOS: { key: ModoPainel; label: string }[] = [
-  { key: 'populado', label: 'Com dados' },
-  { key: 'vazio_marketplace', label: 'Empty · Marketplace 1º' },
-  { key: 'vazio_ferramentas', label: 'Empty · Ferramentas 1º' },
+const MODOS: { key: ModoPainel; chaveLabel: string }[] = [
+  { key: 'populado', chaveLabel: 'dashboard.comDados' },
+  { key: 'vazio_marketplace', chaveLabel: 'dashboard.vazioMarketplace' },
+  { key: 'vazio_ferramentas', chaveLabel: 'dashboard.vazioFerramentas' },
 ];
 
 interface Props {
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculadora, onIrParaConfiguracoes }: Props) {
+  const { t } = useI18n();
   const [modo, setModo] = useState<ModoPainel>(() => {
     const salvo = localStorage.getItem(PAINEL_MODO_KEY) as ModoPainel | null;
     return salvo && MODOS.some((m) => m.key === salvo) ? salvo : 'populado';
@@ -40,10 +42,10 @@ export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculado
   return (
     <div>
       <div className="cluster-modo-row">
-        <span className="hint">Visualização:</span>
+        <span className="hint">{t('dashboard.visualizacao')}</span>
         <div className="cluster-modo-toggle painel-modo-toggle">
           {MODOS.map((m) => (
-            <button key={m.key} type="button" className={modo === m.key ? 'active' : ''} onClick={() => trocarModo(m.key)}>{m.label}</button>
+            <button key={m.key} type="button" className={modo === m.key ? 'active' : ''} onClick={() => trocarModo(m.key)}>{t(m.chaveLabel)}</button>
           ))}
         </div>
       </div>

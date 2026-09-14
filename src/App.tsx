@@ -16,6 +16,7 @@ import PedidosView from './views/PedidosView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
+import { I18nProvider } from './context/I18nContext';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
@@ -110,13 +111,15 @@ function AppShell() {
 function App() {
   return (
     <PasswordGate>
-      <LibrariasProvider>
-        <MoedaProvider>
-          <CalculadoraProvider>
-            <AppShell />
-          </CalculadoraProvider>
-        </MoedaProvider>
-      </LibrariasProvider>
+      <I18nProvider>
+        <LibrariasProvider>
+          <MoedaProvider>
+            <CalculadoraProvider>
+              <AppShell />
+            </CalculadoraProvider>
+          </MoedaProvider>
+        </LibrariasProvider>
+      </I18nProvider>
     </PasswordGate>
   );
 }
