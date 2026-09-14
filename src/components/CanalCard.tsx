@@ -308,30 +308,51 @@ export default function CanalCard() {
             Taxas de vendas = (preço de varejo do produto − desconto do vendedor) × tarifa de comissão da plataforma + tarifa por item vendido.
           </div>
 
-          <div className="mini-table">
-            <div className="mini-row"><span>Preço após desconto &lt; R$ 50,00</span><b>10% + R$ 4,00/item</b></div>
-            <div className="mini-row"><span>Preço após desconto ≥ R$ 50,00</span><b>6% + R$ 6,00/item</b></div>
-            <div className="mini-row"><span>Faixa aplicada ao preço atual</span><b>{Math.round(tiktokFaixaAtual.pct * 100)}% + {brl(tiktokFaixaAtual.fixo)}</b></div>
-            <div className="mini-row"><span>Taxa do Programa de taxa de envio</span><b>{brl(tiktokTaxaFreteAtual)}</b></div>
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>1 · Comissão por faixa de preço</label>
+            <div className="canal-tabela-wrap">
+              <table className="canal-tabela">
+                <thead><tr><th>Faixa</th><th>Comissão</th><th>Tarifa por item</th></tr></thead>
+                <tbody>
+                  <tr><td>Preço após desconto &lt; R$ 50,00</td><td>10%</td><td>R$ 4,00</td></tr>
+                  <tr><td>Preço após desconto ≥ R$ 50,00</td><td>6%</td><td>R$ 6,00</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="hint">Faixa aplicada ao preço atual: {Math.round(tiktokFaixaAtual.pct * 100)}% + {brl(tiktokFaixaAtual.fixo)}.</div>
           </div>
-          <div className="hint">Taxa do programa de envio: 6% do preço, limitada a R$ 50,00 por item — todo vendedor no Brasil é inscrito automaticamente e não é reembolsável após a entrega.</div>
-
-          <div className="switch-row">
-            <label>Sou vendedor novo (isenção da comissão por 60 dias)</label>
-            <label className="switch">
-              <input type="checkbox" checked={state.tiktokNovoVendedor} onChange={(e) => set('tiktokNovoVendedor', e.target.checked)} />
-              <span className="track" />
-            </label>
-          </div>
-          {state.tiktokNovoVendedor && (
-            <div className="hint">Oferta por tempo limitado pra novos vendedores: isenta só a tarifa de comissão da plataforma, limitada a R$ 17.000,00 em vendas. A tarifa por item e a taxa do programa de envio continuam sendo cobradas.</div>
-          )}
 
           <div className="field">
-            <label>Custo de frete adicional (R$)</label>
-            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.tiktokFrete} onChange={(e) => set('tiktokFrete', parseFloat(e.target.value) || 0)} /></div>
-            <div className="hint">Custo de envio estimado pelas dimensões da embalagem, além da taxa do programa de envio acima. Se o TikTok Shop já cobrir o frete via cupom, deixe em R$ 0,00.</div>
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>2 · Programa de taxa de envio</label>
+            <div className="hint" style={{ marginBottom: 10 }}>Taxa de serviço de 6% do preço, limitada a R$ 50,00 por item — todo vendedor no Brasil é inscrito automaticamente e não é reembolsável após a entrega.</div>
+            <div className="mini-table">
+              <div className="mini-row"><span>Taxa do programa (preço atual)</span><b>{brl(tiktokTaxaFreteAtual)}</b></div>
+            </div>
+            <div className="field" style={{ marginTop: 14 }}>
+              <label>Custo de frete adicional (R$)</label>
+              <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.tiktokFrete} onChange={(e) => set('tiktokFrete', parseFloat(e.target.value) || 0)} /></div>
+              <div className="hint">Custo de envio estimado pelas dimensões da embalagem, além da taxa do programa acima. Se o TikTok Shop já cobrir o frete via cupom, deixe em R$ 0,00.</div>
+            </div>
           </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>3 · Configurações adicionais</label>
+            <div className="switch-row">
+              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>Sou vendedor novo?</div><div className="hint" style={{ marginTop: 2 }}>Isenção da tarifa de comissão da plataforma por 60 dias</div></div>
+              <label className="switch"><input type="checkbox" checked={state.tiktokNovoVendedor} onChange={(e) => set('tiktokNovoVendedor', e.target.checked)} /><span className="track" /></label>
+            </div>
+            {state.tiktokNovoVendedor && (
+              <div className="hint">Oferta por tempo limitado pra novos vendedores, limitada a R$ 17.000,00 em vendas. A tarifa por item e a taxa do programa de envio continuam sendo cobradas.</div>
+            )}
+          </div>
+
+          <div className="divider-label">Resumo TikTok Shop</div>
+          <div className="mini-table mini-table-muted">
+            <div className="mini-row"><span>Total de taxas</span><b>{resultado ? brl(resultado.taxaValor) : '—'}</b></div>
+            <div className="mini-row"><span>Lucro estimado</span><b>{resultado ? brl(resultado.lucroLiquido) : '—'}</b></div>
+            <div className="mini-row"><span>Margem</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
+          </div>
+          <div className="hint">Painel somente leitura — calculado sobre o preço sugerido e o custo unitário preenchidos.</div>
         </div>
       )}
     </Card>
