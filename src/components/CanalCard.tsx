@@ -7,6 +7,11 @@ import Card from './Card';
 
 const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Shopee', 'Etsy', 'TikTok Shop'];
 
+function usd(v: number): string {
+  const n = isNaN(v) || v === null ? 0 : v;
+  return '$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 const ML_CATEGORIAS: { value: string; label: string }[] = [
   { value: 'eletronicos|12|17', label: 'Eletrônicos / Informática' },
   { value: 'casa|14|19', label: 'Casa e jardim' },
@@ -269,13 +274,30 @@ export default function CanalCard() {
       {state.canalAtivo === 'Etsy' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div className="callout">
-            <b>Taxas em USD, sem conversão de moeda</b>
-            6,5% de transação + 3% de processamento + $0,20 de listagem + $0,25 de taxa regulatória operacional.
+            <b>Canal 100% em dólar</b>
+            A Etsy é voltada ao público dos EUA — todo o cálculo roda em dólar ($), sem conversão de câmbio. Preencha os custos diretamente em USD.
           </div>
+
           <div className="field">
             <label>Custo do frete (US$)</label>
             <div className="prefix-wrap"><span className="pfx" data-fixed="true">US$</span><input type="number" step="0.01" value={state.etsyFrete} onChange={(e) => set('etsyFrete', parseFloat(e.target.value) || 0)} /></div>
           </div>
+
+          <div className="divider-label">Taxas aplicadas</div>
+          <div className="mini-table">
+            <div className="mini-row"><span>Transaction fee</span><b>6,5%</b></div>
+            <div className="mini-row"><span>Processing fee</span><b>3%</b></div>
+            <div className="mini-row"><span>Listing fee</span><b>{usd(0.20)}</b></div>
+            <div className="mini-row"><span>Regulatory operating fee</span><b>{usd(0.25)}</b></div>
+          </div>
+
+          <div className="divider-label">Resumo Etsy</div>
+          <div className="mini-table mini-table-muted">
+            <div className="mini-row"><span>Total de taxas</span><b>{resultado ? usd(resultado.taxaValor) : '—'}</b></div>
+            <div className="mini-row"><span>Lucro estimado</span><b>{resultado ? usd(resultado.lucroLiquido) : '—'}</b></div>
+            <div className="mini-row"><span>Margem</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
+          </div>
+          <div className="hint">Painel somente leitura — calculado sobre o preço sugerido e o custo unitário preenchidos.</div>
         </div>
       )}
 
