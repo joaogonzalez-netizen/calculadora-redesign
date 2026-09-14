@@ -1,6 +1,6 @@
 // Schemas per PRD seção 5/6 — preservar nomes de campos exatamente.
 
-export type Canal = 'Venda direta' | 'Mercado Livre' | 'Shopee' | 'Etsy';
+export type Canal = 'Venda direta' | 'Mercado Livre' | 'Shopee' | 'Etsy' | 'TikTok Shop';
 export type ModoPrec = 'preco' | 'margem';
 export type Moeda = 'BRL' | 'USD' | 'EUR' | 'ARS';
 export type CustoCategoria = 'Embalagem' | 'Mão de obra' | 'Acabamento' | 'Outro' | 'Outras';
@@ -147,6 +147,10 @@ export interface CalculoState {
 
   // Etsy
   etsyFrete: number;
+
+  // TikTok Shop
+  tiktokFrete: number;
+  tiktokNovoVendedor: boolean;
 
   accItems: AccItem[];
 

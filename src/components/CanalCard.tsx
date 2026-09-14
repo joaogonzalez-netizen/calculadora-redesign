@@ -2,9 +2,10 @@ import { useCalculadora } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import type { Canal, PgtoId } from '../types';
 import { brl } from '../lib/format';
+import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
 import Card from './Card';
 
-const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Shopee', 'Etsy'];
+const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Shopee', 'Etsy', 'TikTok Shop'];
 
 const ML_CATEGORIAS: { value: string; label: string }[] = [
   { value: 'eletronicos|12|17', label: 'Eletrônicos / Informática' },
@@ -58,6 +59,8 @@ export default function CanalCard() {
   const taxaCreditoPadrao = prefs.taxaCredito ?? 2.99;
 
   const precoAtual = resultado?.precoConsumidor ?? 0;
+  const tiktokFaixaAtual = getTiktokFaixa(precoAtual);
+  const tiktokTaxaFreteAtual = getTiktokTaxaServicoFrete(precoAtual);
 
   return (
     <Card icon="⌂" title="Canal de venda">
@@ -224,6 +227,40 @@ export default function CanalCard() {
           <div className="field">
             <label>Custo do frete (US$)</label>
             <div className="prefix-wrap"><span className="pfx" data-fixed="true">US$</span><input type="number" step="0.01" value={state.etsyFrete} onChange={(e) => set('etsyFrete', parseFloat(e.target.value) || 0)} /></div>
+          </div>
+        </div>
+      )}
+
+      {state.canalAtivo === 'TikTok Shop' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div className="callout">
+            <b>Como as taxas de vendas são calculadas por item</b>
+            Taxas de vendas = (preço de varejo do produto − desconto do vendedor) × tarifa de comissão da plataforma + tarifa por item vendido.
+          </div>
+
+          <div className="mini-table">
+            <div className="mini-row"><span>Preço após desconto &lt; R$ 50,00</span><b>10% + R$ 4,00/item</b></div>
+            <div className="mini-row"><span>Preço após desconto ≥ R$ 50,00</span><b>6% + R$ 6,00/item</b></div>
+            <div className="mini-row"><span>Faixa aplicada ao preço atual</span><b>{Math.round(tiktokFaixaAtual.pct * 100)}% + {brl(tiktokFaixaAtual.fixo)}</b></div>
+            <div className="mini-row"><span>Taxa do Programa de taxa de envio</span><b>{brl(tiktokTaxaFreteAtual)}</b></div>
+          </div>
+          <div className="hint">Taxa do programa de envio: 6% do preço, limitada a R$ 50,00 por item — todo vendedor no Brasil é inscrito automaticamente e não é reembolsável após a entrega.</div>
+
+          <div className="switch-row">
+            <label>Sou vendedor novo (isenção da comissão por 60 dias)</label>
+            <label className="switch">
+              <input type="checkbox" checked={state.tiktokNovoVendedor} onChange={(e) => set('tiktokNovoVendedor', e.target.checked)} />
+              <span className="track" />
+            </label>
+          </div>
+          {state.tiktokNovoVendedor && (
+            <div className="hint">Oferta por tempo limitado pra novos vendedores: isenta só a tarifa de comissão da plataforma, limitada a R$ 17.000,00 em vendas. A tarifa por item e a taxa do programa de envio continuam sendo cobradas.</div>
+          )}
+
+          <div className="field">
+            <label>Custo de frete adicional (R$)</label>
+            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.tiktokFrete} onChange={(e) => set('tiktokFrete', parseFloat(e.target.value) || 0)} /></div>
+            <div className="hint">Custo de envio estimado pelas dimensões da embalagem, além da taxa do programa de envio acima. Se o TikTok Shop já cobrir o frete via cupom, deixe em R$ 0,00.</div>
           </div>
         </div>
       )}

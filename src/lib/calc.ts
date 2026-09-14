@@ -55,6 +55,19 @@ export function getShopeeFixo(preco: number, faixaFixo: number, shopeeTipo: 'cnp
   return faixaFixo;
 }
 
+// TikTok Shop (regras de 14/09/2026, print de João): comissão + tarifa por
+// item variam pela faixa de preço após desconto do vendedor, mais uma taxa
+// de serviço do Programa de taxa de envio (6%, limitada a R$ 50/item) —
+// todo vendedor BR entra automaticamente nesse programa.
+export function getTiktokFaixa(preco: number) {
+  if (preco < 50) return { pct: 0.10, fixo: 4.00 };
+  return { pct: 0.06, fixo: 6.00 };
+}
+
+export function getTiktokTaxaServicoFrete(preco: number) {
+  return Math.min(preco * 0.06, 50);
+}
+
 function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
   if (s.canalAtivo === 'Venda direta') {
     return { pct: s.taxaCartaoPct / 100, fixo: 0 };
@@ -75,6 +88,12 @@ function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
   }
   if (s.canalAtivo === 'Etsy') {
     return { pct: 0.065 + 0.03, fixo: 0.20 + 0.25 + s.etsyFrete };
+  }
+  if (s.canalAtivo === 'TikTok Shop') {
+    const faixa = getTiktokFaixa(preco);
+    const comissaoPct = s.tiktokNovoVendedor ? 0 : faixa.pct;
+    const taxaServicoFrete = getTiktokTaxaServicoFrete(preco);
+    return { pct: comissaoPct, fixo: faixa.fixo + taxaServicoFrete + s.tiktokFrete };
   }
   return { pct: 0, fixo: 0 };
 }

@@ -30,6 +30,7 @@ function estadoInicial(): CalculoState {
     mlPesoEmbalagem: 0.3, mlImposto: 0, mlAds: 0, mlExtras: 0,
     shopeeTipo: 'cnpj', shopeeCpfAlto: false, shopeeFrete: 0,
     etsyFrete: 0,
+    tiktokFrete: 0, tiktokNovoVendedor: false,
     accItems: [novoAccItem('Caixa de papelão', 1.20, 'Embalagem')],
     adsAtivo: false,
   };
