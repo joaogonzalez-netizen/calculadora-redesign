@@ -83,8 +83,10 @@ function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
     const faixa = getShopeeFaixa(preco);
     const fixo = getShopeeFixo(preco, faixa.fixo, s.shopeeTipo);
     const cpfExtra = s.shopeeTipo === 'cpf' && s.shopeeCpfAlto ? 3 : 0;
-    const freteLiquido = Math.max(0, s.shopeeFrete - faixa.subFrete);
-    return { pct: faixa.pct, fixo: fixo + cpfExtra + freteLiquido };
+    // Subsídio de frete/Pix da tabela é só informativo — não entra no cálculo.
+    const campanhaExtraPct = s.shopeeCampanhaDestaque ? s.shopeeComissaoExtra / 100 : 0;
+    const cupomExtra = s.shopeeCupomProprio ? s.shopeeCupomValor : 0;
+    return { pct: faixa.pct + campanhaExtraPct, fixo: fixo + cpfExtra + s.shopeeFrete + cupomExtra };
   }
   if (s.canalAtivo === 'Etsy') {
     return { pct: 0.065 + 0.03, fixo: 0.20 + 0.25 + s.etsyFrete };

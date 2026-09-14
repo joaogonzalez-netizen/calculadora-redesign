@@ -144,6 +144,10 @@ export interface CalculoState {
   shopeeTipo: ShopeeTipo;
   shopeeCpfAlto: boolean;
   shopeeFrete: number;
+  shopeeCampanhaDestaque: boolean;
+  shopeeComissaoExtra: number;
+  shopeeCupomProprio: boolean;
+  shopeeCupomValor: number;
 
   // Etsy
   etsyFrete: number;

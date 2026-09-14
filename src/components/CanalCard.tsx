@@ -197,8 +197,8 @@ export default function CanalCard() {
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>1 · Tipo de conta</label>
             <div className="toggle-cards cols-2">
-              <div className={'toggle-card' + (state.shopeeTipo === 'cnpj' ? ' active' : '')} onClick={() => { set('shopeeTipo', 'cnpj'); set('shopeeCpfAlto', false); }}><b>CNPJ</b><span>Padrão para lojas oficiais</span></div>
-              <div className={'toggle-card' + (state.shopeeTipo === 'cpf' ? ' active' : '')} onClick={() => set('shopeeTipo', 'cpf')}><b>CPF</b><span>+R$ 3,00/item acima de 450 pedidos/90 dias</span></div>
+              <div className={'toggle-card' + (state.shopeeTipo === 'cnpj' ? ' active' : '')} onClick={() => { set('shopeeTipo', 'cnpj'); set('shopeeCpfAlto', false); }}><b>CNPJ</b><span>Sem taxa adicional</span></div>
+              <div className={'toggle-card' + (state.shopeeTipo === 'cpf' ? ' active' : '')} onClick={() => set('shopeeTipo', 'cpf')}><b>CPF</b><span>R$ 3,00/item acima de 450 pedidos em 90 dias</span></div>
             </div>
           </div>
           {state.shopeeTipo === 'cpf' && (
@@ -210,10 +210,58 @@ export default function CanalCard() {
               </div>
             </div>
           )}
+
           <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>2 · Comissão por faixa de preço</label>
+            <div className="canal-tabela-wrap">
+              <table className="canal-tabela">
+                <thead><tr><th>Faixa</th><th>Comissão</th><th>Taxa fixa</th><th>Subsídio frete</th><th>Subsídio Pix</th></tr></thead>
+                <tbody>
+                  <tr><td>Até R$ 79,99</td><td>20%</td><td>R$ 4,00</td><td>R$ 20,00</td><td>—</td></tr>
+                  <tr><td>R$ 80 – R$ 99,99</td><td>14%</td><td>R$ 16,00</td><td>R$ 30,00</td><td>5%</td></tr>
+                  <tr><td>R$ 100 – R$ 199,99</td><td>14%</td><td>R$ 20,00</td><td>R$ 30,00</td><td>5%</td></tr>
+                  <tr><td>R$ 200 – R$ 499,99</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>5%</td></tr>
+                  <tr><td>Acima de R$ 500</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>8%</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="hint">A Shopee aplica os valores automaticamente conforme a faixa de preço do produto. Política 2026 — vigência 01/03/2026, valores oficiais em R$.</div>
+          </div>
+
+          <div className="callout">
+            <b>Regras de baixo valor</b>
+            CNPJ com produto abaixo de R$ 8,00: a taxa fixa passa a ser 50% do valor do produto. CPF com produto abaixo de R$ 12,00: taxa regressiva (R$ 6,00 até R$ 8,00; R$ 6,50 entre R$ 8,00 e R$ 12,00).
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>3 · Frete</label>
+            <div className="hint" style={{ marginBottom: 10 }}>O Programa de Frete Grátis oferece cupons de até R$20 (itens até R$79,99), R$30 (R$80–R$199,99) e R$40 (acima de R$200). O subsídio de frete e o subsídio Pix são apenas informativos e não entram neste cálculo.</div>
             <label>Custo do frete (R$)</label>
             <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.shopeeFrete} onChange={(e) => set('shopeeFrete', parseFloat(e.target.value) || 0)} /></div>
-            <div className="hint">Comissão, taxa fixa e subsídios de frete/Pix são calculados automaticamente pela faixa de preço (política 2026).</div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>4 · Configurações adicionais</label>
+            <div className="switch-row">
+              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>Campanha de destaque?</div><div className="hint" style={{ marginTop: 2 }}>Comissão extra durante períodos de campanha</div></div>
+              <label className="switch"><input type="checkbox" checked={state.shopeeCampanhaDestaque} onChange={(e) => set('shopeeCampanhaDestaque', e.target.checked)} /><span className="track" /></label>
+            </div>
+            {state.shopeeCampanhaDestaque && (
+              <div className="field"><label>Comissão extra (%)</label><div className="suffix-wrap"><input type="number" step="0.1" value={state.shopeeComissaoExtra} onChange={(e) => set('shopeeComissaoExtra', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div></div>
+            )}
+
+            <div className="switch-row">
+              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>Cupom de desconto próprio?</div><div className="hint" style={{ marginTop: 2 }}>Desconto bancado por você, absorvido como custo</div></div>
+              <label className="switch"><input type="checkbox" checked={state.shopeeCupomProprio} onChange={(e) => set('shopeeCupomProprio', e.target.checked)} /><span className="track" /></label>
+            </div>
+            {state.shopeeCupomProprio && (
+              <div className="field"><label>Valor do cupom por venda (R$)</label><div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.shopeeCupomValor} onChange={(e) => set('shopeeCupomValor', parseFloat(e.target.value) || 0)} /></div></div>
+            )}
+
+            <div className="switch-row">
+              <label>Embutir imposto e taxas no preço final</label>
+              <label className="switch"><input type="checkbox" checked={state.embutirTaxas} onChange={(e) => set('embutirTaxas', e.target.checked)} /><span className="track" /></label>
+            </div>
           </div>
         </div>
       )}
