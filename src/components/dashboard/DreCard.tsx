@@ -1,23 +1,24 @@
 import { useMemo, useState } from 'react';
 import { DRE_LINHAS, DRE_MARGEM_LIQUIDA } from '../../lib/dashboardMock';
 import { contarProdutosSemVinculo } from '../../lib/produtosMock';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import InfoDot from '../InfoDot';
 
-const NOMES_MES = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+const CHAVES_MES = [
+  'dashboard.mesJaneiro', 'dashboard.mesFevereiro', 'dashboard.mesMarco', 'dashboard.mesAbril', 'dashboard.mesMaio', 'dashboard.mesJunho',
+  'dashboard.mesJulho', 'dashboard.mesAgosto', 'dashboard.mesSetembro', 'dashboard.mesOutubro', 'dashboard.mesNovembro', 'dashboard.mesDezembro',
 ];
 
 // Últimos 6 meses até o mês atual, sempre com o mês atual selecionado por
 // padrão. Os dados ainda são mock, então trocar o mês não refiltra nada —
 // fica pronto pra ligar quando existir API por período.
-function gerarOpcoesMes() {
+function gerarOpcoesMes(t: (chave: string) => string) {
   const hoje = new Date();
   const opcoes = [];
   for (let i = 0; i < 6; i++) {
     const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    opcoes.push({ valor: `${d.getFullYear()}-${d.getMonth()}`, label: `${NOMES_MES[d.getMonth()]} ${d.getFullYear()}` });
+    opcoes.push({ valor: `${d.getFullYear()}-${d.getMonth()}`, label: `${t(CHAVES_MES[d.getMonth()])} ${d.getFullYear()}` });
   }
   return opcoes;
 }
@@ -48,8 +49,9 @@ function baixarRelatorioCompleto(mesLabel: string) {
 }
 
 export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCusto: () => void }) {
+  const { t } = useI18n();
   const { semVinculo, total } = contarProdutosSemVinculo();
-  const opcoesMes = useMemo(gerarOpcoesMes, []);
+  const opcoesMes = useMemo(() => gerarOpcoesMes(t), [t]);
   const [mes, setMes] = useState(opcoesMes[0].valor);
   const mesLabel = opcoesMes.find((o) => o.valor === mes)?.label ?? opcoesMes[0].label;
   // Teste visual: totalizadores com cor por tipo de linha (receita/dedução/
@@ -62,23 +64,23 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
       <div className="card-body" style={{ paddingTop: 22 }}>
         <div className="dre-head">
           <div>
-            <h4>DRE do mês</h4>
-            <div className="chart-sub">Demonstrativo de resultado simplificado</div>
+            <h4>{t('dashboard.dreDoMes')}</h4>
+            <div className="chart-sub">{t('dashboard.demonstrativoResultadoSimplificado')}</div>
             <div className="dre-filtro-mes">
-              <label htmlFor="dre-mes">Período</label>
+              <label htmlFor="dre-mes">{t('dashboard.periodo')}</label>
               <select id="dre-mes" value={mes} onChange={(e) => setMes(e.target.value)}>
                 {opcoesMes.map((o) => <option key={o.valor} value={o.valor}>{o.label}</option>)}
               </select>
             </div>
           </div>
           <button type="button" className="btn-outline" onClick={() => baixarRelatorioCompleto(mesLabel)}>
-            <Icon name="upload" size={14} style={{ transform: 'rotate(180deg)' }} /> Baixar relatório completo
+            <Icon name="upload" size={14} style={{ transform: 'rotate(180deg)' }} /> {t('dashboard.baixarRelatorioCompleto')}
           </button>
         </div>
 
         <div className="cluster-modo-toggle dre-modo-toggle">
-          <button type="button" className={!colorido ? 'active' : ''} onClick={() => setColorido(false)}>Padrão</button>
-          <button type="button" className={colorido ? 'active' : ''} onClick={() => setColorido(true)}>Totalizadores coloridos</button>
+          <button type="button" className={!colorido ? 'active' : ''} onClick={() => setColorido(false)}>{t('dashboard.padrao')}</button>
+          <button type="button" className={colorido ? 'active' : ''} onClick={() => setColorido(true)}>{t('dashboard.totalizadoresColoridos')}</button>
         </div>
 
         <div className={'dre-table' + (colorido ? ' dre-colorido' : '')}>
@@ -105,15 +107,15 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
               )}
 
               {l.dependeDeVinculo && (
-                <div className="dre-caption">Não inclui taxa de marketplace — essa já está separada na linha "Taxas de marketplace", vinda direto da integração real de cada canal.</div>
+                <div className="dre-caption">{t('dashboard.dreCaptionTaxaMarketplace')}</div>
               )}
 
               {l.dependeDeVinculo && semVinculo > 0 && (
                 <div className="dre-alerta">
                   <span>
-                    ⚠ {semVinculo} de {total} produtos vendidos ainda não têm custo vinculado — esse valor pode estar subestimado.
+                    ⚠ {t('dashboard.produtosSemCustoAlerta').replace('{sem}', String(semVinculo)).replace('{total}', String(total))}
                   </span>
-                  <button type="button" className="btn-outline dre-alerta-btn" onClick={onVerProdutosSemCusto}>Ver produtos sem custo</button>
+                  <button type="button" className="btn-outline dre-alerta-btn" onClick={onVerProdutosSemCusto}>{t('dashboard.verProdutosSemCusto')}</button>
                 </div>
               )}
             </div>
@@ -121,7 +123,7 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
         </div>
 
         <div className="dre-footer">
-          <div className="dre-margem"><span>Margem líquida</span><b>{DRE_MARGEM_LIQUIDA}</b></div>
+          <div className="dre-margem"><span>{t('dashboard.margemLiquida')}</span><b>{DRE_MARGEM_LIQUIDA}</b></div>
         </div>
       </div>
     </div>

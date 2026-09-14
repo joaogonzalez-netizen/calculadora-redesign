@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 // Réplica do passo "Vídeo" do Gerador de anúncios em produção (print de
@@ -17,28 +18,29 @@ interface Props {
 }
 
 export default function VideoStep({ onVoltar, onContinuar }: Props) {
+  const { t } = useI18n();
   const [roteiro, setRoteiro] = useState(ROTEIRO_MOCK);
 
   return (
     <>
-      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> Cancelar e voltar</button>
+      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> {t('gerador.cancelarEVoltar')}</button>
 
       <div className="ger-titulo-bloco">
-        <h2>Prepare o vídeo do anúncio</h2>
+        <h2>{t('gerador.prepareVideoAnuncio')}</h2>
         <p>Revise o roteiro da narração e escolha o formato antes de gerar o vídeo.</p>
       </div>
 
-      <div className="ger-video-label">Roteiro da narração</div>
+      <div className="ger-video-label">{t('gerador.roteiroNarracao')}</div>
       <textarea className="ger-video-textarea" rows={5} value={roteiro} onChange={(e) => setRoteiro(e.target.value)} />
 
       <div className="ger-video-rodape">
-        <span className="ger-video-chip">Narração em Português (BR)</span>
+        <span className="ger-video-chip">{t('gerador.narracaoEmPortugues')}</span>
 
         <div className="ger-video-acoes">
           <button type="button" className="ger-video-regerar" onClick={regerarRoteiro}>
-            <Icon name="sync" size={13} /> Re-gerar roteiro · 2 créditos
+            <Icon name="sync" size={13} /> {t('gerador.regerarRoteiro')} · 2 {t('gerador.creditos')}
           </button>
-          <button type="button" className="btn-dark pill" onClick={onContinuar}>Gerar e ver resultados</button>
+          <button type="button" className="btn-dark pill" onClick={onContinuar}>{t('gerador.gerarVerResultados')}</button>
         </div>
       </div>
     </>

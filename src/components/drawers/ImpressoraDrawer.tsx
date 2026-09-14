@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useLibrarias } from '../../context/LibrariasContext';
+import { useI18n } from '../../context/I18nContext';
 import type { Impressora } from '../../types';
 import Drawer from './Drawer';
 
 export default function ImpressoraDrawer({ open, onClose, onUse }: { open: boolean; onClose: () => void; onUse: (idx: number, imp: Impressora) => void }) {
   const { impressoras, setImpressoras } = useLibrarias();
+  const { t } = useI18n();
   const [nome, setNome] = useState('');
   const [kwh, setKwh] = useState('');
 
@@ -19,7 +21,7 @@ export default function ImpressoraDrawer({ open, onClose, onUse }: { open: boole
   }
 
   return (
-    <Drawer open={open} onClose={onClose} title="Biblioteca de impressoras" hint="Clique em &quot;+&quot; pra usar essa impressora no cálculo atual.">
+    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeImpressoras')} hint="Clique em &quot;+&quot; pra usar essa impressora no cálculo atual.">
       <div>
         {impressoras.length ? impressoras.map((i, idx) => (
           <div key={idx} className="drawer-lib-row">
@@ -28,11 +30,11 @@ export default function ImpressoraDrawer({ open, onClose, onUse }: { open: boole
           </div>
         )) : <div className="hint">Nenhuma impressora na biblioteca ainda. Cadastre uma abaixo.</div>}
       </div>
-      <div className="divider-label" style={{ marginTop: 18 }}>Cadastrar novo</div>
+      <div className="divider-label" style={{ marginTop: 18 }}>{t('calc.cadastrarNovo')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
-        <input type="text" placeholder="Nome (ex: Creality K1 Max)" value={nome} onChange={(e) => setNome(e.target.value)} />
-        <input type="number" placeholder="Consumo (kWh/h)" step="0.01" value={kwh} onChange={(e) => setKwh(e.target.value)} />
-        <button type="button" className="btn-outline" onClick={cadastrar}>+ Cadastrar e usar</button>
+        <input type="text" placeholder={t('calc.placeholderNomeImpressora')} value={nome} onChange={(e) => setNome(e.target.value)} />
+        <input type="number" placeholder={t('calc.placeholderConsumoKwhDrawer')} step="0.01" value={kwh} onChange={(e) => setKwh(e.target.value)} />
+        <button type="button" className="btn-outline" onClick={cadastrar}>+ {t('calc.cadastrarEUsar')}</button>
       </div>
     </Drawer>
   );

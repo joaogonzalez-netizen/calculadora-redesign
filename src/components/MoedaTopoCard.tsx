@@ -1,5 +1,6 @@
 import type { Moeda } from '../types';
 import { useMoeda } from '../context/MoedaContext';
+import { useI18n } from '../context/I18nContext';
 
 const OPTS: { m: Moeda; label: string }[] = [
   { m: 'BRL', label: 'R$' },
@@ -10,10 +11,11 @@ const OPTS: { m: Moeda; label: string }[] = [
 
 export default function MoedaTopoCard() {
   const { moeda, setMoeda } = useMoeda();
+  const { t } = useI18n();
   return (
     <div className="card">
       <div className="card-body" style={{ padding: '14px 24px', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 16 }}>
-        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)', whiteSpace: 'nowrap' }}>Moeda de exibição</label>
+        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)', whiteSpace: 'nowrap' }}>{t('calc.moedaDeExibicao')}</label>
         <div className="chip-row sm">
           {OPTS.map((o) => (
             <button key={o.m} type="button" className={'chip sm' + (moeda === o.m ? ' active' : '')} onClick={() => setMoeda(o.m)}>

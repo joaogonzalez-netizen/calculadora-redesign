@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLibrarias } from '../context/LibrariasContext';
+import { useI18n } from '../context/I18nContext';
 import type { CustoCategoria, Filamento, Impressora, Moeda } from '../types';
 import { brl } from '../lib/format';
 import InfoDot from '../components/InfoDot';
@@ -9,15 +10,22 @@ import {
 } from '../lib/cluster';
 
 type Tab = 'moeda' | 'impressora' | 'margem' | 'vendadireta' | 'custos' | 'organizacao';
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'moeda', label: 'Moeda' },
-  { key: 'impressora', label: 'Impressão' },
-  { key: 'margem', label: 'Precificação' },
-  { key: 'vendadireta', label: 'Canal de venda' },
-  { key: 'custos', label: 'Custos extras' },
-  { key: 'organizacao', label: 'Pastas & marcadores' },
+const TABS: { key: Tab; labelKey: string }[] = [
+  { key: 'moeda', labelKey: 'calc.moeda' },
+  { key: 'impressora', labelKey: 'calc.impressao' },
+  { key: 'margem', labelKey: 'calc.precificacao' },
+  { key: 'vendadireta', labelKey: 'calc.canalDeVenda' },
+  { key: 'custos', labelKey: 'calc.custosExtras' },
+  { key: 'organizacao', labelKey: 'calc.pastasMarcadores' },
 ];
 const CATS: CustoCategoria[] = ['Embalagem', 'Mão de obra', 'Acabamento', 'Outro', 'Outras'];
+const CATS_LABEL_KEYS: Record<CustoCategoria, string> = {
+  'Embalagem': 'calc.catEmbalagem',
+  'Mão de obra': 'calc.catMaoDeObra',
+  'Acabamento': 'calc.catAcabamento',
+  'Outro': 'calc.catOutro',
+  'Outras': 'calc.catOutras',
+};
 const TIPOS_FIL = ['PLA', 'PETG', 'ABS', 'TPU', 'Resina'];
 const MOEDAS: { m: Moeda; label: string }[] = [
   { m: 'BRL', label: 'R$' }, { m: 'USD', label: 'US$' }, { m: 'EUR', label: '€' }, { m: 'ARS', label: 'AR$' },
@@ -28,6 +36,7 @@ export default function PreferenciasView() {
     impressoras, setImpressoras, filamentos, setFilamentos, custosPadrao, setCustosPadrao,
     prefs, setPrefs,
   } = useLibrarias();
+  const { t } = useI18n();
 
   const [tab, setTab] = useState<Tab>('moeda');
 
@@ -133,13 +142,13 @@ export default function PreferenciasView() {
   return (
     <div>
       <div className="hero">
-        <h1>Configure os <span className="accent">padrões</span> da sua calculadora.</h1>
-        <p>O que você definir aqui já vem preenchido sempre que você abrir uma nova calculadora. Nada aqui é travado, você pode sobrescrever qualquer campo num cálculo específico.</p>
+        <h1>{t('calc.prefsHeroTitlePart1')} <span className="accent">{t('calc.prefsHeroTitleAccent')}</span> {t('calc.prefsHeroTitlePart2')}</h1>
+        <p>{t('calc.prefsHeroSubtitle')}</p>
       </div>
 
       <div className="chip-row" style={{ marginBottom: 20, flexWrap: 'wrap' }}>
-        {TABS.map((t) => (
-          <button key={t.key} type="button" className={'chip' + (tab === t.key ? ' active' : '')} onClick={() => setTab(t.key)}>{t.label}</button>
+        {TABS.map((tabItem) => (
+          <button key={tabItem.key} type="button" className={'chip' + (tab === tabItem.key ? ' active' : '')} onClick={() => setTab(tabItem.key)}>{t(tabItem.labelKey)}</button>
         ))}
       </div>
 
@@ -147,7 +156,7 @@ export default function PreferenciasView() {
         <div className="card pref-tab">
           <div className="card-body" style={{ paddingTop: 22 }}>
             <div className="field">
-              <label>Moeda de exibição padrão <InfoDot text="É só o símbolo mostrado (R$/US$/€/AR$): não há conversão de valor, o número exibido é sempre o mesmo calculado em reais." /></label>
+              <label>{t('calc.moedaDeExibicaoPadrao')} <InfoDot text="É só o símbolo mostrado (R$/US$/€/AR$): não há conversão de valor, o número exibido é sempre o mesmo calculado em reais." /></label>
               <div className="chip-row sm">
                 {MOEDAS.map((o) => (
                   <button key={o.m} type="button" className={'chip sm' + (moeda === o.m ? ' active' : '')} onClick={() => setMoedaBuf(o.m)}>{o.label}</button>
@@ -163,27 +172,27 @@ export default function PreferenciasView() {
         <>
           <div className="card pref-tab">
             <div className="card-head" style={{ cursor: 'default' }}>
-              <div className="htitle"><div className="ic-badge">🖶</div><h3>Impressora padrão</h3></div>
+              <div className="htitle"><div className="ic-badge">🖶</div><h3>{t('calc.impressoraPadrao')}</h3></div>
             </div>
             <div className="card-body">
               <div className="row2">
                 <div className="field">
-                  <label>Impressora padrão</label>
+                  <label>{t('calc.impressoraPadrao')}</label>
                   <select value={impressoraSel} onChange={(e) => setImpressoraSel(e.target.value)}>
-                    <option value="">Nenhuma</option>
+                    <option value="">{t('calc.nenhuma')}</option>
                     {impressoras.map((i, idx) => <option key={idx} value={idx}>{i.nome}</option>)}
                   </select>
                   <div className="hint">Gerenciada na biblioteca abaixo. Vem pré-selecionada ao abrir uma calculadora nova.</div>
                 </div>
                 <div className="field">
-                  <label>Valor do kWh padrão (R$)</label>
+                  <label>{t('calc.valorDoKwhPadrao')}</label>
                   <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={kwh} onChange={(e) => setKwh(e.target.value)} /></div>
                   <div className="hint">Média nacional ~ R$ 0,75–0,85</div>
                 </div>
               </div>
-              <div className="divider-label">Biblioteca de impressoras</div>
+              <div className="divider-label">{t('calc.bibliotecaDeImpressoras')}</div>
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Nome</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>kWh/h</span><span />
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>kWh/h</span><span />
               </div>
               {impressoras.map((i, idx) => (
                 <div className="custo-row" key={idx}>
@@ -194,29 +203,29 @@ export default function PreferenciasView() {
                 </div>
               ))}
               <div className="add-custo-row">
-                <input type="text" placeholder="Nome (ex: Creality K1 Max)" value={novaImpNome} onChange={(e) => setNovaImpNome(e.target.value)} />
+                <input type="text" placeholder={t('calc.placeholderNomeImpressora')} value={novaImpNome} onChange={(e) => setNovaImpNome(e.target.value)} />
                 <input type="number" placeholder="kWh/h" step="0.01" style={{ maxWidth: 100 }} value={novaImpKwh} onChange={(e) => setNovaImpKwh(e.target.value)} />
-                <button className="btn-outline" onClick={addImpressora}>+ Adicionar</button>
+                <button className="btn-outline" onClick={addImpressora}>+ {t('calc.adicionar')}</button>
               </div>
             </div>
           </div>
 
           <div className="card pref-tab">
             <div className="card-head" style={{ cursor: 'default' }}>
-              <div className="htitle"><div className="ic-badge">◆</div><h3>Filamento padrão</h3></div>
+              <div className="htitle"><div className="ic-badge">◆</div><h3>{t('calc.filamentoPadrao')}</h3></div>
             </div>
             <div className="card-body">
               <div className="field">
-                <label>Filamento padrão</label>
+                <label>{t('calc.filamentoPadrao')}</label>
                 <select value={filamentoSel} onChange={(e) => setFilamentoSel(e.target.value)}>
-                  <option value="">Nenhum</option>
+                  <option value="">{t('calc.nenhum')}</option>
                   {filamentos.map((f, idx) => <option key={idx} value={idx}>{f.nome} ({f.tipo}{f.cor ? ' · ' + f.cor : ''}): {brl(f.preco)}/kg</option>)}
                 </select>
                 <div className="hint">O preço (R$/kg) do filamento padrão preenche o campo "Filamento" na calculadora.</div>
               </div>
-              <div className="divider-label">Biblioteca de filamentos</div>
+              <div className="divider-label">{t('calc.bibliotecaDeFilamentos')}</div>
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 90px 90px 100px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Marca</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>Tipo</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>Cor</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>R$/kg</span><span />
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.marca')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.tipo')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.cor')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>R$/kg</span><span />
               </div>
               {filamentos.map((f, idx) => (
                 <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 90px 90px 100px 34px' }} key={idx}>
@@ -229,11 +238,11 @@ export default function PreferenciasView() {
                 </div>
               ))}
               <div className="row2" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr auto', display: 'grid', gap: 8 }}>
-                <input type="text" placeholder="Marca (ex: STLFlix PLA)" value={novoFilNome} onChange={(e) => setNovoFilNome(e.target.value)} />
+                <input type="text" placeholder={t('calc.placeholderMarcaFilamento')} value={novoFilNome} onChange={(e) => setNovoFilNome(e.target.value)} />
                 <select value={novoFilTipo} onChange={(e) => setNovoFilTipo(e.target.value)}>
-                  {TIPOS_FIL.map((t) => <option key={t}>{t}</option>)}
+                  {TIPOS_FIL.map((tipoFil) => <option key={tipoFil}>{tipoFil}</option>)}
                 </select>
-                <input type="text" placeholder="Cor (ex: Preto)" value={novoFilCor} onChange={(e) => setNovoFilCor(e.target.value)} />
+                <input type="text" placeholder={t('calc.placeholderCorFilamento')} value={novoFilCor} onChange={(e) => setNovoFilCor(e.target.value)} />
                 <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" placeholder="/kg" step="0.01" value={novoFilPreco} onChange={(e) => setNovoFilPreco(e.target.value)} /></div>
                 <button className="btn-outline" onClick={addFilamento}>+</button>
               </div>
@@ -247,12 +256,12 @@ export default function PreferenciasView() {
           <div className="card-body" style={{ paddingTop: 22 }}>
             <div className="row2">
               <div className="field">
-                <label>Imposto padrão (%)</label>
+                <label>{t('calc.impostoPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" value={imposto} onChange={(e) => setImposto(e.target.value)} /><span className="sfx">%</span></div>
                 <div className="hint">Simples: 4–19,5% · MEI isento</div>
               </div>
               <div className="field">
-                <label>Margem padrão (%)</label>
+                <label>{t('calc.margemPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" value={margem} onChange={(e) => setMargem(e.target.value)} /><span className="sfx">%</span></div>
               </div>
             </div>
@@ -266,21 +275,21 @@ export default function PreferenciasView() {
             <div className="custo-desc">Configurações da Venda Direta. Os outros canais (Mercado Livre, Shopee, Etsy) ainda não têm padrões salváveis aqui.</div>
             <div className="row2">
               <div className="field">
-                <label>Taxa Débito padrão (%)</label>
+                <label>{t('calc.taxaDebitoPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" step="0.01" value={taxaDebito} onChange={(e) => setTaxaDebito(e.target.value)} /><span className="sfx">%</span></div>
               </div>
               <div className="field">
-                <label>Taxa Crédito padrão (%)</label>
+                <label>{t('calc.taxaCreditoPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" step="0.01" value={taxaCredito} onChange={(e) => setTaxaCredito(e.target.value)} /><span className="sfx">%</span></div>
               </div>
             </div>
             <div className="row2">
               <div className="field">
-                <label>Taxa Pix padrão (%)</label>
+                <label>{t('calc.taxaPixPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" step="0.01" value={taxaPix} onChange={(e) => setTaxaPix(e.target.value)} /><span className="sfx">%</span></div>
               </div>
               <div className="field">
-                <label>Desconto Pix padrão (%)</label>
+                <label>{t('calc.descontoPixPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" value={descontoPix} onChange={(e) => setDescontoPix(e.target.value)} /><span className="sfx">%</span></div>
               </div>
             </div>
@@ -296,7 +305,7 @@ export default function PreferenciasView() {
               Os itens marcados como <b>ativo</b> já entram sozinhos toda vez que você abre uma calculadora nova; os demais ficam disponíveis pra adicionar manualmente (na calculadora ou por aqui).
             </div>
             <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 130px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-              <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Nome</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Valor</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Categoria</span><span />
+              <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.valor')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.categoria')}</span><span />
             </div>
             {custosPadrao.map((c, idx) => (
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 130px 34px' }} key={idx}>
@@ -304,18 +313,18 @@ export default function PreferenciasView() {
                 <input type="text" value={c.nome} onChange={(e) => updateCustoPadrao(idx, { nome: e.target.value })} />
                 <input type="number" step="0.01" value={c.valor} onChange={(e) => updateCustoPadrao(idx, { valor: parseFloat(e.target.value) || 0 })} />
                 <select value={c.categoria} onChange={(e) => updateCustoPadrao(idx, { categoria: e.target.value as CustoCategoria })}>
-                  {CATS.map((cat) => <option key={cat}>{cat}</option>)}
+                  {CATS.map((cat) => <option key={cat} value={cat}>{t(CATS_LABEL_KEYS[cat])}</option>)}
                 </select>
                 <button className="custo-remove" onClick={() => removeCustoPadrao(idx)}>✕</button>
               </div>
             ))}
             <div className="add-custo-row">
-              <input type="text" placeholder="Nome do custo (ex: Caixa de papelão)" value={novoCustoNome} onChange={(e) => setNovoCustoNome(e.target.value)} />
+              <input type="text" placeholder={t('calc.placeholderNomeCusto')} value={novoCustoNome} onChange={(e) => setNovoCustoNome(e.target.value)} />
               <div className="prefix-wrap" style={{ maxWidth: 130 }}><span className="pfx">R$</span><input type="number" placeholder="0,00" step="0.01" value={novoCustoValor} onChange={(e) => setNovoCustoValor(e.target.value)} /></div>
               <select style={{ maxWidth: 150 }} value={novoCustoCategoria} onChange={(e) => setNovoCustoCategoria(e.target.value as CustoCategoria)}>
-                {CATS.map((cat) => <option key={cat}>{cat}</option>)}
+                {CATS.map((cat) => <option key={cat} value={cat}>{t(CATS_LABEL_KEYS[cat])}</option>)}
               </select>
-              <button className="btn-outline" onClick={addCustoPadrao}>+ Adicionar</button>
+              <button className="btn-outline" onClick={addCustoPadrao}>+ {t('calc.adicionar')}</button>
             </div>
           </div>
         </div>
@@ -329,10 +338,10 @@ export default function PreferenciasView() {
               Cada cálculo aceita só uma pasta ou um marcador por vez.
             </div>
 
-            <div className="divider-label">Pastas ({pastasOrg.length})</div>
+            <div className="divider-label">{t('calc.pastasLabel')} ({pastasOrg.length})</div>
             {pastasOrg.length > 0 && (
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Nome</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>Cálculos</span><span />
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.calculos')}</span><span />
               </div>
             )}
             {pastasOrg.map((p) => (
@@ -345,10 +354,10 @@ export default function PreferenciasView() {
             ))}
             {!pastasOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>Nenhuma pasta criada ainda — crie uma pelo Histórico.</div>}
 
-            <div className="divider-label" style={{ marginTop: 22 }}>Marcadores ({marcadoresOrg.length})</div>
+            <div className="divider-label" style={{ marginTop: 22 }}>{t('calc.marcadoresLabel')} ({marcadoresOrg.length})</div>
             {marcadoresOrg.length > 0 && (
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>Nome</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>Cálculos</span><span />
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.calculos')}</span><span />
               </div>
             )}
             {marcadoresOrg.map((m) => (
@@ -365,8 +374,8 @@ export default function PreferenciasView() {
       )}
 
       <div className="actions-secondary" style={{ justifyContent: 'flex-start', marginTop: 6 }}>
-        <button className="btn-calc" style={{ width: 'auto', padding: '12px 26px' }} onClick={salvar}>Salvar preferências</button>
-        <span className={'save-msg' + (saved ? ' show' : '')} style={{ alignSelf: 'center', fontSize: 13, color: 'var(--primary-dark)', fontWeight: 600, opacity: saved ? 1 : 0, transition: '.2s' }}>Preferências salvas ✓</span>
+        <button className="btn-calc" style={{ width: 'auto', padding: '12px 26px' }} onClick={salvar}>{t('calc.salvarPreferencias')}</button>
+        <span className={'save-msg' + (saved ? ' show' : '')} style={{ alignSelf: 'center', fontSize: 13, color: 'var(--primary-dark)', fontWeight: 600, opacity: saved ? 1 : 0, transition: '.2s' }}>{t('calc.preferenciasSalvas')} ✓</span>
       </div>
     </div>
   );

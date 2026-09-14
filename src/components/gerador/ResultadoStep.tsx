@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import PublicarAnuncioModal from './PublicarAnuncioModal';
 
@@ -71,11 +72,12 @@ interface SecaoHeadProps {
 }
 
 function SecaoHead({ titulo, aberta, creditos, onToggle }: SecaoHeadProps) {
+  const { t } = useI18n();
   return (
     <div className={'ger-res-secao-head' + (aberta ? '' : ' fechada')} onClick={onToggle}>
       <h3>{titulo} <Icon name="chevron" size={13} /></h3>
       <button type="button" className="ger-res-regerar" onClick={(e) => { e.stopPropagation(); regerarSecao(titulo, creditos); }}>
-        <Icon name="sync" size={12} /> Re-gerar · <Icon name="creditos" size={12} /> {creditos}
+        <Icon name="sync" size={12} /> {t('gerador.regerar')} · <Icon name="creditos" size={12} /> {creditos}
       </button>
     </div>
   );
@@ -87,6 +89,7 @@ interface Props {
 }
 
 export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props) {
+  const { t } = useI18n();
   const [textosAberto, setTextosAberto] = useState(true);
   const [imagensAberto, setImagensAberto] = useState(true);
   const [videoAberto, setVideoAberto] = useState(true);
@@ -95,20 +98,20 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
 
   return (
     <>
-      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> Cancelar e voltar</button>
+      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> {t('gerador.cancelarEVoltar')}</button>
 
       <div className="ger-res-head">
         <div>
-          <h2>Resumo do Anúncio</h2>
+          <h2>{t('gerador.resumoDoAnuncio')}</h2>
           <div className="sub">{TITULO.split(' ').slice(0, 6).join(' ')}…</div>
           <div className="ger-res-meta">
-            <span><Icon name="creditos" size={13} /> 10 créditos usados</span>
-            <span><Icon name="clock" size={13} /> Gerado em {dataFormatada()}</span>
+            <span><Icon name="creditos" size={13} /> 10 {t('gerador.creditosUsados')}</span>
+            <span><Icon name="clock" size={13} /> {t('gerador.geradoEm')} {dataFormatada()}</span>
           </div>
         </div>
         <div className="ger-res-acoes">
-          <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> Baixar tudo</button>
-          <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>Publicar anúncio</button>
+          <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTudo')}</button>
+          <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>{t('gerador.publicarAnuncio')}</button>
         </div>
       </div>
 
@@ -120,27 +123,27 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
       )}
 
       <div className="ger-res-secao">
-        <SecaoHead titulo="Textos" aberta={textosAberto} creditos={1} onToggle={() => setTextosAberto((v) => !v)} />
+        <SecaoHead titulo={t('gerador.secaoTextos')} aberta={textosAberto} creditos={1} onToggle={() => setTextosAberto((v) => !v)} />
         {textosAberto && (
           <>
             <div className="ger-txt-card">
               <div className="ger-txt-card-head">
                 <div>
-                  <div className="ger-txt-label">Título</div>
+                  <div className="ger-txt-label">{t('gerador.titulo')}</div>
                   <div className="ger-txt-titulo">{TITULO}</div>
                 </div>
               </div>
             </div>
 
             <div className="ger-txt-card">
-              <div className="ger-txt-label" style={{ marginBottom: 12 }}>Variações de Título</div>
+              <div className="ger-txt-label" style={{ marginBottom: 12 }}>{t('gerador.variacoesTitulo')}</div>
               <div className="ger-txt-variacoes">
                 {VARIACOES.map((v, idx) => <div className="ger-txt-variacao" key={idx}><span>{v}</span></div>)}
               </div>
             </div>
 
             <div className="ger-txt-card ger-txt-com-chat">
-              <div className="ger-txt-label">Descrição</div>
+              <div className="ger-txt-label">{t('gerador.descricao')}</div>
               <div className="ger-txt-desc">{DESCRICAO}</div>
               <button type="button" className="ger-txt-chat" onClick={() => regerarSecao('Descrição', 1)} title="Pedir ajuste via chat">
                 <Icon name="message" size={16} />
@@ -151,7 +154,7 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
       </div>
 
       <div className="ger-res-secao">
-        <SecaoHead titulo="Imagens do Produto" aberta={imagensAberto} creditos={2} onToggle={() => setImagensAberto((v) => !v)} />
+        <SecaoHead titulo={t('gerador.secaoImagensProduto')} aberta={imagensAberto} creditos={2} onToggle={() => setImagensAberto((v) => !v)} />
         {imagensAberto && (
           <>
             <div className="ger-res-img-grid">
@@ -159,15 +162,15 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
               {imagensExpandidas && IMAGENS_EXTRAS.map((g, idx) => <div className="ger-res-img" key={'extra' + idx} style={{ background: g }} />)}
             </div>
             <div className="ger-res-img-rodape">
-              <button type="button" onClick={baixarImagens}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> Baixar todas as imagens</button>
-              <button type="button" onClick={() => setImagensExpandidas((v) => !v)}>{imagensExpandidas ? 'Mostrar menos imagens' : 'Mostrar mais imagens'}</button>
+              <button type="button" onClick={baixarImagens}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTodasImagens')}</button>
+              <button type="button" onClick={() => setImagensExpandidas((v) => !v)}>{imagensExpandidas ? t('gerador.mostrarMenosImagens') : t('gerador.mostrarMaisImagens')}</button>
             </div>
           </>
         )}
       </div>
 
       <div className="ger-res-secao">
-        <SecaoHead titulo="Vídeos narrados" aberta={videoAberto} creditos={2} onToggle={() => setVideoAberto((v) => !v)} />
+        <SecaoHead titulo={t('gerador.secaoVideosNarrados')} aberta={videoAberto} creditos={2} onToggle={() => setVideoAberto((v) => !v)} />
         {videoAberto && (
           <div>
             <div className="ger-res-video">
@@ -176,15 +179,15 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
               </div>
             </div>
             <button type="button" className="ger-video-baixar" onClick={baixarVideo}>
-              <Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> Baixar vídeo
+              <Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarVideo')}
             </button>
           </div>
         )}
       </div>
 
       <div className="ger-res-acoes ger-res-acoes-rodape">
-        <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> Baixar tudo</button>
-        <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>Publicar anúncio</button>
+        <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTudo')}</button>
+        <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>{t('gerador.publicarAnuncio')}</button>
       </div>
     </>
   );

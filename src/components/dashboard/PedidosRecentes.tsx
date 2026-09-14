@@ -1,12 +1,14 @@
 import { PEDIDOS_RECENTES } from '../../lib/dashboardMock';
+import { useI18n } from '../../context/I18nContext';
 
 export default function PedidosRecentes() {
+  const { t } = useI18n();
   return (
     <div className="card list-card">
       <div className="card-body list-body">
         <div className="list-head">
-          <h4>Pedidos recentes</h4>
-          <a href="#pedidos">Ver todos</a>
+          <h4>{t('dashboard.pedidosRecentes')}</h4>
+          <a href="#pedidos">{t('dashboard.verTodos')}</a>
         </div>
         {PEDIDOS_RECENTES.map((p) => (
           <div className="pedido-row" key={p.id}>

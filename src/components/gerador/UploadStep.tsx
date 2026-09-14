@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function UploadStep({ imagens, onAdicionar, onRemover, onContinuar }: Props) {
+  const { t } = useI18n();
   const podeContinuar = imagens.length >= 1;
   const cheio = imagens.length >= 5;
 
@@ -15,12 +17,12 @@ export default function UploadStep({ imagens, onAdicionar, onRemover, onContinua
     <>
       <div className="ger-dropzone" onClick={() => !cheio && onAdicionar()}>
         <Icon name="upload" size={24} />
-        <h3>Arraste e solte ou clique para fazer o upload</h3>
-        <p>JPG, PNG ou WebP — até 5 imagens</p>
-        <span className="hint">{imagens.length}/5 imagens enviadas</span>
+        <h3>{t('gerador.arrastarSolte')}</h3>
+        <p>{t('gerador.formatosImagem')}</p>
+        <span className="hint">{imagens.length}/5 {t('gerador.imagensEnviadas')}</span>
       </div>
 
-      {!podeContinuar && <div className="ger-dropzone-aviso">Carregue pelo menos 1 imagem de referência para continuar</div>}
+      {!podeContinuar && <div className="ger-dropzone-aviso">{t('gerador.avisoMinImagem')}</div>}
 
       <div className="ger-thumbs-grid">
         {Array.from({ length: 5 }).map((_, i) => (
@@ -37,12 +39,12 @@ export default function UploadStep({ imagens, onAdicionar, onRemover, onContinua
       </div>
 
       <div className="ger-info-card">
-        <b>Como funciona</b>
+        <b>{t('gerador.comoFunciona')}</b>
         <p>As suas imagens enviadas servirão como referências visuais para a IA. Ela as analisará para gerar textos publicitários, imagens de produtos em diferentes ângulos/contextos e vídeos narrados.</p>
       </div>
 
       <div className="ger-footer">
-        <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!podeContinuar} onClick={onContinuar}>Continuar</button>
+        <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!podeContinuar} onClick={onContinuar}>{t('gerador.continuar')}</button>
       </div>
     </>
   );

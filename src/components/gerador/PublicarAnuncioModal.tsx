@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Icon from '../Icon';
 import { readJson } from '../../lib/storage';
 import { MARKETPLACES_CONECTADOS_KEY } from '../../lib/onboarding';
+import { useI18n } from '../../context/I18nContext';
 
 // Réplica do fluxo "Publicar anúncio" do Figma (STLSELLER, node 22260-24646,
 // print de João 08/09/2026) — modal de 7 passos a partir do passo Resultado.
@@ -25,15 +26,15 @@ const PASSOS_PUB: { id: PassoPub; numero: number }[] = [
   { id: 'confirmar', numero: 7 },
 ];
 
-function labelPasso(id: PassoPub, mp: Marketplace): string {
+function labelPasso(id: PassoPub, mp: Marketplace, t: (chave: string) => string): string {
   switch (id) {
-    case 'marketplace': return 'Marketplace';
-    case 'imagens': return 'Imagens';
-    case 'titulo': return 'Título e descrição';
-    case 'categoria': return mp === 'shopee' ? 'Categoria e dados' : 'Categoria';
-    case 'ficha': return mp === 'shopee' ? 'Variações e atacado' : 'Ficha técnica';
-    case 'frete': return 'Frete e logística';
-    case 'confirmar': return 'Confirmar';
+    case 'marketplace': return t('publicar.marketplace');
+    case 'imagens': return t('publicar.imagens');
+    case 'titulo': return t('publicar.tituloEDescricao');
+    case 'categoria': return mp === 'shopee' ? t('publicar.categoriaEDados') : t('publicar.categoria');
+    case 'ficha': return mp === 'shopee' ? t('publicar.variacoesEAtacado') : t('publicar.fichaTecnica');
+    case 'frete': return t('publicar.freteELogistica');
+    case 'confirmar': return t('publicar.confirmar');
   }
 }
 
@@ -46,6 +47,23 @@ const IMAGENS_PUB: ImagemPub[] = [
   { id: 'uso', label: 'Em uso' },
   { id: 'escala', label: 'Escala' },
 ];
+
+const CHAVES_LABEL_IMAGEM: Record<string, string> = {
+  frente: 'publicar.imgFrente',
+  lateral: 'publicar.imgLateral',
+  costas: 'publicar.imgCostas',
+  detalhe: 'publicar.imgDetalhe',
+  uso: 'publicar.imgEmUso',
+  escala: 'publicar.imgEscala',
+};
+
+const CHAVES_LABEL_NICHO: Record<string, string> = {
+  'Decoração': 'publicar.nichoDecoracao',
+  'Quarto infantil': 'publicar.nichoQuartoInfantil',
+  'Área de lazer': 'publicar.nichoAreaDeLazer',
+  'Presente': 'publicar.nichoPresente',
+  'Genérico': 'publicar.nichoGenerico',
+};
 
 interface TituloOpcao { id: string; texto: string; tags: string; }
 const TITULOS_PUB: TituloOpcao[] = [
@@ -167,11 +185,13 @@ const FORM_INICIAL: PubForm = {
   complianceDescricaoConforme: false,
 };
 
-const INFO_TIPO_ANUNCIO: Record<PubForm['tipoAnuncio'], { pct: string; titulo: string; desc: string }> = {
-  gratis: { pct: '0%', titulo: 'Grátis · sem comissão', desc: 'Menor exposição — ideal pra testar um produto novo.' },
-  classico: { pct: '12%', titulo: 'Clássico · comissão estimada', desc: 'Boa exposição e parcelamento. Equilíbrio entre custo e alcance.' },
-  premium: { pct: '18%', titulo: 'Premium · comissão estimada', desc: 'Máxima exposição e parcelamento em mais vezes.' },
-};
+function montarInfoTipoAnuncio(t: (chave: string) => string): Record<PubForm['tipoAnuncio'], { pct: string; titulo: string; desc: string }> {
+  return {
+    gratis: { pct: '0%', titulo: t('publicar.infoGratisTitulo'), desc: t('publicar.infoGratisDesc') },
+    classico: { pct: '12%', titulo: t('publicar.infoClassicoTitulo'), desc: t('publicar.infoClassicoDesc') },
+    premium: { pct: '18%', titulo: t('publicar.infoPremiumTitulo'), desc: t('publicar.infoPremiumDesc') },
+  };
+}
 
 interface Props {
   onFechar: () => void;
@@ -179,6 +199,8 @@ interface Props {
 }
 
 export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }: Props) {
+  const { t } = useI18n();
+  const INFO_TIPO_ANUNCIO = montarInfoTipoAnuncio(t);
   const [passo, setPasso] = useState<PassoPub>('marketplace');
   const [form, setForm] = useState<PubForm>(FORM_INICIAL);
   const [fase, setFase] = useState<'wizard' | 'publicando' | 'sucesso'>('wizard');
@@ -260,7 +282,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
   const somaDimensoes = (Number(form.altura) || 0) + (Number(form.largura) || 0) + (Number(form.comprimento) || 0);
   const excedeEnvios = somaDimensoes > 200;
 
-  const tituloEscolhido = TITULOS_PUB.find((t) => t.id === form.tituloId) ?? TITULOS_PUB[0];
+  const tituloEscolhido = TITULOS_PUB.find((tit) => tit.id === form.tituloId) ?? TITULOS_PUB[0];
   const categoriaResolvidaML = categoriaCarregando ? '' : (form.categoriaManual === CATEGORIAS_MANUAIS_ML[0] ? 'Casa, Móveis e Decoração > Decoração > Incensários e Aromatizadores' : form.categoriaManual);
   const categoriaAtual = mp === 'shopee' ? form.shopeeCategoria : categoriaResolvidaML;
 
@@ -288,14 +310,14 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
   const complianceOk = form.complianceSemMarcaDagua && form.complianceCategoriaPermitida && form.complianceDescricaoConforme;
 
   const scoreItensML = [
-    { ok: form.imagensSelecionadas.length >= 4, texto: 'Suba 4+ fotos para CTR até 40% maior.' },
-    { ok: !!form.material.trim(), texto: 'Informe o material principal.' },
-    { ok: form.nicho.length > 0, texto: 'Adicione um nicho (ex: decoração, presente).' },
+    { ok: form.imagensSelecionadas.length >= 4, texto: t('publicar.scoreMlFotos') },
+    { ok: !!form.material.trim(), texto: t('publicar.scoreMlMaterial') },
+    { ok: form.nicho.length > 0, texto: t('publicar.scoreMlNicho') },
   ];
   const scoreItensShopee = [
-    { ok: form.imagensSelecionadas.length >= 4, texto: 'Suba 4+ fotos (a Shopee aceita até 9).' },
-    { ok: !!form.sku.trim(), texto: 'Informe um SKU próprio pra facilitar seu controle de estoque.' },
-    { ok: form.temVariacoes || form.ofereceAtacado, texto: 'Configure variações ou preço por atacado, se fizer sentido.' },
+    { ok: form.imagensSelecionadas.length >= 4, texto: t('publicar.scoreShopeeFotos') },
+    { ok: !!form.sku.trim(), texto: t('publicar.scoreShopeeSku') },
+    { ok: form.temVariacoes || form.ofereceAtacado, texto: t('publicar.scoreShopeeVariacoes') },
   ];
   const scoreItens = mp === 'ml' ? scoreItensML : scoreItensShopee;
   const score = 10 + scoreItens.filter((s) => s.ok).length * 30;
@@ -317,8 +339,8 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             <div className="pub-mp-badges">
               <span className="pub-mp-badge" style={{ background: mp === 'shopee' ? '#ee4d2d' : '#ffd400', color: mp === 'shopee' ? '#fff' : '#14181a' }}>{mp === 'shopee' ? 'S' : 'ML'}</span>
             </div>
-            <h3>Publicando na {nomeMarketplace}…</h3>
-            <p>Enviando seu anúncio. Isso leva alguns segundos.</p>
+            <h3>{t('publicar.publicandoEm')} {nomeMarketplace}…</h3>
+            <p>{t('publicar.enviandoAnuncio')}</p>
             <div className="pub-progresso-loading"><span /></div>
           </div>
         </div>
@@ -332,9 +354,9 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
         <div className="pub-modal">
           <div className="pub-status-card">
             <div className="pub-status-icone sucesso"><Icon name="check" size={26} /></div>
-            <h3>Anúncio publicado</h3>
-            <p>Seu anúncio já está no ar na {nomeMarketplace}. Acompanhe os primeiros acessos no painel.</p>
-            <button type="button" className="btn-outline" onClick={onFechar}>Voltar ao gerador</button>
+            <h3>{t('publicar.anuncioPublicado')}</h3>
+            <p>{t('publicar.jaEstaNoAr')} {nomeMarketplace}. {t('publicar.acompanheAcessos')}</p>
+            <button type="button" className="btn-outline" onClick={onFechar}>{t('publicar.voltarAoGerador')}</button>
           </div>
         </div>
       </div>
@@ -346,8 +368,8 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
       <div className="pub-modal">
         <div className="pub-modal-head">
           <div>
-            <h2>Publicar seu anúncio</h2>
-            <p>Monte o anúncio passo a passo e publique no marketplace.</p>
+            <h2>{t('publicar.publicarSeuAnuncio')}</h2>
+            <p>{t('publicar.montarPassoAPasso')}</p>
           </div>
           <button type="button" className="pub-close" onClick={tentarFechar}><Icon name="close" size={15} /></button>
         </div>
@@ -356,23 +378,23 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
           {PASSOS_PUB.map((p, i) => <span key={p.id} className={i <= idxAtual ? 'feito' : ''} />)}
         </div>
         <div className="pub-passo-info">
-          <span>Passo {idxAtual + 1} de 7</span>
-          <b>{labelPasso(passo, mp)}</b>
+          <span>{t('publicar.passo')} {idxAtual + 1} {t('publicar.de')} 7</span>
+          <b>{labelPasso(passo, mp, t)}</b>
         </div>
 
         {passo === 'marketplace' && (
           <>
-            <div className="pub-secao-titulo">Onde publicar</div>
-            <div className="pub-secao-desc">Escolha o marketplace. Categoria e dados obrigatórios se adaptam à escolha.</div>
+            <div className="pub-secao-titulo">{t('publicar.ondePublicar')}</div>
+            <div className="pub-secao-desc">{t('publicar.escolhaMarketplaceDesc')}</div>
             <div className="pub-radio-mp">
               <button type="button" className={'pub-radio-mp-card' + (mp === 'ml' ? ' selecionado' : '')} onClick={() => set('marketplace', 'ml')}>
                 <span className="pub-titulo-radio" style={{ marginTop: 3 }} />
                 <div className="pub-radio-mp-top">
                   <div>
                     <div className="pub-radio-mp-nome">Mercado Livre</div>
-                    <div className="pub-radio-mp-sub">Conectado · 174 pedidos</div>
+                    <div className="pub-radio-mp-sub">{t('publicar.mlConectadoStatus')}</div>
                   </div>
-                  <span className="pub-tag-api">API conectada</span>
+                  <span className="pub-tag-api">{t('publicar.apiConectada')}</span>
                 </div>
               </button>
               <button type="button" className={'pub-radio-mp-card' + (mp === 'shopee' ? ' selecionado' : '')} onClick={() => set('marketplace', 'shopee')}>
@@ -380,9 +402,9 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                 <div className="pub-radio-mp-top">
                   <div>
                     <div className="pub-radio-mp-nome">Shopee</div>
-                    <div className="pub-radio-mp-sub">{lojaShopeeHabilitada ? 'Loja habilitada' : 'Loja não habilitada'}</div>
+                    <div className="pub-radio-mp-sub">{lojaShopeeHabilitada ? t('publicar.lojaHabilitada') : t('publicar.lojaNaoHabilitada')}</div>
                   </div>
-                  <span className={lojaShopeeHabilitada ? 'pub-tag-api' : 'pub-tag-soon'}>{lojaShopeeHabilitada ? 'Conectada' : 'Pendente'}</span>
+                  <span className={lojaShopeeHabilitada ? 'pub-tag-api' : 'pub-tag-soon'}>{lojaShopeeHabilitada ? t('publicar.conectada') : t('publicar.pendente')}</span>
                 </div>
               </button>
             </div>
@@ -393,7 +415,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                 <div>
                   <b>Sua loja Shopee ainda não está habilitada.</b>
                   <p style={{ margin: '4px 0 0' }}>Você pode continuar preenchendo o anúncio, mas a publicação de verdade exige conta verificada (KYC), um método de recebimento e ao menos um canal de logística configurados em Configurações → Marketplaces.</p>
-                  <button type="button" className="btn-outline" style={{ marginTop: 10 }} onClick={onIrParaConfiguracoes}>Ir para Configurações</button>
+                  <button type="button" className="btn-outline" style={{ marginTop: 10 }} onClick={onIrParaConfiguracoes}>{t('publicar.irParaConfiguracoes')}</button>
                 </div>
               </div>
             )}
@@ -402,8 +424,8 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'imagens' && (
           <>
-            <div className="pub-secao-titulo">Imagens do anúncio</div>
-            <div className="pub-secao-desc">Selecione as imagens geradas. A primeira selecionada vira a foto principal.</div>
+            <div className="pub-secao-titulo">{t('publicar.imagensDoAnuncio')}</div>
+            <div className="pub-secao-desc">{t('publicar.imagensDesc')}</div>
             <div className="pub-aviso pub-aviso-info">
               <Icon name="tag" size={14} />
               {mp === 'ml'
@@ -421,34 +443,34 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                       <span className="pub-img-check"><Icon name="check" size={12} /></span>
                     </div>
                     <div className="pub-img-label">
-                      <span>{img.label}</span>
-                      {ordem === 0 && <span className="pub-img-principal">Principal</span>}
+                      <span>{t(CHAVES_LABEL_IMAGEM[img.id] ?? '') || img.label}</span>
+                      {ordem === 0 && <span className="pub-img-principal">{t('publicar.principal')}</span>}
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="pub-img-conta">Selecionadas: <b>{form.imagensSelecionadas.length} de {IMAGENS_PUB.length}</b></div>
+            <div className="pub-img-conta">{t('publicar.selecionadas')} <b>{form.imagensSelecionadas.length} {t('publicar.de')} {IMAGENS_PUB.length}</b></div>
           </>
         )}
 
         {passo === 'titulo' && (
           <>
-            <div className="pub-secao-titulo">Título e descrição</div>
-            <div className="pub-secao-desc">Escolha um título e revise a descrição antes de publicar.</div>
-            <div className="field"><label>Título *</label></div>
+            <div className="pub-secao-titulo">{t('publicar.tituloEDescricao')}</div>
+            <div className="pub-secao-desc">{t('publicar.tituloDesc')}</div>
+            <div className="field"><label>{t('publicar.titulo')} *</label></div>
             <div className="pub-titulo-lista">
-              {TITULOS_PUB.map((t) => {
-                const chars = t.texto.length;
+              {TITULOS_PUB.map((tit) => {
+                const chars = tit.texto.length;
                 const corta = chars > 60;
                 return (
-                  <button type="button" key={t.id} className={'pub-titulo-opcao' + (form.tituloId === t.id ? ' selecionado' : '')} onClick={() => set('tituloId', t.id)}>
+                  <button type="button" key={tit.id} className={'pub-titulo-opcao' + (form.tituloId === tit.id ? ' selecionado' : '')} onClick={() => set('tituloId', tit.id)}>
                     <span className="pub-titulo-radio" />
                     <div style={{ flex: 1 }}>
-                      <div className="pub-titulo-texto">{t.texto}</div>
+                      <div className="pub-titulo-texto">{tit.texto}</div>
                       <div className="pub-titulo-meta">
-                        <span className="pub-titulo-tags">{t.tags}</span>
-                        <span className={'pub-titulo-contagem' + (corta ? ' erro' : '')}>{chars} caracteres — {corta ? 'corta no mobile' : 'ideal'}</span>
+                        <span className="pub-titulo-tags">{tit.tags}</span>
+                        <span className={'pub-titulo-contagem' + (corta ? ' erro' : '')}>{chars} {t('publicar.caracteres')} — {corta ? t('publicar.cortaNoMobile') : t('publicar.ideal')}</span>
                       </div>
                     </div>
                   </button>
@@ -456,10 +478,10 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
               })}
             </div>
             <div className="pub-titulo-hint">
-              {mp === 'ml' ? 'O título escolhido alimenta a sugestão de categoria do Mercado Livre no próximo passo.' : 'Evite promessas ou termos vetados pelas políticas de anúncio da Shopee na descrição abaixo.'}
+              {mp === 'ml' ? t('publicar.tituloHintMl') : t('publicar.tituloHintShopee')}
             </div>
             <div className="field">
-              <label>Descrição *</label>
+              <label>{t('publicar.descricao')} *</label>
               <textarea rows={4} value={form.descricao} maxLength={4000} onChange={(e) => set('descricao', e.target.value)} />
               <div className="hint" style={{ textAlign: 'right', marginTop: 4 }}>{form.descricao.length} / 4.000 caracteres</div>
             </div>
@@ -468,8 +490,8 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'categoria' && mp === 'ml' && (
           <>
-            <div className="pub-secao-titulo">Categoria e tipo de anúncio</div>
-            <div className="pub-secao-desc">O Mercado Livre sugere a categoria pelo título. Confirme ou ajuste.</div>
+            <div className="pub-secao-titulo">{t('publicar.categoriaETipoAnuncio')}</div>
+            <div className="pub-secao-desc">{t('publicar.categoriaMlDesc')}</div>
 
             {categoriaCarregando ? (
               <div className="pub-cat-sugestao pub-cat-skeleton">
@@ -481,45 +503,45 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
               <div className="pub-cat-sugestao">
                 <div className="pub-cat-sugestao-head">
                   <b>{categoriaResolvidaML}</b>
-                  <span className="pub-tag-api"><Icon name="check" size={11} /> API ML</span>
+                  <span className="pub-tag-api"><Icon name="check" size={11} /> {t('publicar.apiMl')}</span>
                 </div>
-                <p>Sugerida a partir de "{tituloEscolhido.texto.slice(0, 40)}…"</p>
-                <div className="cod">Código MLB284910</div>
+                <p>{t('publicar.sugeridaApartirDe')} "{tituloEscolhido.texto.slice(0, 40)}…"</p>
+                <div className="cod">{t('publicar.codigo')} MLB284910</div>
               </div>
             ) : (
               <div className="pub-cat-sugestao">
                 <div className="pub-cat-sugestao-head"><b>{form.categoriaManual}</b></div>
-                <p>Categoria selecionada manualmente.</p>
+                <p>{t('publicar.categoriaSelecionadaManualmente')}</p>
               </div>
             )}
 
             <div className="field">
-              <label>Selecionar outra categoria <span className="hint" style={{ fontWeight: 400 }}>opcional</span></label>
+              <label>{t('publicar.selecionarOutraCategoria')} <span className="hint" style={{ fontWeight: 400 }}>{t('publicar.opcional')}</span></label>
               <select value={form.categoriaManual} onChange={(e) => set('categoriaManual', e.target.value)} disabled={categoriaCarregando}>
-                {CATEGORIAS_MANUAIS_ML.map((c) => <option key={c} value={c}>{c}</option>)}
+                {CATEGORIAS_MANUAIS_ML.map((c) => <option key={c} value={c}>{c === CATEGORIAS_MANUAIS_ML[0] ? t('publicar.manterSugestaoMl') : c}</option>)}
               </select>
             </div>
 
             <div className="row2">
-              <div className="field"><label>Marca</label><input type="text" value={form.marca} onChange={(e) => set('marca', e.target.value)} /></div>
-              <div className="field"><label>Modelo</label><input type="text" value={form.modelo} onChange={(e) => set('modelo', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.marca')}</label><input type="text" value={form.marca} onChange={(e) => set('marca', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.modelo')}</label><input type="text" value={form.modelo} onChange={(e) => set('modelo', e.target.value)} /></div>
             </div>
             <div className="hint" style={{ marginTop: -12, marginBottom: 18 }}>Informe a marca verdadeira do produto ou "Genérica" se não tiver marca.</div>
 
             <div className="field">
-              <label>Condição do produto *</label>
+              <label>{t('publicar.condicaoProduto')} *</label>
               <div className="pub-toggle-row">
-                <button type="button" className={'pub-toggle-pill' + (form.condicao === 'novo' ? ' ativo' : '')} onClick={() => set('condicao', 'novo')}>Novo</button>
-                <button type="button" className={'pub-toggle-pill' + (form.condicao === 'usado' ? ' ativo' : '')} onClick={() => set('condicao', 'usado')}>Usado</button>
+                <button type="button" className={'pub-toggle-pill' + (form.condicao === 'novo' ? ' ativo' : '')} onClick={() => set('condicao', 'novo')}>{t('publicar.novo')}</button>
+                <button type="button" className={'pub-toggle-pill' + (form.condicao === 'usado' ? ' ativo' : '')} onClick={() => set('condicao', 'usado')}>{t('publicar.usado')}</button>
               </div>
             </div>
 
             <div className="field">
-              <label>Tipo de anúncio *</label>
+              <label>{t('publicar.tipoAnuncio')} *</label>
               <div className="pub-toggle-row">
-                {(['gratis', 'classico', 'premium'] as const).map((t) => (
-                  <button type="button" key={t} className={'pub-toggle-pill' + (form.tipoAnuncio === t ? ' ativo' : '')} onClick={() => set('tipoAnuncio', t)}>
-                    {t === 'gratis' ? 'Grátis' : t === 'classico' ? 'Clássico' : 'Premium'}
+                {(['gratis', 'classico', 'premium'] as const).map((ta) => (
+                  <button type="button" key={ta} className={'pub-toggle-pill' + (form.tipoAnuncio === ta ? ' ativo' : '')} onClick={() => set('tipoAnuncio', ta)}>
+                    {ta === 'gratis' ? t('publicar.gratis') : ta === 'classico' ? t('publicar.classico') : t('publicar.premium')}
                   </button>
                 ))}
               </div>
@@ -533,47 +555,47 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'categoria' && mp === 'shopee' && (
           <>
-            <div className="pub-secao-titulo">Categoria e dados do produto</div>
-            <div className="pub-secao-desc">A categoria vem da árvore fixa da Shopee — não é um campo livre. Os atributos abaixo mudam conforme a categoria escolhida.</div>
+            <div className="pub-secao-titulo">{t('publicar.categoriaEDadosDoProduto')}</div>
+            <div className="pub-secao-desc">{t('publicar.categoriaShopeeDesc')}</div>
 
             <div className="field">
-              <label>Categoria *</label>
+              <label>{t('publicar.categoria')} *</label>
               <select value={form.shopeeCategoria} onChange={(e) => set('shopeeCategoria', e.target.value)}>
-                <option value="">Selecione a categoria</option>
+                <option value="">{t('publicar.selecioneACategoria')}</option>
                 {CATEGORIAS_SHOPEE.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               {!form.shopeeCategoria && <div className="hint" style={{ color: 'var(--red)', marginTop: 4 }}>Selecione uma categoria para continuar.</div>}
             </div>
 
             <div className="row2">
-              <div className="field"><label>Preço de venda (R$) *</label><input type="text" value={form.precoVenda} onChange={(e) => set('precoVenda', e.target.value)} /></div>
-              <div className="field"><label>Quantidade em estoque *</label><input type="text" value={form.estoque} onChange={(e) => set('estoque', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.precoVenda')} *</label><input type="text" value={form.precoVenda} onChange={(e) => set('precoVenda', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.quantidadeEmEstoque')} *</label><input type="text" value={form.estoque} onChange={(e) => set('estoque', e.target.value)} /></div>
             </div>
-            <div className="field"><label>SKU <span className="hint" style={{ fontWeight: 400 }}>opcional — seu controle interno</span></label><input type="text" placeholder="Ex: INC-BP-001" value={form.sku} onChange={(e) => set('sku', e.target.value)} /></div>
+            <div className="field"><label>{t('publicar.sku')} <span className="hint" style={{ fontWeight: 400 }}>{t('publicar.opcionalControleInterno')}</span></label><input type="text" placeholder="Ex: INC-BP-001" value={form.sku} onChange={(e) => set('sku', e.target.value)} /></div>
 
             <div className="field">
               <label className="switch-row" style={{ padding: 0, gap: 10 }}>
                 <input type="checkbox" checked={form.semMarca} onChange={(e) => set('semMarca', e.target.checked)} style={{ width: 16, height: 16 }} />
-                <span>Este produto não tem marca cadastrada</span>
+                <span>{t('publicar.semMarcaCadastrada')}</span>
               </label>
             </div>
             {!form.semMarca && (
-              <div className="field"><label>Marca *</label><input type="text" value={form.marca} onChange={(e) => set('marca', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.marca')} *</label><input type="text" value={form.marca} onChange={(e) => set('marca', e.target.value)} /></div>
             )}
 
             {form.shopeeCategoria && (
               <>
-                <div className="divider-label">Atributos obrigatórios da categoria</div>
+                <div className="divider-label">{t('publicar.atributosObrigatorios')}</div>
                 <div className="row2">
-                  <div className="field"><label>Material *</label><input type="text" value={form.material} onChange={(e) => set('material', e.target.value)} /></div>
-                  <div className="field"><label>Cor *</label><input type="text" value={form.cor} onChange={(e) => set('cor', e.target.value)} /></div>
+                  <div className="field"><label>{t('publicar.material')} *</label><input type="text" value={form.material} onChange={(e) => set('material', e.target.value)} /></div>
+                  <div className="field"><label>{t('publicar.cor')} *</label><input type="text" value={form.cor} onChange={(e) => set('cor', e.target.value)} /></div>
                 </div>
 
-                <div className="field"><label>Dimensões da embalagem (cm) *</label></div>
+                <div className="field"><label>{t('publicar.dimensoesEmbalagem')} *</label></div>
                 <div className="row3" style={{ marginTop: -8 }}>
-                  <div className="field"><input type="text" value={form.altura} onChange={(e) => set('altura', e.target.value)} /><span className="hint">Altura</span></div>
-                  <div className="field"><input type="text" value={form.largura} onChange={(e) => set('largura', e.target.value)} /><span className="hint">Largura</span></div>
-                  <div className="field"><input type="text" value={form.comprimento} onChange={(e) => set('comprimento', e.target.value)} /><span className="hint">Comprimento</span></div>
+                  <div className="field"><input type="text" value={form.altura} onChange={(e) => set('altura', e.target.value)} /><span className="hint">{t('publicar.altura')}</span></div>
+                  <div className="field"><input type="text" value={form.largura} onChange={(e) => set('largura', e.target.value)} /><span className="hint">{t('publicar.largura')}</span></div>
+                  <div className="field"><input type="text" value={form.comprimento} onChange={(e) => set('comprimento', e.target.value)} /><span className="hint">{t('publicar.comprimento')}</span></div>
                 </div>
               </>
             )}
@@ -582,36 +604,36 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'ficha' && mp === 'ml' && (
           <>
-            <div className="pub-secao-titulo">Ficha técnica</div>
-            <div className="pub-secao-desc">Atributos usados pelo Mercado Livre nos filtros e no ranqueamento.</div>
+            <div className="pub-secao-titulo">{t('publicar.fichaTecnica')}</div>
+            <div className="pub-secao-desc">{t('publicar.fichaTecnicaDesc')}</div>
 
-            <div className="field"><label>Material principal *</label><input type="text" value={form.material} onChange={(e) => set('material', e.target.value)} /></div>
+            <div className="field"><label>{t('publicar.materialPrincipal')} *</label><input type="text" value={form.material} onChange={(e) => set('material', e.target.value)} /></div>
 
             <div className="row3">
-              <div className="field"><label>Cor *</label><input type="text" value={form.cor} onChange={(e) => set('cor', e.target.value)} /></div>
-              <div className="field"><label>Acabamento <span className="hint" style={{ fontWeight: 400 }}>opcional</span></label><input type="text" value={form.acabamento} onChange={(e) => set('acabamento', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.cor')} *</label><input type="text" value={form.cor} onChange={(e) => set('cor', e.target.value)} /></div>
+              <div className="field"><label>{t('publicar.acabamento')} <span className="hint" style={{ fontWeight: 400 }}>{t('publicar.opcional')}</span></label><input type="text" value={form.acabamento} onChange={(e) => set('acabamento', e.target.value)} /></div>
               <div className="field">
-                <label>Quantidade *</label>
+                <label>{t('publicar.quantidade')} *</label>
                 <select value={form.quantidade} onChange={(e) => set('quantidade', e.target.value)}>
                   {['1 unidade', '2 unidades', '3 unidades', 'Kit'].map((q) => <option key={q}>{q}</option>)}
                 </select>
               </div>
             </div>
 
-            <div className="field"><label>Tipo de produto *</label><input type="text" value={form.tipoProduto} onChange={(e) => set('tipoProduto', e.target.value)} /></div>
+            <div className="field"><label>{t('publicar.tipoProduto')} *</label><input type="text" value={form.tipoProduto} onChange={(e) => set('tipoProduto', e.target.value)} /></div>
 
             <div className="field">
-              <label>Compatibilidade / nicho <span className="hint" style={{ fontWeight: 400 }}>opcional</span></label>
+              <label>{t('publicar.compatibilidadeNicho')} <span className="hint" style={{ fontWeight: 400 }}>{t('publicar.opcional')}</span></label>
               <div className="pub-chip-row">
                 {NICHOS_SUGERIDOS.map((n) => (
-                  <button type="button" key={n} className={'pub-chip' + (form.nicho.includes(n) ? ' ativo' : '')} onClick={() => toggleNicho(n)}>{n}</button>
+                  <button type="button" key={n} className={'pub-chip' + (form.nicho.includes(n) ? ' ativo' : '')} onClick={() => toggleNicho(n)}>{t(CHAVES_LABEL_NICHO[n] ?? '') || n}</button>
                 ))}
                 {form.nicho.filter((n) => !NICHOS_SUGERIDOS.includes(n)).map((n) => (
                   <span className="pub-chip-custom" key={n}>{n} <button type="button" onClick={() => removerNicho(n)}><Icon name="close" size={11} /></button></span>
                 ))}
                 <input
                   type="text"
-                  placeholder="+ Outro"
+                  placeholder={t('publicar.maisOutro')}
                   value={form.nichoCustom}
                   onChange={(e) => set('nichoCustom', e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); adicionarNichoCustom(); } }}
@@ -622,12 +644,12 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             </div>
 
             <div className="field">
-              <label>Escala <span className="hint" style={{ fontWeight: 400 }}>opcional</span></label>
+              <label>{t('publicar.escala')} <span className="hint" style={{ fontWeight: 400 }}>{t('publicar.opcional')}</span></label>
               <select value={form.escala} onChange={(e) => set('escala', e.target.value)}>
-                <option value="">Selecione</option>
-                <option value="pequena">Pequena (até 10cm)</option>
-                <option value="media">Média (10 a 30cm)</option>
-                <option value="grande">Grande (acima de 30cm)</option>
+                <option value="">{t('publicar.selecione')}</option>
+                <option value="pequena">{t('publicar.escalaPequena')}</option>
+                <option value="media">{t('publicar.escalaMedia')}</option>
+                <option value="grande">{t('publicar.escalaGrande')}</option>
               </select>
             </div>
           </>
@@ -635,59 +657,59 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'ficha' && mp === 'shopee' && (
           <>
-            <div className="pub-secao-titulo">Variações, atacado e pré-venda</div>
-            <div className="pub-secao-desc">Tudo opcional, mas ajuda a vender mais — configure se fizer sentido pro seu produto.</div>
+            <div className="pub-secao-titulo">{t('publicar.variacoesAtacadoEPreVenda')}</div>
+            <div className="pub-secao-desc">{t('publicar.fichaShopeeDesc')}</div>
 
             <div className="pub-toggle-full">
-              <div><b>Este produto tem variações?</b><p>Cada variação (tamanho, cor etc.) tem seu próprio preço e estoque.</p></div>
+              <div><b>{t('publicar.temVariacoesPergunta')}</b><p>{t('publicar.temVariacoesDesc')}</p></div>
               <label className="switch"><input type="checkbox" checked={form.temVariacoes} onChange={(e) => set('temVariacoes', e.target.checked)} /><span className="track" /></label>
             </div>
             {form.temVariacoes && (
               <div className="pub-lista-add">
                 {form.variacoes.map((v) => (
                   <div className="pub-lista-add-row" key={v.id}>
-                    <span>{v.nome}</span><span>{v.estoque} un.</span><span>R$ {v.preco}</span>
+                    <span>{v.nome}</span><span>{v.estoque} {t('publicar.un')}</span><span>R$ {v.preco}</span>
                     <button type="button" onClick={() => removerVariacao(v.id)}><Icon name="close" size={12} /></button>
                   </div>
                 ))}
                 <div className="pub-lista-add-form">
-                  <input type="text" placeholder="Nome (ex: Verde P)" value={novaVarNome} onChange={(e) => setNovaVarNome(e.target.value)} />
-                  <input type="text" placeholder="Estoque" value={novaVarEstoque} onChange={(e) => setNovaVarEstoque(e.target.value)} />
-                  <input type="text" placeholder="Preço" value={novaVarPreco} onChange={(e) => setNovaVarPreco(e.target.value)} />
-                  <button type="button" className="btn-outline" onClick={adicionarVariacao}>+ Adicionar</button>
+                  <input type="text" placeholder={t('publicar.placeholderNomeVariacao')} value={novaVarNome} onChange={(e) => setNovaVarNome(e.target.value)} />
+                  <input type="text" placeholder={t('publicar.estoquePlaceholder')} value={novaVarEstoque} onChange={(e) => setNovaVarEstoque(e.target.value)} />
+                  <input type="text" placeholder={t('publicar.precoPlaceholder')} value={novaVarPreco} onChange={(e) => setNovaVarPreco(e.target.value)} />
+                  <button type="button" className="btn-outline" onClick={adicionarVariacao}>{t('publicar.maisAdicionar')}</button>
                 </div>
               </div>
             )}
 
             <div className="pub-toggle-full">
-              <div><b>Oferecer preço por atacado?</b><p>Defina faixas de desconto por quantidade mínima comprada.</p></div>
+              <div><b>{t('publicar.ofereceAtacadoPergunta')}</b><p>{t('publicar.ofereceAtacadoDesc')}</p></div>
               <label className="switch"><input type="checkbox" checked={form.ofereceAtacado} onChange={(e) => set('ofereceAtacado', e.target.checked)} /><span className="track" /></label>
             </div>
             {form.ofereceAtacado && (
               <div className="pub-lista-add">
                 {form.faixasAtacado.map((f) => (
                   <div className="pub-lista-add-row" key={f.id}>
-                    <span>A partir de {f.qtd} un.</span><span>R$ {f.preco} / un.</span>
+                    <span>{t('publicar.apartirDe')} {f.qtd} {t('publicar.un')}</span><span>R$ {f.preco} / {t('publicar.un')}</span>
                     <button type="button" onClick={() => removerFaixa(f.id)}><Icon name="close" size={12} /></button>
                   </div>
                 ))}
                 <div className="pub-lista-add-form">
-                  <input type="text" placeholder="Qtd. mínima" value={novaFaixaQtd} onChange={(e) => setNovaFaixaQtd(e.target.value)} />
-                  <input type="text" placeholder="Preço por unidade" value={novaFaixaPreco} onChange={(e) => setNovaFaixaPreco(e.target.value)} />
-                  <button type="button" className="btn-outline" onClick={adicionarFaixa}>+ Adicionar</button>
+                  <input type="text" placeholder={t('publicar.qtdMinima')} value={novaFaixaQtd} onChange={(e) => setNovaFaixaQtd(e.target.value)} />
+                  <input type="text" placeholder={t('publicar.precoPorUnidade')} value={novaFaixaPreco} onChange={(e) => setNovaFaixaPreco(e.target.value)} />
+                  <button type="button" className="btn-outline" onClick={adicionarFaixa}>{t('publicar.maisAdicionar')}</button>
                 </div>
               </div>
             )}
 
             <div className="pub-toggle-full">
-              <div><b>Configurar pré-venda?</b><p>Prazo de envio maior (7 a 30 dias) — útil pra imprimir sob demanda.</p></div>
+              <div><b>{t('publicar.configurarPreVendaPergunta')}</b><p>{t('publicar.preVendaDesc')}</p></div>
               <label className="switch"><input type="checkbox" checked={form.preVenda} onChange={(e) => set('preVenda', e.target.checked)} /><span className="track" /></label>
             </div>
             {form.preVenda && (
               <div className="field">
-                <label>Prazo de envio (dias)</label>
+                <label>{t('publicar.prazoEnvioDias')}</label>
                 <select value={form.prazoEnvioPreVenda} onChange={(e) => set('prazoEnvioPreVenda', e.target.value)}>
-                  {PRAZOS_PRE_VENDA.map((p) => <option key={p} value={p}>{p} dias</option>)}
+                  {PRAZOS_PRE_VENDA.map((p) => <option key={p} value={p}>{p} {t('publicar.dias')}</option>)}
                 </select>
               </div>
             )}
@@ -696,16 +718,16 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'frete' && mp === 'ml' && (
           <>
-            <div className="pub-secao-titulo">Frete e logística</div>
-            <div className="pub-secao-desc">Pré-preenchido pela calculadora de preços quando disponível.</div>
+            <div className="pub-secao-titulo">{t('publicar.freteELogistica')}</div>
+            <div className="pub-secao-desc">{t('publicar.freteMlDesc')}</div>
 
-            <div className="field"><label>Peso com embalagem (g) *</label><input type="text" value={form.peso} onChange={(e) => set('peso', e.target.value)} /></div>
+            <div className="field"><label>{t('publicar.pesoComEmbalagem')} *</label><input type="text" value={form.peso} onChange={(e) => set('peso', e.target.value)} /></div>
 
-            <div className="field"><label>Dimensões da embalagem (cm) *</label></div>
+            <div className="field"><label>{t('publicar.dimensoesEmbalagem')} *</label></div>
             <div className="row3" style={{ marginTop: -8 }}>
-              <div className="field"><input type="text" value={form.altura} onChange={(e) => set('altura', e.target.value)} /><span className="hint">Altura</span></div>
-              <div className="field"><input type="text" value={form.largura} onChange={(e) => set('largura', e.target.value)} /><span className="hint">Largura</span></div>
-              <div className="field"><input type="text" value={form.comprimento} onChange={(e) => set('comprimento', e.target.value)} /><span className="hint">Comprimento</span></div>
+              <div className="field"><input type="text" value={form.altura} onChange={(e) => set('altura', e.target.value)} /><span className="hint">{t('publicar.altura')}</span></div>
+              <div className="field"><input type="text" value={form.largura} onChange={(e) => set('largura', e.target.value)} /><span className="hint">{t('publicar.largura')}</span></div>
+              <div className="field"><input type="text" value={form.comprimento} onChange={(e) => set('comprimento', e.target.value)} /><span className="hint">{t('publicar.comprimento')}</span></div>
             </div>
 
             {excedeEnvios && (
@@ -713,12 +735,12 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             )}
 
             <div className="pub-toggle-full travado">
-              <div><b>Mercado Envios <span className="hint">obrigatório</span></b><p>Cálculo e etiqueta de frete pelo Mercado Livre.</p></div>
+              <div><b>Mercado Envios <span className="hint">{t('publicar.obrigatorio')}</span></b><p>{t('publicar.mercadoEnviosDesc')}</p></div>
               <label className="switch"><input type="checkbox" checked disabled /><span className="track" /></label>
             </div>
 
             <div className="pub-toggle-full">
-              <div><b>Frete grátis</b><p>Você assume o custo do frete para o comprador.</p></div>
+              <div><b>{t('publicar.freteGratis')}</b><p>{t('publicar.freteGratisDesc')}</p></div>
               <label className="switch"><input type="checkbox" checked={form.freteGratis} onChange={(e) => set('freteGratis', e.target.checked)} /><span className="track" /></label>
             </div>
             {form.freteGratis && (
@@ -728,7 +750,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             )}
 
             <div className="pub-toggle-full">
-              <div><b>Mercado Envios Full</b><p>Estoque no centro de distribuição do ML, com entrega mais rápida.</p></div>
+              <div><b>Mercado Envios Full</b><p>{t('publicar.enviosFullDesc')}</p></div>
               <label className="switch"><input type="checkbox" checked={form.enviosFull} onChange={(e) => set('enviosFull', e.target.checked)} /><span className="track" /></label>
             </div>
             {form.enviosFull && (
@@ -736,7 +758,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             )}
 
             <div className="field">
-              <label>Prazo de despacho *</label>
+              <label>{t('publicar.prazoDespacho')} *</label>
               <select value={form.prazoDespacho} onChange={(e) => set('prazoDespacho', e.target.value)}>
                 {['1 dia útil', '2 dias úteis', '3 dias úteis'].map((p) => <option key={p}>{p}</option>)}
               </select>
@@ -746,22 +768,22 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'frete' && mp === 'shopee' && (
           <>
-            <div className="pub-secao-titulo">Frete e logística</div>
-            <div className="pub-secao-desc">Sem um canal de logística habilitado, nenhum anúncio publica na Shopee.</div>
+            <div className="pub-secao-titulo">{t('publicar.freteELogistica')}</div>
+            <div className="pub-secao-desc">{t('publicar.freteShopeeDesc')}</div>
 
-            <div className="field"><label>Peso do produto (g) *</label><input type="text" value={form.peso} onChange={(e) => set('peso', e.target.value)} /></div>
+            <div className="field"><label>{t('publicar.pesoDoProduto')} *</label><input type="text" value={form.peso} onChange={(e) => set('peso', e.target.value)} /></div>
 
             <div className="field">
-              <label>Canal de logística *</label>
+              <label>{t('publicar.canalLogistica')} *</label>
               <select value={form.canalLogistica} onChange={(e) => set('canalLogistica', e.target.value)}>
-                <option value="">Selecione um canal</option>
+                <option value="">{t('publicar.selecioneUmCanal')}</option>
                 {CANAIS_LOGISTICA_SHOPEE.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               {!form.canalLogistica && <div className="hint" style={{ color: 'var(--red)', marginTop: 4 }}>Selecione ao menos um canal de logística para continuar.</div>}
             </div>
 
             <div className="field">
-              <label>Prazo de despacho *</label>
+              <label>{t('publicar.prazoDespacho')} *</label>
               <select value={form.prazoDespacho} onChange={(e) => set('prazoDespacho', e.target.value)}>
                 {['1 dia útil', '2 dias úteis', '3 dias úteis'].map((p) => <option key={p}>{p}</option>)}
               </select>
@@ -771,8 +793,8 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
         {passo === 'confirmar' && (
           <>
-            <div className="pub-secao-titulo">Confirmar e publicar</div>
-            <div className="pub-secao-desc">Revise o anúncio antes de enviar {mp === 'ml' ? 'ao Mercado Livre' : 'à Shopee'}.</div>
+            <div className="pub-secao-titulo">{t('publicar.confirmarEPublicar')}</div>
+            <div className="pub-secao-desc">{t('publicar.reviseAnuncioAntesDeEnviar')} {mp === 'ml' ? t('publicar.aoMercadoLivre') : t('publicar.aShopee')}.</div>
 
             {faltando.length === 0 ? (
               <div className="pub-aviso pub-aviso-ok"><Icon name="check" size={14} /> Todos os campos obrigatórios estão preenchidos.</div>
@@ -787,18 +809,18 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
             {mp === 'shopee' && (
               <div className="pub-compliance">
-                <div className="pub-secao-titulo" style={{ fontSize: 14, marginBottom: 10 }}>Conformidade e políticas</div>
+                <div className="pub-secao-titulo" style={{ fontSize: 14, marginBottom: 10 }}>{t('publicar.conformidadeEPoliticas')}</div>
                 <label className="pub-compliance-item">
                   <input type="checkbox" checked={form.complianceSemMarcaDagua} onChange={(e) => set('complianceSemMarcaDagua', e.target.checked)} />
-                  <span>As imagens não têm marca d'água, texto promocional excessivo ou conteúdo proibido pelas diretrizes da Shopee.</span>
+                  <span>{t('publicar.complianceImagens')}</span>
                 </label>
                 <label className="pub-compliance-item">
                   <input type="checkbox" checked={form.complianceCategoriaPermitida} onChange={(e) => set('complianceCategoriaPermitida', e.target.checked)} />
-                  <span>Este produto não pertence a categorias restritas ou proibidas na plataforma.</span>
+                  <span>{t('publicar.complianceCategoria')}</span>
                 </label>
                 <label className="pub-compliance-item">
                   <input type="checkbox" checked={form.complianceDescricaoConforme} onChange={(e) => set('complianceDescricaoConforme', e.target.checked)} />
-                  <span>A descrição não contém promessas ou termos vetados pelas políticas de anúncio da Shopee.</span>
+                  <span>{t('publicar.complianceDescricao')}</span>
                 </label>
                 {!complianceOk && <div className="hint" style={{ color: 'var(--red)', marginTop: 6 }}>Marque os três itens para poder publicar.</div>}
               </div>
@@ -806,83 +828,83 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
             <div className="pub-resumo-grid">
               <div className="pub-resumo-cel full">
-                <div className="pub-resumo-label"><Icon name="tag" size={12} /> Título selecionado</div>
+                <div className="pub-resumo-label"><Icon name="tag" size={12} /> {t('publicar.tituloSelecionado')}</div>
                 <div className="pub-resumo-valor">{tituloEscolhido.texto}</div>
               </div>
               <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="gerador" size={12} /> Marketplace</div>
+                <div className="pub-resumo-label"><Icon name="gerador" size={12} /> {t('publicar.marketplace')}</div>
                 <div className="pub-resumo-valor">{nomeMarketplace}</div>
               </div>
               <div className="pub-resumo-cel">
-                <div className="pub-resumo-label"><Icon name="upload" size={12} /> Imagens</div>
-                <div className="pub-resumo-valor">{form.imagensSelecionadas.length ? `${form.imagensSelecionadas.length} fotos` : '—'}</div>
+                <div className="pub-resumo-label"><Icon name="upload" size={12} /> {t('publicar.imagens')}</div>
+                <div className="pub-resumo-valor">{form.imagensSelecionadas.length ? `${form.imagensSelecionadas.length} ${t('publicar.fotos')}` : '—'}</div>
               </div>
               <div className="pub-resumo-cel full">
-                <div className="pub-resumo-label"><Icon name="folder" size={12} /> Categoria</div>
+                <div className="pub-resumo-label"><Icon name="folder" size={12} /> {t('publicar.categoria')}</div>
                 <div className="pub-resumo-valor">{categoriaAtual || '—'}</div>
               </div>
 
               {mp === 'ml' ? (
                 <>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="flag" size={12} /> Tipo de anúncio</div>
+                    <div className="pub-resumo-label"><Icon name="flag" size={12} /> {t('publicar.tipoAnuncio')}</div>
                     <div className="pub-resumo-valor">{INFO_TIPO_ANUNCIO[form.tipoAnuncio].titulo.split(' ·')[0]} · {INFO_TIPO_ANUNCIO[form.tipoAnuncio].pct}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="calculadora" size={12} /> Material</div>
+                    <div className="pub-resumo-label"><Icon name="calculadora" size={12} /> {t('publicar.material')}</div>
                     <div className="pub-resumo-valor">{form.material || '—'}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="tag" size={12} /> Nicho</div>
-                    <div className="pub-resumo-valor">{form.nicho.length ? form.nicho.join(', ') : '—'}</div>
+                    <div className="pub-resumo-label"><Icon name="tag" size={12} /> {t('publicar.nicho')}</div>
+                    <div className="pub-resumo-valor">{form.nicho.length ? form.nicho.map((n) => t(CHAVES_LABEL_NICHO[n] ?? '') || n).join(', ') : '—'}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="box" size={12} /> Peso / dimensões</div>
+                    <div className="pub-resumo-label"><Icon name="box" size={12} /> {t('publicar.pesoDimensoes')}</div>
                     <div className="pub-resumo-valor">{form.peso}g · {somaDimensoes}cm</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="bolt" size={12} /> Frete</div>
-                    <div className="pub-resumo-valor">{form.freteGratis ? 'Frete grátis ativo' : 'Frete pago pelo comprador'}</div>
+                    <div className="pub-resumo-label"><Icon name="bolt" size={12} /> {t('publicar.frete')}</div>
+                    <div className="pub-resumo-valor">{form.freteGratis ? t('publicar.freteGratisAtivo') : t('publicar.fretePagoPeloComprador')}</div>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="creditos" size={12} /> Preço / estoque</div>
-                    <div className="pub-resumo-valor">R$ {form.precoVenda || '—'} · {form.estoque || '0'} un.</div>
+                    <div className="pub-resumo-label"><Icon name="creditos" size={12} /> {t('publicar.precoEstoque')}</div>
+                    <div className="pub-resumo-valor">R$ {form.precoVenda || '—'} · {form.estoque || '0'} {t('publicar.un')}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="tag" size={12} /> Marca</div>
-                    <div className="pub-resumo-valor">{form.semMarca ? 'Sem marca' : (form.marca || '—')}</div>
+                    <div className="pub-resumo-label"><Icon name="tag" size={12} /> {t('publicar.marca')}</div>
+                    <div className="pub-resumo-valor">{form.semMarca ? t('publicar.semMarca') : (form.marca || '—')}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="box" size={12} /> Peso / dimensões</div>
+                    <div className="pub-resumo-label"><Icon name="box" size={12} /> {t('publicar.pesoDimensoes')}</div>
                     <div className="pub-resumo-valor">{form.peso || '—'}g · {somaDimensoes}cm</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="bolt" size={12} /> Canal de logística</div>
+                    <div className="pub-resumo-label"><Icon name="bolt" size={12} /> {t('publicar.canalLogistica')}</div>
                     <div className="pub-resumo-valor">{form.canalLogistica || '—'}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="flag" size={12} /> Variações</div>
-                    <div className="pub-resumo-valor">{form.temVariacoes ? `${form.variacoes.length} variação(ões)` : 'Nenhuma'}</div>
+                    <div className="pub-resumo-label"><Icon name="flag" size={12} /> {t('publicar.variacoes')}</div>
+                    <div className="pub-resumo-valor">{form.temVariacoes ? `${form.variacoes.length} ${t('publicar.variacaoOes')}` : t('publicar.nenhuma')}</div>
                   </div>
                   <div className="pub-resumo-cel">
-                    <div className="pub-resumo-label"><Icon name="creditos" size={12} /> Atacado / pré-venda</div>
-                    <div className="pub-resumo-valor">{form.ofereceAtacado ? `${form.faixasAtacado.length} faixa(s)` : 'Sem atacado'}{form.preVenda ? ` · pré-venda ${form.prazoEnvioPreVenda}d` : ''}</div>
+                    <div className="pub-resumo-label"><Icon name="creditos" size={12} /> {t('publicar.atacadoPreVenda')}</div>
+                    <div className="pub-resumo-valor">{form.ofereceAtacado ? `${form.faixasAtacado.length} ${t('publicar.faixaS')}` : t('publicar.semAtacado')}{form.preVenda ? ` · ${t('publicar.preVenda')} ${form.prazoEnvioPreVenda}d` : ''}</div>
                   </div>
                 </>
               )}
             </div>
 
             <div className="pub-score">
-              <div className="pub-score-head"><b>{score === 100 ? 'Ficha completa' : 'Ficha básica'}</b><span className="pub-score-pct">{score}%</span></div>
+              <div className="pub-score-head"><b>{score === 100 ? t('publicar.fichaCompleta') : t('publicar.fichaBasica')}</b><span className="pub-score-pct">{score}%</span></div>
               <div className="pub-score-trilha"><div className="pub-score-fill" style={{ width: score + '%' }} /></div>
               {score === 100
-                ? <div className="pub-score-ok">Ficha completa — nada a melhorar.</div>
+                ? <div className="pub-score-ok">{t('publicar.fichaCompletaNadaAMelhorar')}</div>
                 : (
                   <>
-                    <div className="pub-score-ok" style={{ marginBottom: 6 }}>Para subir de nível:</div>
+                    <div className="pub-score-ok" style={{ marginBottom: 6 }}>{t('publicar.paraSubirDeNivel')}</div>
                     <ul>{scoreItens.filter((s) => !s.ok).map((s) => <li key={s.texto}>{s.texto}</li>)}</ul>
                   </>
                 )}
@@ -891,11 +913,11 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
         )}
 
         <div className="pub-footer">
-          {idxAtual > 0 ? <button type="button" className="btn-outline" onClick={voltar}>Voltar</button> : <span />}
+          {idxAtual > 0 ? <button type="button" className="btn-outline" onClick={voltar}>{t('publicar.voltar')}</button> : <span />}
           {passo === 'confirmar' ? (
-            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!prontoParaPublicar} onClick={publicar}>Publicar anúncio</button>
+            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!prontoParaPublicar} onClick={publicar}>{t('publicar.publicarAnuncio')}</button>
           ) : (
-            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} onClick={avancar}>Continuar</button>
+            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} onClick={avancar}>{t('publicar.continuar')}</button>
           )}
         </div>
       </div>
@@ -904,11 +926,11 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
         <div className="pub-descartar-overlay" onClick={() => setConfirmarDescarte(false)}>
           <div className="pub-descartar-card" onClick={(e) => e.stopPropagation()}>
             <div className="pub-status-icone"><Icon name="alert" size={24} /></div>
-            <h3>Descartar este anúncio?</h3>
-            <p>Você ainda não publicou. Se sair agora, as escolhas feitas até aqui serão perdidas.</p>
+            <h3>{t('publicar.descartarEsteAnuncio')}</h3>
+            <p>{t('publicar.descartarDesc')}</p>
             <div className="pub-descartar-acoes">
-              <button type="button" className="btn-outline" onClick={() => setConfirmarDescarte(false)}>Continuar editando</button>
-              <button type="button" className="pub-btn-descartar" onClick={onFechar}>Descartar</button>
+              <button type="button" className="btn-outline" onClick={() => setConfirmarDescarte(false)}>{t('publicar.continuarEditando')}</button>
+              <button type="button" className="pub-btn-descartar" onClick={onFechar}>{t('publicar.descartar')}</button>
             </div>
           </div>
         </div>

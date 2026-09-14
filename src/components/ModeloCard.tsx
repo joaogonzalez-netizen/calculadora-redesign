@@ -1,15 +1,17 @@
 import { useState, type ChangeEvent } from 'react';
 import { useCalculadora, novoFilamentoItem } from '../context/CalculadoraContext';
+import { useI18n } from '../context/I18nContext';
 import Card from './Card';
 
 export default function ModeloCard() {
   const { state, set, errorIds } = useCalculadora();
-  const [status, setStatus] = useState('Carregue o G-code para preencher tempo e peso');
+  const { t } = useI18n();
+  const [status, setStatus] = useState(t('calc.statusCarregueGcode'));
 
   function handleGcode(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setStatus('Lendo arquivo…');
+    setStatus(t('calc.statusLendoArquivo'));
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = String(ev.target?.result || '');
@@ -37,45 +39,45 @@ export default function ModeloCard() {
         }
         found = true;
       }
-      setStatus(found ? '✓ Tempo e peso extraídos do G-code' : 'Não encontramos os dados, preencha manualmente');
+      setStatus(found ? t('calc.statusTempoPesoExtraidos') : t('calc.statusDadosNaoEncontrados'));
     };
-    reader.onerror = () => setStatus('Erro ao ler o arquivo, tente novamente');
+    reader.onerror = () => setStatus(t('calc.statusErroLerArquivo'));
     reader.readAsText(file);
   }
 
   return (
-    <Card icon="◆" title="Modelo">
+    <Card icon="◆" title={t('calc.modelo')}>
       <div className="field">
-        <label>Nome do STL</label>
+        <label>{t('calc.nomeDoStl')}</label>
         <input
           type="text"
-          placeholder="Ex: dragao_miniatura.stl"
+          placeholder={t('calc.placeholderNomeStl')}
           value={state.nomePeca}
           onChange={(e) => set('nomePeca', e.target.value)}
           className={errorIds.has('nomePeca') ? 'input-error' : ''}
         />
       </div>
 
-      <div className="divider-label">Adicione uma fonte para o modelo</div>
+      <div className="divider-label">{t('calc.adicioneFonteModelo')}</div>
 
       <div className="field">
-        <label>Link da biblioteca</label>
-        <input type="url" placeholder="stlflix.com, makerworld.com, printables.com..." value={state.stlLink} onChange={(e) => set('stlLink', e.target.value)} />
+        <label>{t('calc.linkBiblioteca')}</label>
+        <input type="url" placeholder={t('calc.placeholderLinkBiblioteca')} value={state.stlLink} onChange={(e) => set('stlLink', e.target.value)} />
       </div>
       <div className="field">
-        <label>Referência concorrente</label>
-        <input type="url" placeholder="Mercado Livre, Shopee, Amazon... cole o link do concorrente" value={state.concorrenteLink} onChange={(e) => set('concorrenteLink', e.target.value)} />
+        <label>{t('calc.referenciaConcorrente')}</label>
+        <input type="url" placeholder={t('calc.placeholderReferenciaConcorrente')} value={state.concorrenteLink} onChange={(e) => set('concorrenteLink', e.target.value)} />
       </div>
 
-      <div className="divider-label">Ou carregue o G-code</div>
+      <div className="divider-label">{t('calc.ouCarregueGcode')}</div>
 
       <div className="dropzone">
         <div className="dz-ic">⇪</div>
         <div className="dz-text">
           <b>{status}</b>
-          <span>Arraste aqui ou clique para escolher · .gcode, .bgcode</span>
+          <span>{t('calc.arrasteOuClique')}</span>
         </div>
-        <button type="button" onClick={() => document.getElementById('gcodeInput')?.click()}>Escolher arquivo</button>
+        <button type="button" onClick={() => document.getElementById('gcodeInput')?.click()}>{t('calc.escolherArquivo')}</button>
         <input type="file" id="gcodeInput" accept=".gcode,.bgcode,.gco,.nc" className="hidden" onChange={handleGcode} />
       </div>
     </Card>

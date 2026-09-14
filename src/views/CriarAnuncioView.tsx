@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
@@ -17,16 +18,6 @@ import ResultadoStep from '../components/gerador/ResultadoStep';
 // "em construção" dentro do mesmo wizard.
 type PassoId = 'upload' | 'marketplace' | 'info' | 'textos' | 'imagens' | 'video' | 'resultado';
 
-const PASSOS = [
-  { id: 'upload', numero: 1, label: 'Upload' },
-  { id: 'marketplace', numero: 2, label: 'Marketplace e plano' },
-  { id: 'info', numero: 3, label: 'Informações' },
-  { id: 'textos', numero: 4, label: 'Textos' },
-  { id: 'imagens', numero: 5, label: 'Imagens' },
-  { id: 'video', numero: 6, label: 'Video' },
-  { id: 'resultado', numero: 7, label: 'Resultado' },
-] as const satisfies readonly { id: PassoId; numero: number; label: string }[];
-
 const CORES_MOCK = ['#0d6efd', '#00955a', '#c58a00', '#8a3bd4', '#d4633b'];
 
 interface Props {
@@ -34,6 +25,17 @@ interface Props {
 }
 
 export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
+  const { t } = useI18n();
+  const PASSOS = [
+    { id: 'upload', numero: 1, label: t('gerador.stepUpload') },
+    { id: 'marketplace', numero: 2, label: t('gerador.stepMarketplace') },
+    { id: 'info', numero: 3, label: t('gerador.stepInformacoes') },
+    { id: 'textos', numero: 4, label: t('gerador.stepTextos') },
+    { id: 'imagens', numero: 5, label: t('gerador.stepImagens') },
+    { id: 'video', numero: 6, label: t('gerador.stepVideo') },
+    { id: 'resultado', numero: 7, label: t('gerador.stepResultado') },
+  ] as const satisfies readonly { id: PassoId; numero: number; label: string }[];
+
   const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
   const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
   const [imagens, setImagens] = useState<string[]>([]);
@@ -69,7 +71,7 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
         <GeradorStepper passos={PASSOS} atual={passoAtual} visitados={visitados} onIrPara={irPara} />
         {passoAtual !== 'resultado' && (
           <button type="button" className="ger-pular-resumo" onClick={pularParaResumo}>
-            Pular para o resumo <Icon name="chevron" size={12} style={{ transform: 'rotate(180deg)' }} />
+            {t('gerador.pularParaResumo')} <Icon name="chevron" size={12} style={{ transform: 'rotate(180deg)' }} />
           </button>
         )}
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ORDENS, PERIODOS, PRODUTOS, PRODUTOS_KPIS, type Produto, type ProdutoStatus } from '../lib/produtosMock';
 import { PRODUTO_VINCULOS_KEY, readJson, writeJson, type ProdutoVinculos } from '../lib/storage';
+import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
 import ProdutoDetailDrawer from '../components/produtos/ProdutoDetailDrawer';
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoConsumido }: Props) {
+  const { t } = useI18n();
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState('Maio 2026');
   const [canal, setCanal] = useState('Mercado Livre');
@@ -78,38 +80,55 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
     return lista;
   }, [busca, canal, status, ordem, faixaFiltro, statusOverride, somenteSemCusto, vinculos]);
 
+  function traduzirStatus(s: string) {
+    if (s === 'Todos') return t('produtos.statusTodos');
+    if (s === 'Ativo') return t('produtos.statusAtivo');
+    if (s === 'Pausado') return t('produtos.statusPausado');
+    if (s === 'Esgotado') return t('produtos.statusEsgotado');
+    return s;
+  }
+  function traduzirCanal(c: string) {
+    return c === 'Todos' ? t('produtos.statusTodos') : c;
+  }
+  function traduzirEstoqueSituacao(s: string) {
+    if (s === 'Saudável') return t('produtos.estoqueSaudavel');
+    if (s === 'Estoque baixo') return t('produtos.kpiEstoqueBaixo');
+    if (s === 'Sem estoque') return t('produtos.kpiSemEstoque');
+    return s;
+  }
+
   return (
     <div>
       <div className="hero">
-        <h1>Produtos</h1>
-        <p>Gerencie produtos publicados, monitore inventário e identifique problemas operacionais nos marketplaces conectados.</p>
+        <h1>{t('produtos.titulo')}</h1>
+        <p>{t('produtos.subtitulo')}</p>
       </div>
 
       <div className="prod-actions-row">
-        <button type="button" className="btn-outline">Exportar CSV</button>
-        <button type="button" className="btn-dark">Sincronizar estoque</button>
+        <button type="button" className="btn-outline">{t('produtos.exportarCsv')}</button>
+        <button type="button" className="btn-dark">{t('produtos.sincronizarEstoque')}</button>
       </div>
 
       <div className="kpi-grid prod-kpi-grid">
-        <div className="kpi-card"><div className="kpi-head"><span>Vendas acumuladas</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.vendasAcumuladas}</span></div><div className="kpi-foot"><span className="kpi-comp">no total</span></div></div>
-        <div className="kpi-card"><div className="kpi-head"><span>Produtos ativos</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.produtosAtivos.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.produtosAtivos.sub}</span></div></div>
-        <div className="kpi-card"><div className="kpi-head"><span>Em estoque</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.emEstoque.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.emEstoque.sub}</span></div></div>
-        <div className="kpi-card kpi-warn"><div className="kpi-head"><span>Estoque baixo</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.estoqueBaixo.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp warn">{PRODUTOS_KPIS.estoqueBaixo.sub}</span></div></div>
-        <div className="kpi-card kpi-danger"><div className="kpi-head"><span>Sem estoque</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.semEstoque.valor}</span><span className="kpi-dec">pedidos</span></div><div className="kpi-foot"><span className="kpi-comp danger">{PRODUTOS_KPIS.semEstoque.sub}</span></div></div>
+        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiVendasAcumuladas')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.vendasAcumuladas}</span></div><div className="kpi-foot"><span className="kpi-comp">{t('produtos.kpiNoTotal')}</span></div></div>
+        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiProdutosAtivos')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.produtosAtivos.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.produtosAtivos.sub}</span></div></div>
+        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiEmEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.emEstoque.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.emEstoque.sub}</span></div></div>
+        <div className="kpi-card kpi-warn"><div className="kpi-head"><span>{t('produtos.kpiEstoqueBaixo')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.estoqueBaixo.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp warn">{PRODUTOS_KPIS.estoqueBaixo.sub}</span></div></div>
+        <div className="kpi-card kpi-danger"><div className="kpi-head"><span>{t('produtos.kpiSemEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.semEstoque.valor}</span><span className="kpi-dec">pedidos</span></div><div className="kpi-foot"><span className="kpi-comp danger">{PRODUTOS_KPIS.semEstoque.sub}</span></div></div>
       </div>
 
       <div className="prod-filters-row">
-        <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder="Buscar por produto, SKU ou categoria..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
-        <PopoverList label="Período" options={PERIODOS} value={periodo} onChange={setPeriodo} />
-        <PopoverList label="Canal" options={CANAL_OPTS} value={canal} onChange={setCanal} />
-        <PopoverList label="Status" options={STATUS_OPTS} value={status} onChange={(v) => setStatus(v as ProdutoStatus | 'Todos')} />
+        <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder={t('produtos.buscarPlaceholder')} value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
+        <PopoverList label={t('produtos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} />
+        <PopoverList label={t('produtos.filtroCanal')} options={CANAL_OPTS} value={canal} onChange={setCanal} getLabel={traduzirCanal} />
+        <PopoverList label={t('produtos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={(v) => setStatus(v as ProdutoStatus | 'Todos')} getLabel={traduzirStatus} />
         <PopoverList label="" options={ORDENS} value={ordem} onChange={setOrdem} />
-        <button type="button" className="ctl-btn" onClick={() => setFiltrosOpen(true)}>▽ Filtros</button>
+        <button type="button" className="ctl-btn" onClick={() => setFiltrosOpen(true)}>▽ {t('produtos.botaoFiltros')}</button>
       </div>
 
       {somenteSemCusto && (
         <div className="filtro-ativo-chip">
-          Mostrando só produtos sem custo vinculado
+          {t('produtos.chipSomenteSemCusto')}
           <button type="button" onClick={() => setSomenteSemCusto(false)}><Icon name="close" size={12} /></button>
         </div>
       )}
@@ -119,7 +138,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           <table className="prod-table">
             <thead>
               <tr>
-                <th>Produto</th><th>Marketplace</th><th>Status</th><th>Estoque</th><th>Vendidos</th><th>Preço</th><th>Produção</th><th>Otimizar</th><th>Ações</th>
+                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th><th>{t('produtos.colunaOtimizar')}</th><th>{t('produtos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -132,10 +151,10 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                       <div className="prod-sku">{p.sku} · {p.variacoes.length} var. · dd/mm/aaaa</div>
                     </td>
                     <td><span className="mp-tag">{p.marketplace}</span></td>
-                    <td><span className={'status-tag status-' + p.status.toLowerCase()}>{p.status}</span></td>
+                    <td><span className={'status-tag status-' + p.status.toLowerCase()}>{traduzirStatus(p.status)}</span></td>
                     <td>
                       <div>{p.estoque} un.</div>
-                      <small className={'estoque-sit sit-' + p.estoqueSituacao.replace(/\s/g, '-').toLowerCase()}>{p.estoqueSituacao}</small>
+                      <small className={'estoque-sit sit-' + p.estoqueSituacao.replace(/\s/g, '-').toLowerCase()}>{traduzirEstoqueSituacao(p.estoqueSituacao)}</small>
                     </td>
                     <td>{p.vendidos} un.</td>
                     <td>{p.preco}</td>
@@ -143,28 +162,28 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                       {vinculo ? (
                         <div className="custo-vinculado" onClick={() => setCustoProduto(p)}>
                           <b>{brl2(vinculo.custoProducao)}</b>
-                          <small>{vinculo.tipo === 'calculo' ? 'via cálculo salvo' : 'informado manualmente'}</small>
+                          <small>{vinculo.tipo === 'calculo' ? t('produtos.viaCalculoSalvo') : t('produtos.informadoManualmente')}</small>
                         </div>
                       ) : (
-                        <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setCustoProduto(p)}>Vincular custo</button>
+                        <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setCustoProduto(p)}>{t('produtos.vincularCusto')}</button>
                       )}
                     </td>
                     <td>
                       <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
-                        <Icon name="otimizador" size={14} /> Otimizar
+                        <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
                       </button>
                     </td>
                     <td>
                       <div className="prod-acoes">
-                        <button type="button" title="Ver detalhes" onClick={() => setDetalheProduto(p)}><Icon name="eye" size={16} /></button>
+                        <button type="button" title={t('produtos.verDetalhes')} onClick={() => setDetalheProduto(p)}><Icon name="eye" size={16} /></button>
                         <div className="prod-menu-wrap">
-                          <button type="button" title="Mais ações" onClick={() => setMenuAbertoId(menuAbertoId === p.id ? null : p.id)}><Icon name="dots" size={16} /></button>
+                          <button type="button" title={t('produtos.maisAcoes')} onClick={() => setMenuAbertoId(menuAbertoId === p.id ? null : p.id)}><Icon name="dots" size={16} /></button>
                           {menuAbertoId === p.id && (
                             <>
                               <div className="popover-scrim" onClick={() => setMenuAbertoId(null)} />
                               <div className="popover-list prod-menu">
                                 <div className="popover-item" onClick={() => { setPausarProduto(p); setMenuAbertoId(null); }}>
-                                  {p.status === 'Pausado' ? 'Reativar anúncio' : 'Pausar anúncio'}
+                                  {p.status === 'Pausado' ? t('produtos.reativarAnuncio') : t('produtos.pausarAnuncio')}
                                 </div>
                               </div>
                             </>
@@ -178,7 +197,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
             </tbody>
           </table>
           <div className="prod-pagination">
-            <span>Exibindo 1–{produtos.length} de {PRODUTOS_KPIS.produtosAtivos.valor} produtos</span>
+            <span>{t('produtos.exibindo')} 1–{produtos.length} {t('produtos.deLabel')} {PRODUTOS_KPIS.produtosAtivos.valor} {t('produtos.produtosPlural')}</span>
             <div className="prod-pages">
               <button type="button" className="page-btn">‹</button>
               <button type="button" className="page-btn active">1</button>
@@ -194,7 +213,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
       </div>
 
       <div className="prod-footnote">
-        <Icon name="creditos" size={13} /> "Vincular custo" abre o painel pra vincular um cálculo salvo ou informar o custo manualmente.
+        <Icon name="creditos" size={13} /> {t('produtos.footNote')}
       </div>
 
       {filtrosOpen && <FiltrosAvancadosDrawer onClose={() => setFiltrosOpen(false)} onApply={(valor, estoque) => setFaixaFiltro({ valor, estoque })} />}

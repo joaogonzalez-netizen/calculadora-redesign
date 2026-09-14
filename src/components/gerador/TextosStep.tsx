@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 // Réplica do passo "Textos" do Gerador de anúncios em produção (print de
@@ -94,6 +95,7 @@ interface Props {
 }
 
 export default function TextosStep({ onVoltar, onContinuar }: Props) {
+  const { t } = useI18n();
   const [idioma, setIdioma] = useState<'pt' | 'en'>('pt');
   const [copiado, setCopiado] = useState<string | null>(null);
 
@@ -107,7 +109,7 @@ export default function TextosStep({ onVoltar, onContinuar }: Props) {
 
   function botaoCopiar(chave: string, texto: string) {
     return (
-      <button type="button" className={'ger-txt-copy' + (copiado === chave ? ' copiado' : '')} onClick={() => copiar(chave, texto)} title="Copiar">
+      <button type="button" className={'ger-txt-copy' + (copiado === chave ? ' copiado' : '')} onClick={() => copiar(chave, texto)} title={t('gerador.copiar')}>
         <Icon name={copiado === chave ? 'check' : 'copy'} size={15} />
       </button>
     );
@@ -115,21 +117,21 @@ export default function TextosStep({ onVoltar, onContinuar }: Props) {
 
   return (
     <>
-      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> Cancelar e voltar</button>
+      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> {t('gerador.cancelarEVoltar')}</button>
 
       <div className="ger-titulo-bloco">
-        <h2>Revise e aprove os textos</h2>
+        <h2>{t('gerador.reviseAprovarTextos')}</h2>
       </div>
 
       <div className="ger-txt-idioma-tabs">
-        <button type="button" className={idioma === 'pt' ? 'active' : ''} onClick={() => setIdioma('pt')}>Português</button>
-        <button type="button" className={idioma === 'en' ? 'active' : ''} onClick={() => setIdioma('en')}>Inglês</button>
+        <button type="button" className={idioma === 'pt' ? 'active' : ''} onClick={() => setIdioma('pt')}>{t('gerador.portugues')}</button>
+        <button type="button" className={idioma === 'en' ? 'active' : ''} onClick={() => setIdioma('en')}>{t('gerador.ingles')}</button>
       </div>
 
       <div className="ger-txt-card">
         <div className="ger-txt-card-head">
           <div>
-            <div className="ger-txt-label">Título</div>
+            <div className="ger-txt-label">{t('gerador.titulo')}</div>
             <div className="ger-txt-titulo">{textos.titulo}</div>
           </div>
           {botaoCopiar('titulo', textos.titulo)}
@@ -137,7 +139,7 @@ export default function TextosStep({ onVoltar, onContinuar }: Props) {
       </div>
 
       <div className="ger-txt-card ger-txt-com-chat">
-        <div className="ger-txt-label" style={{ marginBottom: 12 }}>Variações de Título</div>
+        <div className="ger-txt-label" style={{ marginBottom: 12 }}>{t('gerador.variacoesTitulo')}</div>
         <div className="ger-txt-variacoes">
           {textos.variacoes.map((v, idx) => (
             <div className="ger-txt-variacao" key={idx}>
@@ -153,7 +155,7 @@ export default function TextosStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-txt-card ger-txt-com-chat">
         <div className="ger-txt-card-head">
-          <div className="ger-txt-label">Descrição para marketplace</div>
+          <div className="ger-txt-label">{t('gerador.descricaoParaMarketplace')}</div>
           {botaoCopiar('descricao', textos.descricao)}
         </div>
         <div className="ger-txt-desc">{textos.descricao}</div>
@@ -164,15 +166,15 @@ export default function TextosStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-txt-footer">
         <div>
-          <p>Você está satisfeito com os textos gerados?</p>
+          <p>{t('gerador.satisfeitoTextosGerados')}</p>
           <span className="hint">Aprovar para continuar para o próximo passo, ou re-gerar.</span>
         </div>
         <div className="ger-txt-footer-actions">
           <button type="button" className="btn-outline" onClick={() => pedirAjuste('todos os textos (re-gerar)')}>
-            <Icon name="sync" size={13} /> Re-gerar · 1 crédito
+            <Icon name="sync" size={13} /> {t('gerador.regerar')} · 1 {t('gerador.credito')}
           </button>
           <button type="button" className="btn-calc ger-txt-aprovar" onClick={onContinuar}>
-            <Icon name="thumbUp" size={14} /> Aprovar e continuar
+            <Icon name="thumbUp" size={14} /> {t('gerador.aprovarEContinuar')}
           </button>
         </div>
       </div>

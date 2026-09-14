@@ -1,4 +1,5 @@
 import { useCalculadora } from '../context/CalculadoraContext';
+import { useI18n } from '../context/I18nContext';
 import MoedaTopoCard from '../components/MoedaTopoCard';
 import ModeloCard from '../components/ModeloCard';
 import ImpressaoCard from '../components/ImpressaoCard';
@@ -11,6 +12,7 @@ import StickyBar from '../components/StickyBar';
 
 export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
   const { faltando, calcularClick, salvarHistorico, state } = useCalculadora();
+  const { t } = useI18n();
 
   function handleCalcular() {
     calcularClick();
@@ -39,8 +41,8 @@ export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
   return (
     <div>
       <div className="hero">
-        <h1>Calcule o preço <span className="accent">justo</span> de cada peça.</h1>
-        <p>Insira os dados do modelo, custos da impressão e configurações de venda: a calculadora monta o preço sugerido pra você na hora.</p>
+        <h1>{t('calc.heroTitlePart1')} <span className="accent">{t('calc.heroTitleAccent')}</span> {t('calc.heroTitlePart2')}</h1>
+        <p>{t('calc.heroSubtitle')}</p>
       </div>
 
       <MoedaTopoCard />
@@ -54,13 +56,13 @@ export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
       <ResultsSection />
 
       <div className="calc-footer">
-        <div className="placeholder" style={{ display: faltando.length ? 'block' : 'none' }}>Preencha os campos acima e calcule o preço sugerido.</div>
-        <button className="btn-calc" onClick={handleCalcular}>Calcular preço de venda</button>
-        <div className="validation-hint">{faltando.length ? 'Falta preencher: ' + faltando.map((f) => f.label).join(', ') : ''}</div>
-        <div className="required-hint">* Campos obrigatórios para o cálculo</div>
+        <div className="placeholder" style={{ display: faltando.length ? 'block' : 'none' }}>{t('calc.preencherCamposCalcular')}</div>
+        <button className="btn-calc" onClick={handleCalcular}>{t('calc.calcularPrecoDeVenda')}</button>
+        <div className="validation-hint">{faltando.length ? t('calc.faltaPreencher') + ' ' + faltando.map((f) => f.label).join(', ') : ''}</div>
+        <div className="required-hint">{t('calc.camposObrigatorios')}</div>
         <div className="actions-secondary">
-          <button type="button" className="btn-outline" onClick={handleSalvar}>💾 Salvar no histórico</button>
-          <button type="button" className="btn-outline" onClick={handleGerarAnuncio}>✨ Gerar anúncio com IA</button>
+          <button type="button" className="btn-outline" onClick={handleSalvar}>💾 {t('calc.salvarNoHistorico')}</button>
+          <button type="button" className="btn-outline" onClick={handleGerarAnuncio}>✨ {t('calc.gerarAnuncioComIA')}</button>
         </div>
       </div>
 

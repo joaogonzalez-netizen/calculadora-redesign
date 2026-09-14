@@ -1,7 +1,9 @@
 import { MARKETPLACES, ULTIMA_SINCRONIZACAO } from '../../lib/dashboardMock';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 export default function SyncBar() {
+  const { t } = useI18n();
   return (
     <div className="sync-bar">
       <span className="sync-dot" />
@@ -11,11 +13,11 @@ export default function SyncBar() {
         ))}
       </div>
       <div className="sync-text">
-        <b>{MARKETPLACES.length} marketplaces conectados</b>
+        <b>{t('dashboard.marketplacesConectados').replace('{n}', String(MARKETPLACES.length))}</b>
         <span> · {ULTIMA_SINCRONIZACAO}</span>
       </div>
       <button type="button" className="sync-btn">
-        <Icon name="sync" size={15} /> Sincronizar agora
+        <Icon name="sync" size={15} /> {t('dashboard.sincronizarAgora')}
       </button>
     </div>
   );

@@ -1,4 +1,5 @@
 import type { Marcador } from '../../lib/cluster';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 interface Props {
@@ -8,12 +9,13 @@ interface Props {
 }
 
 export default function MarcadorPicker({ marcadores, marcadorId, onAbrir }: Props) {
+  const { t } = useI18n();
   const atual = marcadores.find((m) => m.id === marcadorId);
   return (
     <button type="button" className="cluster-picker-btn" onClick={onAbrir}>
       {atual
         ? <span className="marcador-chip-mini" style={{ background: atual.cor }}>{atual.nome}</span>
-        : <span className="cluster-picker-empty"><Icon name="tag" size={13} /> Adicionar</span>}
+        : <span className="cluster-picker-empty"><Icon name="tag" size={13} /> {t('calc.adicionar')}</span>}
     </button>
   );
 }

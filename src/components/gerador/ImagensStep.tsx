@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 // Réplica do passo "Imagens" do Gerador de anúncios em produção (print de
@@ -11,18 +12,18 @@ const MAX_SELECAO = 4;
 
 interface ImagemVideo {
   id: string;
-  label: string;
+  labelChave: string;
   gradiente: string;
   escuro?: boolean;
 }
 
 const IMAGENS_VIDEO: ImagemVideo[] = [
-  { id: 'uso1', label: 'Ambientada — Uso 1', gradiente: 'linear-gradient(160deg,#efe6d8,#d9c7a3)' },
-  { id: 'uso2', label: 'Ambientada — Uso 2', gradiente: 'linear-gradient(160deg,#e9eee6,#cddac6)' },
-  { id: 'uso3', label: 'Ambientada — Uso 3', gradiente: 'linear-gradient(160deg,#f4f1ea,#e3ddca)' },
-  { id: 'detalhe', label: 'Detalhe — Acabamento', gradiente: 'linear-gradient(160deg,#2b2f27,#14171b)', escuro: true },
-  { id: 'destaque', label: 'Destaque — Benefício', gradiente: 'linear-gradient(160deg,#efe0cd,#d6b98c)' },
-  { id: 'hero', label: 'Hero — Cena final', gradiente: 'linear-gradient(160deg,#e8e3da,#c9beac)' },
+  { id: 'uso1', labelChave: 'gerador.imgAmbientadaUso1', gradiente: 'linear-gradient(160deg,#efe6d8,#d9c7a3)' },
+  { id: 'uso2', labelChave: 'gerador.imgAmbientadaUso2', gradiente: 'linear-gradient(160deg,#e9eee6,#cddac6)' },
+  { id: 'uso3', labelChave: 'gerador.imgAmbientadaUso3', gradiente: 'linear-gradient(160deg,#f4f1ea,#e3ddca)' },
+  { id: 'detalhe', labelChave: 'gerador.imgDetalheAcabamento', gradiente: 'linear-gradient(160deg,#2b2f27,#14171b)', escuro: true },
+  { id: 'destaque', labelChave: 'gerador.imgDestaqueBeneficio', gradiente: 'linear-gradient(160deg,#efe0cd,#d6b98c)' },
+  { id: 'hero', labelChave: 'gerador.imgHeroCenaFinal', gradiente: 'linear-gradient(160deg,#e8e3da,#c9beac)' },
 ];
 
 const SELECAO_INICIAL = new Set(['uso1', 'uso2', 'uso3', 'detalhe']);
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export default function ImagensStep({ onVoltar, onContinuar }: Props) {
+  const { t } = useI18n();
   const [selecionadas, setSelecionadas] = useState<Set<string>>(SELECAO_INICIAL);
 
   function alternar(id: string) {
@@ -57,14 +59,14 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
 
   return (
     <>
-      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> Cancelar e voltar</button>
+      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> {t('gerador.cancelarEVoltar')}</button>
 
       <div className="ger-titulo-bloco">
-        <h2>Imagens geradas</h2>
+        <h2>{t('gerador.imagensGeradas')}</h2>
         <p>3 imagens fixas (capa, medidas e características) + 6 imagens individuais. Escolha exatamente 4 imagens para o vídeo.</p>
       </div>
 
-      <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>Imagens fixas</h3>
+      <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>{t('gerador.imagensFixas')}</h3>
       <p className="ger-img-secao-desc">Sempre incluídas no anúncio. Não entram na seleção do vídeo.</p>
 
       <div className="ger-img-aviso">
@@ -74,33 +76,33 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
       <div className="ger-img-grid-fixas ger-txt-com-chat">
         <div className="ger-img-card">
           <div className="ger-img-card-media" style={{ background: 'linear-gradient(160deg,#f5f5f4,#e6e6e3)' }}>
-            <span className="ger-img-badge-fixa">Fixa</span>
+            <span className="ger-img-badge-fixa">{t('gerador.fixa')}</span>
           </div>
-          <div className="ger-img-card-label">Capa — Fundo branco</div>
+          <div className="ger-img-card-label">{t('gerador.capaFundoBranco')}</div>
         </div>
 
         <div className="ger-img-card">
           <div className="ger-img-card-media" style={{ background: 'linear-gradient(160deg,#eef2ee,#d8e3d8)' }}>
-            <span className="ger-img-badge-fixa">Fixa</span>
+            <span className="ger-img-badge-fixa">{t('gerador.fixa')}</span>
             <div className="ger-img-medidas-hover">
               <button type="button" className="ger-img-medidas-btn" onClick={editarMedidas}>
-                <Icon name="tag" size={13} /> Editar medidas
+                <Icon name="tag" size={13} /> {t('gerador.editarMedidas')}
               </button>
             </div>
           </div>
-          <div className="ger-img-card-label">Medidas</div>
+          <div className="ger-img-card-label">{t('gerador.medidas')}</div>
         </div>
 
         <div className="ger-img-card">
           <div className="ger-img-card-media" style={{ background: 'linear-gradient(160deg,#f6efe1,#ecdfc0)' }}>
-            <span className="ger-img-badge-fixa">Fixa</span>
+            <span className="ger-img-badge-fixa">{t('gerador.fixa')}</span>
             <div className="ger-img-carac">
               <div className="ger-img-carac-item"><Icon name="gerador" size={15} /> Design lúdico de bicho-preguiça</div>
               <div className="ger-img-carac-item"><Icon name="home" size={15} /> Ideal para quartos infantis ou áreas de lazer</div>
               <div className="ger-img-carac-item"><Icon name="leaf" size={15} /> Base estilizada imitando folhas</div>
             </div>
           </div>
-          <div className="ger-img-card-label">Características</div>
+          <div className="ger-img-card-label">{t('gerador.caracteristicas')}</div>
         </div>
 
         <button type="button" className="ger-txt-chat" onClick={() => pedirAjuste('Imagens fixas')} title="Pedir ajuste via chat">
@@ -110,10 +112,10 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-img-secao-head">
         <div>
-          <h3 className="ger-secao-titulo" style={{ margin: '0 0 4px' }}>Imagens para o vídeo</h3>
-          <p className="ger-img-secao-desc">Selecione exatamente 4 imagens entre as 6 disponíveis.</p>
+          <h3 className="ger-secao-titulo" style={{ margin: '0 0 4px' }}>{t('gerador.imagensParaVideo')}</h3>
+          <p className="ger-img-secao-desc">{t('gerador.selecioneExatamente4')}</p>
         </div>
-        <span className="ger-img-contador">{selecionadas.size} de {MAX_SELECAO} selecionadas</span>
+        <span className="ger-img-contador">{selecionadas.size} {t('gerador.de')} {MAX_SELECAO} {t('gerador.selecionadas')}</span>
       </div>
 
       <div className="ger-img-grid-video ger-txt-com-chat">
@@ -135,7 +137,7 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
                   </div>
                 )}
               </div>
-              <div className={'ger-img-card-label' + (img.escuro ? '' : '')}>{img.label}</div>
+              <div className={'ger-img-card-label' + (img.escuro ? '' : '')}>{t(img.labelChave)}</div>
             </div>
           );
         })}
@@ -147,15 +149,15 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-txt-footer">
         <div>
-          <p>Você está satisfeito com as imagens geradas?</p>
+          <p>{t('gerador.satisfeitoImagensGeradas')}</p>
           <span className="hint">Aprovar para continuar para o próximo passo, ou re-gerar.</span>
         </div>
         <div className="ger-txt-footer-actions">
           <button type="button" className="btn-outline" onClick={() => pedirAjuste('todas as imagens (re-gerar)')}>
-            <Icon name="sync" size={13} /> Re-gerar · 2 créditos
+            <Icon name="sync" size={13} /> {t('gerador.regerar')} · 2 {t('gerador.creditos')}
           </button>
           <button type="button" className="btn-calc ger-txt-aprovar" onClick={onContinuar}>
-            <Icon name="thumbUp" size={14} /> Aprovar e continuar
+            <Icon name="thumbUp" size={14} /> {t('gerador.aprovarEContinuar')}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { USUARIO } from '../lib/dashboardMock';
 import { marcarOnboardingManual } from '../lib/onboarding';
+import { useI18n } from '../context/I18nContext';
 import Icon, { type IconName } from '../components/Icon';
 
 type PassoId = 'buscador' | 'calculadora' | 'gerador' | 'marketplace';
@@ -7,17 +8,17 @@ type PassoId = 'buscador' | 'calculadora' | 'gerador' | 'marketplace';
 interface Passo {
   id: PassoId;
   numero: number;
-  titulo: string;
-  descricao: string;
+  tituloChave: string;
+  descricaoChave: string;
   icone: IconName;
-  cta: string;
+  ctaChave: string;
 }
 
 const PASSOS: Passo[] = [
-  { id: 'buscador', numero: 1, titulo: 'Buscador de produtos', descricao: 'Favorite seus principais produtos nos marketplaces.', icone: 'buscador', cta: 'Ir para o Buscador' },
-  { id: 'calculadora', numero: 2, titulo: 'Calculadora de preços', descricao: 'Calcule o preço justo de pelo menos uma peça.', icone: 'calculadora', cta: 'Calcular agora' },
-  { id: 'gerador', numero: 3, titulo: 'Gerador de anúncios', descricao: 'Gere um anúncio com IA pra um dos seus produtos.', icone: 'gerador', cta: 'Gerar anúncio' },
-  { id: 'marketplace', numero: 4, titulo: 'Conectar marketplace', descricao: 'Conecte um marketplace pra sincronizar pedidos e estoque.', icone: 'integracoes', cta: 'Conectar marketplace' },
+  { id: 'buscador', numero: 1, tituloChave: 'passos.buscadorTitulo', descricaoChave: 'passos.buscadorDescricao', icone: 'buscador', ctaChave: 'passos.buscadorCta' },
+  { id: 'calculadora', numero: 2, tituloChave: 'passos.calculadoraTitulo', descricaoChave: 'passos.calculadoraDescricao', icone: 'calculadora', ctaChave: 'passos.calculadoraCta' },
+  { id: 'gerador', numero: 3, tituloChave: 'passos.geradorTitulo', descricaoChave: 'passos.geradorDescricao', icone: 'gerador', ctaChave: 'passos.geradorCta' },
+  { id: 'marketplace', numero: 4, tituloChave: 'passos.marketplaceTitulo', descricaoChave: 'passos.marketplaceDescricao', icone: 'integracoes', ctaChave: 'passos.marketplaceCta' },
 ];
 
 // Total de passos considerado pra "N de X concluídos" e pra sumir o menu —
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculadora, onIrParaConfiguracoes, onAtualizarPassos }: Props) {
+  const { t } = useI18n();
   const totalCompletos = PASSOS.filter((p) => passosCompletos[p.id]).length + (passosCompletos.video ? 1 : 0);
   const videoAssistido = passosCompletos.video;
 
@@ -55,13 +57,13 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
   return (
     <div>
       <div className="hero">
-        <h1>Bem-vindo, <span className="accent">{USUARIO.primeiroNome}</span></h1>
-        <p>Complete os passos abaixo pra tirar o máximo proveito da plataforma. Leva menos de 5 minutos.</p>
+        <h1>{t('passos.boasVindas')}, <span className="accent">{USUARIO.primeiroNome}</span></h1>
+        <p>{t('passos.subtitulo')}</p>
       </div>
 
       <div className="passos-progresso-row">
         <div className="passos-progresso-bar"><div className="passos-progresso-fill" style={{ width: `${(totalCompletos / TOTAL_PASSOS) * 100}%` }} /></div>
-        <span className="hint passos-progresso-label">{totalCompletos} de {TOTAL_PASSOS} concluídos</span>
+        <span className="hint passos-progresso-label">{totalCompletos} {t('passos.deLabel')} {TOTAL_PASSOS} {t('passos.concluidosPlural')}</span>
       </div>
 
       <div className={'passo-video-card' + (videoAssistido ? ' completo' : '')}>
@@ -71,15 +73,15 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
         </button>
         <div className="passo-video-info">
           <div className="passo-video-head">
-            <h3>Vídeo de boas-vindas</h3>
-            {videoAssistido && <div className="passo-feito"><Icon name="check" size={14} /> Assistido</div>}
+            <h3>{t('passos.videoTitulo')}</h3>
+            {videoAssistido && <div className="passo-feito"><Icon name="check" size={14} /> {t('passos.assistido')}</div>}
           </div>
-          <p>Um tour rápido pelo STLSeller — buscador, calculadora, gerador de anúncios e marketplaces, tudo em menos de 3 minutos. Pode assistir quantas vezes quiser, quando quiser.</p>
+          <p>{t('passos.videoDescricao')}</p>
           <div className="passo-video-footer">
-            <button type="button" className="btn-outline" onClick={assistirVideo}><Icon name="play" size={13} /> Assistir vídeo</button>
+            <button type="button" className="btn-outline" onClick={assistirVideo}><Icon name="play" size={13} /> {t('passos.assistirVideo')}</button>
             <label className="passo-video-check">
               <input type="checkbox" checked={videoAssistido} onChange={(e) => alternarVideoAssistido(e.target.checked)} />
-              Marcar como assistido
+              {t('passos.marcarComoAssistido')}
             </label>
           </div>
         </div>
@@ -94,12 +96,12 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
                 <span className="passo-numero">{completo ? <Icon name="check" size={14} /> : p.numero}</span>
                 <div className="passo-icone"><Icon name={p.icone} size={20} /></div>
               </div>
-              <h3>{p.titulo}</h3>
-              <p>{p.descricao}</p>
+              <h3>{t(p.tituloChave)}</h3>
+              <p>{t(p.descricaoChave)}</p>
               {completo ? (
-                <div className="passo-feito"><Icon name="check" size={14} /> Concluído</div>
+                <div className="passo-feito"><Icon name="check" size={14} /> {t('passos.concluido')}</div>
               ) : (
-                <button type="button" className="btn-dark pill" onClick={() => acionar(p)}>{p.cta}</button>
+                <button type="button" className="btn-dark pill" onClick={() => acionar(p)}>{t(p.ctaChave)}</button>
               )}
             </div>
           );

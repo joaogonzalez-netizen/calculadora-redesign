@@ -1,14 +1,15 @@
 import { useState } from 'react';
+import { useI18n } from '../../context/I18nContext';
 import Icon, { type IconName } from '../Icon';
 
 interface Marketplace {
   id: string;
-  nome: string;
-  desc: string;
+  nomeChave: string;
+  descChave: string;
 }
 
 interface ItemPlano {
-  label: string;
+  labelChave: string;
   incluso: boolean;
 }
 
@@ -22,29 +23,29 @@ interface Plano {
 }
 
 const MARKETPLACES: Marketplace[] = [
-  { id: 'ml', nome: 'Mercado Livre', desc: 'Maior marketplace da América Latina. Ideal para volume e alcance.' },
-  { id: 'shopee', nome: 'Shopee', desc: 'Forte em preço e promoções. Público mobile e jovem.' },
-  { id: 'etsy', nome: 'Etsy', desc: 'Vitrine global para produtos autorais e personalizados.' },
-  { id: 'outros', nome: 'Outros', desc: 'Gera o pacote completo para download — publicação manual.' },
+  { id: 'ml', nomeChave: 'gerador.mkMercadoLivre', descChave: 'gerador.mkMercadoLivreDesc' },
+  { id: 'shopee', nomeChave: 'gerador.mkShopee', descChave: 'gerador.mkShopeeDesc' },
+  { id: 'etsy', nomeChave: 'gerador.mkEtsy', descChave: 'gerador.mkEtsyDesc' },
+  { id: 'outros', nomeChave: 'gerador.mkOutros', descChave: 'gerador.mkOutrosDesc' },
 ];
 
 const PLANOS: Plano[] = [
   {
     id: 'core', nome: 'Core', icone: 'bolt', creditos: 1,
     itens: [
-      { label: '9 imagens geradas', incluso: true },
-      { label: '4 variações de títulos', incluso: true },
-      { label: '1 descrição para marketplace', incluso: true },
-      { label: 'Vídeo de demonstração narrado', incluso: false },
+      { labelChave: 'gerador.imagensGeradas9', incluso: true },
+      { labelChave: 'gerador.variacoesTitulos4', incluso: true },
+      { labelChave: 'gerador.descricaoMarketplace1', incluso: true },
+      { labelChave: 'gerador.videoDemonstracaoNarrado', incluso: false },
     ],
   },
   {
     id: 'premium', nome: 'Premium', icone: 'crown', creditos: 10, recomendado: true,
     itens: [
-      { label: '9 imagens geradas', incluso: true },
-      { label: '4 variações de títulos', incluso: true },
-      { label: '1 descrição para marketplace', incluso: true },
-      { label: 'Vídeo de demonstração narrado', incluso: true },
+      { labelChave: 'gerador.imagensGeradas9', incluso: true },
+      { labelChave: 'gerador.variacoesTitulos4', incluso: true },
+      { labelChave: 'gerador.descricaoMarketplace1', incluso: true },
+      { labelChave: 'gerador.videoDemonstracaoNarrado', incluso: true },
     ],
   },
 ];
@@ -93,6 +94,7 @@ function GrupoDestino({ titulo, itens, selecionados, onAlternar }: { titulo: str
   );
 }
 
+
 interface Props {
   marketplace: string;
   plano: string;
@@ -103,6 +105,7 @@ interface Props {
 }
 
 export default function MarketplaceStep({ marketplace, plano, onSelecionarMarketplace, onSelecionarPlano, onVoltar, onContinuar }: Props) {
+  const { t } = useI18n();
   const [outrosDestinos, setOutrosDestinos] = useState<string[]>([]);
   const [destinosCustom, setDestinosCustom] = useState<string[]>([]);
   const [novoDestinoCustom, setNovoDestinoCustom] = useState('');
@@ -124,10 +127,10 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
 
   return (
     <>
-      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> Voltar</button>
+      <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> {t('gerador.voltar')}</button>
 
       <div className="ger-titulo-bloco">
-        <h2>Onde você vai publicar?</h2>
+        <h2>{t('gerador.ondeVaiPublicar')}</h2>
         <p>Escolha o marketplace de destino. Os campos e o formato do anúncio se ajustam à plataforma escolhida.</p>
       </div>
 
@@ -140,8 +143,8 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
             onClick={() => onSelecionarMarketplace(m.id)}
           >
             <div>
-              <div className="ger-radio-card-titulo">{m.nome}</div>
-              <div className="ger-radio-card-desc">{m.desc}</div>
+              <div className="ger-radio-card-titulo">{t(m.nomeChave)}</div>
+              <div className="ger-radio-card-desc">{t(m.descChave)}</div>
             </div>
             <span className="ger-radio-dot" />
           </button>
@@ -151,24 +154,24 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
       {ehOutros && (
         <div className="ger-outros-destino">
           <div className="ger-titulo-bloco" style={{ marginBottom: 20 }}>
-            <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>Pra onde vamos gerar esse anúncio?</h3>
+            <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>{t('gerador.praOndeVamosGerar')}</h3>
             <p>Nos conte pra onde quer gerar esse anúncio e ajude a IA a gerar o melhor modelo. Você pode escolher mais de um destino.</p>
           </div>
-          <GrupoDestino titulo="Outros marketplaces" itens={OUTROS_MARKETPLACES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
-          <GrupoDestino titulo="Redes sociais" itens={OUTRAS_REDES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
+          <GrupoDestino titulo={t('gerador.outrosMarketplaces')} itens={OUTROS_MARKETPLACES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
+          <GrupoDestino titulo={t('gerador.redesSociais')} itens={OUTRAS_REDES} selecionados={outrosDestinos} onAlternar={alternarDestino} />
 
           <div className="ger-destino-grupo">
-            <div className="ger-destino-grupo-titulo">Não é nenhum desses?</div>
+            <div className="ger-destino-grupo-titulo">{t('gerador.naoENenhumDesses')}</div>
             <div className="ger-destino-custom-row">
               <input
                 type="text"
-                placeholder="Digite pra onde mais você quer gerar esse anúncio"
+                placeholder={t('gerador.digiteOutroDestino')}
                 value={novoDestinoCustom}
                 onChange={(e) => setNovoDestinoCustom(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); adicionarDestinoCustom(); } }}
                 onBlur={adicionarDestinoCustom}
               />
-              <button type="button" className="btn-outline" onClick={adicionarDestinoCustom}>Adicionar</button>
+              <button type="button" className="btn-outline" onClick={adicionarDestinoCustom}>{t('gerador.adicionar')}</button>
             </div>
             {destinosCustom.length > 0 && (
               <div className="ger-destino-custom-lista">
@@ -180,12 +183,14 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
           </div>
 
           <div className="ger-destino-conta">
-            {totalDestinos === 0 ? 'Selecione ao menos 1 destino para continuar.' : `${totalDestinos} destino${totalDestinos > 1 ? 's' : ''} selecionado${totalDestinos > 1 ? 's' : ''}.`}
+            {totalDestinos === 0
+              ? t('gerador.selecioneAoMenos1Destino')
+              : `${totalDestinos} ${totalDestinos > 1 ? t('gerador.destinos') : t('gerador.destino')} ${totalDestinos > 1 ? t('gerador.selecionadosPlural') : t('gerador.selecionadoSingular')}.`}
           </div>
         </div>
       )}
 
-      <h3 className="ger-secao-titulo">Escolha o modelo de geração</h3>
+      <h3 className="ger-secao-titulo">{t('gerador.escolhaModeloGeracao')}</h3>
 
       <div className="ger-plano-grid">
         {PLANOS.map((p) => (
@@ -195,7 +200,7 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
             className={'ger-plano-card' + (plano === p.id ? ' selecionado' : '')}
             onClick={() => onSelecionarPlano(p.id)}
           >
-            {p.recomendado && <span className="ger-plano-badge">Recomendado</span>}
+            {p.recomendado && <span className="ger-plano-badge">{t('gerador.recomendado')}</span>}
             <div className="ger-plano-head">
               <span className="ger-plano-icon"><Icon name={p.icone} size={16} /></span>
               <span className="ger-plano-nome">{p.nome}</span>
@@ -203,18 +208,18 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
             </div>
             <ul className="ger-plano-lista">
               {p.itens.map((it) => (
-                <li key={it.label} className={it.incluso ? 'sim' : 'nao'}>
-                  <Icon name={it.incluso ? 'check' : 'close'} size={13} /> {it.label}
+                <li key={it.labelChave} className={it.incluso ? 'sim' : 'nao'}>
+                  <Icon name={it.incluso ? 'check' : 'close'} size={13} /> {t(it.labelChave)}
                 </li>
               ))}
             </ul>
-            <div className="ger-plano-creditos"><b>{p.creditos}</b> créditos</div>
+            <div className="ger-plano-creditos"><b>{p.creditos}</b> {t('gerador.creditos')}</div>
           </button>
         ))}
       </div>
 
       <div className="ger-footer">
-        <button type="button" className="btn-dark pill" disabled={ehOutros && totalDestinos === 0} onClick={onContinuar}>Continuar</button>
+        <button type="button" className="btn-dark pill" disabled={ehOutros && totalDestinos === 0} onClick={onContinuar}>{t('gerador.continuar')}</button>
       </div>
     </>
   );

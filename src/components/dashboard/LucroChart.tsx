@@ -1,12 +1,13 @@
 import { useState, type MouseEvent } from 'react';
 import { MAX_Y, SERIE_LUCRO, TICKS_Y, type PontoSerie } from '../../lib/dashboardMock';
+import { useI18n } from '../../context/I18nContext';
 
 type Serie = 'receita' | 'pedidos' | 'lucro';
 
 const SERIES = [
-  { key: 'faturamento' as const, label: 'Faturamento', cor: 'var(--primary)' },
-  { key: 'custos' as const, label: 'Custos', cor: 'var(--chart-custos)' },
-  { key: 'lucro' as const, label: 'Lucro', cor: 'var(--accent)' },
+  { key: 'faturamento' as const, chaveLabel: 'dashboard.faturamento', cor: 'var(--primary)' },
+  { key: 'custos' as const, chaveLabel: 'dashboard.custos', cor: 'var(--chart-custos)' },
+  { key: 'lucro' as const, chaveLabel: 'dashboard.lucro', cor: 'var(--accent)' },
 ];
 
 const pontos = SERIE_LUCRO;
@@ -39,6 +40,7 @@ function fmtTick(v: number) {
 }
 
 export default function LucroChart() {
+  const { t } = useI18n();
   const [serie, setSerie] = useState<Serie>('lucro');
   const [hover, setHover] = useState<number | null>(null);
 
@@ -60,17 +62,17 @@ export default function LucroChart() {
     <div className="card chart-card">
       <div className="chart-head">
         <div>
-          <h4>Lucro ao longo do tempo</h4>
-          <div className="chart-sub">Faturamento – custos · Todos os marketplaces</div>
+          <h4>{t('dashboard.lucroAoLongoDoTempo')}</h4>
+          <div className="chart-sub">{t('dashboard.faturamentoCustosTodosMarketplaces')}</div>
         </div>
         <div className="chart-controls">
-          <button type="button" className="ctl-btn">⇄ Comparar</button>
-          <button type="button" className="ctl-btn">Últimos 30 dias <span className="ctl-caret">▾</span></button>
-          <button type="button" className="ctl-btn">Semanal <span className="ctl-caret">▾</span></button>
+          <button type="button" className="ctl-btn">⇄ {t('dashboard.comparar')}</button>
+          <button type="button" className="ctl-btn">{t('dashboard.ultimos30Dias')} <span className="ctl-caret">▾</span></button>
+          <button type="button" className="ctl-btn">{t('dashboard.semanal')} <span className="ctl-caret">▾</span></button>
           <div className="seg">
             {(['receita', 'pedidos', 'lucro'] as Serie[]).map((s) => (
               <button key={s} type="button" className={'seg-btn' + (serie === s ? ' active' : '')} onClick={() => setSerie(s)}>
-                {s === 'receita' ? 'Receita' : s === 'pedidos' ? 'Pedidos' : 'Lucro'}
+                {s === 'receita' ? t('dashboard.receita') : s === 'pedidos' ? t('dashboard.pedidos') : t('dashboard.lucro')}
               </button>
             ))}
           </div>
@@ -118,7 +120,7 @@ export default function LucroChart() {
                 <div className="tt-title">{ativo.label} · {ativo.periodo}</div>
                 {SERIES.map((s) => (
                   <div className="tt-row" key={s.key}>
-                    <span className="tt-key"><i style={{ background: s.cor }} />{s.label}</span>
+                    <span className="tt-key"><i style={{ background: s.cor }} />{t(s.chaveLabel)}</span>
                     <b style={{ color: s.cor }}>{fmt(ativo[s.key])}</b>
                   </div>
                 ))}
@@ -134,7 +136,7 @@ export default function LucroChart() {
 
       <div className="chart-legend">
         {SERIES.map((s) => (
-          <span key={s.key}><i style={{ background: s.cor }} />{s.label}</span>
+          <span key={s.key}><i style={{ background: s.cor }} />{t(s.chaveLabel)}</span>
         ))}
       </div>
     </div>

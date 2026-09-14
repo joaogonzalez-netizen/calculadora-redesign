@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Produto } from '../../lib/produtosMock';
 import { gerarSugestoes, notaGeral } from '../../lib/otimizadorMock';
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 function editarNoMarketplace(nome: string) {
@@ -14,6 +15,7 @@ function corNota(n: number) {
 }
 
 export default function OtimizarAnuncioDrawer({ produto, onClose }: { produto: Produto; onClose: () => void }) {
+  const { t } = useI18n();
   const [carregando, setCarregando] = useState(true);
   const [copiadoIdx, setCopiadoIdx] = useState<number | null>(null);
 
@@ -38,7 +40,7 @@ export default function OtimizarAnuncioDrawer({ produto, onClose }: { produto: P
       <div className="drawer otim-drawer">
         <div className="cl-head">
           <div>
-            <h4><Icon name="otimizador" size={17} style={{ verticalAlign: '-3px', marginRight: 6 }} /> Otimizar anúncio com IA</h4>
+            <h4><Icon name="otimizador" size={17} style={{ verticalAlign: '-3px', marginRight: 6 }} /> {t('produtos.otimizarAnuncioComIa')}</h4>
             <div className="cl-sub">{produto.nome}</div>
           </div>
           <button type="button" className="cl-close" onClick={onClose}><Icon name="close" size={15} /></button>
@@ -47,19 +49,19 @@ export default function OtimizarAnuncioDrawer({ produto, onClose }: { produto: P
         {carregando ? (
           <div className="otim-loading">
             <div className="otim-spinner" />
-            Analisando título, descrição, preço e imagens...
+            {t('produtos.analisandoAnuncio')}
           </div>
         ) : (
           <div className="cl-body">
             <div className="otim-nota-card">
               <div className="otim-nota" style={{ color: corNota(nota) }}>{nota}<span>/100</span></div>
               <div>
-                <div className="otim-nota-label">Nota de otimização do anúncio</div>
+                <div className="otim-nota-label">{t('produtos.notaDeOtimizacao')}</div>
                 <div className="hint">Compara título, descrição, preço e imagens com anúncios de melhor performance no mesmo canal.</div>
               </div>
             </div>
 
-            <div className="divider-label" style={{ margin: '20px 0 14px' }}>Sugestões da IA</div>
+            <div className="divider-label" style={{ margin: '20px 0 14px' }}>{t('produtos.sugestoesDaIa')}</div>
 
             {sugestoes.map((s, idx) => (
               <div className="otim-card" key={s.categoria}>
@@ -71,17 +73,17 @@ export default function OtimizarAnuncioDrawer({ produto, onClose }: { produto: P
                 <div className="otim-sugestao">{s.sugestao}</div>
                 <div className="otim-card-actions">
                   <button type="button" className="btn-outline otim-copiar" onClick={() => copiar(s.sugestao, idx)}>
-                    {copiadoIdx === idx ? <><Icon name="check" size={13} /> Copiado</> : 'Copiar sugestão'}
+                    {copiadoIdx === idx ? <><Icon name="check" size={13} /> {t('produtos.copiado')}</> : t('produtos.copiarSugestao')}
                   </button>
                   <button type="button" className="btn-outline otim-copiar" onClick={() => editarNoMarketplace(produto.nome)}>
-                    Editar no marketplace
+                    {t('produtos.editarNoMarketplace')}
                   </button>
                 </div>
               </div>
             ))}
 
             <div className="cl-note" style={{ marginTop: 4 }}>
-              Sugestões geradas automaticamente — revise antes de aplicar no anúncio real.
+              {t('produtos.sugestoesGeradasAutomaticamente')}
             </div>
           </div>
         )}

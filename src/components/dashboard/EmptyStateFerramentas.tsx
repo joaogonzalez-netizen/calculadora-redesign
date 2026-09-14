@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import KpiCard from './KpiCard';
 import InsightCard from './InsightCard';
@@ -16,9 +17,10 @@ function semAcao() { /* preview borrado — nada é clicável aqui */ }
 // ficam inteiros e visíveis (sem o popup por cima) — o popup fica só sobre a
 // seção de insights, logo abaixo, com fundo sólido pra se destacar do blur.
 export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrParaConfiguracoes: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="onb-preview-section">
-      <div className="onb-preview-label">Veja como fica depois de conectar</div>
+      <div className="onb-preview-label">{t('dashboard.vejaComoFicaDepois')}</div>
 
       <div className="onb-preview-blur">
         <div className="kpi-grid">
@@ -34,8 +36,8 @@ export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrP
         </div>
         <div className="onb-preview-popup">
           <Icon name="lock" size={20} />
-          <p>Conecte um marketplace pra ver seus números reais aqui.</p>
-          <button type="button" className="btn-calc" style={{ width: 'auto', padding: '12px 24px' }} onClick={onIrParaConfiguracoes}>Conectar marketplaces</button>
+          <p>{t('dashboard.conecteMarketplaceParaVerNumeros')}</p>
+          <button type="button" className="btn-calc" style={{ width: 'auto', padding: '12px 24px' }} onClick={onIrParaConfiguracoes}>{t('dashboard.conectarMarketplaces')}</button>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import type { HistoricoEntry } from '../types';
 import { brl } from '../lib/format';
 import { getHistorico } from '../lib/storage';
 import { useCalculadora } from '../context/CalculadoraContext';
+import { useI18n } from '../context/I18nContext';
 import HistDrawer from '../components/drawers/HistDrawer';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
@@ -19,22 +20,31 @@ import {
 
 type SortKey = 'nome' | 'precoConsumidor' | 'lucroLiquido' | 'margem' | 'potMensal' | 'id';
 
-const ORDENS_HIST = ['Data (mais recente)', 'Data (mais antiga)', 'Maior lucro', 'Maior margem', 'Nome A-Z'] as const;
-const ORDEM_PARA_SORT: Record<(typeof ORDENS_HIST)[number], { key: SortKey; dir: 1 | -1 }> = {
-  'Data (mais recente)': { key: 'id', dir: -1 },
-  'Data (mais antiga)': { key: 'id', dir: 1 },
-  'Maior lucro': { key: 'lucroLiquido', dir: -1 },
-  'Maior margem': { key: 'margem', dir: -1 },
-  'Nome A-Z': { key: 'nome', dir: 1 },
+const ORDEM_KEYS = ['id_desc', 'id_asc', 'lucro_desc', 'margem_desc', 'nome_asc'] as const;
+type OrdemKey = (typeof ORDEM_KEYS)[number];
+const ORDEM_LABEL_KEYS: Record<OrdemKey, string> = {
+  id_desc: 'calc.ordemDataRecente',
+  id_asc: 'calc.ordemDataAntiga',
+  lucro_desc: 'calc.ordemMaiorLucro',
+  margem_desc: 'calc.ordemMaiorMargem',
+  nome_asc: 'calc.ordemNomeAZ',
+};
+const ORDEM_PARA_SORT: Record<OrdemKey, { key: SortKey; dir: 1 | -1 }> = {
+  id_desc: { key: 'id', dir: -1 },
+  id_asc: { key: 'id', dir: 1 },
+  lucro_desc: { key: 'lucroLiquido', dir: -1 },
+  margem_desc: { key: 'margem', dir: -1 },
+  nome_asc: { key: 'nome', dir: 1 },
 };
 
 export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onChange: () => void; onAbrirNaCalculadora: () => void }) {
   const { restaurarHistorico, resetCalculadora } = useCalculadora();
+  const { t } = useI18n();
   const [hist, setHist] = useState<HistoricoEntry[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>('id');
   const [sortDir, setSortDir] = useState<1 | -1>(-1);
   const [busca, setBusca] = useState('');
-  const [ordem, setOrdem] = useState<(typeof ORDENS_HIST)[number]>('Data (mais recente)');
+  const [ordem, setOrdem] = useState<OrdemKey>('id_desc');
   const [selected, setSelected] = useState<HistoricoEntry | null>(null);
 
   // Experiência A/B de organização — só uma delas fica no fim (ver botão de troca).
@@ -44,7 +54,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
   const [pastaAtiva, setPastaAtiva] = useState<string | null>(null);
   const [marcadores, setMarcadores] = useState<Marcador[]>(getMarcadores);
   const [marcadorVinculo, setMarcadorVinculo] = useState<Record<string, string>>(getHistMarcadorVinculo);
-  const [marcadorFiltro, setMarcadorFiltro] = useState('Todos');
+  const [marcadorFiltro, setMarcadorFiltro] = useState('');
 
   // Drawer de atribuição — 1 instância só, aberta na linha que o usuário clicou "Adicionar".
   const [drawerEntryId, setDrawerEntryId] = useState<number | null>(null);
@@ -59,7 +69,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     setModo(m);
     saveModoCluster(m);
     setPastaAtiva(null);
-    setMarcadorFiltro('Todos');
+    setMarcadorFiltro('');
   }
 
   function criarPasta(p: Pasta) {
@@ -97,7 +107,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     if (modo === 'pastas' && pastaAtiva) {
       lista = lista.filter((h) => (pastaAtiva === 'sem-pasta' ? !pastaVinculo[h.id] : pastaVinculo[h.id] === pastaAtiva));
     }
-    if (modo === 'marcadores' && marcadorFiltro !== 'Todos') {
+    if (modo === 'marcadores' && marcadorFiltro !== '') {
       const alvo = marcadores.find((m) => m.nome === marcadorFiltro);
       lista = lista.filter((h) => marcadorVinculo[h.id] === alvo?.id);
     }
@@ -110,7 +120,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
   }
 
   function mudarOrdem(v: string) {
-    const opt = v as (typeof ORDENS_HIST)[number];
+    const opt = ORDEM_KEYS.find((k) => t(ORDEM_LABEL_KEYS[k]) === v) ?? 'id_desc';
     setOrdem(opt);
     const { key, dir } = ORDEM_PARA_SORT[opt];
     setSortKey(key);
@@ -139,30 +149,35 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
   return (
     <div>
       <div className="hero-row">
-        <div className="hero"><h1>Histórico de <span className="accent">cálculos</span></h1><p>Use o botão "Ações" pra ver o cálculo completo, renomear ou excluir.</p></div>
-        <button type="button" className="btn-calc hist-nova-btn" onClick={novaCalculadora}>+ Nova calculadora</button>
+        <div className="hero"><h1>{t('calc.historicoDeTitle')} <span className="accent">{t('calc.historicoDeAccent')}</span></h1><p>{t('calc.historicoSubtitle')}</p></div>
+        <button type="button" className="btn-calc hist-nova-btn" onClick={novaCalculadora}>+ {t('calc.novaCalculadora')}</button>
       </div>
 
       <div className="cluster-modo-row">
-        <span className="hint">Organizar por:</span>
+        <span className="hint">{t('calc.organizarPor')}</span>
         <div className="cluster-modo-toggle">
           <button type="button" className={modo === 'pastas' ? 'active' : ''} onClick={() => trocarModo('pastas')}>
-            <Icon name="folder" size={14} /> Pastas
+            <Icon name="folder" size={14} /> {t('calc.pastasLabel')}
           </button>
           <button type="button" className={modo === 'marcadores' ? 'active' : ''} onClick={() => trocarModo('marcadores')}>
-            <Icon name="tag" size={14} /> Marcadores
+            <Icon name="tag" size={14} /> {t('calc.marcadoresLabel')}
           </button>
         </div>
         <span className="hint cluster-modo-nota">Experimento — no fim fica só uma das duas experiências.</span>
       </div>
 
       <div className="prod-filters-row">
-        <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder="Buscar por nome ou canal..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
-        <PopoverList label="" options={[...ORDENS_HIST]} value={ordem} onChange={mudarOrdem} />
+        <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder={t('calc.buscarPorNomeOuCanal')} value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
+        <PopoverList label="" options={ORDEM_KEYS.map((k) => t(ORDEM_LABEL_KEYS[k]))} value={t(ORDEM_LABEL_KEYS[ordem])} onChange={mudarOrdem} />
         {modo === 'marcadores' && (
-          <PopoverList label="Marcador" options={['Todos', ...marcadores.map((m) => m.nome)]} value={marcadorFiltro} onChange={setMarcadorFiltro} />
+          <PopoverList
+            label={t('calc.marcadorLabel')}
+            options={[t('calc.todos'), ...marcadores.map((m) => m.nome)]}
+            value={marcadorFiltro === '' ? t('calc.todos') : marcadorFiltro}
+            onChange={(v) => setMarcadorFiltro(v === t('calc.todos') ? '' : v)}
+          />
         )}
-        <span className="hint hist-count">{histFiltrado.length} {histFiltrado.length === 1 ? 'cálculo' : 'cálculos'}</span>
+        <span className="hint hist-count">{histFiltrado.length} {histFiltrado.length === 1 ? t('calc.calculo') : t('calc.calculos')}</span>
       </div>
 
       <div className={modo === 'pastas' ? 'hist-layout-pastas' : ''}>
@@ -175,17 +190,17 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr style={{ textAlign: 'left', color: 'var(--text-3)' }}>
-                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('nome')}>Produto</th>
-                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('precoConsumidor')}>Preço final ↕</th>
-                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('lucroLiquido')}>Lucro ↕</th>
-                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('margem')}>Margem ↕</th>
-                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('potMensal')}>Pot. mensal ↕</th>
-                  <th style={{ padding: 10 }}>Canal</th>
-                  <th style={{ padding: 10 }}>{modo === 'pastas' ? 'Pasta' : 'Marcador'}</th>
-                  <th style={{ padding: 10 }}>Fonte STL</th>
-                  <th style={{ padding: 10 }}>Concorrente</th>
-                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('id')}>Data ↕</th>
-                  <th style={{ padding: 10 }}>Ações</th>
+                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('nome')}>{t('calc.thProduto')}</th>
+                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('precoConsumidor')}>{t('calc.thPrecoFinal')} ↕</th>
+                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('lucroLiquido')}>{t('calc.thLucro')} ↕</th>
+                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('margem')}>{t('calc.thMargemHist')} ↕</th>
+                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('potMensal')}>{t('calc.thPotMensal')} ↕</th>
+                  <th style={{ padding: 10 }}>{t('calc.thCanal')}</th>
+                  <th style={{ padding: 10 }}>{modo === 'pastas' ? t('calc.thPasta') : t('calc.thMarcador')}</th>
+                  <th style={{ padding: 10 }}>{t('calc.thFonteStl')}</th>
+                  <th style={{ padding: 10 }}>{t('calc.thConcorrente')}</th>
+                  <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('id')}>{t('calc.thData')} ↕</th>
+                  <th style={{ padding: 10 }}>{t('calc.acoes')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,23 +227,23 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                     </td>
                     <td style={{ padding: 10 }}>
                       {h.stlLink
-                        ? <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => window.open(h.stlLink, '_blank')}>Ver STL</button>
+                        ? <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => window.open(h.stlLink, '_blank')}>{t('calc.verStl')}</button>
                         : '-'}
                     </td>
                     <td style={{ padding: 10 }}>
                       {h.concorrenteLink
-                        ? <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => window.open(h.concorrenteLink, '_blank')}>Ver anúncio</button>
+                        ? <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => window.open(h.concorrenteLink, '_blank')}>{t('calc.verAnuncio')}</button>
                         : '-'}
                     </td>
                     <td style={{ padding: 10 }}>{new Date(h.id).toLocaleDateString('pt-BR')}</td>
-                    <td style={{ padding: 10 }}><button className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setSelected(h)}>Ações</button></td>
+                    <td style={{ padding: 10 }}><button className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setSelected(h)}>{t('calc.acoes')}</button></td>
                   </tr>
                 ))}
               </tbody>
             </table>
             {!histFiltrado.length && (
               <div className="hint" style={{ textAlign: 'center', padding: 24 }}>
-                {hist.length ? 'Nenhum cálculo encontrado pra esse filtro.' : 'Nenhum cálculo salvo ainda.'}
+                {hist.length ? t('calc.nenhumCalculoEncontradoFiltro') : t('calc.nenhumCalculoSalvo')}
               </div>
             )}
           </div>
