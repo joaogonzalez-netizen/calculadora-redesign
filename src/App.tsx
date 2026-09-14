@@ -54,6 +54,7 @@ function AppShell() {
     calculadora: onboardingManual.calculadora,
     gerador: onboardingManual.gerador,
     marketplace: onboardingManual.marketplace,
+    video: onboardingManual.video,
   };
   const todosPassosCompletos = Object.values(passosCompletos).every(Boolean);
 

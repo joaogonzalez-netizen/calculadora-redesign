@@ -11,7 +11,7 @@ export type IconName =
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
   | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume'
   | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box'
-  | 'instagram' | 'facebook' | 'tiktok' | 'pinterest';
+  | 'instagram' | 'facebook' | 'tiktok' | 'pinterest' | 'play';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -220,6 +220,7 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M11.4 11.3a2.4 2.4 0 0 0 .1 2.7" />
     </>
   ),
+  play: <path d="M7 4.8v14.4a1 1 0 0 0 1.5.87l12-7.2a1 1 0 0 0 0-1.74l-12-7.2A1 1 0 0 0 7 4.8Z" fill="currentColor" stroke="none" />,
 };
 
 interface Props {

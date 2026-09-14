@@ -2,8 +2,10 @@ import { USUARIO } from '../lib/dashboardMock';
 import { marcarOnboardingManual } from '../lib/onboarding';
 import Icon, { type IconName } from '../components/Icon';
 
+type PassoId = 'buscador' | 'calculadora' | 'gerador' | 'marketplace';
+
 interface Passo {
-  id: 'buscador' | 'calculadora' | 'gerador' | 'marketplace';
+  id: PassoId;
   numero: number;
   titulo: string;
   descricao: string;
@@ -18,21 +20,36 @@ const PASSOS: Passo[] = [
   { id: 'marketplace', numero: 4, titulo: 'Conectar marketplace', descricao: 'Conecte um marketplace pra sincronizar pedidos e estoque.', icone: 'integracoes', cta: 'Conectar marketplace' },
 ];
 
+// Total de passos considerado pra "N de X concluídos" e pra sumir o menu —
+// inclui o vídeo (passo 5), que fica sempre disponível pra assistir de novo,
+// diferente dos outros 4 que escondem o CTA quando completos.
+const TOTAL_PASSOS = PASSOS.length + 1;
+
 interface Props {
-  passosCompletos: Record<Passo['id'], boolean>;
+  passosCompletos: Record<PassoId | 'video', boolean>;
   onIrParaCalculadora: () => void;
   onIrParaConfiguracoes: () => void;
   onAtualizarPassos: () => void;
 }
 
 export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculadora, onIrParaConfiguracoes, onAtualizarPassos }: Props) {
-  const totalCompletos = PASSOS.filter((p) => passosCompletos[p.id]).length;
+  const totalCompletos = PASSOS.filter((p) => passosCompletos[p.id]).length + (passosCompletos.video ? 1 : 0);
+  const videoAssistido = passosCompletos.video;
 
   function acionar(passo: Passo) {
     if (passo.id === 'buscador') { alert('Em breve: buscador de produtos.'); marcarOnboardingManual('buscador'); onAtualizarPassos(); return; }
     if (passo.id === 'calculadora') { onIrParaCalculadora(); return; }
     if (passo.id === 'gerador') { alert('Em breve: o gerador de anúncios com IA.'); marcarOnboardingManual('gerador'); onAtualizarPassos(); return; }
     if (passo.id === 'marketplace') { onIrParaConfiguracoes(); return; }
+  }
+
+  function assistirVideo() {
+    alert('Em breve: player de vídeo embutido. Por enquanto, use o botão abaixo pra marcar como assistido.');
+  }
+
+  function alternarVideoAssistido(assistido: boolean) {
+    marcarOnboardingManual('video', assistido);
+    onAtualizarPassos();
   }
 
   return (
@@ -43,8 +60,29 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
       </div>
 
       <div className="passos-progresso-row">
-        <div className="passos-progresso-bar"><div className="passos-progresso-fill" style={{ width: `${(totalCompletos / PASSOS.length) * 100}%` }} /></div>
-        <span className="hint passos-progresso-label">{totalCompletos} de {PASSOS.length} concluídos</span>
+        <div className="passos-progresso-bar"><div className="passos-progresso-fill" style={{ width: `${(totalCompletos / TOTAL_PASSOS) * 100}%` }} /></div>
+        <span className="hint passos-progresso-label">{totalCompletos} de {TOTAL_PASSOS} concluídos</span>
+      </div>
+
+      <div className={'passo-video-card' + (videoAssistido ? ' completo' : '')}>
+        <button type="button" className="passo-video-player" onClick={assistirVideo}>
+          <span className="passo-video-play"><Icon name="play" size={20} /></span>
+          <span className="passo-video-duration">2:47</span>
+        </button>
+        <div className="passo-video-info">
+          <div className="passo-video-head">
+            <h3>Vídeo de boas-vindas</h3>
+            {videoAssistido && <div className="passo-feito"><Icon name="check" size={14} /> Assistido</div>}
+          </div>
+          <p>Um tour rápido pelo STLSeller — buscador, calculadora, gerador de anúncios e marketplaces, tudo em menos de 3 minutos. Pode assistir quantas vezes quiser, quando quiser.</p>
+          <div className="passo-video-footer">
+            <button type="button" className="btn-outline" onClick={assistirVideo}><Icon name="play" size={13} /> Assistir vídeo</button>
+            <label className="passo-video-check">
+              <input type="checkbox" checked={videoAssistido} onChange={(e) => alternarVideoAssistido(e.target.checked)} />
+              Marcar como assistido
+            </label>
+          </div>
+        </div>
       </div>
 
       <div className="passos-grid">
