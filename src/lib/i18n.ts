@@ -18,7 +18,7 @@ export const IDIOMAS_DISPONIVEIS: { id: Idioma; label: string; bandeira: string 
 type Dicionario = Record<string, string>;
 
 const pt: Dicionario = {
-  'nav.onboarding': 'Onboarding',
+  'nav.onboarding': 'Comece por aqui',
   'nav.primeirosPassos': 'Primeiros passos',
   'nav.principal': 'Principal',
   'nav.painel': 'Painel',
@@ -959,7 +959,7 @@ const pt: Dicionario = {
 };
 
 const en: Dicionario = {
-  'nav.onboarding': 'Onboarding',
+  'nav.onboarding': 'Start here',
   'nav.primeirosPassos': 'Getting started',
   'nav.principal': 'Main',
   'nav.painel': 'Dashboard',
@@ -1005,7 +1005,7 @@ const en: Dicionario = {
 };
 
 const es: Dicionario = {
-  'nav.onboarding': 'Onboarding',
+  'nav.onboarding': 'Empieza por aquí',
   'nav.primeirosPassos': 'Primeros pasos',
   'nav.principal': 'Principal',
   'nav.painel': 'Panel',
