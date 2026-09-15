@@ -30,16 +30,19 @@ interface Props {
   passosCompletos: Record<PassoId | 'video', boolean>;
   onIrParaCalculadora: () => void;
   onIrParaConfiguracoes: () => void;
+  onIrParaBuscador: () => void;
   onAtualizarPassos: () => void;
 }
 
-export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculadora, onIrParaConfiguracoes, onAtualizarPassos }: Props) {
+export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculadora, onIrParaConfiguracoes, onIrParaBuscador, onAtualizarPassos }: Props) {
   const { t } = useI18n();
   const totalCompletos = PASSOS.filter((p) => passosCompletos[p.id]).length + (passosCompletos.video ? 1 : 0);
   const videoAssistido = passosCompletos.video;
 
   function acionar(passo: Passo) {
-    if (passo.id === 'buscador') { alert('Em breve: buscador de produtos.'); marcarOnboardingManual('buscador'); onAtualizarPassos(); return; }
+    // Passo "Buscador" só marca "feito" quando o usuário favorita algo de
+    // verdade na tela do Buscador — o CTA aqui só navega, como o da Calculadora.
+    if (passo.id === 'buscador') { onIrParaBuscador(); return; }
     if (passo.id === 'calculadora') { onIrParaCalculadora(); return; }
     if (passo.id === 'gerador') { alert('Em breve: o gerador de anúncios com IA.'); marcarOnboardingManual('gerador'); onAtualizarPassos(); return; }
     if (passo.id === 'marketplace') { onIrParaConfiguracoes(); return; }

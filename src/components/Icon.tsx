@@ -11,7 +11,8 @@ export type IconName =
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
   | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume'
   | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box'
-  | 'instagram' | 'facebook' | 'tiktok' | 'pinterest' | 'play';
+  | 'instagram' | 'facebook' | 'tiktok' | 'pinterest' | 'play'
+  | 'heart' | 'trash';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -221,6 +222,17 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   play: <path d="M7 4.8v14.4a1 1 0 0 0 1.5.87l12-7.2a1 1 0 0 0 0-1.74l-12-7.2A1 1 0 0 0 7 4.8Z" fill="currentColor" stroke="none" />,
+  heart: (
+    <path d="M12 20.5s-7.5-4.5-9.8-9.3C.6 7.6 2.3 4 5.9 4c2 0 3.5 1.1 4.3 2.6C10.9 5.1 12.4 4 14.4 4c3.6 0 5.3 3.6 3.7 7.2C15.5 16 12 20.5 12 20.5Z" />
+  ),
+  trash: (
+    <>
+      <path d="M4 7h16" />
+      <path d="M9 7V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V7" />
+      <path d="M6.5 7 7.3 19.5a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4L17.5 7" />
+      <path d="M10 11v6M14 11v6" />
+    </>
+  ),
 };
 
 interface Props {
@@ -228,9 +240,11 @@ interface Props {
   size?: number;
   className?: string;
   style?: CSSProperties;
+  /** Estado preenchido — usado hoje só pelo coração de favorito. */
+  filled?: boolean;
 }
 
-export default function Icon({ name, size = 18, className, style }: Props) {
+export default function Icon({ name, size = 18, className, style, filled }: Props) {
   return (
     <svg
       className={className}
@@ -238,7 +252,7 @@ export default function Icon({ name, size = 18, className, style }: Props) {
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth="1.6"
       strokeLinecap="round"

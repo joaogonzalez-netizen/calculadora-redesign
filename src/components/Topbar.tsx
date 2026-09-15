@@ -15,6 +15,7 @@ const CHAVES_TITULO: Record<View, string> = {
   'gerador-criar': 'topbar.title.gerador-criar',
   'gerador-meus': 'topbar.title.gerador-meus',
   pedidos: 'topbar.title.pedidos',
+  buscador: 'topbar.title.buscador',
 };
 
 export default function Topbar({ view }: { view: View }) {

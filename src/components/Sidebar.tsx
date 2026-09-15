@@ -13,8 +13,8 @@ interface Props {
   mostrarPrimeirosPassos: boolean;
 }
 
-/** Grupos de FERRAMENTAS: só o da Calculadora tem telas de verdade hoje. */
-type GrupoId = 'gerador' | 'calculadora' | 'buscador';
+/** Grupos de FERRAMENTAS com submenu — Buscador é item flat (tela única, sem submenu). */
+type GrupoId = 'gerador' | 'calculadora';
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
 const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
@@ -28,7 +28,6 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
   const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
     { id: 'gerador', label: t('nav.geradorAnuncios'), icon: 'gerador' },
     { id: 'calculadora', label: t('nav.calculadoraPrecos'), icon: 'calculadora' },
-    { id: 'buscador', label: t('nav.buscadorProdutos'), icon: 'buscador' },
   ];
 
   // O grupo da tela ativa abre sozinho ao navegar pra ela.
@@ -67,6 +66,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
         <NavItem icon="produtos" label={t('nav.produtos')} active={view === 'produtos'} collapsed={collapsed} onClick={() => onNavigate('produtos')} />
 
         <div className="nav-label">{t('nav.ferramentas')}</div>
+        <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;
           const grupoAtivoGerador = g.id === 'gerador' && noGerador;
@@ -91,9 +91,6 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
                   <div className={view === 'gerador-criar' ? 'active' : ''} onClick={() => onNavigate('gerador-criar')}>{t('nav.criarAnuncio')}</div>
                   <div className={view === 'gerador-meus' ? 'active' : ''} onClick={() => onNavigate('gerador-meus')}>{t('nav.meusAnuncios')}</div>
                 </div>
-              )}
-              {g.id === 'buscador' && aberto === 'buscador' && !collapsed && (
-                <div className="nav-sub"><div className="nav-sub-empty">{t('nav.emBrevePorAqui')}</div></div>
               )}
             </div>
           );

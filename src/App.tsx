@@ -13,6 +13,7 @@ import PrimeirosPassosView from './views/PrimeirosPassosView';
 import CriarAnuncioView from './views/CriarAnuncioView';
 import MeusAnunciosView from './views/MeusAnunciosView';
 import PedidosView from './views/PedidosView';
+import BuscadorView from './views/BuscadorView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
@@ -20,7 +21,7 @@ import { I18nProvider } from './context/I18nContext';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador';
 
 function AppShell() {
   const [view, setView] = useState<View>('dashboard');
@@ -44,6 +45,13 @@ function AppShell() {
   const aoSalvarCalculo = () => {
     marcarOnboardingManual('calculadora');
     refreshHistCount();
+  };
+
+  // Passo "Buscador" só conta quando o usuário favorita um produto de verdade
+  // na tela — mesmo padrão do passo "Calculadora" acima.
+  const aoFavoritarBuscador = () => {
+    marcarOnboardingManual('buscador');
+    refreshOnboarding();
   };
 
   // onboardingTick não é lido diretamente — mudar o state força este componente
@@ -72,12 +80,13 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' ? ' content-wide' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' ? ' content-wide' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
               onIrParaCalculadora={() => setView('calculadora')}
               onIrParaConfiguracoes={() => setView('configuracoes')}
+              onIrParaBuscador={() => setView('buscador')}
               onAtualizarPassos={refreshOnboarding}
             />
           )}
@@ -101,6 +110,7 @@ function AppShell() {
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} />}
           {view === 'gerador-criar' && <CriarAnuncioView onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={() => setView('gerador-criar')} />}
+          {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
         </div>
         <AppFooter />
       </div>
