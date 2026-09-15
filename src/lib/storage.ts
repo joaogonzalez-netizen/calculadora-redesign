@@ -84,6 +84,8 @@ export const DEFAULT_PREFERENCIAS: Preferencias = {
   taxaDebito: 1.99,
   taxaCredito: 2.99,
   taxaPix: 0,
+  mlArRegimePadrao: 'monotributista',
+  mlArCuotasPadrao: 'sem_cuotas',
 };
 
 export function getHistorico(): HistoricoEntry[] {

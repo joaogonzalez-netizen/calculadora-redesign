@@ -68,9 +68,42 @@ export function getTiktokTaxaServicoFrete(preco: number) {
   return Math.min(preco * 0.06, 50);
 }
 
+// Mercado Livre Argentina — Envíos Flex, tarifa fixa por faixa de preço (AR$).
+// Fonte terceirizada, ainda não validada oficialmente (ver aviso na UI).
+export function getMlArCustoFixo(preco: number): number {
+  if (preco < 15000) return 1330;
+  if (preco < 24000) return 2740;
+  if (preco < 33000) return 3320;
+  return 0;
+}
+
+// Cargo por cuotas do Mercado Livre Argentina, em % do preço.
+export function getMlArCargoCuotasPct(cuotas: CalculoState['mlArCuotas']): number {
+  switch (cuotas) {
+    case 'sem_cuotas': return 0;
+    case '3a12_juros_baixo': return 5;
+    case '3_sem_juros': return 8.90;
+    case '6_sem_juros': return 13.40;
+    case '9_sem_juros': return 17.80;
+    case '12_sem_juros': return 21.60;
+    default: return 0;
+  }
+}
+
 function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
   if (s.canalAtivo === 'Venda direta') {
     return { pct: s.taxaCartaoPct / 100, fixo: 0 };
+  }
+  if (s.canalAtivo === 'Mercado Livre Argentina') {
+    const comissaoPct = s.mlArComissao / 100;
+    const cuotasPct = getMlArCargoCuotasPct(s.mlArCuotas) / 100;
+    const custoFixo = getMlArCustoFixo(preco);
+    const ivaAplica = s.mlArRegime !== 'responsavel_inscripto'; // monotributista e não inscripto pagam IVA como custo real
+    const ivaMult = ivaAplica ? 0.21 : 0;
+    const pct = (comissaoPct + cuotasPct) * (1 + ivaMult);
+    const fixo = custoFixo * (1 + ivaMult) + s.mlArCustoFrete;
+    const ivaValor = ivaAplica ? (preco * (comissaoPct + cuotasPct) + custoFixo) * 0.21 : 0;
+    return { pct, fixo, mlArIvaValor: ivaValor };
   }
   if (s.canalAtivo === 'Mercado Livre') {
     const comissaoPct = s.mlComissao / 100;
@@ -117,6 +150,7 @@ export function validar(s: CalculoState): ValidacaoFaltando[] {
   const semPreco = s.filamentoItems.length === 0 || s.filamentoItems.some((f) => (f.precoKg || 0) === 0);
   if (semPreco) faltando.push({ label: 'Preço do filamento (R$/kg)', id: 'filamentoList' });
   if (s.modoPrec === 'preco' && s.precoVenda === 0) faltando.push({ label: 'Preço de venda', id: 'precoVenda' });
+  if (s.canalAtivo === 'Mercado Livre Argentina' && !s.mlArCategoria) faltando.push({ label: 'Categoria do Mercado Livre', id: 'mlArCategoria' });
   if (s.canalAtivo === 'Mercado Livre' && !s.mlCategoria) faltando.push({ label: 'Categoria do Mercado Livre', id: 'mlCategoria' });
   return faltando;
 }

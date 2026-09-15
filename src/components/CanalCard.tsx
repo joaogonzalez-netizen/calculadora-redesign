@@ -1,16 +1,17 @@
 import { useCalculadora } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
-import type { Canal, PgtoId } from '../types';
+import type { Canal, PgtoId, MlArCuotas, MlArRegime } from '../types';
 import { brl } from '../lib/format';
-import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
+import { getTiktokFaixa, getTiktokTaxaServicoFrete, getMlArCustoFixo, getMlArCargoCuotasPct } from '../lib/calc';
 import Card from './Card';
 
-const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Shopee', 'Etsy', 'TikTok Shop'];
+const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Mercado Livre Argentina', 'Shopee', 'Etsy', 'TikTok Shop'];
 
 const CANAL_LABEL_KEYS: Record<Canal, string> = {
   'Venda direta': 'calc.canalVendaDireta',
   'Mercado Livre': 'calc.canalMercadoLivre',
+  'Mercado Livre Argentina': 'calc.canalMercadoLivreArgentina',
   'Shopee': 'calc.canalShopee',
   'Etsy': 'calc.canalEtsy',
   'TikTok Shop': 'calc.canalTiktokShop',
@@ -34,6 +35,47 @@ const ML_CATEGORIAS: { value: string; labelKey: string }[] = [
   { value: 'alimentos|14|19', labelKey: 'calc.catAlimentosBebidas' },
   { value: 'autopecas|12|17', labelKey: 'calc.catAutopecas' },
   { value: 'outra', labelKey: 'calc.catOutraCategoria' },
+];
+
+// Mercado Livre Argentina — comissão por categoria (Clásica|Premium). Fonte
+// terceirizada, ainda não validada oficialmente (ver aviso na UI, spec Argentina v1).
+const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
+  { value: 'alimentosBebidas|11.8|14.80', labelKey: 'calc.mlArCatAlimentosBebidas' },
+  { value: 'supermercado|11.8|14.80', labelKey: 'calc.mlArCatSupermercado' },
+  { value: 'celularesTelefonia|13.0|16.50', labelKey: 'calc.mlArCatCelularesTelefonia' },
+  { value: 'eletrodomesticos|13.0|16.50', labelKey: 'calc.mlArCatEletrodomesticos' },
+  { value: 'casaMoveisJardim|13.0|16.50', labelKey: 'calc.mlArCatCasaMoveisJardim' },
+  { value: 'bebes|13.5|17.14', labelKey: 'calc.mlArCatBebes' },
+  { value: 'esportesFitness|13.5|17.14', labelKey: 'calc.mlArCatEsportesFitness' },
+  { value: 'ferramentas|13.5|17.14', labelKey: 'calc.mlArCatFerramentas' },
+  { value: 'vestuarioAcessorios|13.5|17.14', labelKey: 'calc.mlArCatVestuarioAcessorios' },
+  { value: 'jogosBrinquedos|13.5|17.14', labelKey: 'calc.mlArCatJogosBrinquedos' },
+  { value: 'acessoriosVeiculos|14.0|17.14', labelKey: 'calc.mlArCatAcessoriosVeiculos' },
+  { value: 'belezaCuidadoPessoal|14.0|17.14', labelKey: 'calc.mlArCatBelezaCuidadoPessoal' },
+  { value: 'consolesVideogames|14.0|17.14', labelKey: 'calc.mlArCatConsolesVideogames' },
+  { value: 'industriasEscritorios|14.0|17.14', labelKey: 'calc.mlArCatIndustriasEscritorios' },
+  { value: 'musicaFilmesSeries|14.0|17.14', labelKey: 'calc.mlArCatMusicaFilmesSeries' },
+  { value: 'saudeEquipamentoMedico|14.0|17.14', labelKey: 'calc.mlArCatSaudeEquipamentoMedico' },
+  { value: 'servicos|14.0|17.14', labelKey: 'calc.mlArCatServicos' },
+  { value: 'livrosRevistasQuadrinhos|14.5|17.14', labelKey: 'calc.mlArCatLivrosRevistasQuadrinhos' },
+  { value: 'computacao|15.0|17.14', labelKey: 'calc.mlArCatComputacao' },
+  { value: 'eletronicaAudioVideo|15.0|17.14', labelKey: 'calc.mlArCatEletronicaAudioVideo' },
+  { value: 'outra', labelKey: 'calc.catOutraCategoria' },
+];
+
+const ML_AR_CUOTAS: { value: MlArCuotas; labelKey: string }[] = [
+  { value: 'sem_cuotas', labelKey: 'calc.mlArCuotasSemCuotas' },
+  { value: '3a12_juros_baixo', labelKey: 'calc.mlArCuotas3a12JurosBaixo' },
+  { value: '3_sem_juros', labelKey: 'calc.mlArCuotas3SemJuros' },
+  { value: '6_sem_juros', labelKey: 'calc.mlArCuotas6SemJuros' },
+  { value: '9_sem_juros', labelKey: 'calc.mlArCuotas9SemJuros' },
+  { value: '12_sem_juros', labelKey: 'calc.mlArCuotas12SemJuros' },
+];
+
+const ML_AR_REGIMES: { value: MlArRegime; labelKey: string }[] = [
+  { value: 'monotributista', labelKey: 'calc.mlArRegimeMonotributista' },
+  { value: 'responsavel_inscripto', labelKey: 'calc.mlArRegimeResponsavelInscripto' },
+  { value: 'nao_inscripto', labelKey: 'calc.mlArRegimeNaoInscripto' },
 ];
 
 export default function CanalCard() {
@@ -70,12 +112,46 @@ export default function CanalCard() {
     set('mlComissao', (tipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
   }
 
+  function onMlArCategoriaChange(v: string) {
+    set('mlArCategoria', v);
+    const outra = v === 'outra';
+    set('mlArComissaoManual', outra);
+    if (outra) { set('mlArComissao', 0); return; }
+    if (!v) return;
+    const [, classico, premium] = v.split('|');
+    const pct = state.mlArTipo === 'premium' ? parseFloat(premium) : parseFloat(classico);
+    set('mlArComissao', pct || 0);
+  }
+
+  function setMlArTipo(tipo: 'classico' | 'premium') {
+    set('mlArTipo', tipo);
+    if (state.mlArComissaoManual || !state.mlArCategoria || state.mlArCategoria === 'outra') return;
+    const [, classico, premium] = state.mlArCategoria.split('|');
+    set('mlArComissao', (tipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
+  }
+
+  function restaurarMlComissaoAutomatica() {
+    if (!state.mlCategoria || state.mlCategoria === 'outra') return;
+    const [, classico, premium] = state.mlCategoria.split('|');
+    set('mlComissao', (state.mlTipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
+    set('mlComissaoManual', false);
+  }
+
+  function restaurarMlArComissaoAutomatica() {
+    if (!state.mlArCategoria || state.mlArCategoria === 'outra') return;
+    const [, classico, premium] = state.mlArCategoria.split('|');
+    set('mlArComissao', (state.mlArTipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
+    set('mlArComissaoManual', false);
+  }
+
   const taxaDebitoPadrao = prefs.taxaDebito ?? 1.99;
   const taxaCreditoPadrao = prefs.taxaCredito ?? 2.99;
 
   const precoAtual = resultado?.precoConsumidor ?? 0;
   const tiktokFaixaAtual = getTiktokFaixa(precoAtual);
   const tiktokTaxaFreteAtual = getTiktokTaxaServicoFrete(precoAtual);
+  const mlArCustoFixoAtual = getMlArCustoFixo(precoAtual);
+  const mlArCargoCuotasAtual = getMlArCargoCuotasPct(state.mlArCuotas);
 
   return (
     <Card icon="⌂" title={t('calc.canalDeVenda')}>
@@ -168,9 +244,20 @@ export default function CanalCard() {
               <option value="">{t('calc.escolhaCategorias')}</option>
               {ML_CATEGORIAS.map((c) => <option key={c.value} value={c.value}>{t(c.labelKey)}</option>)}
             </select>
+            {state.mlCategoria && state.mlCategoria !== 'outra' && !state.mlComissaoManual && (
+              <div className="mini-table mini-table-muted" style={{ marginTop: 10 }}>
+                <div className="mini-row">
+                  <span>{t('calc.comissaoMlLabel')}</span>
+                  <span><b>{state.mlComissao}%</b>{' '}<button type="button" className="link-btn" onClick={() => set('mlComissaoManual', true)}>{t('calc.editar')}</button></span>
+                </div>
+              </div>
+            )}
             {state.mlComissaoManual && (
-              <div className="row2">
+              <div className="row2" style={{ marginTop: 10, alignItems: 'flex-end' }}>
                 <div className="field"><label>{t('calc.comissaoPct')}</label><input type="number" step="0.1" value={state.mlComissao || ''} onChange={(e) => set('mlComissao', parseFloat(e.target.value) || 0)} /></div>
+                {state.mlCategoria && state.mlCategoria !== 'outra' && (
+                  <button type="button" className="link-btn" style={{ marginBottom: 12 }} onClick={restaurarMlComissaoAutomatica}>{t('calc.restaurarAutomatico')}</button>
+                )}
               </div>
             )}
           </div>
@@ -203,6 +290,82 @@ export default function CanalCard() {
             <div className="field"><label>{t('calc.impostoSobreVenda')}</label><input type="number" value={state.mlImposto} onChange={(e) => set('mlImposto', parseFloat(e.target.value) || 0)} /></div>
             <div className="field"><label>{t('calc.mlAdsPct')}</label><input type="number" value={state.mlAds} onChange={(e) => set('mlAds', parseFloat(e.target.value) || 0)} /></div>
             <div className="field"><label>{t('calc.fullExtras')}</label><input type="number" value={state.mlExtras} onChange={(e) => set('mlExtras', parseFloat(e.target.value) || 0)} /></div>
+          </div>
+        </div>
+      )}
+
+      {state.canalAtivo === 'Mercado Livre Argentina' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlTipoAnuncio1')}</label>
+            <div className="toggle-cards cols-2">
+              <div className={'toggle-card' + (state.mlArTipo === 'classico' ? ' active' : '')} onClick={() => setMlArTipo('classico')}><b>{t('calc.classico')}</b><span>{t('calc.classicoDesc')}</span></div>
+              <div className={'toggle-card' + (state.mlArTipo === 'premium' ? ' active' : '')} onClick={() => setMlArTipo('premium')}><b>{t('calc.premium')}</b><span>{t('calc.premiumDesc')}</span></div>
+            </div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlCategoriaDoAnuncio2')}</label>
+            <select
+              value={state.mlArCategoria}
+              onChange={(e) => onMlArCategoriaChange(e.target.value)}
+              className={errorIds.has('mlArCategoria') ? 'input-error' : ''}
+            >
+              <option value="">{t('calc.escolhaCategorias')}</option>
+              {ML_AR_CATEGORIAS.map((c) => <option key={c.value} value={c.value}>{t(c.labelKey)}</option>)}
+            </select>
+            {state.mlArCategoria && state.mlArCategoria !== 'outra' && !state.mlArComissaoManual && (
+              <div className="mini-table mini-table-muted" style={{ marginTop: 10 }}>
+                <div className="mini-row">
+                  <span>{t('calc.comissaoMlLabel')}</span>
+                  <span><b>{state.mlArComissao}%</b>{' '}<button type="button" className="link-btn" onClick={() => set('mlArComissaoManual', true)}>{t('calc.editar')}</button></span>
+                </div>
+              </div>
+            )}
+            {state.mlArComissaoManual && (
+              <div className="row2" style={{ marginTop: 10, alignItems: 'flex-end' }}>
+                <div className="field"><label>{t('calc.comissaoPct')}</label><input type="number" step="0.1" value={state.mlArComissao || ''} onChange={(e) => set('mlArComissao', parseFloat(e.target.value) || 0)} /></div>
+                {state.mlArCategoria && state.mlArCategoria !== 'outra' && (
+                  <button type="button" className="link-btn" style={{ marginBottom: 12 }} onClick={restaurarMlArComissaoAutomatica}>{t('calc.restaurarAutomatico')}</button>
+                )}
+              </div>
+            )}
+            <div className="hint">{t('calc.mlArDadosVigentesAviso')}</div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlArLogisticaLabel')}</label>
+            <div className="toggle-cards cols-2">
+              <div className="toggle-card active"><b>{t('calc.mlArLogisticaFlex')}</b></div>
+              <div className="toggle-card" style={{ opacity: 0.5, cursor: 'not-allowed' }} title={t('calc.mlArLogisticaFutura')}><b>{t('calc.mlArLogisticaOutras')}</b></div>
+            </div>
+            <div className="hint">{t('calc.mlArLogisticaFutura')}</div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlArCuotasLabel')}</label>
+            <select value={state.mlArCuotas} onChange={(e) => set('mlArCuotas', e.target.value as MlArCuotas)}>
+              {ML_AR_CUOTAS.map((o) => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
+            </select>
+            <div className="hint">{t('calc.mlArCuotasHint')}</div>
+            <div className="mini-table">
+              <div className="mini-row"><span>{t('calc.mlArCustoFixoEnvio')}</span><b>{usd(mlArCustoFixoAtual)}</b></div>
+              <div className="mini-row"><span>{t('calc.mlArCargoCuotas')}</span><b>{mlArCargoCuotasAtual.toString().replace('.', ',')}%</b></div>
+            </div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlArRegimeLabel')}</label>
+            <select value={state.mlArRegime} onChange={(e) => set('mlArRegime', e.target.value as MlArRegime)}>
+              {ML_AR_REGIMES.map((o) => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
+            </select>
+            <div className="hint">{t('calc.mlArRegimeHint')}</div>
+          </div>
+
+          <div className="field">
+            <label>{t('calc.mlArCustoFreteLabel')}</label>
+            <div className="prefix-wrap"><span className="pfx">$</span><input type="number" step="0.01" value={state.mlArCustoFrete} onChange={(e) => set('mlArCustoFrete', parseFloat(e.target.value) || 0)} /></div>
+            <div className="hint">{t('calc.mlArCustoFreteHint')}</div>
           </div>
         </div>
       )}
