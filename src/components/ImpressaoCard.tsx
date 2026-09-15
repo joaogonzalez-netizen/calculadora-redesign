@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useCalculadora, novoFilamentoItem } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
@@ -14,6 +14,44 @@ export default function ImpressaoCard() {
   const { t } = useI18n();
   const [impDrawerOpen, setImpDrawerOpen] = useState(false);
   const [filDrawerOpen, setFilDrawerOpen] = useState(false);
+  const [gcodeStatus, setGcodeStatus] = useState(t('calc.statusCarregueGcode'));
+
+  function handleGcode(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setGcodeStatus(t('calc.statusLendoArquivo'));
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = String(ev.target?.result || '');
+      const timeMatch = text.match(/;\s*estimated printing time.*?(\d+)h\s*(\d+)m/i) || text.match(/;\s*estimated printing time.*?(\d+)m/i);
+      const filMatch = text.match(/;\s*filament used\s*\[g\]\s*=\s*([\d.]+)/i) || text.match(/;\s*filament used.*?=\s*([\d.]+)\s*g/i);
+      let found = false;
+      if (timeMatch) {
+        if (timeMatch.length === 3) {
+          set('horasImpressao', parseInt(timeMatch[1], 10));
+          set('minutosImpressao', parseInt(timeMatch[2], 10));
+        } else {
+          set('horasImpressao', 0);
+          set('minutosImpressao', parseInt(timeMatch[1], 10));
+        }
+        found = true;
+      }
+      if (filMatch) {
+        const pesoExtraido = parseFloat(filMatch[1]);
+        if (state.filamentoItems.length) {
+          const copia = [...state.filamentoItems];
+          copia[0] = { ...copia[0], pesoG: pesoExtraido };
+          set('filamentoItems', copia);
+        } else {
+          set('filamentoItems', [novoFilamentoItem('', '', 0, pesoExtraido)]);
+        }
+        found = true;
+      }
+      setGcodeStatus(found ? t('calc.statusTempoPesoExtraidos') : t('calc.statusDadosNaoEncontrados'));
+    };
+    reader.onerror = () => setGcodeStatus(t('calc.statusErroLerArquivo'));
+    reader.readAsText(file);
+  }
 
   function onImpressoraChange(v: string) {
     set('impressoraIdx', v);
@@ -92,6 +130,17 @@ export default function ImpressaoCard() {
           <label>{t('calc.taxaDeFalha')} <InfoDot text="Farm otimizada: 1–1,5%. Uso doméstico: 3–5%. Aplicada sobre material + energia." /></label>
           <div className="suffix-wrap"><input type="number" step="0.1" value={state.taxaFalha} onChange={(e) => set('taxaFalha', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div>
         </div>
+      </div>
+
+      <div className="divider-label" style={{ marginTop: 8 }}>{t('calc.ouCarregueGcode')}</div>
+      <div className="dropzone">
+        <div className="dz-ic">⇪</div>
+        <div className="dz-text">
+          <b>{gcodeStatus}</b>
+          <span>{t('calc.arrasteOuClique')}</span>
+        </div>
+        <button type="button" onClick={() => document.getElementById('gcodeInput')?.click()}>{t('calc.escolherArquivo')}</button>
+        <input type="file" id="gcodeInput" accept=".gcode,.bgcode,.gco,.nc" className="hidden" onChange={handleGcode} />
       </div>
 
       <div className="subsection-head" style={{ marginTop: 8, paddingTop: 22, borderTop: '1px solid var(--border)' }}>
