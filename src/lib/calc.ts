@@ -68,26 +68,50 @@ export function getTiktokTaxaServicoFrete(preco: number) {
   return Math.min(preco * 0.06, 50);
 }
 
-// Mercado Livre Argentina — Envíos Flex, tarifa fixa por faixa de preço (AR$).
-// Fonte terceirizada, ainda não validada oficialmente (ver aviso na UI).
-export function getMlArCustoFixo(preco: number): number {
-  if (preco < 15000) return 1330;
-  if (preco < 24000) return 2740;
-  if (preco < 33000) return 3320;
-  return 0;
-}
+// Mercado Livre Argentina — custo de envio por faixa de peso × faixa de preço
+// (AR$), fonte oficial vendedores.mercadolibre.com.ar/landing/costos-de-venta
+// (capturado 15/09/2026). Mesma estrutura de 3 colunas de desconto que o site
+// usa: preço < US$33.000 (30% off), US$33.000–49.999 (50% off), > US$50.000
+// (50% off maior). Faixas 80–120kg não confirmadas na fonte — usamos a
+// faixa "120–140kg" como estimativa conservadora pra esse intervalo (não é
+// caso de uso comum pra peças impressas em 3D).
+const ML_AR_FRETE_TABELA: { max: number; label: string; low: number; mid: number; high: number }[] = [
+  { max: 0.3, label: 'Até 0,3 kg', low: 8666, mid: 6190, high: 6790 },
+  { max: 0.5, label: '0,3–0,5 kg', low: 9506, mid: 6790, high: 7290 },
+  { max: 1, label: '0,5–1 kg', low: 10906, mid: 7790, high: 8290 },
+  { max: 1.5, label: '1–1,5 kg', low: 11186, mid: 7990, high: 8590 },
+  { max: 2, label: '1,5–2 kg', low: 11606, mid: 8290, high: 8790 },
+  { max: 3, label: '2–3 kg', low: 12446, mid: 8890, high: 9590 },
+  { max: 4, label: '3–4 kg', low: 13706, mid: 9790, high: 10890 },
+  { max: 5, label: '4–5 kg', low: 15106, mid: 10790, high: 11890 },
+  { max: 8, label: '5–8 kg', low: 16506, mid: 11790, high: 13090 },
+  { max: 10, label: '8–10 kg', low: 17906, mid: 12790, high: 14190 },
+  { max: 13, label: '10–13 kg', low: 19306, mid: 13790, high: 15190 },
+  { max: 15, label: '13–15 kg', low: 20706, mid: 14790, high: 16290 },
+  { max: 20, label: '15–20 kg', low: 24626, mid: 17590, high: 19390 },
+  { max: 25, label: '20–25 kg', low: 29246, mid: 20890, high: 23390 },
+  { max: 30, label: '25–30 kg', low: 40026, mid: 28590, high: 32090 },
+  { max: 40, label: '30–40 kg', low: 45626, mid: 32590, high: 36990 },
+  { max: 50, label: '40–50 kg', low: 48146, mid: 34390, high: 39090 },
+  { max: 60, label: '50–60 kg', low: 53326, mid: 38090, high: 43590 },
+  { max: 70, label: '60–70 kg', low: 55426, mid: 39590, high: 45490 },
+  { max: 80, label: '70–80 kg', low: 64106, mid: 45790, high: 52690 },
+  // 80–120kg não veio na fonte capturada — usamos a faixa 120–140kg (mais
+  // cara) como estimativa conservadora, pra não subestimar o custo.
+  { max: 140, label: '80–140 kg (estimativa)', low: 111706, mid: 79790, high: 92290 },
+  { max: 160, label: '140–160 kg', low: 124166, mid: 88690, high: 102690 },
+  { max: 180, label: '160–180 kg', low: 136486, mid: 97490, high: 112990 },
+  { max: Infinity, label: 'Acima de 180 kg', low: 148946, mid: 106390, high: 123290 },
+];
 
-// Cargo por cuotas do Mercado Livre Argentina, em % do preço.
-export function getMlArCargoCuotasPct(cuotas: CalculoState['mlArCuotas']): number {
-  switch (cuotas) {
-    case 'sem_cuotas': return 0;
-    case '3a12_juros_baixo': return 5;
-    case '3_sem_juros': return 8.90;
-    case '6_sem_juros': return 13.40;
-    case '9_sem_juros': return 17.80;
-    case '12_sem_juros': return 21.60;
-    default: return 0;
-  }
+export function getMlArFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
+  const faixa = ML_AR_FRETE_TABELA.find((f) => pesoKg <= f.max) ?? ML_AR_FRETE_TABELA[ML_AR_FRETE_TABELA.length - 1];
+  let faixaPrecoLabel: string;
+  let custo: number;
+  if (preco < 33000) { faixaPrecoLabel = 'Até US$ 33.000'; custo = faixa.low; }
+  else if (preco < 50000) { faixaPrecoLabel = 'US$ 33.000 – US$ 49.999'; custo = faixa.mid; }
+  else { faixaPrecoLabel = 'A partir de US$ 50.000'; custo = faixa.high; }
+  return { faixaPesoLabel: faixa.label, faixaPrecoLabel, custo };
 }
 
 function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
@@ -96,14 +120,8 @@ function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
   }
   if (s.canalAtivo === 'Mercado Livre Argentina') {
     const comissaoPct = s.mlArComissao / 100;
-    const cuotasPct = getMlArCargoCuotasPct(s.mlArCuotas) / 100;
-    const custoFixo = getMlArCustoFixo(preco);
-    const ivaAplica = s.mlArRegime !== 'responsavel_inscripto'; // monotributista e não inscripto pagam IVA como custo real
-    const ivaMult = ivaAplica ? 0.21 : 0;
-    const pct = (comissaoPct + cuotasPct) * (1 + ivaMult);
-    const fixo = custoFixo * (1 + ivaMult) + s.mlArCustoFrete;
-    const ivaValor = ivaAplica ? (preco * (comissaoPct + cuotasPct) + custoFixo) * 0.21 : 0;
-    return { pct, fixo, mlArIvaValor: ivaValor };
+    const frete = getMlArFreteEstimado(s.mlArPesoEmbalagem, preco);
+    return { pct: comissaoPct, fixo: frete.custo, freteInfo: frete };
   }
   if (s.canalAtivo === 'Mercado Livre') {
     const comissaoPct = s.mlComissao / 100;

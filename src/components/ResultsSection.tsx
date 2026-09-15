@@ -31,9 +31,6 @@ export default function ResultsSection() {
   ];
   if (state.imposto > 0) rows.push({ label: 'Imposto', labelKey: 'calc.rowImposto', v: r.precoConsumidor * (state.imposto / 100), cor: 'bar-gold' });
   if (state.canalAtivo === 'Venda direta' && state.taxaCartaoPct > 0) rows.push({ label: 'Taxa pgto.', labelKey: 'calc.rowTaxaPgto', v: r.precoConsumidor * (state.taxaCartaoPct / 100), cor: 'bar-gold' });
-  if (state.canalAtivo === 'Mercado Livre Argentina' && (r.taxas.mlArIvaValor ?? 0) > 0) {
-    rows.push({ label: 'IVA (canal)', labelKey: 'calc.mlArIva', v: r.taxas.mlArIvaValor ?? 0, cor: 'bar-gold' });
-  }
   if (state.canalAtivo !== 'Venda direta') rows.push({ label: 'Comissão ' + state.canalAtivo, labelKey: '', v: r.taxaValor, cor: 'bar-red' });
   const maxV = Math.max(...rows.map((row) => row.v), 0.01);
 

@@ -29,7 +29,7 @@ function estadoInicial(): CalculoState {
     mlTipo: 'classico', mlCategoria: '', mlComissaoManual: false, mlComissao: 0,
     mlPesoEmbalagem: 0.3, mlImposto: 0, mlAds: 0, mlExtras: 0,
     mlArCategoria: '', mlArTipo: 'classico', mlArComissaoManual: false,
-    mlArComissao: 0, mlArCuotas: 'sem_cuotas', mlArRegime: 'monotributista', mlArCustoFrete: 0,
+    mlArComissao: 0, mlArPesoEmbalagem: 0.3,
     shopeeTipo: 'cnpj', shopeeCpfAlto: false, shopeeFrete: 0,
     shopeeCampanhaDestaque: false, shopeeComissaoExtra: 5,
     shopeeCupomProprio: false, shopeeCupomValor: 0,
@@ -75,8 +75,6 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
         pgtoPixTaxa: prefs.taxaPix ?? prev.pgtoPixTaxa,
         pgtoPixDesconto: prefs.descontoPix ?? prev.pgtoPixDesconto,
         taxaCartaoPct: prefs.taxaDebito ?? prev.taxaCartaoPct,
-        mlArRegime: prefs.mlArRegimePadrao ?? prev.mlArRegime,
-        mlArCuotas: prefs.mlArCuotasPadrao ?? prev.mlArCuotas,
       };
       let filamentoPadraoAplicado = false;
       if (prefs.filamento !== '' && prefs.filamento !== undefined && filamentos[Number(prefs.filamento)]) {

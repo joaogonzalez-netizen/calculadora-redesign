@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
-import type { CustoCategoria, Filamento, Impressora, Moeda, MlArCuotas, MlArRegime } from '../types';
+import type { CustoCategoria, Filamento, Impressora, Moeda } from '../types';
 import { brl } from '../lib/format';
 import InfoDot from '../components/InfoDot';
 import {
@@ -9,28 +9,14 @@ import {
   getMarcadores, getHistMarcadorVinculo, removerMarcador,
 } from '../lib/cluster';
 
-type Tab = 'moeda' | 'impressora' | 'margem' | 'vendadireta' | 'mercadolivre' | 'custos' | 'organizacao';
+type Tab = 'moeda' | 'impressora' | 'margem' | 'vendadireta' | 'custos' | 'organizacao';
 const TABS: { key: Tab; labelKey: string }[] = [
   { key: 'moeda', labelKey: 'calc.moeda' },
   { key: 'impressora', labelKey: 'calc.impressao' },
   { key: 'margem', labelKey: 'calc.precificacao' },
   { key: 'vendadireta', labelKey: 'calc.canalDeVenda' },
-  { key: 'mercadolivre', labelKey: 'calc.canalMercadoLivreArgentina' },
   { key: 'custos', labelKey: 'calc.custosExtras' },
   { key: 'organizacao', labelKey: 'calc.pastasMarcadores' },
-];
-const ML_AR_CUOTAS_PREF: { value: MlArCuotas; labelKey: string }[] = [
-  { value: 'sem_cuotas', labelKey: 'calc.mlArCuotasSemCuotas' },
-  { value: '3a12_juros_baixo', labelKey: 'calc.mlArCuotas3a12JurosBaixo' },
-  { value: '3_sem_juros', labelKey: 'calc.mlArCuotas3SemJuros' },
-  { value: '6_sem_juros', labelKey: 'calc.mlArCuotas6SemJuros' },
-  { value: '9_sem_juros', labelKey: 'calc.mlArCuotas9SemJuros' },
-  { value: '12_sem_juros', labelKey: 'calc.mlArCuotas12SemJuros' },
-];
-const ML_AR_REGIMES_PREF: { value: MlArRegime; labelKey: string }[] = [
-  { value: 'monotributista', labelKey: 'calc.mlArRegimeMonotributista' },
-  { value: 'responsavel_inscripto', labelKey: 'calc.mlArRegimeResponsavelInscripto' },
-  { value: 'nao_inscripto', labelKey: 'calc.mlArRegimeNaoInscripto' },
 ];
 const CATS: CustoCategoria[] = ['Embalagem', 'Mão de obra', 'Acabamento', 'Outro', 'Outras'];
 const CATS_LABEL_KEYS: Record<CustoCategoria, string> = {
@@ -66,8 +52,6 @@ export default function PreferenciasView() {
   const [taxaCredito, setTaxaCredito] = useState(String(prefs.taxaCredito));
   const [taxaPix, setTaxaPix] = useState(String(prefs.taxaPix));
   const [descontoPix, setDescontoPix] = useState(String(prefs.descontoPix));
-  const [mlArRegimePadrao, setMlArRegimePadrao] = useState<MlArRegime>(prefs.mlArRegimePadrao ?? 'monotributista');
-  const [mlArCuotasPadrao, setMlArCuotasPadrao] = useState<MlArCuotas>(prefs.mlArCuotasPadrao ?? 'sem_cuotas');
   const [saved, setSaved] = useState(false);
 
   function salvar() {
@@ -76,7 +60,6 @@ export default function PreferenciasView() {
       imposto: parseFloat(imposto) || 0, margem: parseFloat(margem) || 0,
       taxaDebito: parseFloat(taxaDebito) || 0, taxaCredito: parseFloat(taxaCredito) || 0,
       taxaPix: parseFloat(taxaPix) || 0, descontoPix: parseFloat(descontoPix) || 0,
-      mlArRegimePadrao, mlArCuotasPadrao,
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2200);
@@ -308,28 +291,6 @@ export default function PreferenciasView() {
               <div className="field">
                 <label>{t('calc.descontoPixPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" value={descontoPix} onChange={(e) => setDescontoPix(e.target.value)} /><span className="sfx">%</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {tab === 'mercadolivre' && (
-        <div className="card pref-tab">
-          <div className="card-body" style={{ paddingTop: 22 }}>
-            <div className="custo-desc">{t('calc.canalMercadoLivreArgentina')} — {t('calc.mlArDadosVigentesAviso')}</div>
-            <div className="row2">
-              <div className="field">
-                <label>{t('calc.mlArRegimePadraoLabel')}</label>
-                <select value={mlArRegimePadrao} onChange={(e) => setMlArRegimePadrao(e.target.value as MlArRegime)}>
-                  {ML_AR_REGIMES_PREF.map((o) => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
-                </select>
-              </div>
-              <div className="field">
-                <label>{t('calc.mlArCuotasPadraoLabel')}</label>
-                <select value={mlArCuotasPadrao} onChange={(e) => setMlArCuotasPadrao(e.target.value as MlArCuotas)}>
-                  {ML_AR_CUOTAS_PREF.map((o) => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
-                </select>
               </div>
             </div>
           </div>

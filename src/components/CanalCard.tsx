@@ -1,9 +1,9 @@
 import { useCalculadora } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
-import type { Canal, PgtoId, MlArCuotas, MlArRegime } from '../types';
+import type { Canal, PgtoId } from '../types';
 import { brl } from '../lib/format';
-import { getTiktokFaixa, getTiktokTaxaServicoFrete, getMlArCustoFixo, getMlArCargoCuotasPct } from '../lib/calc';
+import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
 import Card from './Card';
 
 const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Mercado Livre Argentina', 'Shopee', 'Etsy', 'TikTok Shop'];
@@ -61,21 +61,6 @@ const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
   { value: 'computacao|15.0|17.14', labelKey: 'calc.mlArCatComputacao' },
   { value: 'eletronicaAudioVideo|15.0|17.14', labelKey: 'calc.mlArCatEletronicaAudioVideo' },
   { value: 'outra', labelKey: 'calc.catOutraCategoria' },
-];
-
-const ML_AR_CUOTAS: { value: MlArCuotas; labelKey: string }[] = [
-  { value: 'sem_cuotas', labelKey: 'calc.mlArCuotasSemCuotas' },
-  { value: '3a12_juros_baixo', labelKey: 'calc.mlArCuotas3a12JurosBaixo' },
-  { value: '3_sem_juros', labelKey: 'calc.mlArCuotas3SemJuros' },
-  { value: '6_sem_juros', labelKey: 'calc.mlArCuotas6SemJuros' },
-  { value: '9_sem_juros', labelKey: 'calc.mlArCuotas9SemJuros' },
-  { value: '12_sem_juros', labelKey: 'calc.mlArCuotas12SemJuros' },
-];
-
-const ML_AR_REGIMES: { value: MlArRegime; labelKey: string }[] = [
-  { value: 'monotributista', labelKey: 'calc.mlArRegimeMonotributista' },
-  { value: 'responsavel_inscripto', labelKey: 'calc.mlArRegimeResponsavelInscripto' },
-  { value: 'nao_inscripto', labelKey: 'calc.mlArRegimeNaoInscripto' },
 ];
 
 export default function CanalCard() {
@@ -150,8 +135,6 @@ export default function CanalCard() {
   const precoAtual = resultado?.precoConsumidor ?? 0;
   const tiktokFaixaAtual = getTiktokFaixa(precoAtual);
   const tiktokTaxaFreteAtual = getTiktokTaxaServicoFrete(precoAtual);
-  const mlArCustoFixoAtual = getMlArCustoFixo(precoAtual);
-  const mlArCargoCuotasAtual = getMlArCargoCuotasPct(state.mlArCuotas);
 
   return (
     <Card icon="⌂" title={t('calc.canalDeVenda')}>
@@ -334,38 +317,23 @@ export default function CanalCard() {
           </div>
 
           <div className="field">
-            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlArLogisticaLabel')}</label>
-            <div className="toggle-cards cols-2">
-              <div className="toggle-card active"><b>{t('calc.mlArLogisticaFlex')}</b></div>
-              <div className="toggle-card" style={{ opacity: 0.5, cursor: 'not-allowed' }} title={t('calc.mlArLogisticaFutura')}><b>{t('calc.mlArLogisticaOutras')}</b></div>
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlFrete3')}</label>
+            <div className="callout">
+              <b>Como funciona</b>
+              O custo de envio é descontado automaticamente da sua venda pelo Mercado Livre. Ele depende do peso da embalagem e da faixa de preço do anúncio, com desconto de até 50% conforme a faixa.
+              {' '}<a href="https://vendedores.mercadolibre.com.ar/landing/costos-de-venta" target="_blank" rel="noreferrer">Ver tabela oficial ↗</a>
             </div>
-            <div className="hint">{t('calc.mlArLogisticaFutura')}</div>
-          </div>
-
-          <div className="field">
-            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlArCuotasLabel')}</label>
-            <select value={state.mlArCuotas} onChange={(e) => set('mlArCuotas', e.target.value as MlArCuotas)}>
-              {ML_AR_CUOTAS.map((o) => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
-            </select>
-            <div className="hint">{t('calc.mlArCuotasHint')}</div>
+            <div className="field">
+              <label>{t('calc.pesoEmbalagemEnvio')}</label>
+              <div className="suffix-wrap"><input type="number" step="0.1" value={state.mlArPesoEmbalagem} onChange={(e) => set('mlArPesoEmbalagem', parseFloat(e.target.value) || 0)} /><span className="sfx">kg</span></div>
+              <div className="hint">Peso total do item embalado, define a faixa da tabela de frete.</div>
+            </div>
             <div className="mini-table">
-              <div className="mini-row"><span>{t('calc.mlArCustoFixoEnvio')}</span><b>{usd(mlArCustoFixoAtual)}</b></div>
-              <div className="mini-row"><span>{t('calc.mlArCargoCuotas')}</span><b>{mlArCargoCuotasAtual.toString().replace('.', ',')}%</b></div>
+              <div className="mini-row"><span>{t('calc.faixaDePeso')}</span><b>{resultado?.taxas.freteInfo?.faixaPesoLabel ?? '-'}</b></div>
+              <div className="mini-row"><span>{t('calc.faixaPrecoAnuncio')}</span><b>{resultado?.taxas.freteInfo?.faixaPrecoLabel ?? '-'}</b></div>
+              <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? usd(resultado.taxas.freteInfo.custo) : '-'}</b></div>
             </div>
-          </div>
-
-          <div className="field">
-            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlArRegimeLabel')}</label>
-            <select value={state.mlArRegime} onChange={(e) => set('mlArRegime', e.target.value as MlArRegime)}>
-              {ML_AR_REGIMES.map((o) => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
-            </select>
-            <div className="hint">{t('calc.mlArRegimeHint')}</div>
-          </div>
-
-          <div className="field">
-            <label>{t('calc.mlArCustoFreteLabel')}</label>
-            <div className="prefix-wrap"><span className="pfx">$</span><input type="number" step="0.01" value={state.mlArCustoFrete} onChange={(e) => set('mlArCustoFrete', parseFloat(e.target.value) || 0)} /></div>
-            <div className="hint">{t('calc.mlArCustoFreteHint')}</div>
+            <div className="hint">Calculado após clicar em "Calcular", usando o preço ao consumidor. Fonte oficial capturada em set/2026, sujeita a revisão.</div>
           </div>
         </div>
       )}

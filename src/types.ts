@@ -6,8 +6,6 @@ export type Moeda = 'BRL' | 'USD' | 'EUR' | 'ARS';
 export type CustoCategoria = 'Embalagem' | 'Mão de obra' | 'Acabamento' | 'Outro' | 'Outras';
 export type PgtoId = 'debito' | 'credito' | 'pix' | 'custom';
 export type MlTipo = 'classico' | 'premium';
-export type MlArCuotas = 'sem_cuotas' | '3a12_juros_baixo' | '3_sem_juros' | '6_sem_juros' | '9_sem_juros' | '12_sem_juros';
-export type MlArRegime = 'monotributista' | 'responsavel_inscripto' | 'nao_inscripto';
 export type ShopeeTipo = 'cnpj' | 'cpf';
 
 export interface Impressora {
@@ -55,8 +53,6 @@ export interface Preferencias {
   taxaDebito: number;
   taxaCredito: number;
   taxaPix: number;
-  mlArRegimePadrao: MlArRegime;
-  mlArCuotasPadrao: MlArCuotas;
 }
 
 export interface HistoricoEntry {
@@ -98,7 +94,6 @@ export interface CanalTaxas {
   pct: number;
   fixo: number;
   freteInfo?: MlFreteInfo;
-  mlArIvaValor?: number;
 }
 
 export interface CalculoState {
@@ -150,9 +145,7 @@ export interface CalculoState {
   mlArTipo: MlTipo;
   mlArComissaoManual: boolean;
   mlArComissao: number;
-  mlArCuotas: MlArCuotas;
-  mlArRegime: MlArRegime;
-  mlArCustoFrete: number;
+  mlArPesoEmbalagem: number;
 
   // Shopee
   shopeeTipo: ShopeeTipo;
