@@ -26,14 +26,14 @@ export default function FilamentoDrawer({ open, onClose, onUse }: { open: boolea
   }
 
   return (
-    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeFilamentos')} hint="Clique em &quot;+&quot; pra usar esse filamento no cálculo atual.">
+    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeFilamentos')} hint={t('calc.clicarMaisUsarFilamentoNoCalculo')}>
       <div>
         {filamentos.length ? filamentos.map((f, idx) => (
           <div key={idx} className="drawer-lib-row">
             <span>{f.nome} <b style={{ color: 'var(--primary-dark)' }}>{brl(f.preco)}/kg</b><br /><span style={{ color: 'var(--text-3)', fontSize: 11.5 }}>{f.tipo}{f.cor ? ' · ' + f.cor : ''}</span></span>
             <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12, flex: '0 0 auto' }} onClick={() => { onUse(f); onClose(); }}>+</button>
           </div>
-        )) : <div className="hint">Nenhum filamento na biblioteca ainda. Cadastre um abaixo.</div>}
+        )) : <div className="hint">{t('calc.nenhumFilamentoBibliotecaAinda')}</div>}
       </div>
       <div className="divider-label" style={{ marginTop: 18 }}>{t('calc.cadastrarNovo')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>

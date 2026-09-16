@@ -45,7 +45,7 @@ export default function PrecificacaoCard() {
       <div className="field">
         <label>{t('calc.impostoPct')}</label>
         <div className="suffix-wrap"><input type="number" step="0.1" value={state.imposto} onChange={(e) => set('imposto', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div>
-        <div className="hint">Ex: Simples Nacional 6–12%</div>
+        <div className="hint">{t('calc.exSimplesNacionalHint')}</div>
       </div>
 
       <div className="switch-row">
@@ -57,9 +57,9 @@ export default function PrecificacaoCard() {
       </div>
       {state.comPromo && (
         <div className="field">
-          <label>{t('calc.descontoDaPromocao')} <InfoDot text='O preço de tabela sai "inflado" por esse %, pra que depois do desconto aplicado na promoção, o valor líquido recebido continue protegendo a margem calculada.' /></label>
+          <label>{t('calc.descontoDaPromocao')} <InfoDot text={t('calc.descontoPromoPrecoInfladoInfo')} /></label>
           <div className="suffix-wrap"><input type="number" step="0.1" value={state.descontoPromo} onChange={(e) => set('descontoPromo', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div>
-          <div className="hint">Ex: cupom de 10% off, campanha de aniversário, Black Friday...</div>
+          <div className="hint">{t('calc.exCupomPromocaoHint')}</div>
         </div>
       )}
     </Card>

@@ -95,17 +95,17 @@ export default function ImpressaoCard() {
           </select>
         </div>
         <div className="field">
-          <label>{t('calc.consumoKwh')} <InfoDot text="Preenchido automaticamente ao selecionar a impressora. Editável." /></label>
+          <label>{t('calc.consumoKwh')} <InfoDot text={t('calc.consumoKwhAutoPreenchidoInfo')} /></label>
           <input type="number" step="0.01" placeholder={t('calc.placeholderConsumoKwh')} value={state.custoKwh || ''} onChange={(e) => set('custoKwh', parseFloat(e.target.value) || 0)} />
         </div>
         <div className="field">
-          <label>{t('calc.energiaPrecoKwh')} <InfoDot text="Preço pago à distribuidora pelo kWh consumido." /></label>
+          <label>{t('calc.energiaPrecoKwh')} <InfoDot text={t('calc.energiaPrecoKwhInfo')} /></label>
           <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.precoKwh} onChange={(e) => set('precoKwh', parseFloat(e.target.value) || 0)} /></div>
         </div>
       </div>
       <div className="row3">
         <div className="field">
-          <label>{t('calc.pecasPorMesa')} <InfoDot text="Quantidade de peças impressas juntas na mesma impressão." /></label>
+          <label>{t('calc.pecasPorMesa')} <InfoDot text={t('calc.pecasPorMesaInfo')} /></label>
           <input type="number" min={1} value={state.quantidade} onChange={(e) => set('quantidade', parseInt(e.target.value, 10) || 1)} />
         </div>
         <div className="field">
@@ -127,7 +127,7 @@ export default function ImpressaoCard() {
           <div className="hint">{t('calc.total')}: {tempoTotal.toFixed(2).replace('.', ',')}h</div>
         </div>
         <div className="field">
-          <label>{t('calc.taxaDeFalha')} <InfoDot text="Farm otimizada: 1–1,5%. Uso doméstico: 3–5%. Aplicada sobre material + energia." /></label>
+          <label>{t('calc.taxaDeFalha')} <InfoDot text={t('calc.taxaFalhaFarmDomesticoInfo')} /></label>
           <div className="suffix-wrap"><input type="number" step="0.1" value={state.taxaFalha} onChange={(e) => set('taxaFalha', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function ImpressaoCard() {
       <div className="subsection-head" style={{ marginTop: 8, paddingTop: 22, borderTop: '1px solid var(--border)' }}>
         <div className="ic-badge" style={{ width: 28, height: 28, fontSize: 14 }}>◆</div><h4>{t('calc.filamento')}</h4>
       </div>
-      <div className="hint" style={{ marginBottom: 10 }}>Peça com mais de uma cor/material? Adicione um filamento por vez. O custo de material soma todos.</div>
+      <div className="hint" style={{ marginBottom: 10 }}>{t('calc.pecaMultiplasCoresHint')}</div>
       <div className="fil-item-row" style={{ marginBottom: 2 }}>
         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.filamento')}</span>
         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.cor')}</span>

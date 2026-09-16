@@ -31,14 +31,14 @@ export default function CustoExtraDrawer({ open, onClose, onUse }: { open: boole
   }
 
   return (
-    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeCustosExtras')} hint="Clique em &quot;+&quot; pra adicionar um item direto no cálculo.">
+    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeCustosExtras')} hint={t('calc.clicarMaisAdicionarItemDireto')}>
       <div>
         {custosPadrao.length ? custosPadrao.map((i, idx) => (
           <div key={idx} className="drawer-lib-row">
             <span>{i.nome} <b style={{ color: 'var(--primary-dark)' }}>{brl(i.valor)}</b><br /><span style={{ color: 'var(--text-3)', fontSize: 11.5 }}>{i.categoria ? t(CATS_LABEL_KEYS[i.categoria]) : t('calc.catEmbalagem')}{i.ativo ? ' · ' + t('calc.padrao') : ''}</span></span>
             <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12, flex: '0 0 auto' }} onClick={() => onUse(i)}>+</button>
           </div>
-        )) : <div className="hint">Nenhum custo extra na biblioteca ainda. Cadastre um abaixo.</div>}
+        )) : <div className="hint">{t('calc.nenhumCustoExtraBibliotecaAinda')}</div>}
       </div>
       <div className="divider-label" style={{ marginTop: 18 }}>{t('calc.cadastrarNovo')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>

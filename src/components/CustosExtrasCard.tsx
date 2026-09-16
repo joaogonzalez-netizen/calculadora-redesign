@@ -44,7 +44,7 @@ export default function CustosExtrasCard() {
 
   return (
     <Card icon="▢" title={t('calc.custosExtras')}>
-      <div className="acc-desc">Adicione tudo que vai junto com a peça: embalagem, mão de obra, acabamento ou qualquer custo extra. Todos os valores são por unidade vendida, não são divididos pela quantidade de peças na mesa.</div>
+      <div className="acc-desc">{t('calc.custosExtrasDesc')}</div>
 
       <div className="field">
         <label style={{ fontSize: 12.5, color: 'var(--text-3)', fontWeight: 700 }}>{t('calc.adicionarRapido')}</label>

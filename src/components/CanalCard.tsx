@@ -170,12 +170,12 @@ export default function CanalCard() {
                 <div className="field">
                   <label>{t('calc.taxaDoPix')}</label>
                   <div className="suffix-wrap"><input type="number" step="0.01" value={state.pgtoPixTaxa} onChange={(e) => { const v = parseFloat(e.target.value) || 0; set('pgtoPixTaxa', v); set('taxaCartaoPct', v); }} /><span className="sfx">%</span></div>
-                  <div className="hint">Soma no custo e afeta a margem. Pix direto costuma ser 0%. Só preencha se usar um gateway (ex: Mercado Pago).</div>
+                  <div className="hint">{t('calc.pixTaxaGatewayHint')}</div>
                 </div>
                 <div className="field">
                   <label>{t('calc.descontoDoPix')}</label>
                   <div className="suffix-wrap"><input type="number" step="0.01" value={state.pgtoPixDesconto} onChange={(e) => set('pgtoPixDesconto', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div>
-                  <div className="hint">Reduz o preço mostrado ao comprador no Pix. Não afeta a margem do preço no cartão.</div>
+                  <div className="hint">{t('calc.pixDescontoNaoAfetaMargemHint')}</div>
                 </div>
               </div>
               <div className="field">
@@ -252,21 +252,21 @@ export default function CanalCard() {
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlFrete3')}</label>
             <div className="callout">
-              <b>Como funciona</b>
-              O custo de envio é descontado automaticamente da sua venda pelo Mercado Livre, mesmo quando o comprador paga o frete. Ele depende do peso da embalagem e da faixa de preço do anúncio. Os valores já incluem um desconto de até 70% por reputação verde.
-              {' '}<a href="https://www.mercadolivre.com.br/ajuda/40538" target="_blank" rel="noreferrer">Ver tabela oficial ↗</a>
+              <b>{t('calc.comoFunciona')}</b>
+              {t('calc.mlBrasilFreteCalloutTexto')}
+              {' '}<a href="https://www.mercadolivre.com.br/ajuda/40538" target="_blank" rel="noreferrer">{t('calc.verTabelaOficial')}</a>
             </div>
             <div className="field">
               <label>{t('calc.pesoEmbalagemEnvio')}</label>
               <div className="suffix-wrap"><input type="number" step="0.1" value={state.mlPesoEmbalagem} onChange={(e) => set('mlPesoEmbalagem', parseFloat(e.target.value) || 0)} /><span className="sfx">kg</span></div>
-              <div className="hint">Peso total do item embalado, define a faixa da tabela de frete.</div>
+              <div className="hint">{t('calc.pesoEmbaladoFaixaFreteHint')}</div>
             </div>
             <div className="mini-table">
               <div className="mini-row"><span>{t('calc.faixaDePeso')}</span><b>{resultado?.taxas.freteInfo?.faixaPesoLabel ?? '-'}</b></div>
               <div className="mini-row"><span>{t('calc.faixaPrecoAnuncio')}</span><b>{resultado?.taxas.freteInfo?.faixaPrecoLabel ?? '-'}</b></div>
               <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? brl(resultado.taxas.freteInfo.custo) : '-'}</b></div>
             </div>
-            <div className="hint">Anúncios abaixo de R$ 19 pagam, no máximo, metade do preço do produto em frete. Calculado após clicar em "Calcular", usando o preço ao consumidor. Valores estimados, validar com a tabela oficial (29 faixas de peso × 8 faixas de preço).</div>
+            <div className="hint">{t('calc.mlBrasilFreteAbaixo19Hint')}</div>
           </div>
 
           <div className="row3">
@@ -319,21 +319,21 @@ export default function CanalCard() {
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlFrete3')}</label>
             <div className="callout">
-              <b>Como funciona</b>
-              O custo de envio é descontado automaticamente da sua venda pelo Mercado Livre. Ele depende do peso da embalagem e da faixa de preço do anúncio, com desconto de até 50% conforme a faixa.
-              {' '}<a href="https://vendedores.mercadolibre.com.ar/landing/costos-de-venta" target="_blank" rel="noreferrer">Ver tabela oficial ↗</a>
+              <b>{t('calc.comoFunciona')}</b>
+              {t('calc.mlArgentinaFreteCalloutTexto')}
+              {' '}<a href="https://www.mercadolibre.com.ar/knowledge-hub/42400" target="_blank" rel="noreferrer">{t('calc.verTabelaOficial')}</a>
             </div>
             <div className="field">
               <label>{t('calc.pesoEmbalagemEnvio')}</label>
               <div className="suffix-wrap"><input type="number" step="0.1" value={state.mlArPesoEmbalagem} onChange={(e) => set('mlArPesoEmbalagem', parseFloat(e.target.value) || 0)} /><span className="sfx">kg</span></div>
-              <div className="hint">Peso total do item embalado, define a faixa da tabela de frete.</div>
+              <div className="hint">{t('calc.pesoEmbaladoFaixaFreteHint')}</div>
             </div>
             <div className="mini-table">
               <div className="mini-row"><span>{t('calc.faixaDePeso')}</span><b>{resultado?.taxas.freteInfo?.faixaPesoLabel ?? '-'}</b></div>
               <div className="mini-row"><span>{t('calc.faixaPrecoAnuncio')}</span><b>{resultado?.taxas.freteInfo?.faixaPrecoLabel ?? '-'}</b></div>
               <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? usd(resultado.taxas.freteInfo.custo) : '-'}</b></div>
             </div>
-            <div className="hint">Calculado após clicar em "Calcular", usando o preço ao consumidor. Fonte oficial capturada em set/2026, sujeita a revisão.</div>
+            <div className="hint">{t('calc.mlArgentinaCalculadoAposClicarHint')}</div>
           </div>
         </div>
       )}
@@ -363,25 +363,25 @@ export default function CanalCard() {
               <table className="canal-tabela">
                 <thead><tr><th>{t('calc.thFaixa')}</th><th>{t('calc.thComissao')}</th><th>{t('calc.thTaxaFixa')}</th><th>{t('calc.thSubsidioFrete')}</th><th>{t('calc.thSubsidioPix')}</th></tr></thead>
                 <tbody>
-                  <tr><td>Até R$ 79,99</td><td>20%</td><td>R$ 4,00</td><td>R$ 20,00</td><td>—</td></tr>
-                  <tr><td>R$ 80 – R$ 99,99</td><td>14%</td><td>R$ 16,00</td><td>R$ 30,00</td><td>5%</td></tr>
-                  <tr><td>R$ 100 – R$ 199,99</td><td>14%</td><td>R$ 20,00</td><td>R$ 30,00</td><td>5%</td></tr>
-                  <tr><td>R$ 200 – R$ 499,99</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>5%</td></tr>
-                  <tr><td>Acima de R$ 500</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>8%</td></tr>
+                  <tr><td>{t('calc.shopeeFaixaAte79')}</td><td>20%</td><td>R$ 4,00</td><td>R$ 20,00</td><td>—</td></tr>
+                  <tr><td>{t('calc.shopeeFaixa80a99')}</td><td>14%</td><td>R$ 16,00</td><td>R$ 30,00</td><td>5%</td></tr>
+                  <tr><td>{t('calc.shopeeFaixa100a199')}</td><td>14%</td><td>R$ 20,00</td><td>R$ 30,00</td><td>5%</td></tr>
+                  <tr><td>{t('calc.shopeeFaixa200a499')}</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>5%</td></tr>
+                  <tr><td>{t('calc.shopeeFaixaAcima500')}</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>8%</td></tr>
                 </tbody>
               </table>
             </div>
-            <div className="hint">A Shopee aplica os valores automaticamente conforme a faixa de preço do produto. Política 2026 — vigência 01/03/2026, valores oficiais em R$.</div>
+            <div className="hint">{t('calc.shopeeValoresAutomaticosPoliticaHint')}</div>
           </div>
 
           <div className="callout">
-            <b>Regras de baixo valor</b>
-            CNPJ com produto abaixo de R$ 8,00: a taxa fixa passa a ser 50% do valor do produto. CPF com produto abaixo de R$ 12,00: taxa regressiva (R$ 6,00 até R$ 8,00; R$ 6,50 entre R$ 8,00 e R$ 12,00).
+            <b>{t('calc.shopeeRegrasBaixoValorTitulo')}</b>
+            {t('calc.shopeeRegrasBaixoValorTexto')}
           </div>
 
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.shopeeFrete3')}</label>
-            <div className="hint" style={{ marginBottom: 10 }}>O Programa de Frete Grátis oferece cupons de até R$20 (itens até R$79,99), R$30 (R$80–R$199,99) e R$40 (acima de R$200). O subsídio de frete e o subsídio Pix são apenas informativos e não entram neste cálculo.</div>
+            <div className="hint" style={{ marginBottom: 10 }}>{t('calc.shopeeProgramaFreteGratisHint')}</div>
             <label>{t('calc.custoDoFrete')}</label>
             <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.shopeeFrete} onChange={(e) => set('shopeeFrete', parseFloat(e.target.value) || 0)} /></div>
           </div>
@@ -389,7 +389,7 @@ export default function CanalCard() {
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.configuracoesAdicionaisShopee4')}</label>
             <div className="switch-row">
-              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>{t('calc.campanhaDeDestaque')}</div><div className="hint" style={{ marginTop: 2 }}>Comissão extra durante períodos de campanha</div></div>
+              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>{t('calc.campanhaDeDestaque')}</div><div className="hint" style={{ marginTop: 2 }}>{t('calc.comissaoExtraCampanhaHint')}</div></div>
               <label className="switch"><input type="checkbox" checked={state.shopeeCampanhaDestaque} onChange={(e) => set('shopeeCampanhaDestaque', e.target.checked)} /><span className="track" /></label>
             </div>
             {state.shopeeCampanhaDestaque && (
@@ -397,7 +397,7 @@ export default function CanalCard() {
             )}
 
             <div className="switch-row">
-              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>{t('calc.cupomDescontoProprio')}</div><div className="hint" style={{ marginTop: 2 }}>Desconto bancado por você, absorvido como custo</div></div>
+              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>{t('calc.cupomDescontoProprio')}</div><div className="hint" style={{ marginTop: 2 }}>{t('calc.descontoBancadoPorVoceHint')}</div></div>
               <label className="switch"><input type="checkbox" checked={state.shopeeCupomProprio} onChange={(e) => set('shopeeCupomProprio', e.target.checked)} /><span className="track" /></label>
             </div>
             {state.shopeeCupomProprio && (
@@ -415,8 +415,8 @@ export default function CanalCard() {
       {state.canalAtivo === 'Etsy' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div className="callout">
-            <b>Canal 100% em dólar</b>
-            A Etsy é voltada ao público dos EUA — todo o cálculo roda em dólar ($), sem conversão de câmbio. Preencha os custos diretamente em USD.
+            <b>{t('calc.etsyCanalDolarTitulo')}</b>
+            {t('calc.etsyCanalDolarTexto')}
           </div>
 
           <div className="field">
@@ -438,15 +438,15 @@ export default function CanalCard() {
             <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? usd(resultado.lucroLiquido) : '—'}</b></div>
             <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
           </div>
-          <div className="hint">Painel somente leitura — calculado sobre o preço sugerido e o custo unitário preenchidos.</div>
+          <div className="hint">{t('calc.painelSomenteLeituraHint')}</div>
         </div>
       )}
 
       {state.canalAtivo === 'TikTok Shop' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div className="callout">
-            <b>Como as taxas de vendas são calculadas por item</b>
-            Taxas de vendas = (preço de varejo do produto − desconto do vendedor) × tarifa de comissão da plataforma + tarifa por item vendido.
+            <b>{t('calc.tiktokComoTaxasCalculadasTitulo')}</b>
+            {t('calc.tiktokComoTaxasCalculadasTexto')}
           </div>
 
           <div className="field">
@@ -455,35 +455,35 @@ export default function CanalCard() {
               <table className="canal-tabela">
                 <thead><tr><th>{t('calc.thFaixa')}</th><th>{t('calc.thComissao')}</th><th>{t('calc.thTarifaPorItem')}</th></tr></thead>
                 <tbody>
-                  <tr><td>Preço após desconto &lt; R$ 50,00</td><td>10%</td><td>R$ 4,00</td></tr>
-                  <tr><td>Preço após desconto ≥ R$ 50,00</td><td>6%</td><td>R$ 6,00</td></tr>
+                  <tr><td>{t('calc.tiktokFaixaAbaixo50')}</td><td>10%</td><td>R$ 4,00</td></tr>
+                  <tr><td>{t('calc.tiktokFaixaAcimaIgual50')}</td><td>6%</td><td>R$ 6,00</td></tr>
                 </tbody>
               </table>
             </div>
-            <div className="hint">Faixa aplicada ao preço atual: {Math.round(tiktokFaixaAtual.pct * 100)}% + {brl(tiktokFaixaAtual.fixo)}.</div>
+            <div className="hint">{t('calc.tiktokFaixaAplicadaPrefixo')} {Math.round(tiktokFaixaAtual.pct * 100)}% + {brl(tiktokFaixaAtual.fixo)}.</div>
           </div>
 
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.programaTaxaEnvio2')}</label>
-            <div className="hint" style={{ marginBottom: 10 }}>Taxa de serviço de 6% do preço, limitada a R$ 50,00 por item — todo vendedor no Brasil é inscrito automaticamente e não é reembolsável após a entrega.</div>
+            <div className="hint" style={{ marginBottom: 10 }}>{t('calc.tiktokTaxaServicoHint')}</div>
             <div className="mini-table">
               <div className="mini-row"><span>{t('calc.taxaDoPrograma')}</span><b>{brl(tiktokTaxaFreteAtual)}</b></div>
             </div>
             <div className="field" style={{ marginTop: 14 }}>
               <label>{t('calc.custoFreteAdicional')}</label>
               <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.tiktokFrete} onChange={(e) => set('tiktokFrete', parseFloat(e.target.value) || 0)} /></div>
-              <div className="hint">Custo de envio estimado pelas dimensões da embalagem, além da taxa do programa acima. Se o TikTok Shop já cobrir o frete via cupom, deixe em R$ 0,00.</div>
+              <div className="hint">{t('calc.tiktokCustoEnvioEstimadoHint')}</div>
             </div>
           </div>
 
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.configuracoesAdicionaisTiktok3')}</label>
             <div className="switch-row">
-              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>{t('calc.souVendedorNovo')}</div><div className="hint" style={{ marginTop: 2 }}>Isenção da tarifa de comissão da plataforma por 60 dias</div></div>
+              <div><div style={{ fontWeight: 600, fontSize: 13.5 }}>{t('calc.souVendedorNovo')}</div><div className="hint" style={{ marginTop: 2 }}>{t('calc.tiktokIsencaoComissao60DiasHint')}</div></div>
               <label className="switch"><input type="checkbox" checked={state.tiktokNovoVendedor} onChange={(e) => set('tiktokNovoVendedor', e.target.checked)} /><span className="track" /></label>
             </div>
             {state.tiktokNovoVendedor && (
-              <div className="hint">Oferta por tempo limitado pra novos vendedores, limitada a R$ 17.000,00 em vendas. A tarifa por item e a taxa do programa de envio continuam sendo cobradas.</div>
+              <div className="hint">{t('calc.tiktokOfertaTempoLimitadoHint')}</div>
             )}
           </div>
 
@@ -493,7 +493,7 @@ export default function CanalCard() {
             <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? brl(resultado.lucroLiquido) : '—'}</b></div>
             <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
           </div>
-          <div className="hint">Painel somente leitura — calculado sobre o preço sugerido e o custo unitário preenchidos.</div>
+          <div className="hint">{t('calc.painelSomenteLeituraHint')}</div>
         </div>
       )}
     </Card>

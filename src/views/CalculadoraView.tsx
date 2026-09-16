@@ -27,11 +27,11 @@ export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
     if (faltando.length > 0) { handleCalcular(); return; }
     salvarHistorico();
     onSaved();
-    alert('Cálculo salvo no histórico.');
+    alert(t('calc.calculoSalvoNoHistorico'));
   }
 
   function handleGerarAnuncio() {
-    alert('Redirecionando ao Gerador de anúncios com IA · nome_produto="' + (state.nomePeca || 'produto') + '"');
+    alert(t('calc.redirecionandoGeradorAnuncios').replace('{nome}', state.nomePeca || 'produto'));
   }
 
   function verResumo() {
@@ -58,7 +58,7 @@ export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
       <div className="calc-footer">
         <div className="placeholder" style={{ display: faltando.length ? 'block' : 'none' }}>{t('calc.preencherCamposCalcular')}</div>
         <button className="btn-calc" onClick={handleCalcular}>{t('calc.calcularPrecoDeVenda')}</button>
-        <div className="validation-hint">{faltando.length ? t('calc.faltaPreencher') + ' ' + faltando.map((f) => f.label).join(', ') : ''}</div>
+        <div className="validation-hint">{faltando.length ? t('calc.faltaPreencher') + ' ' + faltando.map((f) => t(f.labelKey)).join(', ') : ''}</div>
         <div className="required-hint">{t('calc.camposObrigatorios')}</div>
         <div className="actions-secondary">
           <button type="button" className="btn-outline" onClick={handleSalvar}>💾 {t('calc.salvarNoHistorico')}</button>

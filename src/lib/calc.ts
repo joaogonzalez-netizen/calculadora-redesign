@@ -68,49 +68,49 @@ export function getTiktokTaxaServicoFrete(preco: number) {
   return Math.min(preco * 0.06, 50);
 }
 
-// Mercado Livre Argentina — custo de envio por faixa de peso × faixa de preço
-// (AR$), fonte oficial vendedores.mercadolibre.com.ar/landing/costos-de-venta
-// (capturado 15/09/2026). Mesma estrutura de 3 colunas de desconto que o site
-// usa: preço < US$33.000 (30% off), US$33.000–49.999 (50% off), > US$50.000
-// (50% off maior). Faixas 80–120kg não confirmadas na fonte — usamos a
-// faixa "120–140kg" como estimativa conservadora pra esse intervalo (não é
-// caso de uso comum pra peças impressas em 3D).
-const ML_AR_FRETE_TABELA: { max: number; label: string; low: number; mid: number; high: number }[] = [
-  { max: 0.3, label: 'Até 0,3 kg', low: 8666, mid: 6190, high: 6790 },
-  { max: 0.5, label: '0,3–0,5 kg', low: 9506, mid: 6790, high: 7290 },
-  { max: 1, label: '0,5–1 kg', low: 10906, mid: 7790, high: 8290 },
-  { max: 1.5, label: '1–1,5 kg', low: 11186, mid: 7990, high: 8590 },
-  { max: 2, label: '1,5–2 kg', low: 11606, mid: 8290, high: 8790 },
-  { max: 3, label: '2–3 kg', low: 12446, mid: 8890, high: 9590 },
-  { max: 4, label: '3–4 kg', low: 13706, mid: 9790, high: 10890 },
-  { max: 5, label: '4–5 kg', low: 15106, mid: 10790, high: 11890 },
-  { max: 8, label: '5–8 kg', low: 16506, mid: 11790, high: 13090 },
-  { max: 10, label: '8–10 kg', low: 17906, mid: 12790, high: 14190 },
-  { max: 13, label: '10–13 kg', low: 19306, mid: 13790, high: 15190 },
-  { max: 15, label: '13–15 kg', low: 20706, mid: 14790, high: 16290 },
-  { max: 20, label: '15–20 kg', low: 24626, mid: 17590, high: 19390 },
-  { max: 25, label: '20–25 kg', low: 29246, mid: 20890, high: 23390 },
-  { max: 30, label: '25–30 kg', low: 40026, mid: 28590, high: 32090 },
-  { max: 40, label: '30–40 kg', low: 45626, mid: 32590, high: 36990 },
-  { max: 50, label: '40–50 kg', low: 48146, mid: 34390, high: 39090 },
-  { max: 60, label: '50–60 kg', low: 53326, mid: 38090, high: 43590 },
-  { max: 70, label: '60–70 kg', low: 55426, mid: 39590, high: 45490 },
-  { max: 80, label: '70–80 kg', low: 64106, mid: 45790, high: 52690 },
-  // 80–120kg não veio na fonte capturada — usamos a faixa 120–140kg (mais
-  // cara) como estimativa conservadora, pra não subestimar o custo.
-  { max: 140, label: '80–140 kg (estimativa)', low: 111706, mid: 79790, high: 92290 },
-  { max: 160, label: '140–160 kg', low: 124166, mid: 88690, high: 102690 },
-  { max: 180, label: '160–180 kg', low: 136486, mid: 97490, high: 112990 },
-  { max: Infinity, label: 'Acima de 180 kg', low: 148946, mid: 106390, high: 123290 },
+// Mercado Livre Argentina — custo por unidade vendida (Envíos Full, correio,
+// coleta e pontos de despacho), por faixa de peso × faixa de preço (AR$).
+// Fonte oficial: mercadolibre.com.ar/knowledge-hub/42400 (capturado 16/09/2026),
+// válida pra produtos abaixo de $33.000. Não há tabela oficial pra preços a
+// partir de $33.000 — por decisão do time, reaplicamos os valores da faixa
+// "$24.000 a $32.999" pra qualquer preço igual ou acima disso.
+const ML_AR_FRETE_TABELA: { max: number; label: string; ate15k: number; de15ka24k: number; de24kAcima: number }[] = [
+  { max: 0.3, label: 'Até 0,3 kg', ate15k: 1330, de15ka24k: 2740, de24kAcima: 3320 },
+  { max: 0.5, label: '0,3–0,5 kg', ate15k: 1370, de15ka24k: 2760, de24kAcima: 3340 },
+  { max: 1, label: '0,5–1 kg', ate15k: 1390, de15ka24k: 2780, de24kAcima: 3360 },
+  { max: 1.5, label: '1–1,5 kg', ate15k: 1410, de15ka24k: 2800, de24kAcima: 3380 },
+  { max: 2, label: '1,5–2 kg', ate15k: 1430, de15ka24k: 2820, de24kAcima: 3400 },
+  { max: 3, label: '2–3 kg', ate15k: 1450, de15ka24k: 2860, de24kAcima: 3470 },
+  { max: 4, label: '3–4 kg', ate15k: 1470, de15ka24k: 2910, de24kAcima: 3520 },
+  { max: 5, label: '4–5 kg', ate15k: 1500, de15ka24k: 3040, de24kAcima: 3670 },
+  { max: 8, label: '5–8 kg', ate15k: 1520, de15ka24k: 3130, de24kAcima: 3760 },
+  { max: 10, label: '8–10 kg', ate15k: 1560, de15ka24k: 3180, de24kAcima: 3910 },
+  { max: 13, label: '10–13 kg', ate15k: 1590, de15ka24k: 3220, de24kAcima: 4020 },
+  { max: 15, label: '13–15 kg', ate15k: 1620, de15ka24k: 3280, de24kAcima: 4060 },
+  { max: 20, label: '15–20 kg', ate15k: 1640, de15ka24k: 3320, de24kAcima: 4100 },
+  { max: 25, label: '20–25 kg', ate15k: 1660, de15ka24k: 3380, de24kAcima: 4170 },
+  { max: 30, label: '25–30 kg', ate15k: 1680, de15ka24k: 3410, de24kAcima: 4210 },
+  { max: 40, label: '30–40 kg', ate15k: 1700, de15ka24k: 3440, de24kAcima: 4250 },
+  { max: 50, label: '40–50 kg', ate15k: 1720, de15ka24k: 3460, de24kAcima: 4300 },
+  { max: 60, label: '50–60 kg', ate15k: 1740, de15ka24k: 3480, de24kAcima: 4320 },
+  { max: 70, label: '60–70 kg', ate15k: 1760, de15ka24k: 3510, de24kAcima: 4350 },
+  { max: 80, label: '70–80 kg', ate15k: 1780, de15ka24k: 3530, de24kAcima: 4370 },
+  { max: 90, label: '80–90 kg', ate15k: 1800, de15ka24k: 3560, de24kAcima: 4400 },
+  { max: 100, label: '90–100 kg', ate15k: 1820, de15ka24k: 3580, de24kAcima: 4420 },
+  { max: 120, label: '100–120 kg', ate15k: 1840, de15ka24k: 3600, de24kAcima: 4450 },
+  { max: 140, label: '120–140 kg', ate15k: 1860, de15ka24k: 3620, de24kAcima: 4470 },
+  { max: 160, label: '140–160 kg', ate15k: 1880, de15ka24k: 3650, de24kAcima: 4500 },
+  { max: 180, label: '160–180 kg', ate15k: 1900, de15ka24k: 3680, de24kAcima: 4520 },
+  { max: Infinity, label: 'Acima de 180 kg', ate15k: 1920, de15ka24k: 3700, de24kAcima: 4550 },
 ];
 
 export function getMlArFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
   const faixa = ML_AR_FRETE_TABELA.find((f) => pesoKg <= f.max) ?? ML_AR_FRETE_TABELA[ML_AR_FRETE_TABELA.length - 1];
   let faixaPrecoLabel: string;
   let custo: number;
-  if (preco < 33000) { faixaPrecoLabel = 'Até US$ 33.000'; custo = faixa.low; }
-  else if (preco < 50000) { faixaPrecoLabel = 'US$ 33.000 – US$ 49.999'; custo = faixa.mid; }
-  else { faixaPrecoLabel = 'A partir de US$ 50.000'; custo = faixa.high; }
+  if (preco < 15000) { faixaPrecoLabel = 'Até $ 14.999'; custo = faixa.ate15k; }
+  else if (preco < 24000) { faixaPrecoLabel = '$ 15.000 a $ 23.999'; custo = faixa.de15ka24k; }
+  else { faixaPrecoLabel = 'A partir de $ 24.000'; custo = faixa.de24kAcima; }
   return { faixaPesoLabel: faixa.label, faixaPrecoLabel, custo };
 }
 
@@ -152,24 +152,24 @@ function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
 }
 
 export interface ValidacaoFaltando {
-  label: string;
+  labelKey: string;
   id: string;
   idExtra?: string;
 }
 
 export function validar(s: CalculoState): ValidacaoFaltando[] {
   const faltando: ValidacaoFaltando[] = [];
-  if (!s.nomePeca.trim()) faltando.push({ label: 'Nome da peça', id: 'nomePeca' });
+  if (!s.nomePeca.trim()) faltando.push({ labelKey: 'calc.campoNomeDaPeca', id: 'nomePeca' });
   if (s.horasImpressao === 0 && s.minutosImpressao === 0) {
-    faltando.push({ label: 'Tempo de impressão', id: 'horasImpressao', idExtra: 'minutosImpressao' });
+    faltando.push({ labelKey: 'calc.campoTempoDeImpressao', id: 'horasImpressao', idExtra: 'minutosImpressao' });
   }
   const pesoTotalFil = s.filamentoItems.reduce((sum, f) => sum + (f.pesoG || 0), 0);
-  if (pesoTotalFil === 0) faltando.push({ label: 'Peso do filamento', id: 'filamentoList' });
+  if (pesoTotalFil === 0) faltando.push({ labelKey: 'calc.campoPesoDoFilamento', id: 'filamentoList' });
   const semPreco = s.filamentoItems.length === 0 || s.filamentoItems.some((f) => (f.precoKg || 0) === 0);
-  if (semPreco) faltando.push({ label: 'Preço do filamento (R$/kg)', id: 'filamentoList' });
-  if (s.modoPrec === 'preco' && s.precoVenda === 0) faltando.push({ label: 'Preço de venda', id: 'precoVenda' });
-  if (s.canalAtivo === 'Mercado Livre Argentina' && !s.mlArCategoria) faltando.push({ label: 'Categoria do Mercado Livre', id: 'mlArCategoria' });
-  if (s.canalAtivo === 'Mercado Livre' && !s.mlCategoria) faltando.push({ label: 'Categoria do Mercado Livre', id: 'mlCategoria' });
+  if (semPreco) faltando.push({ labelKey: 'calc.campoPrecoDoFilamento', id: 'filamentoList' });
+  if (s.modoPrec === 'preco' && s.precoVenda === 0) faltando.push({ labelKey: 'calc.campoPrecoDeVenda', id: 'precoVenda' });
+  if (s.canalAtivo === 'Mercado Livre Argentina' && !s.mlArCategoria) faltando.push({ labelKey: 'calc.campoCategoriaMercadoLivre', id: 'mlArCategoria' });
+  if (s.canalAtivo === 'Mercado Livre' && !s.mlCategoria) faltando.push({ labelKey: 'calc.campoCategoriaMercadoLivre', id: 'mlCategoria' });
   return faltando;
 }
 
@@ -259,11 +259,11 @@ export function calcular(s: CalculoState): CalculoResultado {
    Calculado só a partir da margem do último cálculo (PRD seção 8).
    ============================================================ */
 export interface RoasMeta {
-  label: string;
+  labelKey: string;
   valor: number | null; // null = "Inatingível"
   alvoPct: number;
   lucroAlvo: number;
-  desc: string;
+  descKey: string;
 }
 
 export function calcularRoas(precoFinal: number, margemPct: number): RoasMeta[] {
@@ -272,13 +272,13 @@ export function calcularRoas(precoFinal: number, margemPct: number): RoasMeta[] 
   const roasIdeal = mf > 0.15 ? 1 / (mf - 0.15) : null;
   const roasExcelente = mf > 0.30 ? 1 / (mf - 0.30) : null;
 
-  const meta = (label: string, valor: number | null, alvoPct: number, desc: string): RoasMeta => ({
-    label, valor, alvoPct, lucroAlvo: precoFinal * (alvoPct / 100), desc,
+  const meta = (labelKey: string, valor: number | null, alvoPct: number, descKey: string): RoasMeta => ({
+    labelKey, valor, alvoPct, lucroAlvo: precoFinal * (alvoPct / 100), descKey,
   });
 
   return [
-    meta('🔴 ROAS Mínimo', roasMin, 0, 'Abaixo disso, você tem prejuízo com Ads'),
-    meta('🟡 ROAS Ideal', roasIdeal, 15, 'Mantém 15% de margem depois dos anúncios'),
-    meta('🟢 ROAS Excelente', roasExcelente, 30, 'Mantém 30% de margem depois dos anúncios'),
+    meta('calc.roasMinimoLabel', roasMin, 0, 'calc.roasMinimoDesc'),
+    meta('calc.roasIdealLabel', roasIdeal, 15, 'calc.roasIdealDesc'),
+    meta('calc.roasExcelenteLabel', roasExcelente, 30, 'calc.roasExcelenteDesc'),
   ];
 }

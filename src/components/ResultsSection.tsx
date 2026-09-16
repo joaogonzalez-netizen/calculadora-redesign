@@ -74,7 +74,7 @@ export default function ResultsSection() {
       <div className="card">
         <div className="card-body" style={{ paddingTop: 22 }}>
           <h4>{t('calc.capacidadeProdutiva')}</h4>
-          <div className="hint" style={{ marginBottom: 4 }}>Base: 20h/dia de impressora ligada</div>
+          <div className="hint" style={{ marginBottom: 4 }}>{t('calc.base20hDiaImpressoraHint')}</div>
           <div className="cap-row"><div className="t">{t('calc.potencialDiario')}</div><div className="v"><b>{fmtMoeda(r.potDiario, moeda)}</b><span className="s">{r.pecasDia} {t('calc.pecas')} × {r.ciclosDia.toFixed(1)} {t('calc.ciclosDia')}</span></div></div>
           <div className="cap-row"><div className="t">{t('calc.potencialMensal')}</div><div className="v"><b>{fmtMoeda(r.potMensal, moeda)}</b><span className="s">{r.pecasDia * 30} {t('calc.pecasEm30Dias')}</span></div></div>
         </div>

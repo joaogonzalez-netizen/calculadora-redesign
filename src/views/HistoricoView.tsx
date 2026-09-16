@@ -163,7 +163,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
             <Icon name="tag" size={14} /> {t('calc.marcadoresLabel')}
           </button>
         </div>
-        <span className="hint cluster-modo-nota">Experimento — no fim fica só uma das duas experiências.</span>
+        <span className="hint cluster-modo-nota">{t('calc.experimentoClusterNota')}</span>
       </div>
 
       <div className="prod-filters-row">

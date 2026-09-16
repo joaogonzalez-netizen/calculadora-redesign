@@ -30,7 +30,7 @@ export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculad
   }
 
   function excluir() {
-    if (!confirm('Excluir "' + (entry!.nome || 'esse cálculo') + '" do histórico? Essa ação não pode ser desfeita.')) return;
+    if (!confirm(t('calc.excluirCalculoHistoricoConfirm').replace('{nome}', entry!.nome || t('calc.esseCalculo')))) return;
     const all = getHistorico().filter((x) => x.id !== entry!.id);
     saveHistoricoArr(all);
     onChange();

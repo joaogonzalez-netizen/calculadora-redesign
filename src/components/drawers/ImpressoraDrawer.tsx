@@ -21,14 +21,14 @@ export default function ImpressoraDrawer({ open, onClose, onUse }: { open: boole
   }
 
   return (
-    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeImpressoras')} hint="Clique em &quot;+&quot; pra usar essa impressora no cálculo atual.">
+    <Drawer open={open} onClose={onClose} title={t('calc.bibliotecaDeImpressoras')} hint={t('calc.clicarMaisUsarImpressoraNoCalculo')}>
       <div>
         {impressoras.length ? impressoras.map((i, idx) => (
           <div key={idx} className="drawer-lib-row">
             <span>{i.nome} <b style={{ color: 'var(--primary-dark)' }}>{i.kwh} kWh/h</b></span>
             <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12, flex: '0 0 auto' }} onClick={() => { onUse(idx, i); onClose(); }}>+</button>
           </div>
-        )) : <div className="hint">Nenhuma impressora na biblioteca ainda. Cadastre uma abaixo.</div>}
+        )) : <div className="hint">{t('calc.nenhumaImpressoraBibliotecaAinda')}</div>}
       </div>
       <div className="divider-label" style={{ marginTop: 18 }}>{t('calc.cadastrarNovo')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>

@@ -126,14 +126,14 @@ export default function PreferenciasView() {
   }
 
   function excluirPastaOrg(id: string, nome: string) {
-    if (!confirm(`Excluir a pasta "${nome}"? Os cálculos vinculados ficam sem pasta.`)) return;
+    if (!confirm(t('calc.excluirPastaConfirm').replace('{nome}', nome))) return;
     removerPasta(id);
     setPastasOrg(getPastas());
     setPastaVinculoOrg(getHistPastaVinculo());
   }
 
   function excluirMarcadorOrg(id: string, nome: string) {
-    if (!confirm(`Excluir o marcador "${nome}"? Os cálculos vinculados ficam sem marcador.`)) return;
+    if (!confirm(t('calc.excluirMarcadorConfirm').replace('{nome}', nome))) return;
     removerMarcador(id);
     setMarcadoresOrg(getMarcadores());
     setMarcadorVinculoOrg(getHistMarcadorVinculo());
@@ -156,13 +156,13 @@ export default function PreferenciasView() {
         <div className="card pref-tab">
           <div className="card-body" style={{ paddingTop: 22 }}>
             <div className="field">
-              <label>{t('calc.moedaDeExibicaoPadrao')} <InfoDot text="É só o símbolo mostrado (R$/US$/€/AR$): não há conversão de valor, o número exibido é sempre o mesmo calculado em reais." /></label>
+              <label>{t('calc.moedaDeExibicaoPadrao')} <InfoDot text={t('calc.moedaSoSimboloInfo')} /></label>
               <div className="chip-row sm">
                 {MOEDAS.map((o) => (
                   <button key={o.m} type="button" className={'chip sm' + (moeda === o.m ? ' active' : '')} onClick={() => setMoedaBuf(o.m)}>{o.label}</button>
                 ))}
               </div>
-              <div className="hint">Define com qual símbolo a calculadora já abre exibindo os resultados.</div>
+              <div className="hint">{t('calc.moedaDefineSimboloHint')}</div>
             </div>
           </div>
         </div>
@@ -182,12 +182,12 @@ export default function PreferenciasView() {
                     <option value="">{t('calc.nenhuma')}</option>
                     {impressoras.map((i, idx) => <option key={idx} value={idx}>{i.nome}</option>)}
                   </select>
-                  <div className="hint">Gerenciada na biblioteca abaixo. Vem pré-selecionada ao abrir uma calculadora nova.</div>
+                  <div className="hint">{t('calc.impressoraPadraoGerenciadaHint')}</div>
                 </div>
                 <div className="field">
                   <label>{t('calc.valorDoKwhPadrao')}</label>
                   <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={kwh} onChange={(e) => setKwh(e.target.value)} /></div>
-                  <div className="hint">Média nacional ~ R$ 0,75–0,85</div>
+                  <div className="hint">{t('calc.mediaNacionalKwhHint')}</div>
                 </div>
               </div>
               <div className="divider-label">{t('calc.bibliotecaDeImpressoras')}</div>
@@ -221,7 +221,7 @@ export default function PreferenciasView() {
                   <option value="">{t('calc.nenhum')}</option>
                   {filamentos.map((f, idx) => <option key={idx} value={idx}>{f.nome} ({f.tipo}{f.cor ? ' · ' + f.cor : ''}): {brl(f.preco)}/kg</option>)}
                 </select>
-                <div className="hint">O preço (R$/kg) do filamento padrão preenche o campo "Filamento" na calculadora.</div>
+                <div className="hint">{t('calc.filamentoPadraoPreencheCampoHint')}</div>
               </div>
               <div className="divider-label">{t('calc.bibliotecaDeFilamentos')}</div>
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 90px 90px 100px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
@@ -258,7 +258,7 @@ export default function PreferenciasView() {
               <div className="field">
                 <label>{t('calc.impostoPadrao')}</label>
                 <div className="suffix-wrap"><input type="number" value={imposto} onChange={(e) => setImposto(e.target.value)} /><span className="sfx">%</span></div>
-                <div className="hint">Simples: 4–19,5% · MEI isento</div>
+                <div className="hint">{t('calc.impostoSimplesMeiHint')}</div>
               </div>
               <div className="field">
                 <label>{t('calc.margemPadrao')}</label>
@@ -301,8 +301,7 @@ export default function PreferenciasView() {
         <div className="card pref-tab">
           <div className="card-body" style={{ paddingTop: 22 }}>
             <div className="custo-desc">
-              Essa é a biblioteca de custos extras, a mesma que abre no botão "+ Biblioteca" dentro da seção "Custos extras" da calculadora.
-              Os itens marcados como <b>ativo</b> já entram sozinhos toda vez que você abre uma calculadora nova; os demais ficam disponíveis pra adicionar manualmente (na calculadora ou por aqui).
+              {t('calc.custosPadraoBibliotecaDesc1')} <b>{t('calc.ativo')}</b> {t('calc.custosPadraoBibliotecaDesc2')}
             </div>
             <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 130px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
               <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.valor')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.categoria')}</span><span />
@@ -334,8 +333,7 @@ export default function PreferenciasView() {
         <div className="card pref-tab">
           <div className="card-body" style={{ paddingTop: 22 }}>
             <div className="custo-desc">
-              Pastas e marcadores são as duas experiências de organização do Histórico de cálculos (menu Calculadora de preços → Histórico).
-              Cada cálculo aceita só uma pasta ou um marcador por vez.
+              {t('calc.pastasMarcadoresOrganizacaoDesc')}
             </div>
 
             <div className="divider-label">{t('calc.pastasLabel')} ({pastasOrg.length})</div>
@@ -352,7 +350,7 @@ export default function PreferenciasView() {
                 <button className="custo-remove" onClick={() => excluirPastaOrg(p.id, p.nome)}>✕</button>
               </div>
             ))}
-            {!pastasOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>Nenhuma pasta criada ainda — crie uma pelo Histórico.</div>}
+            {!pastasOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>{t('calc.nenhumaPastaCriadaAinda')}</div>}
 
             <div className="divider-label" style={{ marginTop: 22 }}>{t('calc.marcadoresLabel')} ({marcadoresOrg.length})</div>
             {marcadoresOrg.length > 0 && (
@@ -368,7 +366,7 @@ export default function PreferenciasView() {
                 <button className="custo-remove" onClick={() => excluirMarcadorOrg(m.id, m.nome)}>✕</button>
               </div>
             ))}
-            {!marcadoresOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>Nenhum marcador criado ainda — crie um pelo Histórico.</div>}
+            {!marcadoresOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>{t('calc.nenhumMarcadorCriadoAinda')}</div>}
           </div>
         </div>
       )}

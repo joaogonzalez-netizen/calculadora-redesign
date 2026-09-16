@@ -14,7 +14,7 @@ export default function AdsCard() {
 
   return (
     <Card icon="📣" title={t('calc.adsTrafegoPago')}>
-      <div className="acc-desc">Usa a margem que você já calculou, sem precisar informar investimento, CPC ou conversão.</div>
+      <div className="acc-desc">{t('calc.adsUsaMargemJaCalculadaDesc')}</div>
       <div className="switch-row">
         <label>{t('calc.mostrarMetasRoas')}</label>
         <label className="switch">
@@ -24,17 +24,17 @@ export default function AdsCard() {
       </div>
       {state.adsAtivo && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {!metas && <div className="hint">Calcule o preço com margem positiva pra ver as metas de ROAS.</div>}
+          {!metas && <div className="hint">{t('calc.calculePrecoMargemPositivaRoasHint')}</div>}
           {metas && (
             <>
               <div className="hint" style={{ marginBottom: 2 }}>
-                Retorno mínimo sobre cada R$1 investido, com base na margem atual ({resultado!.margem.toFixed(1).replace('.', ',')}%):
+                {t('calc.retornoMinimoPorReal')} ({resultado!.margem.toFixed(1).replace('.', ',')}%):
               </div>
               {metas.map((m) => {
                 const corClass = m.alvoPct === 0 ? 'm-red' : m.alvoPct === 15 ? 'm-gold' : 'm-green';
                 return (
-                  <div className={'roas-card ' + corClass} key={m.label}>
-                    <div><div className="rc-label">{m.label}</div><div className="rc-desc">{m.desc}</div></div>
+                  <div className={'roas-card ' + corClass} key={m.labelKey}>
+                    <div><div className="rc-label">{t(m.labelKey)}</div><div className="rc-desc">{t(m.descKey)}</div></div>
                     <div className="rc-right">
                       <div className="rc-val">{m.valor !== null ? m.valor.toFixed(2) + 'x' : t('calc.inatingivel')}</div>
                       <div className="rc-sub">{m.valor !== null ? fmtMoeda(m.lucroAlvo, moeda) + ' ' + t('calc.deLucroPorPedido') : t('calc.margemPrecisaSerMaiorQue') + ' ' + m.alvoPct + '%'}</div>

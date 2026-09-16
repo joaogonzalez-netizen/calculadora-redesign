@@ -61,7 +61,7 @@ export default function ClusterDrawer({ open, tipo, itens, selecionadoId, onClos
       <div className="drawer" style={{ width: 360 }}>
         <h4 style={{ marginBottom: 6 }}>{tipo === 'pasta' ? t('calc.escolherPasta') : t('calc.escolherMarcador')}</h4>
         <div className="hint" style={{ marginBottom: 16 }}>
-          Cada cálculo pode ter só {tipo === 'pasta' ? 'uma pasta vinculada' : 'um marcador vinculado'}. Escolha um já existente ou crie um novo.
+          {t('calc.cadaCalculoPodeTerSoPrefixo')} {tipo === 'pasta' ? t('calc.umaPastaVinculada') : t('calc.umMarcadorVinculado')}. {t('calc.escolhaExistenteOuCrieNovo')}
         </div>
 
         {criando ? (
