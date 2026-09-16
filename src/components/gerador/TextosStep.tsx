@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
@@ -13,6 +13,68 @@ interface TextosMock {
   variacoes: string[];
   descricao: string;
 }
+
+// Etsy exige campos dedicados de tags (até 13) e atributos (material, cor,
+// medidas) que alimentam os filtros de busca do comprador — mockado no
+// mesmo padrão do resto do passo, por idioma do anúncio.
+interface EtsyMock {
+  tags: string[];
+  material: string;
+  cor: string;
+  largura: string;
+  profundidade: string;
+  altura: string;
+}
+
+const ETSY_MOCK: Record<'pt' | 'en', EtsyMock> = {
+  pt: {
+    tags: [
+      'incensário bicho', 'preguiça decoração', 'quarto infantil', 'área de lazer verde',
+      'peça decorativa pla', 'presente criança', 'decoração lúdica', 'incensário 3d',
+      'bicho preguiça mini', 'decoração natureza', 'presente divertido', 'enfeite mesa', 'decoração verde marrom',
+    ],
+    material: 'PLA',
+    cor: 'Verde e marrom',
+    largura: '23 cm · 9.1 in',
+    profundidade: '23 cm · 9.1 in',
+    altura: '23 cm · 9.1 in',
+  },
+  en: {
+    tags: [
+      'sloth incense', 'sloth holder decor', 'kids bedroom', 'green leisure area',
+      'pla decor piece', 'gift for kids', 'playful decor', '3d incense holder',
+      'mini sloth figure', 'nature decor', 'fun gift idea', 'desk decor', 'green brown decor',
+    ],
+    material: 'PLA',
+    cor: 'Green and brown',
+    largura: '23 cm · 9.1 in',
+    profundidade: '23 cm · 9.1 in',
+    altura: '23 cm · 9.1 in',
+  },
+};
+
+const ETSY_TAGS_LIMITE = 13;
+
+// Sugestões de keywords via EverBee Research API (GET /api/v1/keywords/{keyword})
+// — mockado no mesmo formato do retorno real (keyword, vol, competition, score),
+// pra já sair plugável quando a integração de verdade entrar (ver US de
+// exploração de custo por anúncio). Keywords em inglês porque é assim que a
+// busca do Etsy funciona de verdade, independente do idioma do anúncio.
+interface EverbeeKeyword {
+  keyword: string;
+  vol: number;
+  competition: number;
+  score: number;
+}
+
+const EVERBEE_MOCK: EverbeeKeyword[] = [
+  { keyword: 'sloth decor', vol: 8420, competition: 210, score: 4010 },
+  { keyword: 'sloth gift', vol: 12680, competition: 640, score: 3210 },
+  { keyword: 'kids room decor', vol: 31200, competition: 2890, score: 1870 },
+  { keyword: 'cute animal decor', vol: 6150, competition: 95, score: 5290 },
+  { keyword: 'incense holder', vol: 9870, competition: 480, score: 3450 },
+  { keyword: 'nursery decor', vol: 18400, competition: 1320, score: 2210 },
+];
 
 const MOCK: Record<'pt' | 'en', TextosMock> = {
   pt: {
@@ -90,16 +152,37 @@ function pedirAjuste(secao: string) {
 }
 
 interface Props {
+  marketplace: string;
   onVoltar: () => void;
   onContinuar: () => void;
 }
 
-export default function TextosStep({ onVoltar, onContinuar }: Props) {
+export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props) {
   const { t } = useI18n();
   const [idioma, setIdioma] = useState<'pt' | 'en'>('pt');
   const [copiado, setCopiado] = useState<string | null>(null);
+  const [tags, setTags] = useState<string[]>(() => [...ETSY_MOCK.pt.tags]);
+  const [everbeeBusca, setEverbeeBusca] = useState('sloth decor');
+
+  // Tags acompanham o idioma do anúncio, igual título/descrição — troca de
+  // idioma reseta pra lista gerada daquele idioma (perde edições manuais,
+  // mesmo comportamento de "Re-gerar" pro resto do texto).
+  useEffect(() => {
+    setTags([...ETSY_MOCK[idioma].tags]);
+  }, [idioma]);
 
   const textos = MOCK[idioma];
+  const etsyAttrs = ETSY_MOCK[idioma];
+  const isEtsy = marketplace === 'etsy';
+
+  function adicionarTagEverbee(keyword: string) {
+    if (tags.includes(keyword) || tags.length >= ETSY_TAGS_LIMITE) return;
+    setTags((prev) => [...prev, keyword]);
+  }
+
+  function removerTag(tag: string) {
+    setTags((prev) => prev.filter((tg) => tg !== tag));
+  }
 
   function copiar(chave: string, texto: string) {
     navigator.clipboard?.writeText(texto);
@@ -163,6 +246,80 @@ export default function TextosStep({ onVoltar, onContinuar }: Props) {
           <Icon name="message" size={16} />
         </button>
       </div>
+
+      {isEtsy && (
+        <>
+          <div className="ger-txt-card">
+            <div className="ger-txt-card-head">
+              <div className="ger-txt-label">{t('gerador.etsyTags')}</div>
+              <span className="ger-txt-tags-contagem">{tags.length}/{ETSY_TAGS_LIMITE}</span>
+            </div>
+            <div className="ger-txt-tags-lista">
+              {tags.map((tag) => (
+                <div className="ger-txt-tag" key={tag}>
+                  <span>{tag}</span>
+                  {botaoCopiar('tag-' + tag, tag)}
+                  <button type="button" onClick={() => removerTag(tag)} title={t('gerador.removerTag')}>
+                    <Icon name="close" size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="ger-txt-card">
+            <div className="ger-txt-label" style={{ marginBottom: 4 }}>{t('gerador.etsyAtributos')}</div>
+            <div className="hint" style={{ marginBottom: 12 }}>{t('gerador.etsyAtributosDesc')}</div>
+            <div className="ger-txt-attr-lista">
+              {[
+                { chave: 'material', label: t('gerador.material'), valor: etsyAttrs.material },
+                { chave: 'cor', label: t('gerador.corConfirmada'), valor: etsyAttrs.cor },
+                { chave: 'largura', label: t('gerador.larguraX'), valor: etsyAttrs.largura },
+                { chave: 'profundidade', label: t('gerador.profundidadeY'), valor: etsyAttrs.profundidade },
+                { chave: 'altura', label: t('gerador.alturaZ'), valor: etsyAttrs.altura },
+              ].map((attr) => (
+                <div className="ger-txt-attr-row" key={attr.chave}>
+                  <span className="ger-txt-attr-label">{attr.label}</span>
+                  <span className="ger-txt-attr-valor">{attr.valor}</span>
+                  {botaoCopiar('attr-' + attr.chave, attr.valor)}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="ger-txt-card">
+            <div className="ger-txt-label" style={{ marginBottom: 4 }}>{t('gerador.everbeeTitulo')}</div>
+            <div className="hint" style={{ marginBottom: 14 }}>{t('gerador.everbeeDesc')}</div>
+            <div className="cl-search ger-txt-everbee-busca">
+              <Icon name="search" size={15} />
+              <input type="text" placeholder={t('gerador.everbeeBuscarPlaceholder')} value={everbeeBusca} onChange={(e) => setEverbeeBusca(e.target.value)} />
+            </div>
+            <div className="ger-txt-everbee-lista">
+              {EVERBEE_MOCK.filter((k) => k.keyword.toLowerCase().includes(everbeeBusca.trim().toLowerCase())).map((k) => {
+                const jaAdicionada = tags.includes(k.keyword);
+                return (
+                  <div className="ger-txt-everbee-row" key={k.keyword}>
+                    <div className="ger-txt-everbee-info">
+                      <span className="ger-txt-everbee-keyword">{k.keyword}</span>
+                      <span className="ger-txt-everbee-metricas">
+                        {t('gerador.everbeeVolume')} {k.vol.toLocaleString('pt-BR')} · {t('gerador.everbeeConcorrencia')} {k.competition.toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className={'ger-txt-everbee-add' + (jaAdicionada ? ' adicionada' : '')}
+                      disabled={jaAdicionada || tags.length >= ETSY_TAGS_LIMITE}
+                      onClick={() => adicionarTagEverbee(k.keyword)}
+                    >
+                      <Icon name={jaAdicionada ? 'check' : 'plus'} size={13} /> {jaAdicionada ? t('gerador.everbeeAdicionada') : t('gerador.everbeeAdicionar')}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="ger-txt-footer">
         <div>

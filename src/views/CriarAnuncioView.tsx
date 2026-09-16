@@ -79,7 +79,7 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
       {passoAtual === 'info' ? (
         <InformacoesStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
       ) : passoAtual === 'textos' ? (
-        <TextosStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />
+        <TextosStep marketplace={marketplace} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />
       ) : passoAtual === 'imagens' ? (
         <ImagensStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
       ) : passoAtual === 'video' ? (
