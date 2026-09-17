@@ -73,6 +73,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
         )}
 
         <div className="nav-label">{t('nav.ferramentas')}</div>
+        <NavItem icon="message" label={t('nav.assistente')} active={view === 'assistente'} collapsed={collapsed} onClick={() => onNavigate('assistente')} />
         <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;

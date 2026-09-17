@@ -25,6 +25,7 @@ const pt: Dicionario = {
   'nav.pedidos': 'Pedidos',
   'nav.produtos': 'Produtos',
   'nav.ferramentas': 'Ferramentas',
+  'nav.assistente': 'Assistente',
   'nav.geradorAnuncios': 'Gerador de anúncios',
   'nav.calculadoraPrecos': 'Calculadora de preços',
   'nav.buscadorProdutos': 'Buscador de produtos',
@@ -55,8 +56,15 @@ const pt: Dicionario = {
   'topbar.title.gerador-meus': 'Meus anúncios',
   'topbar.title.pedidos': 'Pedidos',
   'topbar.title.buscador': 'Buscador de produtos',
+  'topbar.title.assistente': 'Assistente',
 
   'idioma.selecionarIdioma': 'Idioma',
+
+  'assist.novaConversa': 'Nova conversa',
+  'assist.placeholder': 'Pergunte sobre suas vendas, custos ou anúncios...',
+  'assist.boasVindasTitulo': 'Como posso ajudar hoje?',
+  'assist.boasVindasSubtitulo': 'Pergunte sobre faturamento, lucro, margem, taxas, estoque ou marketplaces — estou aprendendo a rodar relatórios completos da sua operação.',
+  'assist.respostaPadrao': 'Ainda estou em construção nessa versão — em breve vou conseguir consultar seus dados de verdade e rodar relatórios (resumo executivo, DRE por marketplace, curva ABC de SKUs) direto por aqui.',
 
   'buscador.titulo': 'O que está em alta agora',
   'buscador.beta': 'BETA',
@@ -1125,6 +1133,7 @@ const en: Dicionario = {
   'nav.pedidos': 'Orders',
   'nav.produtos': 'Products',
   'nav.ferramentas': 'Tools',
+  'nav.assistente': 'Assistant',
   'nav.geradorAnuncios': 'Ad generator',
   'nav.calculadoraPrecos': 'Price calculator',
   'nav.buscadorProdutos': 'Product finder',
@@ -1154,8 +1163,15 @@ const en: Dicionario = {
   'topbar.title.gerador-criar': 'Generate ad',
   'topbar.title.gerador-meus': 'My ads',
   'topbar.title.pedidos': 'Orders',
+  'topbar.title.assistente': 'Assistant',
 
   'idioma.selecionarIdioma': 'Language',
+
+  'assist.novaConversa': 'New conversation',
+  'assist.placeholder': 'Ask about your sales, costs or ads...',
+  'assist.boasVindasTitulo': 'How can I help today?',
+  'assist.boasVindasSubtitulo': 'Ask about revenue, profit, margin, fees, inventory or marketplaces — I\'m learning to run full reports on your operation.',
+  'assist.respostaPadrao': 'I\'m still under construction in this version — soon I\'ll be able to query your real data and run reports (executive summary, marketplace P&L, SKU ABC curve) right here.',
 
   'dashboard.visualizacao': 'View:',
   'dashboard.comDados': 'With data',
@@ -1194,6 +1210,7 @@ const es: Dicionario = {
   'nav.pedidos': 'Pedidos',
   'nav.produtos': 'Productos',
   'nav.ferramentas': 'Herramientas',
+  'nav.assistente': 'Asistente',
   'nav.geradorAnuncios': 'Generador de anuncios',
   'nav.calculadoraPrecos': 'Calculadora de precios',
   'nav.buscadorProdutos': 'Buscador de productos',
@@ -1224,8 +1241,15 @@ const es: Dicionario = {
   'topbar.title.gerador-meus': 'Mis anuncios',
   'topbar.title.pedidos': 'Pedidos',
   'topbar.title.buscador': 'Buscador de productos',
+  'topbar.title.assistente': 'Asistente',
 
   'idioma.selecionarIdioma': 'Idioma',
+
+  'assist.novaConversa': 'Nueva conversación',
+  'assist.placeholder': 'Pregunta sobre tus ventas, costos o anuncios...',
+  'assist.boasVindasTitulo': '¿Cómo puedo ayudarte hoy?',
+  'assist.boasVindasSubtitulo': 'Pregunta sobre facturación, ganancia, margen, comisiones, stock o marketplaces — estoy aprendiendo a generar informes completos de tu operación.',
+  'assist.respostaPadrao': 'Todavía estoy en construcción en esta versión — pronto podré consultar tus datos reales y generar informes (resumen ejecutivo, estado de resultados por marketplace, curva ABC de SKUs) directamente aquí.',
 
   'buscador.titulo': 'Lo que está en tendencia ahora',
   'buscador.beta': 'BETA',
