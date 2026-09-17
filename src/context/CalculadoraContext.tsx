@@ -22,7 +22,7 @@ function estadoInicial(): CalculoState {
     filamentoItems: [novoFilamentoItem()],
     modoPrec: 'preco', precoVenda: 0, margemDesejada: 40, imposto: 0,
     comPromo: false, descontoPromo: 10,
-    canalAtivo: 'Venda direta',
+    canalAtivo: 'Mercado Livre Argentina',
     pgtoSelecionado: 'debito', taxaCartaoPct: 1.99,
     pgtoPixTaxa: 0, pgtoPixDesconto: 0, outraParcelas: 1, pgtoCustom: 0,
     freteDiretoCusto: 0, embutirTaxas: true,

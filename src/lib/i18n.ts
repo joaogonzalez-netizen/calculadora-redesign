@@ -749,7 +749,7 @@ const pt: Dicionario = {
   'calc.canalDeVenda': 'Canal de venda',
   'calc.canalEtsy': 'Etsy',
   'calc.canalMercadoLivre': 'Mercado Livre',
-  'calc.canalMercadoLivreArgentina': 'Mercado Livre Argentina',
+  'calc.canalMercadoLivreArgentina': 'Mercado Libre Argentina',
   'calc.canalShopee': 'Shopee',
   'calc.canalTiktokShop': 'TikTok Shop',
   'calc.canalVendaDireta': 'Venda direta',
