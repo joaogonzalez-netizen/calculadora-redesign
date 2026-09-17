@@ -1,6 +1,7 @@
 import { USUARIO } from '../lib/dashboardMock';
 import { marcarOnboardingManual } from '../lib/onboarding';
 import { useI18n } from '../context/I18nContext';
+import { MOSTRAR_PASSO_MARKETPLACE } from '../lib/versoes';
 import Icon, { type IconName } from '../components/Icon';
 
 type PassoId = 'buscador' | 'calculadora' | 'gerador' | 'marketplace';
@@ -21,11 +22,6 @@ const PASSOS: Passo[] = [
   { id: 'marketplace', numero: 4, tituloChave: 'passos.marketplaceTitulo', descricaoChave: 'passos.marketplaceDescricao', icone: 'integracoes', ctaChave: 'passos.marketplaceCta' },
 ];
 
-// Total de passos considerado pra "N de X concluídos" e pra sumir o menu —
-// inclui o vídeo (passo 5), que fica sempre disponível pra assistir de novo,
-// diferente dos outros 4 que escondem o CTA quando completos.
-const TOTAL_PASSOS = PASSOS.length + 1;
-
 interface Props {
   passosCompletos: Record<PassoId | 'video', boolean>;
   onIrParaCalculadora: () => void;
@@ -35,8 +31,15 @@ interface Props {
 }
 
 export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculadora, onIrParaConfiguracoes, onIrParaBuscador, onAtualizarPassos }: Props) {
-  const { t } = useI18n();
-  const totalCompletos = PASSOS.filter((p) => passosCompletos[p.id]).length + (passosCompletos.video ? 1 : 0);
+  const { t, idioma } = useI18n();
+  // ES/EN não têm conexão com marketplaces (menu Configurações some nessas
+  // versões), então o passo "Conectar marketplace" some do checklist também.
+  const passos = MOSTRAR_PASSO_MARKETPLACE[idioma] ? PASSOS : PASSOS.filter((p) => p.id !== 'marketplace');
+  // Total considerado pra "N de X concluídos" e pra sumir o menu — inclui o
+  // vídeo, que fica sempre disponível pra assistir de novo, diferente dos
+  // outros passos que escondem o CTA quando completos.
+  const totalPassos = passos.length + 1;
+  const totalCompletos = passos.filter((p) => passosCompletos[p.id]).length + (passosCompletos.video ? 1 : 0);
   const videoAssistido = passosCompletos.video;
 
   function acionar(passo: Passo) {
@@ -65,8 +68,8 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
       </div>
 
       <div className="passos-progresso-row">
-        <div className="passos-progresso-bar"><div className="passos-progresso-fill" style={{ width: `${(totalCompletos / TOTAL_PASSOS) * 100}%` }} /></div>
-        <span className="hint passos-progresso-label">{totalCompletos} {t('passos.deLabel')} {TOTAL_PASSOS} {t('passos.concluidosPlural')}</span>
+        <div className="passos-progresso-bar"><div className="passos-progresso-fill" style={{ width: `${(totalCompletos / totalPassos) * 100}%` }} /></div>
+        <span className="hint passos-progresso-label">{totalCompletos} {t('passos.deLabel')} {totalPassos} {t('passos.concluidosPlural')}</span>
       </div>
 
       <div className={'passo-video-card' + (videoAssistido ? ' completo' : '')}>
@@ -91,7 +94,7 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
       </div>
 
       <div className="passos-grid">
-        {PASSOS.map((p) => {
+        {passos.map((p) => {
           const completo = passosCompletos[p.id];
           return (
             <div className={'passo-card' + (completo ? ' completo' : '')} key={p.id}>

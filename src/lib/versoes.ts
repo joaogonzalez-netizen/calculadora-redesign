@@ -22,6 +22,14 @@ export const MOSTRAR_CONFIGURACOES: Record<Idioma, boolean> = {
   es: false,
 };
 
+// Mesmo motivo: o passo "Conectar marketplace" de Primeiros Passos leva pra
+// Configurações, que não existe nas versões ES/EN.
+export const MOSTRAR_PASSO_MARKETPLACE: Record<Idioma, boolean> = {
+  pt: true,
+  en: false,
+  es: false,
+};
+
 // ids batem com os de MARKETPLACES em src/components/gerador/MarketplaceStep.tsx
 export const GERADOR_MARKETPLACES_VISIVEIS: Record<Idioma, string[]> = {
   pt: ['ml', 'shopee', 'outros'],

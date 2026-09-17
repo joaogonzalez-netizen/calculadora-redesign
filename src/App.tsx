@@ -17,13 +17,15 @@ import BuscadorView from './views/BuscadorView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
-import { I18nProvider } from './context/I18nContext';
+import { I18nProvider, useI18n } from './context/I18nContext';
+import { MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
 export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador';
 
 function AppShell() {
+  const { idioma } = useI18n();
   const [view, setView] = useState<View>('dashboard');
   const [histCount, setHistCount] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
@@ -65,7 +67,13 @@ function AppShell() {
     marketplace: onboardingManual.marketplace,
     video: onboardingManual.video,
   };
-  const todosPassosCompletos = Object.values(passosCompletos).every(Boolean);
+  // Nas versões ES/EN o passo "marketplace" nem aparece no checklist (não há
+  // conexão de marketplace pra fazer), então ele não deve travar o "tudo
+  // completo" — do contrário "Primeiros passos" nunca sumiria da sidebar.
+  const passosConsiderados = MOSTRAR_PASSO_MARKETPLACE[idioma]
+    ? passosCompletos
+    : { ...passosCompletos, marketplace: true };
+  const todosPassosCompletos = Object.values(passosConsiderados).every(Boolean);
 
   return (
     <div className={'app' + (collapsed ? ' sidebar-collapsed' : '')}>
