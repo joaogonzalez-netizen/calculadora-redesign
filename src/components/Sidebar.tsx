@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { View } from '../App';
 import { USUARIO } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
+import { MOSTRAR_MENUS_PRINCIPAIS } from '../lib/versoes';
 import Icon, { LogoMark, type IconName } from './Icon';
 
 interface Props {
@@ -20,7 +21,8 @@ const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'
 const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const mostrarPrincipais = MOSTRAR_MENUS_PRINCIPAIS[idioma];
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
   const noGerador = VIEWS_DO_GERADOR.includes(view);
   const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : null);
@@ -60,10 +62,14 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
           </>
         )}
 
-        <div className="nav-label">{t('nav.principal')}</div>
-        <NavItem icon="dashboard" label={t('nav.painel')} active={view === 'dashboard'} collapsed={collapsed} onClick={() => onNavigate('dashboard')} />
-        <NavItem icon="pedidos" label={t('nav.pedidos')} active={view === 'pedidos'} collapsed={collapsed} onClick={() => onNavigate('pedidos')} />
-        <NavItem icon="produtos" label={t('nav.produtos')} active={view === 'produtos'} collapsed={collapsed} onClick={() => onNavigate('produtos')} />
+        {mostrarPrincipais && (
+          <>
+            <div className="nav-label">{t('nav.principal')}</div>
+            <NavItem icon="dashboard" label={t('nav.painel')} active={view === 'dashboard'} collapsed={collapsed} onClick={() => onNavigate('dashboard')} />
+            <NavItem icon="pedidos" label={t('nav.pedidos')} active={view === 'pedidos'} collapsed={collapsed} onClick={() => onNavigate('pedidos')} />
+            <NavItem icon="produtos" label={t('nav.produtos')} active={view === 'produtos'} collapsed={collapsed} onClick={() => onNavigate('produtos')} />
+          </>
+        )}
 
         <div className="nav-label">{t('nav.ferramentas')}</div>
         <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />

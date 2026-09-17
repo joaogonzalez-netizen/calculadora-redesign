@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
+import { GERADOR_MARKETPLACES_VISIVEIS } from '../../lib/versoes';
 import Icon, { type IconName } from '../Icon';
 
 interface Marketplace {
@@ -105,7 +106,8 @@ interface Props {
 }
 
 export default function MarketplaceStep({ marketplace, plano, onSelecionarMarketplace, onSelecionarPlano, onVoltar, onContinuar }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const marketplacesVisiveis = MARKETPLACES.filter((m) => GERADOR_MARKETPLACES_VISIVEIS[idioma].includes(m.id));
   const [outrosDestinos, setOutrosDestinos] = useState<string[]>([]);
   const [destinosCustom, setDestinosCustom] = useState<string[]>([]);
   const [novoDestinoCustom, setNovoDestinoCustom] = useState('');
@@ -135,7 +137,7 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
       </div>
 
       <div className="ger-radio-grid">
-        {MARKETPLACES.map((m) => (
+        {marketplacesVisiveis.map((m) => (
           <button
             type="button"
             key={m.id}

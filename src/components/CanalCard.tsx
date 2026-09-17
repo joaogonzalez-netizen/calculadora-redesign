@@ -3,6 +3,7 @@ import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
 import type { Canal, PgtoId } from '../types';
 import { brl } from '../lib/format';
+import { CALC_CANAIS_VISIVEIS } from '../lib/versoes';
 import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
 import Card from './Card';
 
@@ -66,7 +67,8 @@ const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
 export default function CanalCard() {
   const { state, set, errorIds, resultado } = useCalculadora();
   const { prefs } = useLibrarias();
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const canaisVisiveis = CANAIS.filter((c) => CALC_CANAIS_VISIVEIS[idioma].includes(c));
 
   function selectCanal(canal: Canal) {
     set('canalAtivo', canal);
@@ -139,7 +141,7 @@ export default function CanalCard() {
   return (
     <Card icon="⌂" title={t('calc.canalDeVenda')}>
       <div className="chip-row">
-        {CANAIS.map((c) => (
+        {canaisVisiveis.map((c) => (
           <button key={c} type="button" className={'chip' + (state.canalAtivo === c ? ' active' : '')} onClick={() => selectCanal(c)}>{t(CANAL_LABEL_KEYS[c])}</button>
         ))}
       </div>

@@ -1317,7 +1317,7 @@ const es: Dicionario = {
   'gerador.continuar': 'Continuar',
   'gerador.voltar': 'Volver',
   'gerador.ondeVaiPublicar': '¿Dónde vas a publicar?',
-  'gerador.mkMercadoLivre': 'Mercado Livre',
+  'gerador.mkMercadoLivre': 'Mercado Libre',
   'gerador.mkMercadoLivreDesc': 'El marketplace más grande de América Latina. Ideal para volumen y alcance.',
   'gerador.mkShopee': 'Shopee',
   'gerador.mkShopeeDesc': 'Fuerte en precio y promociones. Público móvil y joven.',

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../context/I18nContext';
+import { GERADOR_MARKETPLACES_VISIVEIS } from '../lib/versoes';
 import Icon from '../components/Icon';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
@@ -25,7 +26,7 @@ interface Props {
 }
 
 export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
   const PASSOS = [
     { id: 'upload', numero: 1, label: t('gerador.stepUpload') },
     { id: 'marketplace', numero: 2, label: t('gerador.stepMarketplace') },
@@ -39,7 +40,7 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
   const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
   const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
   const [imagens, setImagens] = useState<string[]>([]);
-  const [marketplace, setMarketplace] = useState('ml');
+  const [marketplace, setMarketplace] = useState(() => GERADOR_MARKETPLACES_VISIVEIS[idioma][0]);
   const [plano, setPlano] = useState('premium');
 
   function adicionarImagem() {
