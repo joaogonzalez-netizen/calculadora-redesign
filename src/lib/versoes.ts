@@ -13,6 +13,15 @@ export const MOSTRAR_MENUS_PRINCIPAIS: Record<Idioma, boolean> = {
   es: false,
 };
 
+// Configurações hoje é só a tela de conexão de marketplaces — ES/EN ainda
+// não têm nenhuma integração de marketplace pra conectar, então o menu
+// fica sem função nessas versões.
+export const MOSTRAR_CONFIGURACOES: Record<Idioma, boolean> = {
+  pt: true,
+  en: false,
+  es: false,
+};
+
 // ids batem com os de MARKETPLACES em src/components/gerador/MarketplaceStep.tsx
 export const GERADOR_MARKETPLACES_VISIVEIS: Record<Idioma, string[]> = {
   pt: ['ml', 'shopee', 'outros'],

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { View } from '../App';
 import { USUARIO } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
-import { MOSTRAR_MENUS_PRINCIPAIS } from '../lib/versoes';
+import { MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_CONFIGURACOES } from '../lib/versoes';
 import Icon, { LogoMark, type IconName } from './Icon';
 
 interface Props {
@@ -23,6 +23,7 @@ const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const { t, idioma } = useI18n();
   const mostrarPrincipais = MOSTRAR_MENUS_PRINCIPAIS[idioma];
+  const mostrarConfiguracoes = MOSTRAR_CONFIGURACOES[idioma];
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
   const noGerador = VIEWS_DO_GERADOR.includes(view);
   const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : null);
@@ -105,7 +106,9 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
       </div>
 
       <div className="nav-label">{t('nav.sistema')}</div>
-      <NavItem icon="config" label={t('nav.configuracoes')} active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
+      {mostrarConfiguracoes && (
+        <NavItem icon="config" label={t('nav.configuracoes')} active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
+      )}
       <NavItem icon="integracoes" label={t('nav.integracoes')} collapsed={collapsed} />
 
       <div className="sidebar-footer">
