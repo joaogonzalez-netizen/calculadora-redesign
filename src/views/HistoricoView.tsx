@@ -156,6 +156,9 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
       <div className="cluster-modo-row">
         <span className="hint">{t('calc.organizarPor')}</span>
         <div className="cluster-modo-toggle">
+          <button type="button" className={modo === 'normal' ? 'active' : ''} onClick={() => trocarModo('normal')}>
+            <Icon name="list" size={14} /> {t('calc.normalLabel')}
+          </button>
           <button type="button" className={modo === 'pastas' ? 'active' : ''} onClick={() => trocarModo('pastas')}>
             <Icon name="folder" size={14} /> {t('calc.pastasLabel')}
           </button>
@@ -196,7 +199,9 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('margem')}>{t('calc.thMargemHist')} ↕</th>
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('potMensal')}>{t('calc.thPotMensal')} ↕</th>
                   <th style={{ padding: 10 }}>{t('calc.thCanal')}</th>
-                  <th style={{ padding: 10 }}>{modo === 'pastas' ? t('calc.thPasta') : t('calc.thMarcador')}</th>
+                  {modo !== 'normal' && (
+                    <th style={{ padding: 10 }}>{modo === 'pastas' ? t('calc.thPasta') : t('calc.thMarcador')}</th>
+                  )}
                   <th style={{ padding: 10 }}>{t('calc.thFonteStl')}</th>
                   <th style={{ padding: 10 }}>{t('calc.thConcorrente')}</th>
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('id')}>{t('calc.thData')} ↕</th>
@@ -220,11 +225,13 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                     <td style={{ padding: 10 }}>{(h.margem || 0).toFixed(1)}%</td>
                     <td style={{ padding: 10 }}>{brl(h.potMensal)}</td>
                     <td style={{ padding: 10 }}>{h.marketplace || '-'}</td>
-                    <td style={{ padding: 10 }}>
-                      {modo === 'pastas'
-                        ? <PastaPicker pastas={pastas} pastaId={pastaVinculo[h.id]} onAbrir={() => setDrawerEntryId(h.id)} />
-                        : <MarcadorPicker marcadores={marcadores} marcadorId={marcadorVinculo[h.id]} onAbrir={() => setDrawerEntryId(h.id)} />}
-                    </td>
+                    {modo !== 'normal' && (
+                      <td style={{ padding: 10 }}>
+                        {modo === 'pastas'
+                          ? <PastaPicker pastas={pastas} pastaId={pastaVinculo[h.id]} onAbrir={() => setDrawerEntryId(h.id)} />
+                          : <MarcadorPicker marcadores={marcadores} marcadorId={marcadorVinculo[h.id]} onAbrir={() => setDrawerEntryId(h.id)} />}
+                      </td>
+                    )}
                     <td style={{ padding: 10 }}>
                       {h.stlLink
                         ? <button type="button" className="btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => window.open(h.stlLink, '_blank')}>{t('calc.verStl')}</button>

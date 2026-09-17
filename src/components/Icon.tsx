@@ -9,7 +9,7 @@ export type IconName =
   | 'config' | 'integracoes'
   | 'sino' | 'creditos' | 'chevron' | 'sync'
   | 'eye' | 'dots' | 'search' | 'close' | 'upload'
-  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume'
+  | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume' | 'list'
   | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box'
   | 'instagram' | 'facebook' | 'tiktok' | 'pinterest' | 'play'
   | 'heart' | 'trash';
@@ -120,6 +120,12 @@ const PATHS: Record<IconName, ReactElement> = {
   ),
   folder: (
     <path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+  ),
+  list: (
+    <>
+      <path d="M8 6h13M8 12h13M8 18h13" />
+      <path d="M3 6h.01M3 12h.01M3 18h.01" />
+    </>
   ),
   tag: (
     <>

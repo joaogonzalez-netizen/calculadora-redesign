@@ -16,7 +16,7 @@ export interface Marcador {
   cor: string;
 }
 
-export type ModoCluster = 'pastas' | 'marcadores';
+export type ModoCluster = 'normal' | 'pastas' | 'marcadores';
 
 export const PASTAS_KEY = 'stlseller_hist_pastas';
 export const HIST_PASTA_KEY = 'stlseller_hist_pasta_vinculo';
@@ -64,7 +64,7 @@ export function saveHistMarcadorVinculo(v: Record<string, string>): void {
 }
 
 export function getModoCluster(): ModoCluster {
-  return readJson<ModoCluster>(HIST_MODO_KEY, 'pastas');
+  return readJson<ModoCluster>(HIST_MODO_KEY, 'normal');
 }
 export function saveModoCluster(m: ModoCluster): void {
   writeJson(HIST_MODO_KEY, m);
