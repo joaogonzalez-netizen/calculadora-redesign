@@ -24,11 +24,15 @@ export default function MarketingLogoView() {
   const [descricao, setDescricao] = useState('');
   const [estilo, setEstilo] = useState<Estilo>('minimalista');
   const [coresSelecionadas, setCoresSelecionadas] = useState<string[]>([]);
+  const [coresCustom, setCoresCustom] = useState<string[]>([]);
   const [gerando, setGerando] = useState(false);
   const [variacoes, setVariacoes] = useState<LogoVariacao[]>([]);
   const [selecionadaId, setSelecionadaId] = useState<string | null>(null);
   const [creditos, setCreditos] = useState(getCreditosMock);
   const canvasRefs = useRef<Record<string, HTMLCanvasElement | null>>({});
+  const corPickerRef = useRef<HTMLInputElement>(null);
+
+  const coresDisponiveis = [...PALETA_LOGO.map((p) => p.cor), ...coresCustom.filter((c) => !PALETA_LOGO.some((p) => p.cor === c))];
 
   const custo = CUSTO_CREDITOS.logo;
   const semCredito = creditos < custo;
@@ -52,6 +56,15 @@ export default function MarketingLogoView() {
       if (prev.length >= LIMITE_CORES_LOGO) return prev;
       return [...prev, cor];
     });
+  }
+
+  function abrirSeletorDeCor() {
+    corPickerRef.current?.click();
+  }
+
+  function aoEscolherCorCustom(cor: string) {
+    if (!coresDisponiveis.includes(cor)) setCoresCustom((prev) => [...prev, cor]);
+    alternarCor(cor);
   }
 
   function gerar() {
@@ -136,6 +149,33 @@ export default function MarketingLogoView() {
                   onClick={() => alternarCor(p.cor)}
                 />
               ))}
+              {coresCustom.filter((c) => !PALETA_LOGO.some((p) => p.cor === c)).map((cor) => (
+                <button
+                  key={cor}
+                  type="button"
+                  className={'mkt-cor-swatch' + (coresSelecionadas.includes(cor) ? ' active' : '')}
+                  style={{ background: cor }}
+                  title={cor}
+                  aria-label={cor}
+                  onClick={() => alternarCor(cor)}
+                />
+              ))}
+              <button
+                type="button"
+                className="mkt-cor-swatch-add"
+                title={t('marketing.logo.corPersonalizada')}
+                aria-label={t('marketing.logo.corPersonalizada')}
+                disabled={coresSelecionadas.length >= LIMITE_CORES_LOGO}
+                onClick={abrirSeletorDeCor}
+              >
+                +
+              </button>
+              <input
+                ref={corPickerRef}
+                type="color"
+                className="mkt-cor-picker-hidden"
+                onChange={(e) => aoEscolherCorCustom(e.target.value)}
+              />
             </div>
           </div>
 
