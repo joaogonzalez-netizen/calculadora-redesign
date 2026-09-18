@@ -1884,3 +1884,53 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 }
 .assist-send-btn:disabled{background:var(--border-strong);cursor:default;}
 .assist-send-btn:not(:disabled):hover{filter:brightness(1.1);}
+
+/* Marketing — Logo/Banners/Etiquetas, v1 mockada (ver docs/spec-marketing-leigos.md). */
+.mkt-empty{
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
+  padding:56px 20px;color:var(--text-2);border:1px dashed var(--border-strong);border-radius:var(--radius-l);
+}
+.mkt-empty h2{font-size:19px;font-weight:800;color:var(--text-1);}
+.mkt-empty p{max-width:440px;font-size:13.5px;line-height:1.55;}
+.mkt-actions-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.mkt-checkbox-row{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-1);cursor:pointer;}
+.mkt-checkbox-row input:disabled{cursor:not-allowed;}
+
+.mkt-logo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:14px 0;}
+@media (max-width:700px){ .mkt-logo-grid{grid-template-columns:repeat(2,1fr);} }
+.mkt-logo-card{
+  border:2px solid var(--border);border-radius:var(--radius-m);padding:10px;background:var(--surface);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;
+}
+.mkt-logo-card:hover{border-color:var(--text-3);}
+.mkt-logo-card.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,149,90,.15);}
+.mkt-logo-card canvas{width:100%;height:auto;display:block;}
+
+.mkt-banner-preview-wrap{overflow-x:auto;padding:4px 0 14px;}
+.mkt-banner-canvas{max-width:100%;height:auto;border-radius:var(--radius-m);display:block;border:1px solid var(--border);}
+
+.mkt-etiqueta-item{
+  border:1px dashed var(--border-strong);border-radius:var(--radius-s);padding:16px;max-width:340px;
+  font-size:13px;line-height:1.5;background:#fafbfa;
+}
+.mkt-etiqueta-produto{font-weight:700;color:var(--text-1);margin-bottom:6px;}
+.mkt-etiqueta-item p{margin:0;color:var(--text-2);}
+
+/* Folhas de impressão das etiquetas — invisíveis na tela, só existem pro navegador
+   imprimir/exportar em PDF. Uma .etiquetas-print-folha por grupo de 4 pedidos,
+   cada uma com o tamanho exato de uma página A4 (page-break-after garante 4 por folha). */
+.etiquetas-print-sheet{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  .etiquetas-print-sheet,.etiquetas-print-sheet *{visibility:visible;}
+  .etiquetas-print-sheet{display:block;position:absolute;top:0;left:0;}
+  .etiquetas-print-folha{
+    display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+    width:210mm;height:297mm;gap:4mm;padding:10mm;box-sizing:border-box;
+    page-break-after:always;
+  }
+  .etiquetas-print-folha:last-child{page-break-after:auto;}
+  .etiqueta-print-item{border:1px dashed #999;border-radius:4px;padding:8mm;overflow:hidden;font-size:11pt;line-height:1.4;}
+  .etiqueta-print-produto{font-weight:700;margin-bottom:4mm;}
+  @page{ size:A4; margin:0; }
+}

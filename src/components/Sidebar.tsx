@@ -15,10 +15,11 @@ interface Props {
 }
 
 /** Grupos de FERRAMENTAS com submenu — Buscador é item flat (tela única, sem submenu). */
-type GrupoId = 'gerador' | 'calculadora';
+type GrupoId = 'gerador' | 'calculadora' | 'marketing';
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
 const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
+const VIEWS_DO_MARKETING: View[] = ['marketing-logo', 'marketing-banners', 'marketing-etiquetas'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const { t, idioma } = useI18n();
@@ -26,18 +27,21 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
   const mostrarConfiguracoes = MOSTRAR_CONFIGURACOES[idioma];
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
   const noGerador = VIEWS_DO_GERADOR.includes(view);
-  const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : null);
+  const noMarketing = VIEWS_DO_MARKETING.includes(view);
+  const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : noMarketing ? 'marketing' : null);
 
   const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
     { id: 'gerador', label: t('nav.geradorAnuncios'), icon: 'gerador' },
     { id: 'calculadora', label: t('nav.calculadoraPrecos'), icon: 'calculadora' },
+    { id: 'marketing', label: t('nav.marketing'), icon: 'box' },
   ];
 
   // O grupo da tela ativa abre sozinho ao navegar pra ela.
   useEffect(() => {
     if (naCalculadora) setAberto('calculadora');
     else if (noGerador) setAberto('gerador');
-  }, [naCalculadora, noGerador]);
+    else if (noMarketing) setAberto('marketing');
+  }, [naCalculadora, noGerador, noMarketing]);
 
   function toggleGrupo(id: GrupoId) {
     if (collapsed) onToggleCollapsed();
@@ -78,9 +82,10 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;
           const grupoAtivoGerador = g.id === 'gerador' && noGerador;
+          const grupoAtivoMarketing = g.id === 'marketing' && noMarketing;
           return (
             <div key={g.id}>
-              <button type="button" className={'nav-item nav-group' + (grupoAtivo || grupoAtivoGerador ? ' active' : '')} onClick={() => toggleGrupo(g.id)}>
+              <button type="button" className={'nav-item nav-group' + (grupoAtivo || grupoAtivoGerador || grupoAtivoMarketing ? ' active' : '')} onClick={() => toggleGrupo(g.id)}>
                 <span className="ic"><Icon name={g.icon} /></span>
                 <span className="nav-text">{g.label}</span>
                 <span className={'nav-caret' + (aberto === g.id ? ' open' : '')}>▾</span>
@@ -98,6 +103,13 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
                 <div className="nav-sub">
                   <div className={view === 'gerador-criar' ? 'active' : ''} onClick={() => onNavigate('gerador-criar')}>{t('nav.criarAnuncio')}</div>
                   <div className={view === 'gerador-meus' ? 'active' : ''} onClick={() => onNavigate('gerador-meus')}>{t('nav.meusAnuncios')}</div>
+                </div>
+              )}
+              {g.id === 'marketing' && aberto === 'marketing' && !collapsed && (
+                <div className="nav-sub">
+                  <div className={view === 'marketing-logo' ? 'active' : ''} onClick={() => onNavigate('marketing-logo')}>{t('nav.geradorLogo')}</div>
+                  <div className={view === 'marketing-banners' ? 'active' : ''} onClick={() => onNavigate('marketing-banners')}>{t('nav.geradorBanners')}</div>
+                  <div className={view === 'marketing-etiquetas' ? 'active' : ''} onClick={() => onNavigate('marketing-etiquetas')}>{t('nav.etiquetasAgradecimento')}</div>
                 </div>
               )}
             </div>
