@@ -4,6 +4,7 @@
 // Ver docs/spec-marketing-leigos.md.
 import { readJson, writeJson } from './storage';
 import { CREDITOS } from './dashboardMock';
+import type { Idioma } from './i18n';
 
 export type Estilo = 'minimalista' | 'divertido' | 'elegante' | 'colorido';
 export type FormaLogo = 'circulo' | 'hexagono' | 'quadrado' | 'escudo';
@@ -55,6 +56,55 @@ export const NICHOS: { id: Nicho; chaveLabel: string; estiloSugerido: Estilo }[]
   { id: 'miniaturasRpg', chaveLabel: 'marketing.logo.nichoMiniaturasRpg', estiloSugerido: 'elegante' },
   { id: 'outro', chaveLabel: 'marketing.logo.nichoOutro', estiloSugerido: 'minimalista' },
 ];
+
+// Sugestão de nome (mock) — combina um prefixo relacionado ao nicho com um
+// sufixo genérico de marca maker/3D. Sem IA real: é uma combinatória fixa,
+// mas dá um ponto de partida pra quem ainda não batizou a loja.
+const SUFIXOS_NOME = ['3D', 'Prints', 'Studio', 'Maker', 'Lab', 'Co'];
+const PREFIXOS_POR_NICHO: Record<Idioma, Record<Nicho, string[]>> = {
+  pt: {
+    decoracao: ['Traço', 'Ambiente', 'Decora'],
+    brinquedos: ['Brinq', 'Lúdico', 'Play'],
+    casaJardim: ['Verde', 'Raiz', 'Lar'],
+    presentes: ['Mimo', 'Gesto', 'Presente'],
+    pet: ['Patinha', 'Focinho', 'Pet'],
+    papelaria: ['Folha', 'Nota', 'Papel'],
+    pecasTecnicas: ['Precisão', 'Engrena', 'Tech'],
+    miniaturasRpg: ['Lenda', 'Reino', 'Dado'],
+    outro: ['Cubo', 'Prisma', 'Nova'],
+  },
+  en: {
+    decoracao: ['Trace', 'Ambient', 'Decor'],
+    brinquedos: ['Playful', 'Toy', 'Fun'],
+    casaJardim: ['Green', 'Root', 'Home'],
+    presentes: ['Charm', 'Gesture', 'Gift'],
+    pet: ['Paw', 'Snout', 'Pet'],
+    papelaria: ['Sheet', 'Note', 'Paper'],
+    pecasTecnicas: ['Precision', 'Gear', 'Tech'],
+    miniaturasRpg: ['Legend', 'Realm', 'Dice'],
+    outro: ['Cube', 'Prism', 'Nova'],
+  },
+  es: {
+    decoracao: ['Trazo', 'Ambiente', 'Decora'],
+    brinquedos: ['Lúdico', 'Juguete', 'Play'],
+    casaJardim: ['Verde', 'Raíz', 'Hogar'],
+    presentes: ['Mimo', 'Gesto', 'Regalo'],
+    pet: ['Patita', 'Hocico', 'Pet'],
+    papelaria: ['Hoja', 'Nota', 'Papel'],
+    pecasTecnicas: ['Precisión', 'Engrane', 'Tech'],
+    miniaturasRpg: ['Leyenda', 'Reino', 'Dado'],
+    outro: ['Cubo', 'Prisma', 'Nova'],
+  },
+};
+
+/** Gera 4 sugestões de nome combinando um prefixo do nicho com um sufixo de marca — mock, sem IA. */
+export function sugerirNomes(idioma: Idioma, nicho: Nicho | null): string[] {
+  const prefixos = PREFIXOS_POR_NICHO[idioma][nicho ?? 'outro'];
+  return prefixos.map((prefixo, i) => {
+    const sufixo = SUFIXOS_NOME[(i + (nicho ? seedNumerico(nicho) : 0)) % SUFIXOS_NOME.length];
+    return i % 2 === 0 ? `${prefixo}${sufixo}` : `${prefixo} ${sufixo}`;
+  });
+}
 
 const CORES_LOGO = PALETA_LOGO.map((p) => p.cor);
 // "Minimalista"/"Elegante" sorteiam de uma paleta mais contida; "Divertido"/"Colorido" usam a paleta cheia.

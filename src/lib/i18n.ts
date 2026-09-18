@@ -75,6 +75,10 @@ const pt: Dicionario = {
 
   'marketing.nomeLoja': 'Nome da loja',
   'marketing.nomeLojaPlaceholder': 'Ex.: Casa 3D Prints',
+  'marketing.sugerirNomes': 'Sugerir nomes',
+  'marketing.aindaNaoTenhoNome': 'Ainda não tenho nome',
+  'marketing.voltarADigitarNome': 'Já sei o nome da loja',
+  'marketing.requisitosSemNome': 'Sem nome, escolha um nicho e pelo menos 1 cor pra gerar mesmo assim.',
   'marketing.gerando': 'Gerando...',
   'marketing.creditosCusto': 'Essa geração custa {n} créditos.',
   'marketing.creditosInsuficientes': 'Créditos insuficientes pra gerar agora.',
@@ -1252,6 +1256,10 @@ const en: Dicionario = {
 
   'marketing.nomeLoja': 'Store name',
   'marketing.nomeLojaPlaceholder': 'E.g.: Casa 3D Prints',
+  'marketing.sugerirNomes': 'Suggest names',
+  'marketing.aindaNaoTenhoNome': "I don't have a name yet",
+  'marketing.voltarADigitarNome': 'I already know the store name',
+  'marketing.requisitosSemNome': 'Without a name, pick a niche and at least 1 color to generate anyway.',
   'marketing.gerando': 'Generating...',
   'marketing.creditosCusto': 'This generation costs {n} credits.',
   'marketing.creditosInsuficientes': 'Not enough credits to generate right now.',
@@ -1400,6 +1408,10 @@ const es: Dicionario = {
 
   'marketing.nomeLoja': 'Nombre de la tienda',
   'marketing.nomeLojaPlaceholder': 'Ej.: Casa 3D Prints',
+  'marketing.sugerirNomes': 'Sugerir nombres',
+  'marketing.aindaNaoTenhoNome': 'Todavía no tengo nombre',
+  'marketing.voltarADigitarNome': 'Ya sé el nombre de la tienda',
+  'marketing.requisitosSemNome': 'Sin nombre, elige un nicho y al menos 1 color para generar de todos modos.',
   'marketing.gerando': 'Generando...',
   'marketing.creditosCusto': 'Esta generación cuesta {n} créditos.',
   'marketing.creditosInsuficientes': 'Créditos insuficientes para generar ahora.',

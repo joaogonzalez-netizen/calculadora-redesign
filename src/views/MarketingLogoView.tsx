@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../context/I18nContext';
 import {
-  gerarVariacoesLogo, desenharLogoNoCanvas, baixarCanvasComoPng, salvarLogoAtual,
+  gerarVariacoesLogo, desenharLogoNoCanvas, baixarCanvasComoPng, salvarLogoAtual, sugerirNomes,
   getCreditosMock, descontarCreditosMock, CUSTO_CREDITOS, NICHOS, PALETA_LOGO, LIMITE_CORES_LOGO,
   type LogoVariacao, type Estilo, type Nicho,
 } from '../lib/marketing';
@@ -18,8 +18,10 @@ const ESTILO_LABEL_KEY: Record<Estilo, string> = {
 // é um SVG/canvas determinístico (iniciais + forma + cor), não uma geração de
 // IA de verdade, mas o PNG exportado é um arquivo real e funcional.
 export default function MarketingLogoView() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
   const [nomeLoja, setNomeLoja] = useState('');
+  const [semNome, setSemNome] = useState(false);
+  const [sugestoesNome, setSugestoesNome] = useState<string[]>([]);
   const [nicho, setNicho] = useState<Nicho | null>(null);
   const [descricao, setDescricao] = useState('');
   const [estilo, setEstilo] = useState<Estilo>('minimalista');
@@ -67,12 +69,33 @@ export default function MarketingLogoView() {
     alternarCor(cor);
   }
 
+  function mostrarSugestoesNome() {
+    setSugestoesNome(sugerirNomes(idioma, nicho));
+  }
+
+  function escolherNomeSugerido(nome: string) {
+    setNomeLoja(nome);
+    setSugestoesNome([]);
+  }
+
+  function alternarSemNome() {
+    setSemNome((prev) => !prev);
+    setSugestoesNome([]);
+  }
+
+  // Sem nome, exigimos nicho + pelo menos 1 cor — senão a geração fica sem
+  // nenhum contexto de negócio pra se basear.
+  const podeGerar = semNome
+    ? nicho !== null && coresSelecionadas.length > 0
+    : nomeLoja.trim().length > 0;
+  const nomeParaGeracao = nomeLoja.trim() || (nicho ? t(NICHOS.find((n) => n.id === nicho)!.chaveLabel) : '');
+
   function gerar() {
-    if (!nomeLoja.trim() || gerando || semCredito) return;
+    if (!podeGerar || gerando || semCredito) return;
     setGerando(true);
     setSelecionadaId(null);
     setTimeout(() => {
-      setVariacoes(gerarVariacoesLogo(nomeLoja, coresSelecionadas, estilo));
+      setVariacoes(gerarVariacoesLogo(nomeParaGeracao, coresSelecionadas, estilo));
       setCreditos(descontarCreditosMock(custo));
       setGerando(false);
     }, 900);
@@ -80,7 +103,7 @@ export default function MarketingLogoView() {
 
   function selecionar(v: LogoVariacao) {
     setSelecionadaId(v.id);
-    salvarLogoAtual({ nomeLoja, variacao: v });
+    salvarLogoAtual({ nomeLoja: nomeParaGeracao, variacao: v });
   }
 
   function baixar() {
@@ -88,7 +111,7 @@ export default function MarketingLogoView() {
     if (!v) return;
     const canvasExport = document.createElement('canvas');
     desenharLogoNoCanvas(canvasExport, v, 1024);
-    const nomeArquivo = `logo-${nomeLoja.trim().toLowerCase().replace(/\s+/g, '-') || 'stlseller'}.png`;
+    const nomeArquivo = `logo-${nomeParaGeracao.trim().toLowerCase().replace(/\s+/g, '-') || 'stlseller'}.png`;
     baixarCanvasComoPng(canvasExport, nomeArquivo);
   }
 
@@ -102,7 +125,29 @@ export default function MarketingLogoView() {
         <div className="card-body">
           <div className="field">
             <label>{t('marketing.nomeLoja')}</label>
-            <input type="text" value={nomeLoja} onChange={(e) => setNomeLoja(e.target.value)} placeholder={t('marketing.nomeLojaPlaceholder')} />
+            {!semNome && (
+              <input type="text" value={nomeLoja} onChange={(e) => setNomeLoja(e.target.value)} placeholder={t('marketing.nomeLojaPlaceholder')} />
+            )}
+            <div className="mkt-nome-acoes-row">
+              {!semNome && (
+                <button type="button" className="btn-outline" onClick={mostrarSugestoesNome}>
+                  {t('marketing.sugerirNomes')}
+                </button>
+              )}
+              <button type="button" className="link-btn" onClick={alternarSemNome}>
+                {semNome ? t('marketing.voltarADigitarNome') : t('marketing.aindaNaoTenhoNome')}
+              </button>
+            </div>
+            {sugestoesNome.length > 0 && (
+              <div className="chip-row">
+                {sugestoesNome.map((nome) => (
+                  <button key={nome} type="button" className="chip" onClick={() => escolherNomeSugerido(nome)}>
+                    {nome}
+                  </button>
+                ))}
+              </div>
+            )}
+            {semNome && <span className="hint">{t('marketing.requisitosSemNome')}</span>}
           </div>
 
           <div className="field">
@@ -180,7 +225,7 @@ export default function MarketingLogoView() {
           </div>
 
           <div className="mkt-actions-row">
-            <button type="button" className="btn-dark" disabled={!nomeLoja.trim() || gerando || semCredito} onClick={gerar}>
+            <button type="button" className="btn-dark" disabled={!podeGerar || gerando || semCredito} onClick={gerar}>
               {gerando ? t('marketing.gerando') : t('marketing.logo.gerar')}
             </button>
             <span className="hint">

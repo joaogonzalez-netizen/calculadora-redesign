@@ -1893,6 +1893,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .mkt-empty h2{font-size:19px;font-weight:800;color:var(--text-1);}
 .mkt-empty p{max-width:440px;font-size:13.5px;line-height:1.55;}
 .mkt-actions-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.mkt-nome-acoes-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .mkt-checkbox-row{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-1);cursor:pointer;}
 .mkt-checkbox-row input:disabled{cursor:not-allowed;}
 
