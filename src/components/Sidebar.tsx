@@ -19,7 +19,7 @@ type GrupoId = 'gerador' | 'calculadora' | 'marketing';
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
 const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
-const VIEWS_DO_MARKETING: View[] = ['marketing-logo', 'marketing-banners', 'marketing-etiquetas'];
+const VIEWS_DO_MARKETING: View[] = ['marketing-logo', 'marketing-banners', 'marketing-etiquetas', 'marketing-decoracao'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const { t, idioma } = useI18n();
@@ -110,6 +110,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
                   <div className={view === 'marketing-logo' ? 'active' : ''} onClick={() => onNavigate('marketing-logo')}>{t('nav.geradorLogo')}</div>
                   <div className={view === 'marketing-banners' ? 'active' : ''} onClick={() => onNavigate('marketing-banners')}>{t('nav.geradorBanners')}</div>
                   <div className={view === 'marketing-etiquetas' ? 'active' : ''} onClick={() => onNavigate('marketing-etiquetas')}>{t('nav.etiquetasAgradecimento')}</div>
+                  <div className={view === 'marketing-decoracao' ? 'active' : ''} onClick={() => onNavigate('marketing-decoracao')}>{t('nav.decoracaoLoja')}</div>
                 </div>
               )}
             </div>

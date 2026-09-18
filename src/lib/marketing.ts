@@ -122,16 +122,40 @@ export const LOGO_ATUAL_KEY = 'stlseller_marketing_logo_atual';
 export const CREDITOS_MOCK_KEY = 'stlseller_creditos_mock';
 
 // Custo placeholder por geração — valor real é uma Pergunta em Aberto do PRD.
-export const CUSTO_CREDITOS: Record<'logo' | 'banner' | 'etiquetas', number> = {
+export const CUSTO_CREDITOS: Record<'logo' | 'banner' | 'etiquetas' | 'capaLoja' | 'carrosselSecao', number> = {
   logo: 10,
   banner: 10,
   etiquetas: 5,
+  capaLoja: 15,
+  carrosselSecao: 6,
 };
 
 // Dimensões de referência (não oficiais — ver Seção 4.2 da spec).
 export const DIMENSOES_BANNER: Record<Plataforma, { largura: number; altura: number }> = {
   shopee: { largura: 2020, altura: 500 },
   'mercado-livre': { largura: 1140, altura: 220 },
+};
+
+// Specs oficiais da Shopee pro editor de decoração de loja — ver
+// docs/prd-decoracao-loja-shopee.md.
+export const SPEC_CAPA_LOJA = {
+  largura: 1200,
+  altura: 518,
+  pesoMaximoBytes: 2 * 1024 * 1024,
+};
+
+export type Proporcao = '2:1' | '16:9' | '1:1' | 'livre';
+
+export const RATIO_CARROSSEL: Record<Exclude<Proporcao, 'livre'>, number> = {
+  '2:1': 2,
+  '16:9': 16 / 9,
+  '1:1': 1,
+};
+
+export const SPEC_CARROSSEL = {
+  pesoMaximoBytes: 2 * 1024 * 1024,
+  resolucaoMaxima: 2000,
+  maxSecoes: 6,
 };
 
 function iniciaisDe(nomeLoja: string): string {
@@ -256,6 +280,117 @@ export function desenharBannerNoCanvas(
     ctx.font = `600 ${altura * 0.09}px "Plus Jakarta Sans", system-ui, sans-serif`;
     ctx.fillText(textoDestaque, xTexto, altura * 0.66);
   }
+}
+
+/**
+ * Composição mock de "decoração de loja" — fundo em gradiente + colagem de
+ * retângulos representando as fotos de produto "enviadas" (mesmo espírito
+ * do CORES_MOCK do Gerador de Anúncios: sem foto real, sem IA, só uma
+ * composição plausível pra provar o fluxo fim a fim).
+ */
+export function desenharDecoracaoNoCanvas(
+  canvas: HTMLCanvasElement,
+  largura: number,
+  altura: number,
+  promptTexto: string,
+  qtdFotos: number,
+  estilo: Estilo,
+  variacao = 0,
+) {
+  canvas.width = largura;
+  canvas.height = altura;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // "variacao" muda a composição sem o usuário precisar alterar nada — é o
+  // que faz "Regenerar" parecer uma nova tentativa, já que o resto da
+  // composição é determinístico a partir do prompt/estilo/dimensão.
+  const seed = seedNumerico((promptTexto || estilo) + estilo) + variacao * 97;
+  const paleta = estilo === 'divertido' || estilo === 'colorido' ? CORES_LOGO : CORES_LOGO_CONTIDAS;
+  const corA = paleta[seed % paleta.length];
+  const corB = paleta[(seed + 3) % paleta.length];
+  const grad = ctx.createLinearGradient(0, 0, largura, altura);
+  grad.addColorStop(0, corA);
+  grad.addColorStop(1, corB);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, largura, altura);
+
+  const n = Math.max(1, qtdFotos);
+  const margem = altura * 0.08;
+  const gap = altura * 0.05;
+  const larguraFoto = (largura - margem * 2 - gap * (n - 1)) / n;
+  const alturaFoto = altura - margem * 2;
+  const raio = Math.min(14, alturaFoto * 0.08);
+  for (let i = 0; i < n; i++) {
+    const x = margem + i * (larguraFoto + gap);
+    const y = margem;
+    ctx.fillStyle = paleta[(seed + i * 5) % paleta.length];
+    ctx.globalAlpha = 0.92;
+    ctx.beginPath();
+    ctx.moveTo(x + raio, y);
+    ctx.arcTo(x + larguraFoto, y, x + larguraFoto, y + alturaFoto, raio);
+    ctx.arcTo(x + larguraFoto, y + alturaFoto, x, y + alturaFoto, raio);
+    ctx.arcTo(x, y + alturaFoto, x, y, raio);
+    ctx.arcTo(x, y, x + larguraFoto, y, raio);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/**
+ * Exporta o canvas como JPEG reduzindo a qualidade progressivamente até
+ * caber em pesoMaximoBytes — validação real de peso (não só um selo visual),
+ * conforme requisito P0 do PRD: nunca entregar arquivo fora da spec.
+ */
+export function gerarJpegValidado(
+  canvas: HTMLCanvasElement,
+  pesoMaximoBytes: number,
+): Promise<{ blob: Blob | null; tamanhoBytes: number; dentroDoLimite: boolean; qualidade: number }> {
+  return new Promise((resolve) => {
+    let qualidade = 0.92;
+    const tentar = () => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          resolve({ blob: null, tamanhoBytes: 0, dentroDoLimite: false, qualidade });
+          return;
+        }
+        if (blob.size <= pesoMaximoBytes || qualidade <= 0.4) {
+          resolve({ blob, tamanhoBytes: blob.size, dentroDoLimite: blob.size <= pesoMaximoBytes, qualidade });
+        } else {
+          qualidade = Math.round((qualidade - 0.1) * 100) / 100;
+          tentar();
+        }
+      }, 'image/jpeg', qualidade);
+    };
+    tentar();
+  });
+}
+
+export function baixarBlob(blob: Blob, nomeArquivo: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nomeArquivo;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** Clampa um valor (ex: largura/altura do modo Livre) a um máximo, nunca deixando passar da resolução máxima da spec. */
+export function clamp(valor: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, valor));
+}
+
+/** Calcula largura×altura de uma seção do carrossel a partir da proporção e de uma largura-base, sempre dentro da resolução máxima. */
+export function dimensaoCarrossel(proporcao: Proporcao, larguraBase: number, alturaLivre?: number): { largura: number; altura: number } {
+  const max = SPEC_CARROSSEL.resolucaoMaxima;
+  if (proporcao === 'livre') {
+    return { largura: clamp(larguraBase, 200, max), altura: clamp(alturaLivre ?? larguraBase, 200, max) };
+  }
+  const ratio = RATIO_CARROSSEL[proporcao];
+  const largura = clamp(larguraBase, 200, max);
+  const altura = clamp(largura / ratio, 200, max);
+  return { largura: Math.round(largura), altura: Math.round(altura) };
 }
 
 export function baixarCanvasComoPng(canvas: HTMLCanvasElement, nomeArquivo: string) {

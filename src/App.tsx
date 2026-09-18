@@ -18,6 +18,7 @@ import AssistenteView from './views/AssistenteView';
 import MarketingLogoView from './views/MarketingLogoView';
 import MarketingBannersView from './views/MarketingBannersView';
 import MarketingEtiquetasView from './views/MarketingEtiquetasView';
+import MarketingDecoracaoLojaView from './views/MarketingDecoracaoLojaView';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
@@ -26,7 +27,7 @@ import { MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao';
 
 function AppShell() {
   const { idioma } = useI18n();
@@ -92,7 +93,7 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' ? ' content-wide' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' ? ' content-wide' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
@@ -127,6 +128,7 @@ function AppShell() {
           {view === 'marketing-logo' && <MarketingLogoView />}
           {view === 'marketing-banners' && <MarketingBannersView />}
           {view === 'marketing-etiquetas' && <MarketingEtiquetasView />}
+          {view === 'marketing-decoracao' && <MarketingDecoracaoLojaView />}
         </div>
         <AppFooter />
       </div>

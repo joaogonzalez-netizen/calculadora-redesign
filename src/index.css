@@ -1933,6 +1933,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .mkt-etiqueta-produto{font-weight:700;color:var(--text-1);margin-bottom:6px;}
 .mkt-etiqueta-item p{margin:0;color:var(--text-2);}
 
+/* Decoração de loja (Shopee) — Capa + Carrossel, ver docs/spec-decoracao-loja-shopee.md */
+.mkt-decor-canvas{max-width:100%;height:auto;border-radius:var(--radius-m);border:1px solid var(--border);display:block;margin-top:14px;}
+.mkt-decor-resultado{margin-top:4px;}
+.mkt-decor-validado{
+  display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--primary-dark);
+  background:var(--primary-tint);padding:6px 12px;border-radius:999px;
+}
+.mkt-decor-carrossel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:14px 0;}
+.mkt-decor-secao{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-m);}
+.mkt-decor-secao .mkt-decor-canvas{margin-top:0;}
+.mkt-decor-secao-carregando{
+  aspect-ratio:16/9;border-radius:var(--radius-m);background:repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px;
+}
+
 /* Folhas de impressão das etiquetas — invisíveis na tela, só existem pro navegador
    imprimir/exportar em PDF. Uma .etiquetas-print-folha por grupo de 4 pedidos,
    cada uma com o tamanho exato de uma página A4 (page-break-after garante 4 por folha). */

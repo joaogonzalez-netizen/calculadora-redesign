@@ -20,6 +20,7 @@ const CHAVES_TITULO: Record<View, string> = {
   'marketing-logo': 'topbar.title.marketing-logo',
   'marketing-banners': 'topbar.title.marketing-banners',
   'marketing-etiquetas': 'topbar.title.marketing-etiquetas',
+  'marketing-decoracao': 'topbar.title.marketing-decoracao',
 };
 
 export default function Topbar({ view }: { view: View }) {
