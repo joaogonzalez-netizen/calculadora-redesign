@@ -190,6 +190,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
 
         <div className="card">
           <div className="card-body" style={{ paddingTop: 22 }}>
+            <div className="table-scroll-x">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr style={{ textAlign: 'left', color: 'var(--text-3)' }}>
@@ -205,7 +206,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                   <th style={{ padding: 10 }}>{t('calc.thFonteStl')}</th>
                   <th style={{ padding: 10 }}>{t('calc.thConcorrente')}</th>
                   <th style={{ padding: 10, cursor: 'pointer' }} onClick={() => sortHist('id')}>{t('calc.thData')} ↕</th>
-                  <th style={{ padding: 10 }}>{t('calc.acoes')}</th>
+                  <th className="col-acoes-sticky" style={{ padding: 10 }}>{t('calc.acoes')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,11 +244,12 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
                         : '-'}
                     </td>
                     <td style={{ padding: 10 }}>{new Date(h.id).toLocaleDateString('pt-BR')}</td>
-                    <td style={{ padding: 10 }}><button className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setSelected(h)}>{t('calc.acoes')}</button></td>
+                    <td className="col-acoes-sticky" style={{ padding: 10 }}><button className="btn-outline" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setSelected(h)}>{t('calc.acoes')}</button></td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
             {!histFiltrado.length && (
               <div className="hint" style={{ textAlign: 'center', padding: 24 }}>
                 {hist.length ? t('calc.nenhumCalculoEncontradoFiltro') : t('calc.nenhumCalculoSalvo')}

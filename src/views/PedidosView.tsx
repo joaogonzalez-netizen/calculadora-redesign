@@ -108,10 +108,11 @@ export default function PedidosView() {
 
       <div className="card">
         <div className="card-body" style={{ padding: 0 }}>
+          <div className="table-scroll-x">
           <table className="prod-table">
             <thead>
               <tr>
-                <th>{t('pedidos.colunaPedido')}</th><th>{t('pedidos.colunaMarketplace')}</th><th>{t('pedidos.colunaComprador')}</th><th>{t('pedidos.colunaStatus')}</th><th>{t('pedidos.colunaPagamento')}</th><th>{t('pedidos.colunaValorTotal')}</th><th>{t('pedidos.colunaAcoes')}</th>
+                <th>{t('pedidos.colunaPedido')}</th><th>{t('pedidos.colunaMarketplace')}</th><th>{t('pedidos.colunaComprador')}</th><th>{t('pedidos.colunaStatus')}</th><th>{t('pedidos.colunaPagamento')}</th><th>{t('pedidos.colunaValorTotal')}</th><th className="col-acoes-sticky">{t('pedidos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -132,7 +133,7 @@ export default function PedidosView() {
                     <b>{brl(p.valorTotal)}</b>
                     <div className="ped-taxa-inline">{t('pedidos.taxaLabel')}: {brl(p.valorTotal * p.taxaPct)}</div>
                   </td>
-                  <td>
+                  <td className="col-acoes-sticky">
                     <div className="prod-acoes">
                       <button type="button" title={t('pedidos.verPedido')} onClick={() => setSelecionado(p)}><Icon name="eye" size={16} /></button>
                     </div>
@@ -141,6 +142,7 @@ export default function PedidosView() {
               ))}
             </tbody>
           </table>
+          </div>
           {!exibidos.length && <div className="hint" style={{ textAlign: 'center', padding: 24 }}>{t('pedidos.nenhumPedidoEncontrado')}</div>}
           <div className="prod-pagination">
             <span>{t('pedidos.exibindo')} 1–{exibidos.length} {t('pedidos.deLabel')} {PEDIDOS_KPIS.total} {t('pedidos.pedidosPlural')}</span>
