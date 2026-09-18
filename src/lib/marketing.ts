@@ -247,6 +247,7 @@ export function desenharBannerNoCanvas(
   nomeLoja: string,
   textoDestaque: string,
   logo: LogoAtual | null,
+  estilo: Estilo = 'minimalista',
 ) {
   const { largura, altura } = DIMENSOES_BANNER[plataforma];
   canvas.width = largura;
@@ -254,7 +255,10 @@ export function desenharBannerNoCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  const corFundo = logo?.variacao.cor ?? CORES_LOGO[seedNumerico(nomeLoja || 'stlseller') % CORES_LOGO.length];
+  // Sem logo reaproveitada, o estilo escolhido no contexto decide a paleta —
+  // mesma lógica de Logo/Decoração de Loja.
+  const paletaEstilo = estilo === 'divertido' || estilo === 'colorido' ? CORES_LOGO : CORES_LOGO_CONTIDAS;
+  const corFundo = logo?.variacao.cor ?? paletaEstilo[seedNumerico(nomeLoja || 'stlseller') % paletaEstilo.length];
   const grad = ctx.createLinearGradient(0, 0, largura, altura);
   grad.addColorStop(0, corFundo);
   grad.addColorStop(1, '#14181a');
