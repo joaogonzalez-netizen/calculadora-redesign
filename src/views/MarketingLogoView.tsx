@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../context/I18nContext';
 import {
   gerarVariacoesLogo, desenharLogoNoCanvas, baixarCanvasComoPng, salvarLogoAtual,
-  getCreditosMock, descontarCreditosMock, CUSTO_CREDITOS, type LogoVariacao, type Estilo,
+  getCreditosMock, descontarCreditosMock, CUSTO_CREDITOS, NICHOS, PALETA_LOGO, LIMITE_CORES_LOGO,
+  type LogoVariacao, type Estilo, type Nicho,
 } from '../lib/marketing';
 
 const ESTILOS: Estilo[] = ['minimalista', 'divertido', 'elegante', 'colorido'];
@@ -19,8 +20,10 @@ const ESTILO_LABEL_KEY: Record<Estilo, string> = {
 export default function MarketingLogoView() {
   const { t } = useI18n();
   const [nomeLoja, setNomeLoja] = useState('');
+  const [nicho, setNicho] = useState<Nicho | null>(null);
+  const [descricao, setDescricao] = useState('');
   const [estilo, setEstilo] = useState<Estilo>('minimalista');
-  const [corBase, setCorBase] = useState<string | null>(null);
+  const [coresSelecionadas, setCoresSelecionadas] = useState<string[]>([]);
   const [gerando, setGerando] = useState(false);
   const [variacoes, setVariacoes] = useState<LogoVariacao[]>([]);
   const [selecionadaId, setSelecionadaId] = useState<string | null>(null);
@@ -37,12 +40,26 @@ export default function MarketingLogoView() {
     });
   }, [variacoes]);
 
+  function selecionarNicho(n: Nicho) {
+    setNicho(n);
+    const sugestao = NICHOS.find((x) => x.id === n)?.estiloSugerido;
+    if (sugestao) setEstilo(sugestao);
+  }
+
+  function alternarCor(cor: string) {
+    setCoresSelecionadas((prev) => {
+      if (prev.includes(cor)) return prev.filter((c) => c !== cor);
+      if (prev.length >= LIMITE_CORES_LOGO) return prev;
+      return [...prev, cor];
+    });
+  }
+
   function gerar() {
     if (!nomeLoja.trim() || gerando || semCredito) return;
     setGerando(true);
     setSelecionadaId(null);
     setTimeout(() => {
-      setVariacoes(gerarVariacoesLogo(nomeLoja, corBase, estilo));
+      setVariacoes(gerarVariacoesLogo(nomeLoja, coresSelecionadas, estilo));
       setCreditos(descontarCreditosMock(custo));
       setGerando(false);
     }, 900);
@@ -70,15 +87,25 @@ export default function MarketingLogoView() {
 
       <div className="card">
         <div className="card-body">
-          <div className="row2">
-            <div className="field">
-              <label>{t('marketing.nomeLoja')}</label>
-              <input type="text" value={nomeLoja} onChange={(e) => setNomeLoja(e.target.value)} placeholder={t('marketing.nomeLojaPlaceholder')} />
+          <div className="field">
+            <label>{t('marketing.nomeLoja')}</label>
+            <input type="text" value={nomeLoja} onChange={(e) => setNomeLoja(e.target.value)} placeholder={t('marketing.nomeLojaPlaceholder')} />
+          </div>
+
+          <div className="field">
+            <label>{t('marketing.logo.nichoLabel')}</label>
+            <div className="chip-row">
+              {NICHOS.map((n) => (
+                <button key={n.id} type="button" className={'chip' + (nicho === n.id ? ' active' : '')} onClick={() => selecionarNicho(n.id)}>
+                  {t(n.chaveLabel)}
+                </button>
+              ))}
             </div>
-            <div className="field">
-              <label>{t('marketing.logo.corBase')}</label>
-              <input type="color" value={corBase ?? '#00955a'} onChange={(e) => setCorBase(e.target.value)} style={{ height: 44, padding: 4, cursor: 'pointer' }} />
-            </div>
+          </div>
+
+          <div className="field">
+            <label>{t('marketing.logo.descricaoLabel')}</label>
+            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder={t('marketing.logo.descricaoPlaceholder')} rows={2} />
           </div>
 
           <div className="field">
@@ -88,6 +115,26 @@ export default function MarketingLogoView() {
                 <button key={es} type="button" className={'chip' + (estilo === es ? ' active' : '')} onClick={() => setEstilo(es)}>
                   {t(ESTILO_LABEL_KEY[es])}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="field">
+            <label>
+              {t('marketing.logo.coresLabel')}
+              <span className="hint" style={{ fontWeight: 400 }}>{t('marketing.logo.coresHint').replace('{n}', String(coresSelecionadas.length))}</span>
+            </label>
+            <div className="mkt-cor-swatch-row">
+              {PALETA_LOGO.map((p) => (
+                <button
+                  key={p.cor}
+                  type="button"
+                  className={'mkt-cor-swatch' + (coresSelecionadas.includes(p.cor) ? ' active' : '')}
+                  style={{ background: p.cor }}
+                  title={t(p.chaveLabel)}
+                  aria-label={t(p.chaveLabel)}
+                  onClick={() => alternarCor(p.cor)}
+                />
               ))}
             </div>
           </div>

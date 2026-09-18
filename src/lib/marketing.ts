@@ -8,6 +8,10 @@ import { CREDITOS } from './dashboardMock';
 export type Estilo = 'minimalista' | 'divertido' | 'elegante' | 'colorido';
 export type FormaLogo = 'circulo' | 'hexagono' | 'quadrado' | 'escudo';
 export type Plataforma = 'shopee' | 'mercado-livre';
+// Nichos comuns entre quem vende impressão 3D — cada um sugere um estilo
+// default (usuário pode trocar), pra dar um contexto de negócio real pra IA
+// no futuro, mesmo hoje sendo geração mockada.
+export type Nicho = 'decoracao' | 'brinquedos' | 'casaJardim' | 'presentes' | 'pet' | 'papelaria' | 'pecasTecnicas' | 'miniaturasRpg' | 'outro';
 
 export interface LogoVariacao {
   id: string;
@@ -21,7 +25,38 @@ export interface LogoAtual {
   variacao: LogoVariacao;
 }
 
-const CORES_LOGO = ['#00955a', '#06b2a1', '#3b6fd4', '#8a3bd4', '#c58a00', '#d4633b', '#d43b6f'];
+export interface CorNomeada {
+  cor: string;
+  chaveLabel: string;
+}
+
+// Paleta nomeada pro seletor de "até 3 cores" — mesmos valores de CORES_LOGO,
+// com rótulo pra exibir no swatch.
+export const PALETA_LOGO: CorNomeada[] = [
+  { cor: '#00955a', chaveLabel: 'marketing.logo.corVerde' },
+  { cor: '#06b2a1', chaveLabel: 'marketing.logo.corCiano' },
+  { cor: '#3b6fd4', chaveLabel: 'marketing.logo.corAzul' },
+  { cor: '#8a3bd4', chaveLabel: 'marketing.logo.corRoxa' },
+  { cor: '#c58a00', chaveLabel: 'marketing.logo.corDourada' },
+  { cor: '#d4633b', chaveLabel: 'marketing.logo.corLaranja' },
+  { cor: '#d43b6f', chaveLabel: 'marketing.logo.corRosa' },
+];
+
+export const LIMITE_CORES_LOGO = 3;
+
+export const NICHOS: { id: Nicho; chaveLabel: string; estiloSugerido: Estilo }[] = [
+  { id: 'decoracao', chaveLabel: 'marketing.logo.nichoDecoracao', estiloSugerido: 'elegante' },
+  { id: 'brinquedos', chaveLabel: 'marketing.logo.nichoBrinquedos', estiloSugerido: 'divertido' },
+  { id: 'casaJardim', chaveLabel: 'marketing.logo.nichoCasaJardim', estiloSugerido: 'minimalista' },
+  { id: 'presentes', chaveLabel: 'marketing.logo.nichoPresentes', estiloSugerido: 'colorido' },
+  { id: 'pet', chaveLabel: 'marketing.logo.nichoPet', estiloSugerido: 'divertido' },
+  { id: 'papelaria', chaveLabel: 'marketing.logo.nichoPapelaria', estiloSugerido: 'minimalista' },
+  { id: 'pecasTecnicas', chaveLabel: 'marketing.logo.nichoPecasTecnicas', estiloSugerido: 'minimalista' },
+  { id: 'miniaturasRpg', chaveLabel: 'marketing.logo.nichoMiniaturasRpg', estiloSugerido: 'elegante' },
+  { id: 'outro', chaveLabel: 'marketing.logo.nichoOutro', estiloSugerido: 'minimalista' },
+];
+
+const CORES_LOGO = PALETA_LOGO.map((p) => p.cor);
 // "Minimalista"/"Elegante" sorteiam de uma paleta mais contida; "Divertido"/"Colorido" usam a paleta cheia.
 const CORES_LOGO_CONTIDAS = ['#00955a', '#06b2a1', '#3b6fd4'];
 const FORMAS_LOGO: FormaLogo[] = ['circulo', 'hexagono', 'quadrado', 'escudo'];
@@ -64,13 +99,17 @@ function seedNumerico(texto: string): number {
   return h;
 }
 
-export function gerarVariacoesLogo(nomeLoja: string, corBase: string | null, estilo: Estilo = 'minimalista'): LogoVariacao[] {
+export function gerarVariacoesLogo(nomeLoja: string, coresSelecionadas: string[], estilo: Estilo = 'minimalista'): LogoVariacao[] {
   const iniciais = iniciaisDe(nomeLoja);
   const seed = seedNumerico(nomeLoja || 'stlseller');
   const formas = FORMAS_POR_ESTILO[estilo] ?? FORMAS_LOGO;
-  const paleta = estilo === 'divertido' || estilo === 'colorido' ? CORES_LOGO : CORES_LOGO_CONTIDAS;
+  // Com cores escolhidas pelo usuário, cada variação cicla entre elas — com só
+  // 1 cor, as 4 variações saem na mesma cor (comportamento esperado).
+  const paleta = coresSelecionadas.length
+    ? coresSelecionadas
+    : (estilo === 'divertido' || estilo === 'colorido' ? CORES_LOGO : CORES_LOGO_CONTIDAS);
   return formas.map((forma, i) => {
-    const cor = corBase ?? paleta[(seed + i * 7) % paleta.length];
+    const cor = paleta[(coresSelecionadas.length ? i : seed + i * 7) % paleta.length];
     return { id: `${forma}-${i}`, iniciais, cor, forma };
   });
 }
