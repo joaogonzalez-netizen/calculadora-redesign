@@ -12,7 +12,7 @@ export type IconName =
   | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume' | 'list'
   | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box'
   | 'instagram' | 'facebook' | 'tiktok' | 'pinterest' | 'play'
-  | 'heart' | 'trash' | 'send';
+  | 'heart' | 'trash' | 'send' | 'download';
 
 const PATHS: Record<IconName, ReactElement> = {
   dashboard: (
@@ -232,6 +232,12 @@ const PATHS: Record<IconName, ReactElement> = {
     <path d="M12 20.5s-7.5-4.5-9.8-9.3C.6 7.6 2.3 4 5.9 4c2 0 3.5 1.1 4.3 2.6C10.9 5.1 12.4 4 14.4 4c3.6 0 5.3 3.6 3.7 7.2C15.5 16 12 20.5 12 20.5Z" />
   ),
   send: <path d="M12 19V5M5 12l7-7 7 7" />,
+  download: (
+    <>
+      <path d="M12 4v12M7 11l5 5 5-5" />
+      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+    </>
+  ),
   trash: (
     <>
       <path d="M4 7h16" />
