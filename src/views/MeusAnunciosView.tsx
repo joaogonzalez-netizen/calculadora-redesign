@@ -112,20 +112,20 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
       </div>
 
       <div className="ma-toolbar">
+        <div className="cluster-modo-toggle">
+          <button type="button" className={modo === 'cards' ? 'active' : ''} onClick={() => setModo('cards')}><Icon name="dashboard" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.cards')}</button>
+          <button type="button" className={modo === 'lista' ? 'active' : ''} onClick={() => setModo('lista')}><Icon name="folder" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.lista')}</button>
+        </div>
         <div className="cl-search ma-busca"><Icon name="search" size={15} /><input type="text" placeholder={t('meusAnuncios.buscarPlaceholder')} value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
+      </div>
+
+      <div className="ma-toolbar">
         <div className="chip-row sm">
           <button type="button" className={'chip sm' + (statusFiltro === 'todos' ? ' active' : '')} onClick={() => setStatusFiltro('todos')}>{t('calc.todos')}</button>
           {STATUS_FILTRO.map((s) => (
             <button type="button" key={s} className={'chip sm' + (statusFiltro === s ? ' active' : '')} onClick={() => setStatusFiltro(s)}>{t(CHAVES_STATUS_LABEL[s])}</button>
           ))}
         </div>
-        <div className="cluster-modo-toggle">
-          <button type="button" className={modo === 'cards' ? 'active' : ''} onClick={() => setModo('cards')}><Icon name="dashboard" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.cards')}</button>
-          <button type="button" className={modo === 'lista' ? 'active' : ''} onClick={() => setModo('lista')}><Icon name="folder" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.lista')}</button>
-        </div>
-      </div>
-
-      <div className="ma-toolbar">
         <PopoverList
           label={t('meusAnuncios.filtroMarketplaceLabel')}
           options={[t('calc.todos'), ...MARKETPLACES_FILTRO.map((m) => t(m.chave))]}
