@@ -22,7 +22,10 @@ interface Anuncio {
   id: string;
   nome: string;
   status: StatusAnuncio;
-  marketplace: MarketplaceAnuncio;
+  // Teste: um anúncio pode estar publicado em mais de um marketplace ao
+  // mesmo tempo (ex: Shopee + Mercado Livre) — por isso é uma lista, não um
+  // valor único.
+  marketplaces: MarketplaceAnuncio[];
   data: string;
   cor: string;
 }
@@ -53,13 +56,14 @@ const MARKETPLACES_FILTRO: { id: MarketplaceAnuncio; chave: string }[] = [
 ];
 
 const MOCK_INICIAL: Anuncio[] = [
-  { id: 'a1', nome: 'Incensário de Bicho-Preguiça', status: 'gerando', marketplace: 'ml', data: '08/09/2026', cor: 'linear-gradient(160deg,#e9eee6,#2b2f27)' },
-  { id: 'a2', nome: 'draft-pendente', status: 'baixado', marketplace: 'shopee', data: '03/09/2026', cor: 'linear-gradient(160deg,#efe6d8,#d9c7a3)' },
-  { id: 'a3', nome: 'Miniatura Dragão RPG', status: 'publicado', marketplace: 'etsy', data: '28/08/2026', cor: 'linear-gradient(160deg,#e8e3da,#c9beac)' },
-  { id: 'a4', nome: 'Suporte de Celular Articulado', status: 'publicado', marketplace: 'ml', data: '25/08/2026', cor: 'linear-gradient(160deg,#e0e7ef,#a9bbd1)' },
-  { id: 'a5', nome: 'Vaso Geométrico Facetado', status: 'publicado', marketplace: 'shopee', data: '20/08/2026', cor: 'linear-gradient(160deg,#f0e6ea,#d7b8c6)' },
-  { id: 'a6', nome: 'Porta-chaves Parede Minimalista', status: 'baixado', marketplace: 'outros', data: '18/08/2026', cor: 'linear-gradient(160deg,#eaf0e6,#bcd1ac)' },
-  { id: 'a7', nome: 'Luminária Geométrica de Mesa', status: 'publicado', marketplace: 'ml', data: '15/08/2026', cor: 'linear-gradient(160deg,#f4ecdf,#dcc59a)' },
+  { id: 'a1', nome: 'Incensário de Bicho-Preguiça', status: 'gerando', marketplaces: ['ml'], data: '08/09/2026', cor: 'linear-gradient(160deg,#e9eee6,#2b2f27)' },
+  { id: 'a2', nome: 'draft-pendente', status: 'baixado', marketplaces: ['shopee'], data: '03/09/2026', cor: 'linear-gradient(160deg,#efe6d8,#d9c7a3)' },
+  { id: 'a3', nome: 'Miniatura Dragão RPG', status: 'publicado', marketplaces: ['etsy'], data: '28/08/2026', cor: 'linear-gradient(160deg,#e8e3da,#c9beac)' },
+  // Teste: anúncio publicado em 2 marketplaces ao mesmo tempo.
+  { id: 'a4', nome: 'Suporte de Celular Articulado', status: 'publicado', marketplaces: ['ml', 'shopee'], data: '25/08/2026', cor: 'linear-gradient(160deg,#e0e7ef,#a9bbd1)' },
+  { id: 'a5', nome: 'Vaso Geométrico Facetado', status: 'publicado', marketplaces: ['shopee'], data: '20/08/2026', cor: 'linear-gradient(160deg,#f0e6ea,#d7b8c6)' },
+  { id: 'a6', nome: 'Porta-chaves Parede Minimalista', status: 'baixado', marketplaces: ['outros'], data: '18/08/2026', cor: 'linear-gradient(160deg,#eaf0e6,#bcd1ac)' },
+  { id: 'a7', nome: 'Luminária Geométrica de Mesa', status: 'publicado', marketplaces: ['ml'], data: '15/08/2026', cor: 'linear-gradient(160deg,#f4ecdf,#dcc59a)' },
 ];
 
 function paraData(d: string) {
@@ -84,7 +88,7 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
   const filtrados = anuncios
     .filter((a) => a.nome.toLowerCase().includes(busca.toLowerCase()))
     .filter((a) => statusFiltro === 'todos' || a.status === statusFiltro)
-    .filter((a) => marketplaceFiltro === t('calc.todos') || MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace && t(m.chave) === marketplaceFiltro))
+    .filter((a) => marketplaceFiltro === t('calc.todos') || a.marketplaces.some((id) => t(MARKETPLACES_FILTRO.find((m) => m.id === id)!.chave) === marketplaceFiltro))
     .sort((a, b) => {
       if (ordem === t('meusAnuncios.ordenarNomeAZ')) return a.nome.localeCompare(b.nome);
       const diff = paraData(b.data) - paraData(a.data);
@@ -160,7 +164,11 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
               <div className="ma-card-corpo">
                 <b>{a.nome}</b>
                 <div className="ma-card-meta">
-                  <span className={'mp-tag ' + classeTagMarketplace(a.marketplace)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span>
+                  <div className="ma-card-mp-row">
+                    {a.marketplaces.map((id) => (
+                      <span key={id} className={'mp-tag ' + classeTagMarketplace(id)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === id)!.chave)}</span>
+                    ))}
+                  </div>
                   <span>{a.data}</span>
                 </div>
                 <div className="ma-card-acoes">
@@ -192,7 +200,13 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
                         <span className="prod-name">{a.nome}</span>
                       </div>
                     </td>
-                    <td><span className={'mp-tag ' + classeTagMarketplace(a.marketplace)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span></td>
+                    <td>
+                      <div className="ma-card-mp-row">
+                        {a.marketplaces.map((id) => (
+                          <span key={id} className={'mp-tag ' + classeTagMarketplace(id)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === id)!.chave)}</span>
+                        ))}
+                      </div>
+                    </td>
                     <td>
                       <span className={'status-tag ' + STATUS_CLASSE[a.status]} title={t(CHAVES_STATUS_TOOLTIP[a.status])}>{t(CHAVES_STATUS_LABEL[a.status])}</span>
                     </td>
