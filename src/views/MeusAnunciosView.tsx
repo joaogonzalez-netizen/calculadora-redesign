@@ -119,10 +119,14 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
 
       {modo === 'cards' ? (
         <div className="ma-grid">
-          <button type="button" className="ma-card-novo" onClick={onCriarAnuncio}>
-            <span className="ma-card-novo-icone"><Icon name="plus" size={20} /></span>
-            <b>{t('meusAnuncios.criarNovoAnuncio')}</b>
-            <span>{t('meusAnuncios.criarNovoAnuncioDesc')}</span>
+          <button type="button" className="ma-card ma-card-novo" onClick={onCriarAnuncio}>
+            <div className="ma-card-media ma-card-novo-media">
+              <span className="ma-card-novo-icone"><Icon name="plus" size={20} /></span>
+            </div>
+            <div className="ma-card-corpo ma-card-novo-corpo">
+              <b>{t('meusAnuncios.criarNovoAnuncio')}</b>
+              <span>{t('meusAnuncios.criarNovoAnuncioDesc')}</span>
+            </div>
           </button>
 
           {filtrados.map((a) => (
