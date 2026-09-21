@@ -287,9 +287,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
    de filtro ao lado (.ctl-btn/PopoverList): fundo branco, borda, rótulo. */
 .ma-filtro-status{
   display:flex;align-items:center;gap:9px;border:1px solid var(--border-strong);background:var(--surface);
-  border-radius:12px;padding:5px 14px 5px 14px;flex-wrap:wrap;
+  border-radius:9px;padding:0 8px 0 13px;flex-wrap:nowrap;height:33px;box-sizing:border-box;
 }
-.ma-filtro-status .chip-row{background:transparent;padding:0;}
+.ma-filtro-status .chip-row{background:transparent;padding:0;height:100%;align-items:center;}
+.ma-filtro-status .chip.sm{padding:4px 12px;height:25px;box-sizing:border-box;display:flex;align-items:center;}
 .chip{
   padding:9px 18px;border-radius:9px;border:none;background:transparent;color:var(--text-2);
   font-size:13.5px;font-weight:700;transition:.15s;
