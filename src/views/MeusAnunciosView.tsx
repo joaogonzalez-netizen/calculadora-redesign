@@ -120,11 +120,14 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
       </div>
 
       <div className="ma-toolbar">
-        <div className="chip-row sm">
-          <button type="button" className={'chip sm' + (statusFiltro === 'todos' ? ' active' : '')} onClick={() => setStatusFiltro('todos')}>{t('calc.todos')}</button>
-          {STATUS_FILTRO.map((s) => (
-            <button type="button" key={s} className={'chip sm' + (statusFiltro === s ? ' active' : '')} onClick={() => setStatusFiltro(s)}>{t(CHAVES_STATUS_LABEL[s])}</button>
-          ))}
+        <div className="ma-filtro-status">
+          <span className="popover-label">{t('meusAnuncios.filtroStatusLabel')}:</span>
+          <div className="chip-row sm">
+            <button type="button" className={'chip sm' + (statusFiltro === 'todos' ? ' active' : '')} onClick={() => setStatusFiltro('todos')}>{t('calc.todos')}</button>
+            {STATUS_FILTRO.map((s) => (
+              <button type="button" key={s} className={'chip sm' + (statusFiltro === s ? ' active' : '')} onClick={() => setStatusFiltro(s)}>{t(CHAVES_STATUS_LABEL[s])}</button>
+            ))}
+          </div>
         </div>
         <PopoverList
           label={t('meusAnuncios.filtroMarketplaceLabel')}
