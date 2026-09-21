@@ -103,6 +103,13 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
             <button type="button" key={s} className={'chip sm' + (statusFiltro === s ? ' active' : '')} onClick={() => setStatusFiltro(s)}>{t(CHAVES_STATUS_LABEL[s])}</button>
           ))}
         </div>
+        <div className="cluster-modo-toggle">
+          <button type="button" className={modo === 'cards' ? 'active' : ''} onClick={() => setModo('cards')}><Icon name="dashboard" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.cards')}</button>
+          <button type="button" className={modo === 'lista' ? 'active' : ''} onClick={() => setModo('lista')}><Icon name="folder" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.lista')}</button>
+        </div>
+      </div>
+
+      <div className="ma-toolbar">
         <PopoverList
           label={t('meusAnuncios.filtroMarketplaceLabel')}
           options={[t('calc.todos'), ...MARKETPLACES_FILTRO.map((m) => t(m.chave))]}
@@ -110,10 +117,6 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
           onChange={setMarketplaceFiltro}
         />
         <PopoverList label="" options={ORDENS} value={ordem} onChange={setOrdem} />
-        <div className="cluster-modo-toggle">
-          <button type="button" className={modo === 'cards' ? 'active' : ''} onClick={() => setModo('cards')}><Icon name="dashboard" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.cards')}</button>
-          <button type="button" className={modo === 'lista' ? 'active' : ''} onClick={() => setModo('lista')}><Icon name="folder" size={13} style={{ verticalAlign: '-2px', marginRight: 5 }} /> {t('meusAnuncios.lista')}</button>
-        </div>
         <button type="button" className="btn-dark ma-novo" onClick={onCriarAnuncio}>{t('meusAnuncios.novoAnuncio')}</button>
       </div>
 
