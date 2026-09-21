@@ -19,6 +19,10 @@ interface Anuncio {
   marketplace: MarketplaceAnuncio;
   data: string;
   cor: string;
+  /** Selo independente do status — um anúncio Rascunho ou Publicado pode ter
+   * sido baixado (ou não). Baixar não muda o status, e editar depois não
+   * some com o selo — é só um "isso já foi baixado alguma vez". */
+  baixado: boolean;
 }
 
 const CHAVES_STATUS_LABEL: Record<StatusAnuncio, string> = {
@@ -42,13 +46,13 @@ const MARKETPLACES_FILTRO: { id: MarketplaceAnuncio; chave: string }[] = [
 ];
 
 const MOCK_INICIAL: Anuncio[] = [
-  { id: 'a1', nome: 'Incensário de Bicho-Preguiça', status: 'gerando', marketplace: 'ml', data: '08/09/2026', cor: 'linear-gradient(160deg,#e9eee6,#2b2f27)' },
-  { id: 'a2', nome: 'draft-pendente', status: 'rascunho', marketplace: 'shopee', data: '03/09/2026', cor: 'linear-gradient(160deg,#efe6d8,#d9c7a3)' },
-  { id: 'a3', nome: 'Miniatura Dragão RPG', status: 'publicado', marketplace: 'etsy', data: '28/08/2026', cor: 'linear-gradient(160deg,#e8e3da,#c9beac)' },
-  { id: 'a4', nome: 'Suporte de Celular Articulado', status: 'publicado', marketplace: 'ml', data: '25/08/2026', cor: 'linear-gradient(160deg,#e0e7ef,#a9bbd1)' },
-  { id: 'a5', nome: 'Vaso Geométrico Facetado', status: 'publicado', marketplace: 'shopee', data: '20/08/2026', cor: 'linear-gradient(160deg,#f0e6ea,#d7b8c6)' },
-  { id: 'a6', nome: 'Porta-chaves Parede Minimalista', status: 'rascunho', marketplace: 'outros', data: '18/08/2026', cor: 'linear-gradient(160deg,#eaf0e6,#bcd1ac)' },
-  { id: 'a7', nome: 'Luminária Geométrica de Mesa', status: 'publicado', marketplace: 'ml', data: '15/08/2026', cor: 'linear-gradient(160deg,#f4ecdf,#dcc59a)' },
+  { id: 'a1', nome: 'Incensário de Bicho-Preguiça', status: 'gerando', marketplace: 'ml', data: '08/09/2026', cor: 'linear-gradient(160deg,#e9eee6,#2b2f27)', baixado: false },
+  { id: 'a2', nome: 'draft-pendente', status: 'rascunho', marketplace: 'shopee', data: '03/09/2026', cor: 'linear-gradient(160deg,#efe6d8,#d9c7a3)', baixado: true },
+  { id: 'a3', nome: 'Miniatura Dragão RPG', status: 'publicado', marketplace: 'etsy', data: '28/08/2026', cor: 'linear-gradient(160deg,#e8e3da,#c9beac)', baixado: false },
+  { id: 'a4', nome: 'Suporte de Celular Articulado', status: 'publicado', marketplace: 'ml', data: '25/08/2026', cor: 'linear-gradient(160deg,#e0e7ef,#a9bbd1)', baixado: true },
+  { id: 'a5', nome: 'Vaso Geométrico Facetado', status: 'publicado', marketplace: 'shopee', data: '20/08/2026', cor: 'linear-gradient(160deg,#f0e6ea,#d7b8c6)', baixado: false },
+  { id: 'a6', nome: 'Porta-chaves Parede Minimalista', status: 'rascunho', marketplace: 'outros', data: '18/08/2026', cor: 'linear-gradient(160deg,#eaf0e6,#bcd1ac)', baixado: false },
+  { id: 'a7', nome: 'Luminária Geométrica de Mesa', status: 'publicado', marketplace: 'ml', data: '15/08/2026', cor: 'linear-gradient(160deg,#f4ecdf,#dcc59a)', baixado: false },
 ];
 
 function paraData(d: string) {
@@ -82,6 +86,7 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
 
   function baixar(a: Anuncio) {
     alert(`"${a.nome}" — ${t('meusAnuncios.baixarEmBreve')}`);
+    setAnuncios((prev) => prev.map((x) => (x.id === a.id ? { ...x, baixado: true } : x)));
   }
   function excluir(a: Anuncio) {
     if (!confirm(`Excluir "${a.nome}"? Essa ação não pode ser desfeita.`)) return;
@@ -136,6 +141,7 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
             <div className="ma-card" key={a.id}>
               <div className="ma-card-topo">
                 <span className={'status-tag ' + STATUS_CLASSE[a.status]}>{t(CHAVES_STATUS_LABEL[a.status])}</span>
+                {a.baixado && <span className="ma-status-baixado"><Icon name="download" size={10} /> {t('meusAnuncios.baixado')}</span>}
               </div>
               <div className="ma-card-media" style={{ background: a.cor }} />
               <div className="ma-card-corpo">
@@ -174,7 +180,12 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
                       </div>
                     </td>
                     <td><span className="mp-tag">{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span></td>
-                    <td><span className={'status-tag ' + STATUS_CLASSE[a.status]}>{t(CHAVES_STATUS_LABEL[a.status])}</span></td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span className={'status-tag ' + STATUS_CLASSE[a.status]}>{t(CHAVES_STATUS_LABEL[a.status])}</span>
+                        {a.baixado && <span className="ma-status-baixado"><Icon name="download" size={10} /> {t('meusAnuncios.baixado')}</span>}
+                      </div>
+                    </td>
                     <td>{a.data}</td>
                     <td>
                       <div className="ma-card-acoes" style={{ justifyContent: 'flex-end' }}>
