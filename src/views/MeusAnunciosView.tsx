@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
+import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { useI18n } from '../context/I18nContext';
 
 // Réplica da tela "Meus Anúncios" em produção (print de João, 08/09/2026) —
@@ -156,7 +157,7 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
               <div className="ma-card-corpo">
                 <b>{a.nome}</b>
                 <div className="ma-card-meta">
-                  <span className="mp-tag">{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span>
+                  <span className={'mp-tag ' + classeTagMarketplace(a.marketplace)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span>
                   <span>{a.data}</span>
                 </div>
                 <div className="ma-card-acoes">
@@ -188,7 +189,7 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
                         <span className="prod-name">{a.nome}</span>
                       </div>
                     </td>
-                    <td><span className="mp-tag">{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span></td>
+                    <td><span className={'mp-tag ' + classeTagMarketplace(a.marketplace)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === a.marketplace)!.chave)}</span></td>
                     <td>
                       <span className={'status-tag ' + STATUS_CLASSE[a.status]} title={t(CHAVES_STATUS_TOOLTIP[a.status])}>{t(CHAVES_STATUS_LABEL[a.status])}</span>
                     </td>

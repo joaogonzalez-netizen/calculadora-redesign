@@ -898,7 +898,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .prod-table td{padding:14px 16px;border-top:1px solid var(--border);vertical-align:top;}
 .prod-name{font-weight:600;font-size:13.5px;}
 .prod-sku{font-size:11.5px;color:var(--text-3);margin-top:2px;}
-.mp-tag{background:#fff2d9;color:#8a5a00;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+/* Cor por marketplace — ver src/lib/marketplaceTag.ts. Base = tom neutro pra
+   quem não é nenhum dos 4 mapeados (Outros, Amazon, Venda direta...). */
+.mp-tag{background:#f1f2f1;color:var(--text-2);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+.mp-tag-ml{background:#fff2d9;color:#8a5a00;}
+.mp-tag-shopee{background:#fde2e1;color:#b42318;}
+.mp-tag-etsy{background:#ffe4cc;color:#9a4b12;}
+.mp-tag-tiktok{background:#dbe9ff;color:#1d4ed8;}
 .status-tag{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
 .status-ativo{background:var(--primary-tint);color:var(--primary-dark);}
 .status-pausado{background:#fff7e6;color:#8a6100;}

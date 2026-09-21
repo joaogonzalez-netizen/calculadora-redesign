@@ -1,5 +1,6 @@
 import type { Pedido } from '../../lib/pedidosMock';
 import { brl } from '../../lib/format';
+import { classeTagMarketplace } from '../../lib/marketplaceTag';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
@@ -40,7 +41,7 @@ export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onCl
         </div>
 
         <div className="ped-drawer-badges">
-          <span className="mp-tag">{pedido.marketplace}</span>
+          <span className={'mp-tag ' + classeTagMarketplace(pedido.marketplace)}>{pedido.marketplace}</span>
           <span className="status-tag status-ativo">{traduzirStatusPedido(t, pedido.status)}</span>
           <span className="status-tag status-ativo">{traduzirPagamento(t, pedido.pagamento)}</span>
         </div>

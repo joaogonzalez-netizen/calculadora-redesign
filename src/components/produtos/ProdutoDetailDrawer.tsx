@@ -1,4 +1,5 @@
 import type { Produto } from '../../lib/produtosMock';
+import { classeTagMarketplace } from '../../lib/marketplaceTag';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
@@ -20,7 +21,7 @@ export default function ProdutoDetailDrawer({ produto, onClose }: { produto: Pro
             <h4>{produto.nome}</h4>
             <div className="pd-sub">#{produto.sku}</div>
             <div className="pd-tags">
-              <span className="mp-tag">{produto.marketplace}</span>
+              <span className={'mp-tag ' + classeTagMarketplace(produto.marketplace)}>{produto.marketplace}</span>
               <span className={'status-tag status-' + produto.status.toLowerCase()}>{traduzirStatusProduto(t, produto.status)}</span>
             </div>
           </div>

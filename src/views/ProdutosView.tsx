@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ORDENS, PERIODOS, PRODUTOS, PRODUTOS_KPIS, type Produto, type ProdutoStatus } from '../lib/produtosMock';
 import { PRODUTO_VINCULOS_KEY, readJson, writeJson, type ProdutoVinculos } from '../lib/storage';
+import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
@@ -150,7 +151,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                       <div className="prod-name">{p.nome}</div>
                       <div className="prod-sku">{p.sku} · {p.variacoes.length} var. · dd/mm/aaaa</div>
                     </td>
-                    <td><span className="mp-tag">{p.marketplace}</span></td>
+                    <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                     <td><span className={'status-tag status-' + p.status.toLowerCase()}>{traduzirStatus(p.status)}</span></td>
                     <td>
                       <div>{p.estoque} un.</div>

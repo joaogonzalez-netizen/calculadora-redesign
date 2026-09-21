@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { PEDIDOS, PEDIDOS_KPIS, type Pedido } from '../lib/pedidosMock';
 import { brl } from '../lib/format';
+import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
@@ -122,7 +123,7 @@ export default function PedidosView() {
                     <div className="prod-name">{p.produto}</div>
                     <div className="prod-sku">#{p.codigoMlb} · {p.qtd} un. · {p.data}</div>
                   </td>
-                  <td><span className="mp-tag">{p.marketplace}</span></td>
+                  <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                   <td>
                     <div className="prod-name">{p.comprador}</div>
                     <div className="prod-sku">{p.compradorHandle}</div>

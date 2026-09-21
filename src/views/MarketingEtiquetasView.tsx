@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useI18n } from '../context/I18nContext';
 import { PEDIDOS } from '../lib/pedidosMock';
+import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { preencherMensagemEtiqueta, getCreditosMock, descontarCreditosMock, CUSTO_CREDITOS } from '../lib/marketing';
 
 // V1 mockada — fonte do dado é Pedidos (não o Histórico da Calculadora, que
@@ -72,7 +73,7 @@ export default function MarketingEtiquetasView() {
                       <td><input type="checkbox" checked={selecionados.has(p.id)} onChange={() => alternar(p.id)} /></td>
                       <td><div className="prod-name">{p.produto}</div></td>
                       <td><div className="prod-name">{p.comprador}</div></td>
-                      <td><span className="mp-tag">{p.marketplace}</span></td>
+                      <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                     </tr>
                   ))}
                 </tbody>
