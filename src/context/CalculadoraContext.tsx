@@ -3,6 +3,15 @@ import type { AccItem, CalculoResultado, CalculoState, FilamentoItem, HistoricoE
 import { calcular, validar, type ValidacaoFaltando } from '../lib/calc';
 import { getHistorico, saveHistoricoArr } from '../lib/storage';
 import { useLibrarias } from './LibrariasContext';
+import { useI18n } from './I18nContext';
+import type { Idioma } from '../lib/i18n';
+
+// Versão ES (Argentina) já nasce com o IVA de 21%; PT/EN seguem o imposto das Preferências.
+const IVA_ARGENTINA = 21;
+function impostoPadrao(idioma: Idioma, prefsImposto: number | undefined, atual: number): number {
+  if (idioma === 'es') return IVA_ARGENTINA;
+  return prefsImposto ?? atual;
+}
 
 let filCounter = 0;
 let accCounter = 0;
@@ -57,6 +66,7 @@ const CalculadoraCtx = createContext<Ctx | null>(null);
 
 export function CalculadoraProvider({ children }: { children: ReactNode }) {
   const { prefs, filamentos, impressoras, custosPadrao } = useLibrarias();
+  const { idioma } = useI18n();
   const [state, setState] = useState<CalculoState>(estadoInicial);
   const [errorIds, setErrorIds] = useState<Set<string>>(new Set());
   const aplicouPrefs = useRef(false);
@@ -70,7 +80,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       const next: CalculoState = {
         ...prev,
         precoKwh: prefs.kwh || prev.precoKwh,
-        imposto: prefs.imposto ?? prev.imposto,
+        imposto: impostoPadrao(idioma, prefs.imposto, prev.imposto),
         margemDesejada: prefs.margem || prev.margemDesejada,
         pgtoPixTaxa: prefs.taxaPix ?? prev.pgtoPixTaxa,
         pgtoPixDesconto: prefs.descontoPix ?? prev.pgtoPixDesconto,
@@ -97,6 +107,14 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Trocar de idioma troca o imposto padrão junto (IVA 21% no ES).
+  const idiomaAnterior = useRef(idioma);
+  useEffect(() => {
+    if (idiomaAnterior.current === idioma) return;
+    idiomaAnterior.current = idioma;
+    setState((prev) => ({ ...prev, imposto: impostoPadrao(idioma, prefs.imposto, 0) }));
+  }, [idioma, prefs.imposto]);
+
   const set = <K extends keyof CalculoState>(key: K, value: CalculoState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));
   };
@@ -122,7 +140,8 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
   }, [faltando, errorIds]);
 
   const resetCalculadora = () => {
-    setState(estadoInicial());
+    const inicial = estadoInicial();
+    setState({ ...inicial, imposto: impostoPadrao(idioma, prefs.imposto, inicial.imposto) });
     aplicouPrefs.current = false;
     setErrorIds(new Set());
   };

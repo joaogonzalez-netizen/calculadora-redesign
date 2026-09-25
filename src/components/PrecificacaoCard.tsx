@@ -5,7 +5,7 @@ import InfoDot from './InfoDot';
 
 export default function PrecificacaoCard() {
   const { state, set, errorIds } = useCalculadora();
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
 
   return (
     <Card icon="$" title={t('calc.precificacao')}>
@@ -43,7 +43,7 @@ export default function PrecificacaoCard() {
       )}
 
       <div className="field">
-        <label>{t('calc.impostoPct')}</label>
+        <label>{t('calc.impostoPct')}{idioma === 'es' && <> <InfoDot text={t('calc.impostoIvaInfo')} /></>}</label>
         <div className="suffix-wrap"><input type="number" step="0.1" value={state.imposto} onChange={(e) => set('imposto', parseFloat(e.target.value) || 0)} /><span className="sfx">%</span></div>
         <div className="hint">{t('calc.exSimplesNacionalHint')}</div>
       </div>
