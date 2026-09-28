@@ -73,6 +73,7 @@ const OUTROS_MARKETPLACES: Destino[] = [
 
 const OUTRAS_REDES: Destino[] = [
   { id: 'instagram', nome: 'Instagram', icone: 'instagram', cor: '#d62976' },
+  { id: 'facebook', nome: 'Facebook', icone: 'facebook', cor: '#1877f2' },
   { id: 'tiktok', nome: 'TikTok', icone: 'tiktok', cor: '#14181a' },
   { id: 'pinterest', nome: 'Pinterest', icone: 'pinterest', cor: '#e60023' },
 ];
