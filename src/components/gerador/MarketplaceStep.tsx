@@ -54,28 +54,28 @@ const PLANOS: Plano[] = [
 // Sub-escolha só aparece quando o vendedor marca "Outros" — muita gente
 // caía nessa opção por falta de destino específico, então aqui ele conta
 // exatamente pra onde vai (pode ser mais de um) e a IA ajusta o que gerar.
+// Cards simples (só o nome) — sem cor/ícone por destino, pra manter a grade
+// rápida de escanear mesmo com vários itens (ver print de referência do João).
 interface Destino {
   id: string;
   nome: string;
-  icone?: IconName;
-  cor: string;
 }
 
 const OUTROS_MARKETPLACES: Destino[] = [
-  { id: 'amazon', nome: 'Amazon', cor: '#ff9900' },
-  { id: 'aliexpress', nome: 'AliExpress', cor: '#e2231a' },
-  { id: 'ebay', nome: 'eBay', cor: '#e53238' },
+  { id: 'amazon', nome: 'Amazon' },
+  { id: 'aliexpress', nome: 'AliExpress' },
+  { id: 'ebay', nome: 'eBay' },
   // "Facebook Marketplace" — fica aqui, não em Redes sociais, porque é canal
   // de venda de verdade (forte nos EUA e principalmente na Argentina), não
   // só uma postagem social.
-  { id: 'facebook-marketplace', nome: 'Facebook Marketplace', icone: 'facebook', cor: '#1877f2' },
+  { id: 'facebook-marketplace', nome: 'Facebook Marketplace' },
 ];
 
 const OUTRAS_REDES: Destino[] = [
-  { id: 'instagram', nome: 'Instagram', icone: 'instagram', cor: '#d62976' },
-  { id: 'facebook', nome: 'Facebook', icone: 'facebook', cor: '#1877f2' },
-  { id: 'tiktok', nome: 'TikTok', icone: 'tiktok', cor: '#14181a' },
-  { id: 'pinterest', nome: 'Pinterest', icone: 'pinterest', cor: '#e60023' },
+  { id: 'instagram', nome: 'Instagram' },
+  { id: 'facebook', nome: 'Facebook' },
+  { id: 'tiktok', nome: 'TikTok' },
+  { id: 'pinterest', nome: 'Pinterest' },
 ];
 
 function GrupoDestino({ titulo, itens, selecionados, onAlternar }: { titulo: string; itens: Destino[]; selecionados: string[]; onAlternar: (id: string) => void }) {
@@ -87,11 +87,7 @@ function GrupoDestino({ titulo, itens, selecionados, onAlternar }: { titulo: str
           const ativo = selecionados.includes(d.id);
           return (
             <button type="button" key={d.id} className={'ger-destino-card' + (ativo ? ' selecionado' : '')} onClick={() => onAlternar(d.id)}>
-              <span className={'ger-destino-icone' + (d.icone ? ' com-glifo' : '')} style={{ background: d.cor }}>
-                {d.icone && <Icon name={d.icone} size={15} style={{ color: '#fff' }} />}
-              </span>
               <span className="ger-destino-nome">{d.nome}</span>
-              <span className="ger-destino-check"><Icon name="check" size={12} /></span>
             </button>
           );
         })}
