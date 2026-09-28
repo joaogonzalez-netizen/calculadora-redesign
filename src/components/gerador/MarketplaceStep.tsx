@@ -64,11 +64,15 @@ interface Destino {
 const OUTROS_MARKETPLACES: Destino[] = [
   { id: 'amazon', nome: 'Amazon', cor: '#ff9900' },
   { id: 'aliexpress', nome: 'AliExpress', cor: '#e2231a' },
+  { id: 'ebay', nome: 'eBay', cor: '#e53238' },
+  // "Facebook Marketplace" — fica aqui, não em Redes sociais, porque é canal
+  // de venda de verdade (forte nos EUA e principalmente na Argentina), não
+  // só uma postagem social.
+  { id: 'facebook-marketplace', nome: 'Facebook Marketplace', icone: 'facebook', cor: '#1877f2' },
 ];
 
 const OUTRAS_REDES: Destino[] = [
   { id: 'instagram', nome: 'Instagram', icone: 'instagram', cor: '#d62976' },
-  { id: 'facebook', nome: 'Facebook', icone: 'facebook', cor: '#1877f2' },
   { id: 'tiktok', nome: 'TikTok', icone: 'tiktok', cor: '#14181a' },
   { id: 'pinterest', nome: 'Pinterest', icone: 'pinterest', cor: '#e60023' },
 ];
