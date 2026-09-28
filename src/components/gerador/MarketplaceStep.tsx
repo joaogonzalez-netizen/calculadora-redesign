@@ -67,8 +67,11 @@ const OUTROS_MARKETPLACES: Destino[] = [
   { id: 'ebay', nome: 'eBay' },
   // "Facebook Marketplace" — fica aqui, não em Redes sociais, porque é canal
   // de venda de verdade (forte nos EUA e principalmente na Argentina), não
-  // só uma postagem social.
+  // só uma postagem social. Mesma lógica pra "TikTok Shop" vs. "TikTok" (rede).
   { id: 'facebook-marketplace', nome: 'Facebook Marketplace' },
+  { id: 'tiktok-shop', nome: 'TikTok Shop' },
+  { id: 'elo7', nome: 'Elo7' },
+  { id: 'loja-propria', nome: 'Loja própria' },
 ];
 
 const OUTRAS_REDES: Destino[] = [
