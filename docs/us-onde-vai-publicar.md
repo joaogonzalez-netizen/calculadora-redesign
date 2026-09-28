@@ -21,7 +21,7 @@ Como maker usando o Gerador de Anúncios em qualquer um dos 3 idiomas do STLSell
 
 - Cada idioma mostra só os marketplaces relevantes pro mercado dele (já implementado via `GERADOR_MARKETPLACES_VISIVEIS`, ver Critérios de Aceite por idioma abaixo).
 - Modelo de geração (Core/Premium) com nome, itens inclusos/não inclusos e custo em créditos, igual nos 3 idiomas.
-- Sub-fluxo "Outros": ao marcar o marketplace "Outros", abre a seção "Pra onde vamos gerar esse anúncio?" com 3 grupos — Outros marketplaces (Amazon, AliExpress, eBay, Facebook Marketplace), Redes sociais (Instagram, Facebook, TikTok, Pinterest) e um campo de destino customizado ("Não é nenhum desses?").
+- Sub-fluxo "Outros": ao marcar o marketplace "Outros", abre a seção "Pra onde vamos gerar esse anúncio?" com 3 grupos — Outros marketplaces (Amazon, AliExpress, eBay, Facebook Marketplace, TikTok Shop, Elo7, Loja própria), Redes sociais (Instagram, Facebook, TikTok, Pinterest) e um campo de destino customizado ("Não é nenhum desses?"). Cards simples (só o nome, sem ícone/cor por item), em grade que cabe os marketplaces em até 2 linhas e as redes sociais em 1 linha na largura padrão de conteúdo.
 - Todo o texto do passo — título, descrição, nomes de marketplace, rótulos do sub-fluxo, contagem de destinos selecionados e aviso de validação — traduzido de verdade em PT, ES e EN, sem fallback.
 - Validação: com "Outros" selecionado, precisa de pelo menos 1 destino (marketplace, rede social ou customizado) marcado pra liberar o "Continuar" — igual nos 3 idiomas.
 
@@ -62,11 +62,12 @@ Como maker usando o Gerador de Anúncios em qualquer um dos 3 idiomas do STLSell
 
 ### Geral (todos os idiomas)
 
-- eBay e Facebook Marketplace aparecem no grupo "Outros marketplaces" nos 3 idiomas (não são específicos de um mercado).
-- Facebook (rede social) e Facebook Marketplace continuam sendo destinos independentes, podendo ser marcados juntos.
+- Grupo "Outros marketplaces" mostra Amazon, AliExpress, eBay, Facebook Marketplace, TikTok Shop, Elo7 e Loja própria nos 3 idiomas (não são específicos de um mercado).
+- Facebook (rede social) e Facebook Marketplace são destinos independentes, podendo ser marcados juntos — mesma lógica pra TikTok (rede) e TikTok Shop (marketplace).
+- Cards de destino são simples (nome centralizado, sem ícone/cor própria), com estado selecionado marcado por borda e fundo verdes.
 - A navegação do wizard (Voltar, Continuar, Pular para o resumo) funciona e está traduzida nos 3 idiomas.
 
 ## Perguntas em Aberto
 
-- Os destinos de "Outros" (Amazon, AliExpress, eBay, Facebook Marketplace, Instagram, Facebook, TikTok, Pinterest) devem ser os mesmos pros 3 idiomas, ou faz sentido restringir por mercado (ex.: eBay só fazer sentido aparecer em EN)? Hoje a lista é fixa pros 3 — decisão de produto em aberto.
+- Os destinos de "Outros" (Amazon, AliExpress, eBay, Facebook Marketplace, TikTok Shop, Elo7, Loja própria, Instagram, Facebook, TikTok, Pinterest) devem ser os mesmos pros 3 idiomas, ou faz sentido restringir por mercado (ex.: Elo7 é brasileiro, eBay faz mais sentido em EN)? Hoje a lista é fixa pros 3 — decisão de produto em aberto.
 - Quem faz a tradução real do inglês (não é uma tarefa de engenharia só) — precisa de revisão de um falante nativo antes de ir pra produção, ou a tradução literal já resolve pro V1?
