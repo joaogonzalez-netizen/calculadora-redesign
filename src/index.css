@@ -1146,7 +1146,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 
 .ger-destino-grupo{margin-bottom:26px;}
 .ger-destino-grupo-titulo{font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;}
-.ger-destino-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+.ger-destino-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
 .ger-destino-card{
   display:flex;align-items:center;justify-content:center;text-align:center;min-height:52px;
   background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-m);padding:14px 16px;
