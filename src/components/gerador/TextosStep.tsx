@@ -275,8 +275,8 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
                 { chave: 'material', label: t('gerador.material'), valor: etsyAttrs.material },
                 { chave: 'cor', label: t('gerador.corConfirmada'), valor: etsyAttrs.cor },
                 { chave: 'largura', label: t('gerador.larguraX'), valor: etsyAttrs.largura },
-                { chave: 'profundidade', label: t('gerador.profundidadeY'), valor: etsyAttrs.profundidade },
-                { chave: 'altura', label: t('gerador.alturaZ'), valor: etsyAttrs.altura },
+                { chave: 'profundidade', label: t('gerador.alturaY'), valor: etsyAttrs.profundidade },
+                { chave: 'altura', label: t('gerador.comprimentoZ'), valor: etsyAttrs.altura },
               ].map((attr) => (
                 <div className="ger-txt-attr-row" key={attr.chave}>
                   <span className="ger-txt-attr-label">{attr.label}</span>

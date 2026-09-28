@@ -6,25 +6,31 @@ interface InfoState {
   idioma: 'pt' | 'en';
   nome: string;
   contexto: string;
-  descricaoConfirmada: boolean;
+  corConfirmada: string;
+  ondeFicaUsado: string;
+  principalDiferencial: string;
+  paraQueServe: string;
   largura: string;
-  profundidade: string;
   altura: string;
+  comprimento: string;
   peso: string;
   material: string;
   kitUnidade: 'kit' | 'unidade';
   personalizavel: boolean;
   personalizacao: string;
+  partesEspeciais: string;
+  ocasiaoPrincipal: string;
   itensInclusos: string;
   compatibilidade: string;
   outrasCaracteristicas: string;
   termoBusca: string;
   sku: string;
   cuidadosEspeciais: string;
+  estruturalSustentaPeso: string;
+  contatoComAlimento: string;
   usaEnergia: boolean;
   voltagem: string;
   sistemaEnergia: string;
-  entradasConfirmadas: string;
   comNarracao: boolean;
   tomNarracao: string;
   vozNarracao: string;
@@ -32,24 +38,34 @@ interface InfoState {
 
 // Sugestões que a IA "aplicou" a partir das imagens do passo 1 — mock fixo,
 // mas em formato pronto pra trocar por uma geração real depois. "Reaplicar
-// sugestões" só restaura esse mesmo mock (sem chamada real ainda).
+// sugestões" só restaura esse mesmo mock (sem chamada real ainda). Os campos
+// de confirmação (cor, onde fica, diferencial, pra que serve...) existem pra
+// o usuário revisar fato por fato, em vez de só marcar "li e confirmo" pro
+// parágrafo inteiro — ver docs/print de referência do João, 28/09/2026.
 const MOCK_INICIAL: InfoState = {
   idioma: 'pt',
   nome: 'Esqueleto de Dinossauro em 3D',
-  contexto: 'Essa peça decorativa de esqueleto de dinossauro traz um toque divertido e educativo para sua decoração. Ideal para estudantes de paleontologia e entusiastas, é perfeita para exibições em salas de aula ou como adorno em escritórios e quartos.\nMaterial: PLA\nCor: Creme',
-  descricaoConfirmada: false,
-  largura: '10', profundidade: '8', altura: '6',
+  contexto: 'Essa peça decorativa de esqueleto de dinossauro traz um toque divertido e educativo para sua decoração. Ideal para estudantes de paleontologia e entusiastas, é perfeita para exibições em salas de aula ou como adorno em escritórios e quartos.\nMaterial: PLA\nCor: Branco osso',
+  corConfirmada: 'Branco osso',
+  ondeFicaUsado: 'Estante, mesa ou sala de aula',
+  principalDiferencial: 'Peças articuladas, montagem sem cola',
+  paraQueServe: 'Decoração e material educativo sobre paleontologia',
+  largura: '10', altura: '6', comprimento: '8',
   peso: '55', material: 'PLA',
   kitUnidade: 'unidade',
   personalizavel: false,
   personalizacao: '',
+  partesEspeciais: 'Articulado nas juntas',
+  ocasiaoPrincipal: '',
   itensInclusos: '', compatibilidade: '',
   outrasCaracteristicas: 'Acabamento liso e detalhado, design inspirado em dinossauros, ideal para exibição em prateleiras ou mesas.',
   termoBusca: 'Dinossauro de brinquedo',
   sku: '', cuidadosEspeciais: '',
+  estruturalSustentaPeso: 'Não, decorativo',
+  contatoComAlimento: 'Não',
   usaEnergia: false,
   voltagem: 'N/A',
-  sistemaEnergia: '', entradasConfirmadas: '',
+  sistemaEnergia: '',
   comNarracao: true,
   tomNarracao: 'emocional',
   vozNarracao: 'amelia',
@@ -93,15 +109,19 @@ export default function InformacoesStep({ onVoltar, onContinuar }: Props) {
     alert(`Em breve: prévia de áudio da voz "${nome}".`);
   }
 
-  // Só os campos que realmente mudam o resultado e que a IA não tem como
-  // advinhar sozinha — o resto fica opcional (ver discussão do plano).
+  function atualizarContexto() {
+    alert('Em breve: gerar a descrição de novo a partir do nome do produto.');
+  }
+
+  // Só o que realmente muda o resultado e que a IA não tem como advinhar
+  // sozinha (nome + dimensões) trava o "Continuar" — os campos de confirmação
+  // (cor, onde fica, diferencial...) vêm pré-preenchidos e o usuário ajusta
+  // se quiser, sem precisar de um checkbox à parte pra "liberar" a tela.
   const podeContinuar =
     info.nome.trim() !== '' &&
-    info.material.trim() !== '' &&
     info.largura.trim() !== '' &&
-    info.profundidade.trim() !== '' &&
     info.altura.trim() !== '' &&
-    info.descricaoConfirmada;
+    info.comprimento.trim() !== '';
 
   return (
     <>
@@ -135,16 +155,29 @@ export default function InformacoesStep({ onVoltar, onContinuar }: Props) {
           <h4 className="ger-secao-titulo" style={{ marginTop: 0 }}>{t('gerador.secaoIdentificacao')}</h4>
           <div className="field">
             <label>{t('gerador.nomeDoProduto')}</label>
-            <input type="text" value={info.nome} onChange={(e) => set('nome', e.target.value)} />
+            <div className="ger-nome-row">
+              <input type="text" value={info.nome} onChange={(e) => set('nome', e.target.value)} />
+              <button type="button" className="btn-outline" onClick={atualizarContexto}>
+                <Icon name="sync" size={13} /> {t('gerador.atualizarContexto')}
+              </button>
+            </div>
           </div>
           <div className="field">
             <label>{t('gerador.contextoInformacoesProduto')}</label>
-            <textarea rows={4} value={info.contexto} onChange={(e) => { set('contexto', e.target.value); set('descricaoConfirmada', false); }} />
+            <textarea rows={4} value={info.contexto} onChange={(e) => set('contexto', e.target.value)} />
           </div>
-          <label className="mkt-checkbox-row">
-            <input type="checkbox" checked={info.descricaoConfirmada} onChange={(e) => set('descricaoConfirmada', e.target.checked)} />
-            {t('gerador.confirmarDescricao')}
-          </label>
+
+          {/* Campos de confirmação — cada fato que a IA "leu" da imagem vira um
+              campo próprio, pra revisar de verdade em vez de só marcar uma
+              caixinha genérica pro parágrafo inteiro. */}
+          <div className="row2">
+            <div className="field"><label>{t('gerador.corConfirmada')}</label><input type="text" value={info.corConfirmada} onChange={(e) => set('corConfirmada', e.target.value)} /></div>
+            <div className="field"><label>{t('gerador.ondeFicaUsado')}</label><input type="text" placeholder={t('gerador.ondeFicaUsadoPlaceholder')} value={info.ondeFicaUsado} onChange={(e) => set('ondeFicaUsado', e.target.value)} /></div>
+          </div>
+          <div className="row2">
+            <div className="field"><label>{t('gerador.principalDiferencial')}</label><input type="text" placeholder={t('gerador.principalDiferencialPlaceholder')} value={info.principalDiferencial} onChange={(e) => set('principalDiferencial', e.target.value)} /></div>
+            <div className="field"><label>{t('gerador.paraQueServe')}</label><input type="text" placeholder={t('gerador.paraQueServePlaceholder')} value={info.paraQueServe} onChange={(e) => set('paraQueServe', e.target.value)} /></div>
+          </div>
 
           <h4 className="ger-secao-titulo">{t('gerador.secaoMedidasMaterial')}</h4>
           <div className="row3">
@@ -153,12 +186,12 @@ export default function InformacoesStep({ onVoltar, onContinuar }: Props) {
               <div className="suffix-wrap"><input type="text" value={info.largura} onChange={(e) => set('largura', e.target.value)} /><span className="sfx">cm</span></div>
             </div>
             <div className="field">
-              <label>{t('gerador.profundidadeY')}</label>
-              <div className="suffix-wrap"><input type="text" value={info.profundidade} onChange={(e) => set('profundidade', e.target.value)} /><span className="sfx">cm</span></div>
+              <label>{t('gerador.alturaY')}</label>
+              <div className="suffix-wrap"><input type="text" value={info.altura} onChange={(e) => set('altura', e.target.value)} /><span className="sfx">cm</span></div>
             </div>
             <div className="field">
-              <label>{t('gerador.alturaZ')}</label>
-              <div className="suffix-wrap"><input type="text" value={info.altura} onChange={(e) => set('altura', e.target.value)} /><span className="sfx">cm</span></div>
+              <label>{t('gerador.comprimentoZ')}</label>
+              <div className="suffix-wrap"><input type="text" value={info.comprimento} onChange={(e) => set('comprimento', e.target.value)} /><span className="sfx">cm</span></div>
             </div>
           </div>
           <div className="field"><label>{t('gerador.pesoGramas')}</label><input type="text" value={info.peso} onChange={(e) => set('peso', e.target.value)} /></div>
@@ -207,6 +240,10 @@ export default function InformacoesStep({ onVoltar, onContinuar }: Props) {
           </div>
 
           <div className="row2">
+            <div className="field"><label>{t('gerador.partesEspeciais')}</label><input type="text" placeholder={t('gerador.partesEspeciaisPlaceholder')} value={info.partesEspeciais} onChange={(e) => set('partesEspeciais', e.target.value)} /></div>
+            <div className="field"><label>{t('gerador.ocasiaoPrincipal')}</label><input type="text" placeholder={t('gerador.ocasiaoPrincipalPlaceholder')} value={info.ocasiaoPrincipal} onChange={(e) => set('ocasiaoPrincipal', e.target.value)} /></div>
+          </div>
+          <div className="row2">
             <div className="field"><label>{t('gerador.itensInclusos')}</label><input type="text" placeholder={t('gerador.itensInclusosPlaceholder')} value={info.itensInclusos} onChange={(e) => set('itensInclusos', e.target.value)} /></div>
             <div className="field"><label>{t('gerador.compatibilidade')}</label><input type="text" placeholder={t('gerador.compatibilidadePlaceholder')} value={info.compatibilidade} onChange={(e) => set('compatibilidade', e.target.value)} /></div>
           </div>
@@ -218,6 +255,10 @@ export default function InformacoesStep({ onVoltar, onContinuar }: Props) {
             <div className="field"><label>{t('gerador.skuOuCodigo')}</label><input type="text" placeholder={t('gerador.skuPlaceholder')} value={info.sku} onChange={(e) => set('sku', e.target.value)} /></div>
           </div>
           <div className="field"><label>{t('gerador.cuidadosEspeciais')}</label><input type="text" placeholder={t('gerador.cuidadosEspeciaisPlaceholder')} value={info.cuidadosEspeciais} onChange={(e) => set('cuidadosEspeciais', e.target.value)} /></div>
+          <div className="row2">
+            <div className="field"><label>{t('gerador.estruturalSustentaPeso')}</label><input type="text" placeholder={t('gerador.estruturalSustentaPesoPlaceholder')} value={info.estruturalSustentaPeso} onChange={(e) => set('estruturalSustentaPeso', e.target.value)} /></div>
+            <div className="field"><label>{t('gerador.contatoComAlimento')}</label><input type="text" placeholder={t('gerador.contatoComAlimentoPlaceholder')} value={info.contatoComAlimento} onChange={(e) => set('contatoComAlimento', e.target.value)} /></div>
+          </div>
         </div>
       </div>
 
@@ -243,10 +284,7 @@ export default function InformacoesStep({ onVoltar, onContinuar }: Props) {
                   ))}
                 </div>
               </div>
-              <div className="row2">
-                <div className="field"><label>{t('gerador.sistemaEnergia')}</label><input type="text" placeholder={t('gerador.sistemaEnergiaPlaceholder')} value={info.sistemaEnergia} onChange={(e) => set('sistemaEnergia', e.target.value)} /></div>
-                <div className="field"><label>{t('gerador.entradasConfirmadas')}</label><input type="text" placeholder={t('gerador.entradasConfirmadasPlaceholder')} value={info.entradasConfirmadas} onChange={(e) => set('entradasConfirmadas', e.target.value)} /></div>
-              </div>
+              <div className="field"><label>{t('gerador.sistemaEnergia')}</label><input type="text" placeholder={t('gerador.sistemaEnergiaPlaceholder')} value={info.sistemaEnergia} onChange={(e) => set('sistemaEnergia', e.target.value)} /></div>
             </>
           )}
         </div>
