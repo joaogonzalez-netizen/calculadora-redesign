@@ -23,7 +23,7 @@ import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { I18nProvider, useI18n } from './context/I18nContext';
-import { MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
+import { MOSTRAR_CONFIGURACOES, MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
@@ -79,6 +79,16 @@ function AppShell() {
     ? passosCompletos
     : { ...passosCompletos, marketplace: true };
   const todosPassosCompletos = Object.values(passosConsiderados).every(Boolean);
+
+  // Telas cujo menu some na versão do idioma (Painel/Pedidos/Produtos e
+  // Configurações só existem em PT) — abrir o app ou trocar de idioma nelas
+  // leva pra Primeiros passos, ou pra Calculadora se o checklist já sumiu.
+  const viewOculta =
+    (!MOSTRAR_MENUS_PRINCIPAIS[idioma] && (view === 'dashboard' || view === 'pedidos' || view === 'produtos')) ||
+    (!MOSTRAR_CONFIGURACOES[idioma] && view === 'configuracoes');
+  useEffect(() => {
+    if (viewOculta) setView(todosPassosCompletos ? 'calculadora' : 'primeirospassos');
+  }, [viewOculta, todosPassosCompletos]);
 
   return (
     <div className={'app' + (collapsed ? ' sidebar-collapsed' : '')}>

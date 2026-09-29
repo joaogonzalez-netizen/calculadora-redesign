@@ -5,12 +5,12 @@
 import type { Idioma } from './i18n';
 import type { Canal } from '../types';
 
-// PRINCIPAL (Painel/Pedidos/Produtos) só existe na versão PT — as versões
-// ES/EN ainda não têm dado real de vendas/pedidos pro mercado internacional.
+// PRINCIPAL (Painel/Pedidos/Produtos) existe em PT e ES — a versão EN ainda
+// não tem dado de vendas/pedidos pro mercado dela.
 export const MOSTRAR_MENUS_PRINCIPAIS: Record<Idioma, boolean> = {
   pt: true,
   en: false,
-  es: false,
+  es: true,
 };
 
 // Configurações hoje é só a tela de conexão de marketplaces — ES/EN ainda
