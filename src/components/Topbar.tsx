@@ -23,11 +23,24 @@ const CHAVES_TITULO: Record<View, string> = {
   'marketing-decoracao': 'topbar.title.marketing-decoracao',
 };
 
-export default function Topbar({ view }: { view: View }) {
+interface Props {
+  view: View;
+  // Só no Assistente com conversa aberta: botão de começar uma conversa nova.
+  onNovaConversa?: () => void;
+}
+
+export default function Topbar({ view, onNovaConversa }: Props) {
   const { t } = useI18n();
   return (
     <div className="topbar">
-      <h2>{t(CHAVES_TITULO[view])}</h2>
+      <div className="topbar-titulo">
+        <h2>{t(CHAVES_TITULO[view])}</h2>
+        {onNovaConversa && (
+          <button type="button" className="topbar-nova-conversa" onClick={onNovaConversa}>
+            <Icon name="pencil" size={14} /> {t('assist.novaConversa')}
+          </button>
+        )}
+      </div>
       <div className="top-actions">
         <IdiomaSwitcher />
         <div className="credits-pill">

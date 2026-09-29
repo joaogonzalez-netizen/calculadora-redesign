@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PasswordGate from './components/PasswordGate';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -36,6 +36,15 @@ function AppShell() {
   const [collapsed, setCollapsed] = useState(false);
   const [produtosFiltroSemCusto, setProdutosFiltroSemCusto] = useState(false);
   const [onboardingTick, setOnboardingTick] = useState(0);
+  // Toda entrada no Assistente é uma conversa nova: trocar a key remonta a view.
+  const [assistenteKey, setAssistenteKey] = useState(0);
+  const [conversaAtiva, setConversaAtiva] = useState(false);
+  const novaConversa = () => setAssistenteKey((k) => k + 1);
+  const navegar = (v: View) => {
+    if (v === 'assistente') novaConversa();
+    setView(v);
+  };
+  const aoMudarConversa = useCallback((ativa: boolean) => setConversaAtiva(ativa), []);
 
   const irParaProdutosSemCusto = () => { setProdutosFiltroSemCusto(true); setView('produtos'); };
   const refreshOnboarding = () => setOnboardingTick((t) => t + 1);
@@ -94,14 +103,14 @@ function AppShell() {
     <div className={'app' + (collapsed ? ' sidebar-collapsed' : '')}>
       <Sidebar
         view={view}
-        onNavigate={setView}
+        onNavigate={navegar}
         histCount={histCount}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((c) => !c)}
         mostrarPrimeirosPassos={!todosPassosCompletos}
       />
       <div className="main">
-        <Topbar view={view} />
+        <Topbar view={view} onNovaConversa={view === 'assistente' && conversaAtiva ? novaConversa : undefined} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
         <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' ? ' content-wide' : '')}>
           {view === 'primeirospassos' && (
@@ -134,7 +143,7 @@ function AppShell() {
           {view === 'gerador-criar' && <CriarAnuncioView onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={() => setView('gerador-criar')} />}
           {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
-          {view === 'assistente' && <AssistenteView />}
+          {view === 'assistente' && <AssistenteView key={assistenteKey} onNavegar={setView} onConversaAtiva={aoMudarConversa} />}
           {view === 'marketing-logo' && <MarketingLogoView />}
           {view === 'marketing-banners' && <MarketingBannersView />}
           {view === 'marketing-etiquetas' && <MarketingEtiquetasView />}
