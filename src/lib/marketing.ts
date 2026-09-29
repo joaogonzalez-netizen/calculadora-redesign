@@ -19,12 +19,28 @@ export interface LogoVariacao {
   iniciais: string;
   cor: string;
   forma: FormaLogo;
+  /** Só quando o maker não tem nome: o nome que a "IA" criou junto com a logo. */
+  nome?: string;
 }
 
 export interface LogoAtual {
   nomeLoja: string;
   variacao: LogoVariacao;
+  slogan?: string;
+  usos?: UsoLogo[];
 }
+
+/** Onde a logo vai ser usada — contexto pra IA (formato, contraste, legibilidade). */
+export type UsoLogo = 'redes' | 'marketplace' | 'embalagem' | 'site' | 'vestuario' | 'impressos';
+export const USOS_LOGO: { id: UsoLogo; chaveLabel: string }[] = [
+  { id: 'redes', chaveLabel: 'marketing.logo.usoRedes' },
+  { id: 'marketplace', chaveLabel: 'marketing.logo.usoMarketplace' },
+  { id: 'embalagem', chaveLabel: 'marketing.logo.usoEmbalagem' },
+  { id: 'site', chaveLabel: 'marketing.logo.usoSite' },
+  { id: 'vestuario', chaveLabel: 'marketing.logo.usoVestuario' },
+  { id: 'impressos', chaveLabel: 'marketing.logo.usoImpressos' },
+];
+export const LIMITE_SLOGAN = 40;
 
 export interface CorNomeada {
   cor: string;
@@ -103,6 +119,44 @@ export function sugerirNomes(idioma: Idioma, nicho: Nicho | null): string[] {
   return prefixos.map((prefixo, i) => {
     const sufixo = SUFIXOS_NOME[(i + (nicho ? seedNumerico(nicho) : 0)) % SUFIXOS_NOME.length];
     return i % 2 === 0 ? `${prefixo}${sufixo}` : `${prefixo} ${sufixo}`;
+  });
+}
+
+/** Nomes pro gerador de logo quando o maker não tem nome: mistura os prefixos
+ * de até 3 nichos (um de cada, alternando) com os sufixos de marca. `rodada`
+ * avança a combinação pra cada nova geração trazer nomes novos — mock, sem IA. */
+export function sugerirNomesMarca(idioma: Idioma, nichos: Nicho[], rodada = 0, qtd = 6): string[] {
+  const grupos = (nichos.length ? nichos : ['outro' as Nicho]).map((n) => PREFIXOS_POR_NICHO[idioma][n]);
+  const prefixos: string[] = [];
+  for (let i = 0; prefixos.length < grupos.length * 3; i++) {
+    const g = grupos[i % grupos.length];
+    const p = g[Math.floor(i / grupos.length) % g.length];
+    if (!prefixos.includes(p)) prefixos.push(p);
+    if (i > 30) break;
+  }
+  const nomes: string[] = [];
+  const total = prefixos.length * SUFIXOS_NOME.length;
+  for (let k = 0; nomes.length < qtd && k < total; k++) {
+    const idx = (rodada * qtd + k) % total;
+    const prefixo = prefixos[idx % prefixos.length];
+    const sufixo = SUFIXOS_NOME[(Math.floor(idx / prefixos.length) + idx) % SUFIXOS_NOME.length];
+    const nome = idx % 2 === 0 ? `${prefixo}${sufixo}` : `${prefixo} ${sufixo}`;
+    if (!nomes.includes(nome)) nomes.push(nome);
+  }
+  return nomes;
+}
+
+export const LIMITE_NICHOS_LOGO = 3;
+/** Quantos nomes (cada um com uma logo) a geração cria quando o maker não tem nome. */
+export const QTD_NOMES_GERADOS = 10;
+
+/** Uma logo por nome gerado: forma e cor giram entre as do estilo e as escolhidas. */
+export function gerarLogosComNomes(nomes: string[], coresSelecionadas: string[], estilo: Estilo): LogoVariacao[] {
+  const formas = FORMAS_POR_ESTILO[estilo] ?? FORMAS_LOGO;
+  return nomes.map((nome, i) => {
+    const base = gerarVariacoesLogo(nome, coresSelecionadas, estilo);
+    const v = base[i % base.length];
+    return { ...v, id: `nome-${i}-${seedNumerico(nome)}`, forma: formas[i % formas.length], nome };
   });
 }
 

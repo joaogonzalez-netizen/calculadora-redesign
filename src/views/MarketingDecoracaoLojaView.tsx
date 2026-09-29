@@ -164,7 +164,7 @@ export default function MarketingDecoracaoLojaView() {
 
       {/* ---------- Capa da loja ---------- */}
       <div className="card">
-        <div className="card-body">
+        <div className="card-body card-body-sem-titulo">
           <h3>{t('marketing.decoracao.capaTitulo')}</h3>
           <p className="hint">{t('marketing.decoracao.capaDesc')}</p>
 
@@ -248,7 +248,7 @@ export default function MarketingDecoracaoLojaView() {
 
       {/* ---------- Carrossel ---------- */}
       <div className="card">
-        <div className="card-body">
+        <div className="card-body card-body-sem-titulo">
           <h3>{t('marketing.decoracao.carrosselTitulo')}</h3>
           <p className="hint">{t('marketing.decoracao.carrosselDesc')}</p>
 

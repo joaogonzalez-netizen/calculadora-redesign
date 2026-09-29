@@ -56,7 +56,7 @@ export default function MarketingEtiquetasView() {
       ) : (
         <>
           <div className="card">
-            <div className="card-body">
+            <div className="card-body card-body-sem-titulo">
               <h3>{t('marketing.etiquetas.selecionarPedidos')}</h3>
               <table className="prod-table">
                 <thead>
@@ -83,7 +83,7 @@ export default function MarketingEtiquetasView() {
           </div>
 
           <div className="card">
-            <div className="card-body">
+            <div className="card-body card-body-sem-titulo">
               <div className="field">
                 <label>{t('marketing.etiquetas.mensagemLabel')}</label>
                 <textarea value={mensagemBase} onChange={(e) => setMensagemBase(e.target.value)} rows={3} />
