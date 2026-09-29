@@ -1,11 +1,14 @@
 import { useCalculadora } from '../context/CalculadoraContext';
 import { useI18n } from '../context/I18nContext';
+import { useMoeda } from '../context/MoedaContext';
+import { moedaSimbolo } from '../lib/format';
 import Card from './Card';
 import InfoDot from './InfoDot';
 
 export default function PrecificacaoCard() {
   const { state, set, errorIds } = useCalculadora();
   const { t, idioma } = useI18n();
+  const { moeda } = useMoeda();
 
   return (
     <Card icon="$" title={t('calc.precificacao')}>
@@ -25,7 +28,7 @@ export default function PrecificacaoCard() {
         <div className="field">
           <label>{t('calc.precoDeVenda')}</label>
           <div className="prefix-wrap">
-            <span className="pfx">R$</span>
+            <span className="pfx">{moedaSimbolo(moeda)}</span>
             <input
               type="number" step="0.01" placeholder={t('calc.placeholderPrecoVenda')}
               value={state.precoVenda || ''}

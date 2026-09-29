@@ -1,8 +1,9 @@
 import { useCalculadora } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
+import { useMoeda } from '../context/MoedaContext';
 import type { Canal, PgtoId } from '../types';
-import { brl } from '../lib/format';
+import { brl, fmtMoeda, moedaSimbolo } from '../lib/format';
 import { CALC_CANAIS_VISIVEIS } from '../lib/versoes';
 import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
 import Card from './Card';
@@ -68,6 +69,7 @@ export default function CanalCard() {
   const { state, set, errorIds, resultado } = useCalculadora();
   const { prefs } = useLibrarias();
   const { t, idioma } = useI18n();
+  const { moeda } = useMoeda();
   const canaisVisiveis = CANAIS.filter((c) => CALC_CANAIS_VISIVEIS[idioma].includes(c));
 
   function selectCanal(canal: Canal) {
@@ -182,7 +184,7 @@ export default function CanalCard() {
               </div>
               <div className="field">
                 <label>{t('calc.precoNoPixComDesconto')}</label>
-                <input type="text" readOnly value={resultado ? brl(precoAtual * (1 - state.pgtoPixDesconto / 100)) : '-'} placeholder="-" />
+                <input type="text" readOnly value={resultado ? fmtMoeda(precoAtual * (1 - state.pgtoPixDesconto / 100), moeda) : '-'} placeholder="-" />
               </div>
             </div>
           )}
@@ -196,7 +198,7 @@ export default function CanalCard() {
           <div className="divider-label">{t('calc.frete')}</div>
           <div className="field">
             <label>{t('calc.custoDoEnvio')}</label>
-            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" placeholder={t('calc.placeholderCustoEnvio')} value={state.freteDiretoCusto} onChange={(e) => set('freteDiretoCusto', parseFloat(e.target.value) || 0)} /></div>
+            <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" placeholder={t('calc.placeholderCustoEnvio')} value={state.freteDiretoCusto} onChange={(e) => set('freteDiretoCusto', parseFloat(e.target.value) || 0)} /></div>
           </div>
 
           <div className="switch-row">
@@ -266,7 +268,7 @@ export default function CanalCard() {
             <div className="mini-table">
               <div className="mini-row"><span>{t('calc.faixaDePeso')}</span><b>{resultado?.taxas.freteInfo?.faixaPesoLabel ?? '-'}</b></div>
               <div className="mini-row"><span>{t('calc.faixaPrecoAnuncio')}</span><b>{resultado?.taxas.freteInfo?.faixaPrecoLabel ?? '-'}</b></div>
-              <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? brl(resultado.taxas.freteInfo.custo) : '-'}</b></div>
+              <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? fmtMoeda(resultado.taxas.freteInfo.custo, moeda) : '-'}</b></div>
             </div>
             <div className="hint">{t('calc.mlBrasilFreteAbaixo19Hint')}</div>
           </div>
@@ -385,7 +387,7 @@ export default function CanalCard() {
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.shopeeFrete3')}</label>
             <div className="hint" style={{ marginBottom: 10 }}>{t('calc.shopeeProgramaFreteGratisHint')}</div>
             <label>{t('calc.custoDoFrete')}</label>
-            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.shopeeFrete} onChange={(e) => set('shopeeFrete', parseFloat(e.target.value) || 0)} /></div>
+            <div className="prefix-wrap"><span className="pfx" data-fixed="true">R$</span><input type="number" step="0.01" value={state.shopeeFrete} onChange={(e) => set('shopeeFrete', parseFloat(e.target.value) || 0)} /></div>
           </div>
 
           <div className="field">
@@ -403,7 +405,7 @@ export default function CanalCard() {
               <label className="switch"><input type="checkbox" checked={state.shopeeCupomProprio} onChange={(e) => set('shopeeCupomProprio', e.target.checked)} /><span className="track" /></label>
             </div>
             {state.shopeeCupomProprio && (
-              <div className="field"><label>{t('calc.valorCupomPorVenda')}</label><div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.shopeeCupomValor} onChange={(e) => set('shopeeCupomValor', parseFloat(e.target.value) || 0)} /></div></div>
+              <div className="field"><label>{t('calc.valorCupomPorVenda')}</label><div className="prefix-wrap"><span className="pfx" data-fixed="true">R$</span><input type="number" step="0.01" value={state.shopeeCupomValor} onChange={(e) => set('shopeeCupomValor', parseFloat(e.target.value) || 0)} /></div></div>
             )}
 
             <div className="switch-row">
@@ -473,7 +475,7 @@ export default function CanalCard() {
             </div>
             <div className="field" style={{ marginTop: 14 }}>
               <label>{t('calc.custoFreteAdicional')}</label>
-              <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.tiktokFrete} onChange={(e) => set('tiktokFrete', parseFloat(e.target.value) || 0)} /></div>
+              <div className="prefix-wrap"><span className="pfx" data-fixed="true">R$</span><input type="number" step="0.01" value={state.tiktokFrete} onChange={(e) => set('tiktokFrete', parseFloat(e.target.value) || 0)} /></div>
               <div className="hint">{t('calc.tiktokCustoEnvioEstimadoHint')}</div>
             </div>
           </div>
@@ -491,8 +493,8 @@ export default function CanalCard() {
 
           <div className="divider-label">{t('calc.resumoTiktokShop')}</div>
           <div className="mini-table mini-table-muted">
-            <div className="mini-row"><span>{t('calc.totalDeTaxas')}</span><b>{resultado ? brl(resultado.taxaValor) : '—'}</b></div>
-            <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? brl(resultado.lucroLiquido) : '—'}</b></div>
+            <div className="mini-row"><span>{t('calc.totalDeTaxas')}</span><b>{resultado ? fmtMoeda(resultado.taxaValor, moeda) : '—'}</b></div>
+            <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? fmtMoeda(resultado.lucroLiquido, moeda) : '—'}</b></div>
             <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
           </div>
           <div className="hint">{t('calc.painelSomenteLeituraHint')}</div>

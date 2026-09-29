@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useCalculadora, novoAccItem } from '../context/CalculadoraContext';
 import { useI18n } from '../context/I18nContext';
+import { useMoeda } from '../context/MoedaContext';
+import { moedaSimbolo } from '../lib/format';
 import type { AccItem, CustoCategoria, CustoExtra } from '../types';
 import Card from './Card';
 import CustoExtraDrawer from './drawers/CustoExtraDrawer';
@@ -26,6 +28,7 @@ const PRESETS: { nome: string; labelKey: string; valor: number; categoria: Custo
 export default function CustosExtrasCard() {
   const { state, set } = useCalculadora();
   const { t } = useI18n();
+  const { moeda } = useMoeda();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   function addItem(nome: string, valor: number, categoria: CustoCategoria) {
@@ -59,7 +62,7 @@ export default function CustosExtrasCard() {
         {state.accItems.map((a) => (
           <div className="acc-item-row" key={a.id}>
             <input type="text" placeholder={t('calc.nomeDoExtra')} value={a.nome} onChange={(e) => updateItem(a.id, { nome: e.target.value })} />
-            <input type="number" step="0.01" placeholder="R$" value={a.valor || ''} onChange={(e) => updateItem(a.id, { valor: parseFloat(e.target.value) || 0 })} />
+            <input type="number" step="0.01" placeholder={moedaSimbolo(moeda)} value={a.valor || ''} onChange={(e) => updateItem(a.id, { valor: parseFloat(e.target.value) || 0 })} />
             <select value={a.categoria} onChange={(e) => updateItem(a.id, { categoria: e.target.value as CustoCategoria })}>
               {CATS.map((c) => <option key={c} value={c}>{t(CATS_LABEL_KEYS[c])}</option>)}
             </select>

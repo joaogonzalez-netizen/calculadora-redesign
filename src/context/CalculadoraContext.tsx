@@ -4,14 +4,7 @@ import { calcular, validar, type ValidacaoFaltando } from '../lib/calc';
 import { getHistorico, saveHistoricoArr } from '../lib/storage';
 import { useLibrarias } from './LibrariasContext';
 import { useI18n } from './I18nContext';
-import type { Idioma } from '../lib/i18n';
-
-// Versão ES (Argentina) já nasce com o IVA de 21%; PT/EN seguem o imposto das Preferências.
-const IVA_ARGENTINA = 21;
-function impostoPadrao(idioma: Idioma, prefsImposto: number | undefined, atual: number): number {
-  if (idioma === 'es') return IVA_ARGENTINA;
-  return prefsImposto ?? atual;
-}
+import { impostoDasPrefs } from '../lib/versoes';
 
 let filCounter = 0;
 let accCounter = 0;
@@ -80,7 +73,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       const next: CalculoState = {
         ...prev,
         precoKwh: prefs.kwh || prev.precoKwh,
-        imposto: impostoPadrao(idioma, prefs.imposto, prev.imposto),
+        imposto: impostoDasPrefs(prefs, idioma),
         margemDesejada: prefs.margem || prev.margemDesejada,
         pgtoPixTaxa: prefs.taxaPix ?? prev.pgtoPixTaxa,
         pgtoPixDesconto: prefs.descontoPix ?? prev.pgtoPixDesconto,
@@ -108,12 +101,13 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Trocar de idioma troca o imposto padrão junto (IVA 21% no ES).
+  const impostoPadrao = impostoDasPrefs(prefs, idioma);
   const idiomaAnterior = useRef(idioma);
   useEffect(() => {
     if (idiomaAnterior.current === idioma) return;
     idiomaAnterior.current = idioma;
-    setState((prev) => ({ ...prev, imposto: impostoPadrao(idioma, prefs.imposto, 0) }));
-  }, [idioma, prefs.imposto]);
+    setState((prev) => ({ ...prev, imposto: impostoPadrao }));
+  }, [idioma, impostoPadrao]);
 
   const set = <K extends keyof CalculoState>(key: K, value: CalculoState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -141,7 +135,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
 
   const resetCalculadora = () => {
     const inicial = estadoInicial();
-    setState({ ...inicial, imposto: impostoPadrao(idioma, prefs.imposto, inicial.imposto) });
+    setState({ ...inicial, imposto: impostoPadrao });
     aplicouPrefs.current = false;
     setErrorIds(new Set());
   };

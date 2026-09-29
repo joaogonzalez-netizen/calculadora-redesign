@@ -2,6 +2,8 @@ import { useState, type ChangeEvent } from 'react';
 import { useCalculadora, novoFilamentoItem } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
+import { useMoeda } from '../context/MoedaContext';
+import { moedaSimbolo } from '../lib/format';
 import Card from './Card';
 import InfoDot from './InfoDot';
 import ImpressoraDrawer from './drawers/ImpressoraDrawer';
@@ -12,6 +14,7 @@ export default function ImpressaoCard() {
   const { state, set, errorIds } = useCalculadora();
   const { impressoras } = useLibrarias();
   const { t } = useI18n();
+  const { moeda } = useMoeda();
   const [impDrawerOpen, setImpDrawerOpen] = useState(false);
   const [filDrawerOpen, setFilDrawerOpen] = useState(false);
   const [gcodeStatus, setGcodeStatus] = useState(t('calc.statusCarregueGcode'));
@@ -100,7 +103,7 @@ export default function ImpressaoCard() {
         </div>
         <div className="field">
           <label>{t('calc.energiaPrecoKwh')} <InfoDot text={t('calc.energiaPrecoKwhInfo')} /></label>
-          <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={state.precoKwh} onChange={(e) => set('precoKwh', parseFloat(e.target.value) || 0)} /></div>
+          <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" value={state.precoKwh} onChange={(e) => set('precoKwh', parseFloat(e.target.value) || 0)} /></div>
         </div>
       </div>
       <div className="row3">
@@ -160,7 +163,7 @@ export default function ImpressaoCard() {
             <input type="text" placeholder={t('calc.nomeMarca')} value={f.nome} onChange={(e) => updateFilamento(f.id, { nome: e.target.value })} />
             <input type="text" placeholder={t('calc.cor')} value={f.cor} onChange={(e) => updateFilamento(f.id, { cor: e.target.value })} />
             <input type="number" placeholder="0" value={f.pesoG || ''} onChange={(e) => updateFilamento(f.id, { pesoG: parseFloat(e.target.value) || 0 })} />
-            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={f.precoKg || ''} onChange={(e) => updateFilamento(f.id, { precoKg: parseFloat(e.target.value) || 0 })} /></div>
+            <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" value={f.precoKg || ''} onChange={(e) => updateFilamento(f.id, { precoKg: parseFloat(e.target.value) || 0 })} /></div>
             <button type="button" className="acc-remove" onClick={() => removeFilamento(f.id)}>✕</button>
           </div>
         ))}

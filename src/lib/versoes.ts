@@ -3,7 +3,7 @@
 // reflete em Sidebar (menus PRINCIPAL), Gerador de anúncios (marketplaces
 // do passo 2) e Calculadora (chips de Canal de venda).
 import type { Idioma } from './i18n';
-import type { Canal } from '../types';
+import type { Canal, Moeda, Preferencias } from '../types';
 
 // PRINCIPAL (Painel/Pedidos/Produtos) existe em PT e ES — a versão EN ainda
 // não tem dado de vendas/pedidos pro mercado dela.
@@ -45,3 +45,16 @@ export const CALC_CANAIS_VISIVEIS: Record<Idioma, Canal[]> = {
   es: ['Venda direta', 'Mercado Livre Argentina'],
   en: ['Venda direta', 'Mercado Livre Argentina'],
 };
+
+// Padrões de precificação da versão ES (Argentina): IVA de 21% e peso argentino.
+// Ficam em campos próprios das Preferências (impostoEs/moedaEs) pra que mexer
+// neles em ES não mude o padrão das versões PT/EN, e vice-versa.
+export const IVA_ARGENTINA = 21;
+
+export function impostoDasPrefs(prefs: Preferencias, idioma: Idioma): number {
+  return idioma === 'es' ? (prefs.impostoEs ?? IVA_ARGENTINA) : prefs.imposto;
+}
+
+export function moedaDasPrefs(prefs: Preferencias, idioma: Idioma): Moeda {
+  return idioma === 'es' ? (prefs.moedaEs ?? 'ARS') : (prefs.moeda || 'BRL');
+}
