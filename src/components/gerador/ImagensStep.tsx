@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
+import MedidasModal, { MedidasOverlay, medidasPadrao, type MedidasConfig } from './MedidasModal';
+import fotoProduto from '../../assets/gerador-produto-mock.jpg';
 
 // Réplica do passo "Imagens" do Gerador de anúncios em produção (print de
 // João, 08/09/2026). 3 imagens fixas (capa, medidas, características) que
 // sempre entram no anúncio + 6 imagens individuais geradas, das quais o
-// usuário escolhe exatamente 4 pro vídeo. Sem fotos reais — cada card usa
-// um gradiente de cor no lugar da imagem gerada pela IA, igual ao resto do
-// mock do app.
+// usuário escolhe exatamente 4 pro vídeo. Capa e Medidas usam uma foto mock
+// do produto (a Medidas com as setas editáveis do MedidasModal por cima); os
+// demais cards usam um gradiente de cor no lugar da imagem gerada pela IA.
 const MAX_SELECAO = 4;
 
 interface ImagemVideo {
@@ -28,10 +30,6 @@ const IMAGENS_VIDEO: ImagemVideo[] = [
 
 const SELECAO_INICIAL = new Set(['uso1', 'uso2', 'uso3', 'detalhe']);
 
-function editarMedidas() {
-  alert('Em breve: ajustar as medidas exibidas na imagem fixa "Medidas".');
-}
-
 function pedirAjuste(secao: string) {
   alert(`Em breve: peça ajustes no(a) "${secao}" direto por chat com a IA.`);
 }
@@ -42,8 +40,10 @@ interface Props {
 }
 
 export default function ImagensStep({ onVoltar, onContinuar }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
   const [selecionadas, setSelecionadas] = useState<Set<string>>(SELECAO_INICIAL);
+  const [medidas, setMedidas] = useState<MedidasConfig>(() => medidasPadrao(t, idioma));
+  const [editandoMedidas, setEditandoMedidas] = useState(false);
 
   function alternar(id: string) {
     setSelecionadas((prev) => {
@@ -75,17 +75,19 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-img-grid-fixas ger-txt-com-chat">
         <div className="ger-img-card">
-          <div className="ger-img-card-media" style={{ background: 'linear-gradient(160deg,#f5f5f4,#e6e6e3)' }}>
+          <div className="ger-img-card-media ger-img-card-media-foto">
+            <img src={fotoProduto} alt="" />
             <span className="ger-img-badge-fixa">{t('gerador.fixa')}</span>
           </div>
           <div className="ger-img-card-label">{t('gerador.capaFundoBranco')}</div>
         </div>
 
         <div className="ger-img-card">
-          <div className="ger-img-card-media" style={{ background: 'linear-gradient(160deg,#eef2ee,#d8e3d8)' }}>
+          <div className="ger-img-card-media ger-img-card-media-foto">
+            <MedidasOverlay config={medidas} miniatura />
             <span className="ger-img-badge-fixa">{t('gerador.fixa')}</span>
             <div className="ger-img-medidas-hover">
-              <button type="button" className="ger-img-medidas-btn" onClick={editarMedidas}>
+              <button type="button" className="ger-img-medidas-btn" onClick={() => setEditandoMedidas(true)}>
                 <Icon name="tag" size={13} /> {t('gerador.editarMedidas')}
               </button>
             </div>
@@ -146,6 +148,14 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
           <Icon name="message" size={16} />
         </button>
       </div>
+
+      {editandoMedidas && (
+        <MedidasModal
+          inicial={medidas}
+          onCancelar={() => setEditandoMedidas(false)}
+          onAprovar={(cfg) => { setMedidas(cfg); setEditandoMedidas(false); }}
+        />
+      )}
 
       <div className="ger-txt-footer">
         <div>
