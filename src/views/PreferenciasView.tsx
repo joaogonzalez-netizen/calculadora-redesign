@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
 import type { CustoCategoria, Filamento, Impressora, Moeda } from '../types';
-import { brl } from '../lib/format';
+import { fmtMoeda, moedaSimbolo } from '../lib/format';
+import { impostoDasPrefs, moedaDasPrefs } from '../lib/versoes';
 import InfoDot from '../components/InfoDot';
 import {
-  getPastas, getHistPastaVinculo, removerPasta,
-  getMarcadores, getHistMarcadorVinculo, removerMarcador,
+  getMarcadores, getHistMarcadores, removerMarcador, contarUsos,
 } from '../lib/cluster';
 
 type Tab = 'moeda' | 'impressora' | 'margem' | 'vendadireta' | 'custos' | 'organizacao';
@@ -16,7 +16,7 @@ const TABS: { key: Tab; labelKey: string }[] = [
   { key: 'margem', labelKey: 'calc.precificacao' },
   { key: 'vendadireta', labelKey: 'calc.canalDeVenda' },
   { key: 'custos', labelKey: 'calc.custosExtras' },
-  { key: 'organizacao', labelKey: 'calc.pastasMarcadores' },
+  { key: 'organizacao', labelKey: 'calc.marcadoresLabel' },
 ];
 const CATS: CustoCategoria[] = ['Embalagem', 'Mão de obra', 'Acabamento', 'Outro', 'Outras'];
 const CATS_LABEL_KEYS: Record<CustoCategoria, string> = {
@@ -36,17 +36,17 @@ export default function PreferenciasView() {
     impressoras, setImpressoras, filamentos, setFilamentos, custosPadrao, setCustosPadrao,
     prefs, setPrefs,
   } = useLibrarias();
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
 
   const [tab, setTab] = useState<Tab>('moeda');
 
   // Buffer local — só grava em `prefs` (localStorage) ao clicar "Salvar preferências",
   // igual ao protótipo. As bibliotecas (impressoras/filamentos/custos) já são live.
-  const [moeda, setMoedaBuf] = useState<Moeda>(prefs.moeda);
+  const [moeda, setMoedaBuf] = useState<Moeda>(moedaDasPrefs(prefs, idioma));
   const [kwh, setKwh] = useState(String(prefs.kwh));
   const [impressoraSel, setImpressoraSel] = useState(prefs.impressora);
   const [filamentoSel, setFilamentoSel] = useState(prefs.filamento);
-  const [imposto, setImposto] = useState(String(prefs.imposto));
+  const [imposto, setImposto] = useState(String(impostoDasPrefs(prefs, idioma)));
   const [margem, setMargem] = useState(String(prefs.margem));
   const [taxaDebito, setTaxaDebito] = useState(String(prefs.taxaDebito));
   const [taxaCredito, setTaxaCredito] = useState(String(prefs.taxaCredito));
@@ -54,10 +54,22 @@ export default function PreferenciasView() {
   const [descontoPix, setDescontoPix] = useState(String(prefs.descontoPix));
   const [saved, setSaved] = useState(false);
 
+  // Imposto e moeda têm padrão próprio na versão ES — trocar de idioma recarrega os buffers.
+  useEffect(() => {
+    setMoedaBuf(moedaDasPrefs(prefs, idioma));
+    setImposto(String(impostoDasPrefs(prefs, idioma)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idioma]);
+  const simbolo = moedaSimbolo(moeda);
+
   function salvar() {
+    const impostoNum = parseFloat(imposto) || 0;
+    const porIdioma = idioma === 'es'
+      ? { moeda: prefs.moeda, imposto: prefs.imposto, moedaEs: moeda, impostoEs: impostoNum }
+      : { moeda, imposto: impostoNum, moedaEs: prefs.moedaEs, impostoEs: prefs.impostoEs };
     setPrefs({
-      moeda, kwh: parseFloat(kwh) || 0, impressora: impressoraSel, filamento: filamentoSel,
-      imposto: parseFloat(imposto) || 0, margem: parseFloat(margem) || 0,
+      ...porIdioma, kwh: parseFloat(kwh) || 0, impressora: impressoraSel, filamento: filamentoSel,
+      margem: parseFloat(margem) || 0,
       taxaDebito: parseFloat(taxaDebito) || 0, taxaCredito: parseFloat(taxaCredito) || 0,
       taxaPix: parseFloat(taxaPix) || 0, descontoPix: parseFloat(descontoPix) || 0,
     });
@@ -114,29 +126,16 @@ export default function PreferenciasView() {
     setCustosPadrao((p) => p.filter((_, ix) => ix !== idx));
   }
 
-  // --- Pastas & marcadores (organização do Histórico) — leitura direta do
+  // --- Marcadores (organização do Histórico) — leitura direta do
   // localStorage via lib/cluster, igual ao que HistoricoView já faz. ---
-  const [pastasOrg, setPastasOrg] = useState(getPastas);
-  const [pastaVinculoOrg, setPastaVinculoOrg] = useState(getHistPastaVinculo);
   const [marcadoresOrg, setMarcadoresOrg] = useState(getMarcadores);
-  const [marcadorVinculoOrg, setMarcadorVinculoOrg] = useState(getHistMarcadorVinculo);
-
-  function contarVinculos(vinculo: Record<string, string>, id: string) {
-    return Object.values(vinculo).filter((v) => v === id).length;
-  }
-
-  function excluirPastaOrg(id: string, nome: string) {
-    if (!confirm(t('calc.excluirPastaConfirm').replace('{nome}', nome))) return;
-    removerPasta(id);
-    setPastasOrg(getPastas());
-    setPastaVinculoOrg(getHistPastaVinculo());
-  }
+  const [marcadorVinculoOrg, setMarcadorVinculoOrg] = useState(getHistMarcadores);
 
   function excluirMarcadorOrg(id: string, nome: string) {
     if (!confirm(t('calc.excluirMarcadorConfirm').replace('{nome}', nome))) return;
     removerMarcador(id);
     setMarcadoresOrg(getMarcadores());
-    setMarcadorVinculoOrg(getHistMarcadorVinculo());
+    setMarcadorVinculoOrg(getHistMarcadores());
   }
 
   return (
@@ -186,7 +185,7 @@ export default function PreferenciasView() {
                 </div>
                 <div className="field">
                   <label>{t('calc.valorDoKwhPadrao')}</label>
-                  <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={kwh} onChange={(e) => setKwh(e.target.value)} /></div>
+                  <div className="prefix-wrap"><span className="pfx">{simbolo}</span><input type="number" step="0.01" value={kwh} onChange={(e) => setKwh(e.target.value)} /></div>
                   <div className="hint">{t('calc.mediaNacionalKwhHint')}</div>
                 </div>
               </div>
@@ -219,13 +218,13 @@ export default function PreferenciasView() {
                 <label>{t('calc.filamentoPadrao')}</label>
                 <select value={filamentoSel} onChange={(e) => setFilamentoSel(e.target.value)}>
                   <option value="">{t('calc.nenhum')}</option>
-                  {filamentos.map((f, idx) => <option key={idx} value={idx}>{f.nome} ({f.tipo}{f.cor ? ' · ' + f.cor : ''}): {brl(f.preco)}/kg</option>)}
+                  {filamentos.map((f, idx) => <option key={idx} value={idx}>{f.nome} ({f.tipo}{f.cor ? ' · ' + f.cor : ''}): {fmtMoeda(f.preco, moeda)}/kg</option>)}
                 </select>
                 <div className="hint">{t('calc.filamentoPadraoPreencheCampoHint')}</div>
               </div>
               <div className="divider-label">{t('calc.bibliotecaDeFilamentos')}</div>
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 90px 90px 100px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.marca')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.tipo')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.cor')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>R$/kg</span><span />
+                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.marca')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.tipo')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.cor')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{simbolo}/kg</span><span />
               </div>
               {filamentos.map((f, idx) => (
                 <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 90px 90px 100px 34px' }} key={idx}>
@@ -243,7 +242,7 @@ export default function PreferenciasView() {
                   {TIPOS_FIL.map((tipoFil) => <option key={tipoFil}>{tipoFil}</option>)}
                 </select>
                 <input type="text" placeholder={t('calc.placeholderCorFilamento')} value={novoFilCor} onChange={(e) => setNovoFilCor(e.target.value)} />
-                <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" placeholder="/kg" step="0.01" value={novoFilPreco} onChange={(e) => setNovoFilPreco(e.target.value)} /></div>
+                <div className="prefix-wrap"><span className="pfx">{simbolo}</span><input type="number" placeholder="/kg" step="0.01" value={novoFilPreco} onChange={(e) => setNovoFilPreco(e.target.value)} /></div>
                 <button className="btn-outline" onClick={addFilamento}>+</button>
               </div>
             </div>
@@ -319,7 +318,7 @@ export default function PreferenciasView() {
             ))}
             <div className="add-custo-row">
               <input type="text" placeholder={t('calc.placeholderNomeCusto')} value={novoCustoNome} onChange={(e) => setNovoCustoNome(e.target.value)} />
-              <div className="prefix-wrap" style={{ maxWidth: 130 }}><span className="pfx">R$</span><input type="number" placeholder="0,00" step="0.01" value={novoCustoValor} onChange={(e) => setNovoCustoValor(e.target.value)} /></div>
+              <div className="prefix-wrap" style={{ maxWidth: 130 }}><span className="pfx">{simbolo}</span><input type="number" placeholder="0,00" step="0.01" value={novoCustoValor} onChange={(e) => setNovoCustoValor(e.target.value)} /></div>
               <select style={{ maxWidth: 150 }} value={novoCustoCategoria} onChange={(e) => setNovoCustoCategoria(e.target.value as CustoCategoria)}>
                 {CATS.map((cat) => <option key={cat} value={cat}>{t(CATS_LABEL_KEYS[cat])}</option>)}
               </select>
@@ -336,23 +335,7 @@ export default function PreferenciasView() {
               {t('calc.pastasMarcadoresOrganizacaoDesc')}
             </div>
 
-            <div className="divider-label">{t('calc.pastasLabel')} ({pastasOrg.length})</div>
-            {pastasOrg.length > 0 && (
-              <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
-                <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.calculos')}</span><span />
-              </div>
-            )}
-            {pastasOrg.map((p) => (
-              <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px' }} key={p.id}>
-                <span className="pasta-dot" style={{ background: p.cor }} />
-                <span>{p.nome}</span>
-                <span style={{ textAlign: 'center', color: 'var(--text-2)' }}>{contarVinculos(pastaVinculoOrg, p.id)}</span>
-                <button className="custo-remove" onClick={() => excluirPastaOrg(p.id, p.nome)}>✕</button>
-              </div>
-            ))}
-            {!pastasOrg.length && <div className="hint" style={{ padding: '4px 0 8px' }}>{t('calc.nenhumaPastaCriadaAinda')}</div>}
-
-            <div className="divider-label" style={{ marginTop: 22 }}>{t('calc.marcadoresLabel')} ({marcadoresOrg.length})</div>
+            <div className="divider-label">{t('calc.marcadoresLabel')} ({marcadoresOrg.length})</div>
             {marcadoresOrg.length > 0 && (
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px', background: 'transparent', border: 'none', padding: '0 12px', marginBottom: 2 }}>
                 <span /><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)' }}>{t('calc.nome')}</span><span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textAlign: 'center' }}>{t('calc.calculos')}</span><span />
@@ -362,7 +345,7 @@ export default function PreferenciasView() {
               <div className="custo-row" style={{ gridTemplateColumns: 'auto 1fr 110px 34px' }} key={m.id}>
                 <span className="pasta-dot" style={{ background: m.cor }} />
                 <span>{m.nome}</span>
-                <span style={{ textAlign: 'center', color: 'var(--text-2)' }}>{contarVinculos(marcadorVinculoOrg, m.id)}</span>
+                <span style={{ textAlign: 'center', color: 'var(--text-2)' }}>{contarUsos(marcadorVinculoOrg, m.id)}</span>
                 <button className="custo-remove" onClick={() => excluirMarcadorOrg(m.id, m.nome)}>✕</button>
               </div>
             ))}
