@@ -2316,3 +2316,6 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .hist-table th{white-space:nowrap;}
 .hist-table th,.hist-table td{padding-left:7px !important;padding-right:7px !important;}
 .hist-table td:not(:first-child):not(:nth-last-child(2)){white-space:nowrap;}
+/* Histórico: tabela ocupa a largura toda, com margens menores */
+.content-wide.content-full{max-width:none;padding:28px 20px 48px;}
+.content-full .hist-table-card .card-body{padding-left:10px;padding-right:10px;}

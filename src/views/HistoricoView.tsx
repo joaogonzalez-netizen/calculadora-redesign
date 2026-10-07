@@ -202,7 +202,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
       </div>
 
       <div>
-        <div className="card">
+        <div className="card hist-table-card">
           <div className="card-body" style={{ paddingTop: 22 }}>
             <div className="table-scroll-x">
             <table className="hist-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>

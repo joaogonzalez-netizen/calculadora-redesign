@@ -112,7 +112,7 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} onNovaConversa={view === 'assistente' && conversaAtiva ? novaConversa : undefined} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' ? ' content-wide' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'historico' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' ? ' content-wide' : '') + (view === 'historico' ? ' content-full' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
