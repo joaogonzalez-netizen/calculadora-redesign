@@ -80,6 +80,7 @@ export interface HistoricoEntry {
   precoVenda: number;
   stlLink: string;
   concorrenteLink: string;
+  anuncioLink: string;
   comPromo: boolean;
   descontoPromo: number;
   // formato antigo, mantido só pra leitura de exemplos semeados
@@ -102,6 +103,7 @@ export interface CalculoState {
   nomePeca: string;
   stlLink: string;
   concorrenteLink: string;
+  anuncioLink: string;
 
   impressoraIdx: string; // '' | 'custom' | index
   custoKwh: number;

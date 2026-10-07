@@ -11,6 +11,7 @@ export default function ModeloCard() {
       <div className="field">
         <label>{t('calc.nomeDoStl')}</label>
         <input
+          id="nomePeca"
           type="text"
           placeholder={t('calc.placeholderNomeStl')}
           value={state.nomePeca}
@@ -28,6 +29,10 @@ export default function ModeloCard() {
       <div className="field">
         <label>{t('calc.referenciaConcorrente')}</label>
         <input type="url" placeholder={t('calc.placeholderReferenciaConcorrente')} value={state.concorrenteLink} onChange={(e) => set('concorrenteLink', e.target.value)} />
+      </div>
+      <div className="field">
+        <label>{t('calc.linkAnuncioPublicado')}</label>
+        <input type="url" placeholder={t('calc.placeholderLinkAnuncio')} value={state.anuncioLink} onChange={(e) => set('anuncioLink', e.target.value)} />
       </div>
     </Card>
   );

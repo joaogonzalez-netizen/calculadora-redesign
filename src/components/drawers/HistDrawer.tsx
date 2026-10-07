@@ -72,8 +72,9 @@ export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculad
           <div><b style={{ color: 'var(--text-1)' }}>{t('calc.peso')}:</b> {entry.peso || '-'} g</div>
           <div><b style={{ color: 'var(--text-1)' }}>{t('calc.filamento')}:</b> {filLines}</div>
           <div><b style={{ color: 'var(--text-1)' }}>{t('calc.tempoImpressao')}:</b> {(entry.tempoH || 0).toFixed(2)}h</div>
-          <div><b style={{ color: 'var(--text-1)' }}>{t('calc.linkBiblioteca')}:</b> {entry.stlLink ? <a href={entry.stlLink} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-dark)' }}>{entry.stlLink}</a> : '-'}</div>
-          <div><b style={{ color: 'var(--text-1)' }}>{t('calc.referenciaConcorrente')}:</b> {entry.concorrenteLink ? <a href={entry.concorrenteLink} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-dark)' }}>{entry.concorrenteLink}</a> : '-'}</div>
+          {entry.stlLink && <div><b style={{ color: 'var(--text-1)' }}>{t('calc.linkBiblioteca')}:</b> <a href={entry.stlLink} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-dark)' }}>{entry.stlLink}</a></div>}
+          {entry.concorrenteLink && <div><b style={{ color: 'var(--text-1)' }}>{t('calc.referenciaConcorrente')}:</b> <a href={entry.concorrenteLink} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-dark)' }}>{entry.concorrenteLink}</a></div>}
+          <div><b style={{ color: 'var(--text-1)' }}>{t('calc.linkAnuncioPublicado')}:</b> {entry.anuncioLink ? <a href={entry.anuncioLink} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-dark)' }}>{entry.anuncioLink}</a> : '-'}</div>
           <div><b style={{ color: 'var(--text-1)' }}>{t('calc.salvoEm')}:</b> {new Date(entry.id).toLocaleString('pt-BR')}</div>
         </div>
 

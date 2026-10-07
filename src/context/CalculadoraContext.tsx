@@ -18,7 +18,7 @@ export function novoAccItem(nome = '', valor = 0, categoria: AccItem['categoria'
 
 function estadoInicial(): CalculoState {
   return {
-    nomePeca: '', stlLink: '', concorrenteLink: '',
+    nomePeca: '', stlLink: '', concorrenteLink: '', anuncioLink: '',
     impressoraIdx: '', custoKwh: 0, precoKwh: 0.75, quantidade: 1,
     horasImpressao: 0, minutosImpressao: 0, taxaFalha: 2,
     filamentoItems: [novoFilamentoItem()],
@@ -166,6 +166,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       precoVenda: state.precoVenda,
       stlLink: state.stlLink,
       concorrenteLink: state.concorrenteLink,
+      anuncioLink: state.anuncioLink,
       comPromo: state.comPromo,
       descontoPromo: state.descontoPromo,
     };
@@ -196,6 +197,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       descontoPromo: h.descontoPromo ?? prev.descontoPromo,
       stlLink: h.stlLink || '',
       concorrenteLink: h.concorrenteLink || '',
+      anuncioLink: h.anuncioLink || '',
       horasImpressao: horas,
       minutosImpressao: minutos,
     }));
