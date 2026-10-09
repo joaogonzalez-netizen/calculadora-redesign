@@ -257,8 +257,8 @@ function aviso(){
 }
 function escolherModo(){
   open_(head('O que você quer fazer com este anúncio?')+`<div class="p-b">
-   <button class="modo" id="mCopia"><b>Apenas copiar</b><span>Salva como rascunho para você revisar as <u>imagens e informações</u> e publicar. <strong>Sem IA e sem gastar créditos.</strong></span><em>Fluxo curto: imagens → informações → publicar. Dá para gerar com IA depois.</em></button>
-   <button class="modo" id="mIa"><b>Copiar e criar com IA</b><span>Fluxo completo de geração: usa o anúncio como base para criar textos, imagens e vídeo novos.</span><em>Consome créditos (o custo é mostrado antes de confirmar).</em></button>
+   <button class="modo" id="mCopia"><b>Apenas copiar</b><span>Salva como rascunho para você revisar as <u>imagens e informações</u> e publicar. <strong>Mantém as imagens originais, sem IA e sem gastar créditos.</strong></span><em>Fluxo curto: imagens → informações → publicar. Dá para gerar com IA depois.</em></button>
+   <button class="modo" id="mIa"><b>Copiar e criar com IA</b><span>Fluxo completo de geração: usa o anúncio como base para criar textos, <strong>imagens novas</strong> e vídeo.</span><em>Consome créditos (o custo é mostrado antes de confirmar).</em></button>
   </div><div class="p-f"><button class="btn" data-close>Cancelar</button></div>`);
   $('#mCopia').onclick=()=>importar('copia');
   $('#mIa').onclick=()=>importar('ia');

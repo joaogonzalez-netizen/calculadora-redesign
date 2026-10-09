@@ -127,7 +127,7 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, on
       ) : passoAtual === 'textos' ? (
         <TextosStep marketplace={marketplace} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />
       ) : passoAtual === 'imagens' ? (
-        <ImagensStep imagensOriginais={rascunho?.imagens} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
+        <ImagensStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
       ) : passoAtual === 'video' ? (
         <VideoStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('video', 'resultado')} />
       ) : passoAtual === 'resultado' ? (

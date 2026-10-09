@@ -17,8 +17,8 @@ export interface RascunhoShopee {
   imagens: string[]; // URLs das imagens originais do anúncio copiado
   origemUrl: string;
   criadoEm: number;
-  // Escolhido na extensão na hora de copiar:
-  //  'copia' = só copiar → edita e publica com as imagens originais; as etapas de IA ficam bloqueadas;
+  // Escolhido na extensão na hora de copiar (é a única escolha sobre as imagens):
+  //  'copia' = só copiar → revisa imagens e informações e publica com as imagens originais, sem IA;
   //  'ia'    = copiar e criar com IA → Gerador completo (textos e imagens novos, consome créditos).
   // Rascunhos antigos, sem o campo, contam como 'ia'.
   modo?: ModoCopia;
