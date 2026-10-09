@@ -25,13 +25,17 @@ import { CalculadoraProvider } from './context/CalculadoraContext';
 import { I18nProvider, useI18n } from './context/I18nContext';
 import { MOSTRAR_CONFIGURACOES, MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
+import { PARAM_ABRIR } from './lib/rascunhosShopee';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
 export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao';
 
 function AppShell() {
   const { idioma } = useI18n();
-  const [view, setView] = useState<View>('dashboard');
+  // A extensão do Chrome abre o STLSeller com ?abrir=meus-anuncios (rascunho recém-copiado).
+  const [view, setView] = useState<View>(() => new URLSearchParams(window.location.search).get(PARAM_ABRIR) === 'meus-anuncios' ? 'gerador-meus' : 'dashboard');
+  // Rascunho copiado da Shopee que o Gerador deve abrir (null = anúncio novo, do zero).
+  const [rascunhoId, setRascunhoId] = useState<string | null>(null);
   const [histCount, setHistCount] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
   const [produtosFiltroSemCusto, setProdutosFiltroSemCusto] = useState(false);
@@ -42,6 +46,7 @@ function AppShell() {
   const novaConversa = () => setAssistenteKey((k) => k + 1);
   const navegar = (v: View) => {
     if (v === 'assistente') novaConversa();
+    if (v === 'gerador-criar') setRascunhoId(null);
     setView(v);
   };
   const aoMudarConversa = useCallback((ativa: boolean) => setConversaAtiva(ativa), []);
@@ -140,8 +145,8 @@ function AppShell() {
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} />}
-          {view === 'gerador-criar' && <CriarAnuncioView onIrParaConfiguracoes={() => setView('configuracoes')} />}
-          {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={() => setView('gerador-criar')} />}
+          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? 'novo'} rascunhoId={rascunhoId} onSalvarRascunho={() => setView('gerador-meus')} onIrParaConfiguracoes={() => setView('configuracoes')} />}
+          {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={(id) => { setRascunhoId(id ?? null); setView('gerador-criar'); }} />}
           {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
           {view === 'assistente' && <AssistenteView key={assistenteKey} onNavegar={setView} onConversaAtiva={aoMudarConversa} />}
           {view === 'marketing-logo' && <MarketingLogoView />}

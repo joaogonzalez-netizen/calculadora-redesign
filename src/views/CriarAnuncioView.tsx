@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useI18n } from '../context/I18nContext';
 import { GERADOR_MARKETPLACES_VISIVEIS } from '../lib/versoes';
 import Icon from '../components/Icon';
+import { getRascunhoShopee, infoDoRascunho, modoDoRascunho, setModoRascunho } from '../lib/rascunhosShopee';
+import PublicarAnuncioModal from '../components/gerador/PublicarAnuncioModal';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
 import MarketplaceStep from '../components/gerador/MarketplaceStep';
@@ -23,11 +25,25 @@ const CORES_MOCK = ['#0d6efd', '#00955a', '#c58a00', '#8a3bd4', '#d4633b'];
 
 interface Props {
   onIrParaConfiguracoes: () => void;
+  // Rascunho copiado da Shopee pela extensão: pré-preenche imagens e informações.
+  rascunhoId?: string | null;
+  onSalvarRascunho?: () => void;
 }
 
-export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
+export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, onSalvarRascunho }: Props) {
   const { t, idioma } = useI18n();
-  const PASSOS = [
+  const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
+  const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
+  const [rascunho] = useState(() => getRascunhoShopee(rascunhoId));
+  const [modo, setModo] = useState(() => modoDoRascunho(rascunho));
+  const [publicarAberto, setPublicarAberto] = useState(false);
+
+  // Dois fluxos: o COMPLETO (geração com IA, 7 etapas) e o de APENAS CÓPIA
+  // (anúncio copiado da Shopee: só revisa imagens e informações e publica —
+  // sem IA, sem créditos). Quem copiou "só pra copiar" pode virar pro fluxo
+  // completo a qualquer momento pelo CTA "Gerar anúncio com IA".
+  const soCopia = !!rascunho && modo === 'copia';
+  const PASSOS_COMPLETO = [
     { id: 'upload', numero: 1, label: t('gerador.stepUpload') },
     { id: 'marketplace', numero: 2, label: t('gerador.stepMarketplace') },
     { id: 'info', numero: 3, label: t('gerador.stepInformacoes') },
@@ -36,10 +52,18 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
     { id: 'video', numero: 6, label: t('gerador.stepVideo') },
     { id: 'resultado', numero: 7, label: t('gerador.stepResultado') },
   ] as const satisfies readonly { id: PassoId; numero: number; label: string }[];
+  const PASSOS_COPIA = [
+    { id: 'upload', numero: 1, label: t('gerador.stepImagens') },
+    { id: 'info', numero: 2, label: t('gerador.stepInformacoes') },
+  ] as const satisfies readonly { id: PassoId; numero: number; label: string }[];
+  const PASSOS: readonly { id: PassoId; numero: number; label: string }[] = soCopia ? PASSOS_COPIA : PASSOS_COMPLETO;
 
-  const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
-  const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
-  const [imagens, setImagens] = useState<string[]>([]);
+  function gerarComIa() {
+    if (!confirm(t('gerador.liberarIaConfirm'))) return;
+    if (rascunho) setModoRascunho(rascunho.id, 'ia');
+    setModo('ia');
+  }
+  const [imagens, setImagens] = useState<string[]>(() => rascunho?.imagens.slice(0, 5) ?? []);
   const [marketplace, setMarketplace] = useState(() => GERADOR_MARKETPLACES_VISIVEIS[idioma][0]);
   const [plano, setPlano] = useState('premium');
 
@@ -66,11 +90,32 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
   const passoInfo = PASSOS[idxAtual];
   const voltar = () => passoAnterior && setPassoAtual(passoAnterior);
 
+  // Aviso do fluxo de apenas cópia: fica logo ACIMA do botão "Continuar" de cada etapa.
+  const avisoCopia = soCopia ? (
+    <div className="ger-rascunho-banner so-copia">
+      <Icon name="download" size={16} />
+      <div>
+        <b>{t('gerador.soCopiaTitulo')}</b>
+        <span>{t('gerador.soCopiaDesc')}</span>
+      </div>
+      <button type="button" className="btn-dark pill ger-liberar-ia" onClick={gerarComIa}><Icon name="gerador" size={14} /> {t('gerador.gerarComIa')}</button>
+    </div>
+  ) : undefined;
+
   return (
     <div>
+      {rascunho && !soCopia && (
+        <div className="ger-rascunho-banner">
+          <Icon name="download" size={16} />
+          <div>
+            <b>{t('gerador.rascunhoShopeeTitulo')}</b>
+            <span>{t('gerador.rascunhoShopeeDesc')}</span>
+          </div>
+        </div>
+      )}
       <div className="ger-stepper-row">
         <GeradorStepper passos={PASSOS} atual={passoAtual} visitados={visitados} onIrPara={irPara} />
-        {passoAtual !== 'resultado' && (
+        {passoAtual !== 'resultado' && !soCopia && (
           <button type="button" className="ger-pular-resumo" onClick={pularParaResumo}>
             {t('gerador.pularParaResumo')} <Icon name="chevron" size={12} style={{ transform: 'rotate(180deg)' }} />
           </button>
@@ -78,11 +123,11 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
       </div>
 
       {passoAtual === 'info' ? (
-        <InformacoesStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
+        <InformacoesStep avisoCopia={avisoCopia} inicial={rascunho ? infoDoRascunho(rascunho) : undefined} modoCopia={soCopia ? { onPublicar: () => setPublicarAberto(true), onSalvarRascunho: () => onSalvarRascunho?.() } : undefined} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
       ) : passoAtual === 'textos' ? (
         <TextosStep marketplace={marketplace} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />
       ) : passoAtual === 'imagens' ? (
-        <ImagensStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
+        <ImagensStep imagensOriginais={rascunho?.imagens} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
       ) : passoAtual === 'video' ? (
         <VideoStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('video', 'resultado')} />
       ) : passoAtual === 'resultado' ? (
@@ -95,7 +140,9 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
                 imagens={imagens}
                 onAdicionar={adicionarImagem}
                 onRemover={removerImagem}
-                onContinuar={() => marcarVisitadoEIr('upload', 'marketplace')}
+                modoCopia={soCopia}
+                avisoCopia={avisoCopia}
+                onContinuar={() => marcarVisitadoEIr('upload', soCopia ? 'info' : 'marketplace')}
               />
             )}
             {passoAtual === 'marketplace' && (
@@ -115,6 +162,9 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes }: Props) {
             )}
           </div>
         </div>
+      )}
+      {publicarAberto && (
+        <PublicarAnuncioModal onFechar={() => setPublicarAberto(false)} onIrParaConfiguracoes={() => { setPublicarAberto(false); onIrParaConfiguracoes(); }} />
       )}
     </div>
   );

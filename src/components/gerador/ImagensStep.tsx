@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import MedidasModal, { MedidasOverlay, medidasPadrao, type MedidasConfig } from './MedidasModal';
+import { fundoDeImagem } from '../../lib/rascunhosShopee';
 import fotoProduto from '../../assets/gerador-produto-mock.jpg';
 
 // Réplica do passo "Imagens" do Gerador de anúncios em produção (print de
@@ -37,13 +38,18 @@ function pedirAjuste(secao: string) {
 interface Props {
   onVoltar: () => void;
   onContinuar: () => void;
+  // Fotos originais de um anúncio copiado: o usuário escolhe mantê-las ou gerar novas.
+  imagensOriginais?: string[];
 }
 
-export default function ImagensStep({ onVoltar, onContinuar }: Props) {
+export default function ImagensStep({ onVoltar, onContinuar, imagensOriginais }: Props) {
   const { t, idioma } = useI18n();
   const [selecionadas, setSelecionadas] = useState<Set<string>>(SELECAO_INICIAL);
   const [medidas, setMedidas] = useState<MedidasConfig>(() => medidasPadrao(t, idioma));
   const [editandoMedidas, setEditandoMedidas] = useState(false);
+  const temOriginais = !!imagensOriginais?.length;
+  const [origem, setOrigem] = useState<'originais' | 'ia'>('originais');
+  const usandoOriginais = temOriginais && origem === 'originais';
 
   function alternar(id: string) {
     setSelecionadas((prev) => {
@@ -66,6 +72,29 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
         <p>3 imagens fixas (capa, medidas e características) + 6 imagens individuais. Escolha exatamente 4 imagens para o vídeo.</p>
       </div>
 
+      {temOriginais && (
+        <div className="ger-origem-imgs">
+          <button type="button" className={'ger-origem-opt' + (origem === 'originais' ? ' ativo' : '')} onClick={() => setOrigem('originais')}>
+            <b>{t('gerador.origemOriginais')}</b>
+            <span>{t('gerador.origemOriginaisDesc')}</span>
+          </button>
+          <button type="button" className={'ger-origem-opt' + (origem === 'ia' ? ' ativo' : '')} onClick={() => setOrigem('ia')}>
+            <b>{t('gerador.origemIa')}</b>
+            <span>{t('gerador.origemIaDesc')}</span>
+          </button>
+        </div>
+      )}
+
+      {usandoOriginais ? (
+        <div className="ger-origem-grid">
+          {imagensOriginais!.map((src, i) => (
+            <div key={i} className="ger-origem-img" style={{ background: fundoDeImagem(src) }}>
+              {i === 0 && <span className="ger-img-badge-fixa">{t('gerador.capa')}</span>}
+            </div>
+          ))}
+        </div>
+      ) : (
+      <>
       <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>{t('gerador.imagensFixas')}</h3>
       <p className="ger-img-secao-desc">Sempre incluídas no anúncio. Não entram na seleção do vídeo.</p>
 
@@ -148,6 +177,9 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
           <Icon name="message" size={16} />
         </button>
       </div>
+
+      </>
+      )}
 
       {editandoMedidas && (
         <MedidasModal

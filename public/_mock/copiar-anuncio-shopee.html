@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulação · Copiar anúncio da Shopee</title>
+<style>
+:root{--g:#00955a;--gd:#007a49;--gt:#e6f5ee;--o:#ee4d2d;--ink:#1a1d1f;--mut:#6b7378;--line:#e6e8ea;--bg:#f5f5f5}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#dfe2e5;font-size:14px}
+button{font-family:inherit;cursor:pointer}
+/* barra de demonstração */
+.demo{background:#14181a;color:#d6dadd;display:flex;gap:16px;align-items:center;padding:8px 16px;font-size:12.5px;flex-wrap:wrap}
+.demo b{color:#fff}.demo label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.demo button{background:#2a3033;color:#fff;border:0;border-radius:6px;padding:5px 10px;font-size:12px}
+.demo .sp{flex:1}
+/* abas do navegador */
+.tabs{background:#cfd3d7;display:flex;gap:2px;padding:6px 10px 0;align-items:flex-end}
+.tab{background:#b9bec3;border-radius:8px 8px 0 0;padding:8px 14px;font-size:12.5px;color:#333;border:0;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab.on{background:#fff;color:#111;font-weight:600}
+.urlbar{background:#fff;padding:7px 12px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.url{flex:1;background:#f1f3f4;border-radius:999px;padding:6px 14px;font-size:12.5px;color:#444}
+.ext{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--gd);font-weight:600;background:var(--gt);padding:4px 10px;border-radius:999px}
+.ext i{width:8px;height:8px;background:var(--g);border-radius:50%;display:inline-block}
+.view{display:none}.view.on{display:block}
+/* ===== SHOPEE ===== */
+.sp-top{background:linear-gradient(#f53d2d,#f63);color:#fff;font-size:12px}
+.sp-top .row{max-width:1180px;margin:auto;display:flex;justify-content:space-between;padding:8px 10px}
+.sp-top .row span{margin-left:14px}
+.sp-search{max-width:1180px;margin:auto;display:flex;align-items:center;gap:40px;padding:6px 10px 14px}
+.sp-logo{font-size:26px;font-weight:700;display:flex;align-items:center;gap:6px}
+.sp-logo i{background:#fff;color:var(--o);width:30px;height:34px;border-radius:5px;display:inline-grid;place-items:center;font-style:normal;font-size:20px}
+.sp-box{flex:1;background:#fff;border-radius:3px;padding:10px 12px;color:#999;font-size:13px}
+.sp-page{background:var(--bg);padding-bottom:40px}
+.sp-wrap{max-width:1180px;margin:auto;padding:0 10px}
+.crumb{padding:14px 0;font-size:13px;color:#05a}.crumb b{color:#222;font-weight:400}
+.card{background:#fff;border-radius:3px;box-shadow:0 1px 1px rgba(0,0,0,.05);margin-bottom:14px}
+.prod{display:grid;grid-template-columns:450px 1fr;gap:28px;padding:16px}
+.main-img{width:450px;height:450px;background:#000 center/cover no-repeat;border-radius:2px}
+.thumbs{display:flex;gap:8px;margin-top:10px}
+.thumbs div{width:82px;height:82px;background:center/cover;border:2px solid transparent;cursor:pointer}
+.thumbs div.on{border-color:var(--o)}
+.sp-title{font-size:20px;font-weight:500;margin:4px 0 10px}
+.sp-meta{color:#777;font-size:14px;display:flex;gap:16px;margin-bottom:14px}
+.sp-price{background:#fafafa;color:var(--o);font-size:30px;font-weight:500;padding:16px 20px;margin-bottom:22px}
+.sp-line{display:flex;gap:26px;margin:0 0 16px 20px;font-size:14px;color:#757575;align-items:center}
+.sp-line b{color:#222;font-weight:600}.free{color:#26aa99}
+.sp-btns{display:flex;gap:14px;margin:26px 0 0 20px;align-items:center;flex-wrap:wrap}
+.b-cart{border:1px solid var(--o);background:#ff57221a;color:var(--o);padding:14px 20px;border-radius:2px;font-size:14px}
+.b-buy{background:var(--o);color:#fff;border:0;padding:15px 30px;border-radius:2px;font-size:14px}
+/* botão injetado pela extensão */
+.stl-btn{display:inline-flex;align-items:center;gap:8px;background:var(--g);color:#fff;border:0;padding:13px 18px;border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,149,90,.35);position:relative}
+.stl-btn:hover{background:var(--gd)}
+.stl-btn::before{content:"";width:18px;height:18px;border-radius:5px;background:#fff;opacity:.95;mask:radial-gradient(circle,#000 60%,transparent 62%)}
+.stl-fab{position:fixed;right:24px;bottom:24px;z-index:40;display:none;align-items:center;gap:10px;background:var(--g);color:#fff;border:0;border-radius:999px;padding:16px 24px;font-weight:800;font-size:15.5px;box-shadow:0 10px 30px rgba(0,149,90,.5),0 0 0 4px rgba(255,255,255,.9);animation:pulse 2.4s ease-in-out infinite}
+body.shopee .stl-fab{display:inline-flex}
+.stl-fab:hover{background:var(--gd);transform:translateY(-1px)}
+.stl-fab .mark{width:22px;height:22px;border-radius:7px;background:#fff;display:inline-block;position:relative}
+.stl-fab .mark::after{content:"";position:absolute;inset:5px;border-radius:3px;background:var(--g)}
+@keyframes pulse{0%,100%{box-shadow:0 10px 30px rgba(0,149,90,.5),0 0 0 4px rgba(255,255,255,.9)}50%{box-shadow:0 10px 36px rgba(0,149,90,.7),0 0 0 10px rgba(0,149,90,.18)}}
+.stl-tag{font-size:10.5px;color:var(--gd);font-weight:600;margin-left:8px}
+.seller{display:flex;gap:30px;padding:22px;align-items:center}
+.seller img{width:80px;height:80px;border-radius:50%}
+.sec-h{background:#fafafa;margin:14px 20px;padding:14px;font-size:17px;font-weight:600}
+.dl{display:grid;grid-template-columns:200px 1fr;margin:0 34px;row-gap:22px;padding-bottom:20px;font-size:14px}
+.dl dt{color:#8a8a8a}.dl dd{margin:0}.dl a{color:#05a}
+.desc{margin:0 34px;padding:10px 0 30px;line-height:1.85;font-size:14px;white-space:pre-line}
+/* ===== OVERLAY DA EXTENSÃO ===== */
+.ov{position:fixed;inset:0;background:rgba(10,14,16,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.ov.on{display:flex}
+.panel{background:#fff;width:440px;max-width:94vw;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.35);overflow:hidden}
+.p-h{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700}
+.p-h .lg{width:26px;height:26px;border-radius:8px;background:var(--g)}
+.p-h .x{margin-left:auto;background:none;border:0;font-size:20px;color:#888}
+.p-b{padding:18px}
+.p-b p{margin:0 0 12px;line-height:1.5}.mut{color:var(--mut);font-size:13px}
+.p-f{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+.btn{border-radius:9px;padding:10px 16px;font-weight:700;font-size:13.5px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.btn.pri{background:var(--g);border-color:var(--g);color:#fff}.btn.pri:hover{background:var(--gd)}
+.btn.sm{padding:6px 12px;font-size:12.5px}
+.fld{margin-bottom:12px}.fld label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px;color:#444}
+.fld input,.fld select,.fld textarea{width:100%;border:1px solid #d5d9dc;border-radius:9px;padding:10px 12px;font:inherit}
+.spin{width:38px;height:38px;border:4px solid var(--gt);border-top-color:var(--g);border-radius:50%;margin:18px auto;animation:r 0.9s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.center{text-align:center}
+.modo{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;font:inherit}
+.modo:hover{border-color:var(--g);background:var(--gt)}
+.modo b{display:block;font-size:15px;margin-bottom:4px}.modo span{display:block;color:#444;font-size:13px;line-height:1.45}
+.modo em{display:block;margin-top:6px;font-size:12px;color:#8a6d00;font-style:normal;font-weight:600}
+.warn{background:#fff8e6;border:1px solid #f3dd9b;color:#6b5200;border-radius:9px;padding:11px 13px;font-size:13px;line-height:1.5}
+/* toast na página */
+.toast{position:fixed;right:24px;bottom:94px;background:#fff;border-radius:12px;box-shadow:0 14px 44px rgba(0,0,0,.28);padding:14px 16px;display:none;gap:12px;align-items:center;z-index:60;border-left:5px solid var(--g);min-width:300px}
+.toast.on{display:flex}.toast b{display:block}
+.toast a{color:var(--gd);font-weight:700;text-decoration:underline;cursor:pointer;font-size:13px}
+/* ===== STLSELLER ===== */
+.app{display:grid;grid-template-columns:220px 1fr;min-height:640px;background:#fafbfb}
+.side{background:#fff;border-right:1px solid var(--line);padding:16px 12px;font-size:13.5px}
+.side .lg{font-weight:800;font-size:17px;margin:0 8px 18px}.side .lg span{color:var(--g)}
+.side div{padding:9px 10px;border-radius:9px;color:#555;margin-bottom:2px}
+.side .on{background:var(--gt);color:var(--gd);font-weight:700}.side .sub{padding-left:28px;font-size:13px}
+.main{padding:28px 32px}
+.main h1{font-size:30px;margin:0 0 4px}.main h1 span{color:var(--g)}
+.tbl{background:#fff;border:1px solid var(--line);border-radius:14px;margin-top:20px;overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:12.5px;color:#777;padding:12px 14px;border-bottom:1px solid var(--line)}
+.tbl td{padding:12px 14px;border-top:1px solid var(--line);vertical-align:middle}
+.tbl tr.row{cursor:pointer}.tbl tr.row:hover{background:#f7fbf9}
+.tbl img{width:44px;height:44px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:10px}
+.st{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+.st.rasc{background:#fff3bf;color:#6b5200}.st.pub{background:#e3f5ec;color:#0b6b43}
+.mk{font-size:12px;border-radius:999px;padding:3px 10px;font-weight:600;background:#ffe5d6;color:#9a3a0a}
+.mk.ml{background:#fff3bf;color:#6b5200}
+.edit{display:grid;grid-template-columns:1fr 340px;gap:22px;margin-top:20px}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.box h3{margin:0 0 12px;font-size:15px}
+.imgs{display:flex;gap:10px;flex-wrap:wrap}.imgs img{width:92px;height:92px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+.opt{display:flex;gap:10px;border:1.5px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px;cursor:pointer}
+.opt.on{border-color:var(--g);background:var(--gt)}.opt small{color:var(--mut);display:block;margin-top:2px}
+.dest{display:flex;gap:8px}.dest button{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-weight:700}
+.dest button.on{border-color:var(--g);background:var(--gt);color:var(--gd)}
+.conn{font-size:12.5px;margin:8px 0 14px}.ok{color:#0b6b43;font-weight:700}.no{color:#b3261e;font-weight:700}
+.back{background:none;border:0;color:var(--gd);font-weight:700;padding:0;margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<div class="demo">
+  <b>Simulação</b> · não é a extensão real
+  <label><input type="checkbox" id="optLogado" checked> Usuário logado no STLSeller</label>
+  <label><input type="checkbox" id="optPrimeira" checked> Primeira cópia (mostra aviso de direitos)</label>
+  <span class="sp"></span>
+  <button id="reset">↺ Reiniciar simulação</button>
+</div>
+
+<div class="tabs">
+  <button class="tab on" data-v="shopee">Suporte de Celular 3D Premium | Shopee Brasil</button>
+</div>
+<div class="urlbar">
+  <div class="url" id="url">shopee.com.br/Suporte-de-Celular-3D-Premium-i.1043817226.24591873204</div>
+  <div class="ext"><i></i> STLSeller</div>
+</div>
+
+<!-- ============ SHOPEE ============ -->
+<div class="view on" id="v-shopee">
+ <div class="sp-top">
+  <div class="row"><div>Central do Vendedor &nbsp;|&nbsp; Vender na Shopee &nbsp;|&nbsp; Baixe o App</div><div><span>Notificações</span><span>Ajuda</span><span>Português (BR)</span><span>gonzalez000</span></div></div>
+  <div class="sp-search"><div class="sp-logo"><i>S</i>Shopee</div><div class="sp-box">Buscar na Shopee</div></div>
+ </div>
+ <div class="sp-page"><div class="sp-wrap">
+  <div class="crumb">Shopee &gt; Celulares e Dispositivos &gt; Acessórios &gt; Suportes para Celular &gt; <b>Suporte de Celular 3D Premium</b></div>
+  <div class="card prod">
+   <div>
+    <div class="main-img" id="mainImg" style="background-image:url(foto3.jpg)"></div>
+    <div class="thumbs" id="thumbs"></div>
+   </div>
+   <div>
+    <div class="sp-title">Suporte de Celular 3D Premium</div>
+    <div class="sp-meta"><span>Nenhuma Avaliação Ainda</span><span><b>0</b> Vendidos</span></div>
+    <div class="sp-price">R$19,90</div>
+    <div class="sp-line">Enviado De <b>Joinville, Santa Catarina</b></div>
+    <div class="sp-line">Frete <span><s>R$14,68</s> R$0,00</span></div>
+    <div class="sp-line"><span class="free">Frete grátis</span> com cupom</div>
+    <div class="sp-line">Quantidade <b>1</b> <span>10 quantidades disponíveis</span></div>
+    <div class="sp-btns">
+      <button class="b-cart">Adicionar Ao Carrinho</button>
+      <button class="b-buy">Comprar Agora</button>
+    </div>
+   </div>
+  </div>
+  <div class="card seller">
+    <img src="loja.jpg" alt="">
+    <div><b style="font-size:16px">Next 3d BR</b><div class="mut">Último Login Há 2 Horas</div></div>
+    <div class="mut" style="margin-left:auto">Avaliações <b style="color:var(--o)">0</b> &nbsp;&nbsp; Produtos <b style="color:var(--o)">6</b> &nbsp;&nbsp; Seguidores <b style="color:var(--o)">1</b></div>
+  </div>
+  <div class="card">
+    <div class="sec-h">Detalhes Do Produto</div>
+    <dl class="dl">
+      <dt>Categoria</dt><dd><a>Shopee</a> &gt; <a>Celulares e Dispositivos</a> &gt; <a>Acessórios</a> &gt; <a>Suportes para Celular</a></dd>
+      <dt>Estoque</dt><dd>10</dd>
+      <dt>Tipo de Garantia</dt><dd>Sem Garantia</dd>
+      <dt>Material</dt><dd>Plástico</dd>
+      <dt>Quantidade da embalagem</dt><dd>1 unidade</dd>
+      <dt>Envio de</dt><dd>Santa Catarina</dd>
+    </dl>
+    <div class="sec-h">Descrição Do Produto</div>
+    <div class="desc" id="descOriginal"></div>
+  </div>
+ </div></div>
+</div>
+
+<button class="stl-fab" id="btnCopiar"><span class="mark"></span>Copiar para o STLSeller</button>
+
+<!-- ============ OVERLAY DA EXTENSÃO ============ -->
+<div class="ov" id="ov"><div class="panel" id="panel"></div></div>
+<div class="toast" id="toast"><div><b>Anúncio copiado</b><span class="mut" id="toastMsg">Suporte de Celular 3D Premium</span></div><a id="verRasc">Ver rascunho</a></div>
+
+<script>
+const DESC = `Tenha mais conforto e praticidade no dia a dia com este suporte de celular produzido em impressão 3D de alta qualidade. Com design moderno e acabamento preto fosco, ele oferece excelente estabilidade para assistir vídeos, realizar videochamadas, estudar, trabalhar ou acompanhar receitas sem precisar segurar o aparelho.
+
+Seu formato foi desenvolvido para manter o smartphone em um ângulo confortável de visualização, ocupando pouco espaço na mesa e combinando com qualquer ambiente.
+
+Características:
+
+* ✅ Produzido em impressão 3D de alta qualidade
+* ✅ Compatível com a maioria dos smartphones
+* ✅ Design moderno e compacto
+* ✅ Estrutura resistente e estável
+* ✅ Acabamento preto fosco
+* ✅ Ideal para mesa de escritório, estudos, home office e cozinha
+* ✅ Fácil de transportar e armazenar
+
+Especificações:
+
+* Material: PLA (plástico de alta qualidade para impressão 3D)
+* Cor: Preto Fosco
+* Compatibilidade: Smartphones de diversos tamanhos
+
+Conteúdo da embalagem:
+
+* 1x Suporte de Celular em Impressão 3D
+
+Produto desenvolvido para oferecer praticidade, estabilidade e um excelente custo-benefício para o uso diário. Ideal para quem busca um suporte funcional, bonito e durável.`;
+const FOTOS = ['foto1.jpg','foto2.jpg','foto3.jpg'];
+const $ = s => document.querySelector(s);
+const state = { copiado:false, avisoVisto:false };
+
+$('#descOriginal').textContent = DESC;
+document.body.classList.add('shopee');
+FOTOS.forEach((f,i)=>{const d=document.createElement('div');d.style.backgroundImage=`url(${f})`;if(i==2)d.className='on';
+  d.onclick=()=>{$('#mainImg').style.backgroundImage=`url(${f})`;document.querySelectorAll('#thumbs div').forEach(x=>x.classList.remove('on'));d.classList.add('on')};$('#thumbs').appendChild(d)});
+
+/* overlay */
+function open_(html){$('#panel').innerHTML=html;$('#ov').classList.add('on')}
+function close_(){$('#ov').classList.remove('on')}
+document.addEventListener('click',e=>{ if(e.target.dataset.close!==undefined) close_(); });
+const head=(t)=>`<div class="p-h"><span class="lg"></span>${t}<button class="x" data-close>×</button></div>`;
+
+/* 1. clique no botão */
+$('#btnCopiar').onclick=()=>{
+  $('#toast').classList.remove('on');
+  if(!$('#optLogado').checked) return login();
+  if($('#optPrimeira').checked && !state.avisoVisto) return aviso();
+  if(state.copiado) return duplicado();
+  escolherModo();
+};
+function login(){
+  open_(head('Entrar no STLSeller')+`<div class="p-b"><p class="mut">Entre com a sua conta do STLSeller para copiar anúncios.</p>
+  <div class="fld"><label>E-mail</label><input value="joao.gonzalez@stlflix.com"></div>
+  <div class="fld"><label>Senha</label><input type="password" value="••••••••"></div></div>
+  <div class="p-f"><button class="btn" data-close>Cancelar</button><button class="btn pri" id="doLogin">Entrar</button></div>`);
+  $('#doLogin').onclick=()=>{$('#optLogado').checked=true;close_();$('#btnCopiar').click()};
+}
+function aviso(){
+  open_(head('Antes de copiar')+`<div class="p-b"><div class="warn"><b>Você é responsável pelo conteúdo copiado.</b><br>Imagens, textos e marcas pertencem ao vendedor original. Use o conteúdo copiado apenas se tiver direito de usá-lo.</div><p class="mut" style="margin-top:12px">Este aviso aparece só na primeira cópia.</p></div>
+  <div class="p-f"><button class="btn" data-close>Cancelar</button><button class="btn pri" id="okAviso">Entendi, copiar</button></div>`);
+  $('#okAviso').onclick=()=>{state.avisoVisto=true;$('#optPrimeira').checked=false;escolherModo()};
+}
+function escolherModo(){
+  open_(head('O que você quer fazer com este anúncio?')+`<div class="p-b">
+   <button class="modo" id="mCopia"><b>Apenas copiar</b><span>Salva como rascunho para você revisar as <u>imagens e informações</u> e publicar. <strong>Sem IA e sem gastar créditos.</strong></span><em>Fluxo curto: imagens → informações → publicar. Dá para gerar com IA depois.</em></button>
+   <button class="modo" id="mIa"><b>Copiar e criar com IA</b><span>Fluxo completo de geração: usa o anúncio como base para criar textos, imagens e vídeo novos.</span><em>Consome créditos (o custo é mostrado antes de confirmar).</em></button>
+  </div><div class="p-f"><button class="btn" data-close>Cancelar</button></div>`);
+  $('#mCopia').onclick=()=>importar('copia');
+  $('#mIa').onclick=()=>importar('ia');
+}
+function importar(modo){
+  open_(head('Copiar para o STLSeller')+`<div class="p-b center"><div class="spin"></div><p><b>Importando anúncio…</b></p><p class="mut">Título, descrição, preço, imagens, categoria, atributos e estoque.</p></div>`);
+  setTimeout(()=>{close_();salvarRascunho(modo);state.copiado=true;$('#toastMsg').textContent=modo==='copia'?'Apenas cópia: revise e publique, sem IA.':'Copiado para criar com IA no Gerador.';$('#toast').classList.add('on')},1800);
+}
+function duplicado(){
+  open_(head('Anúncio já copiado')+`<div class="p-b"><p>Você já copiou este anúncio para o STLSeller.</p><p class="mut">O que deseja fazer?</p></div>
+  <div class="p-f"><button class="btn" id="dVer">Ver o rascunho existente</button><button class="btn pri" id="dNovo">Criar outro rascunho</button></div>`);
+  $('#dVer').onclick=()=>{close_();irRascunho()};
+  $('#dNovo').onclick=()=>{close_();escolherModo()};
+}
+const KEY='stlseller_rascunhos_shopee';
+const ATRIBUTOS=[['Tipo de garantia','Sem garantia'],['Material','Plástico'],['Quantidade da embalagem','1 unidade'],['Envio de','Santa Catarina']];
+/* Grava o rascunho no mesmo armazenamento que o STLSeller lê (a extensão real usaria a API). */
+function salvarRascunho(modo){
+  let lista=[];try{lista=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+  lista.unshift({id:'shopee-'+Date.now(),titulo:'Suporte de Celular 3D Premium',descricao:DESC,preco:19.9,estoque:10,
+    categoria:'Celulares e Dispositivos > Acessórios > Suportes para Celular',
+    atributos:ATRIBUTOS.map(([nome,valor])=>({nome,valor})),
+    imagens:['foto3.jpg','foto2.jpg'].map(f=>'/_mock/'+f),origemUrl:'shopee.com.br/Suporte-de-Celular-3D-Premium-i.1043817226.24591873204',criadoEm:Date.now(),modo:modo||'ia'});
+  localStorage.setItem(KEY,JSON.stringify(lista));
+}
+/* A extensão abre o STLSeller numa aba nova, já em Meus anúncios. */
+function irRascunho(){$('#toast').classList.remove('on');window.open('/?abrir=meus-anuncios','_blank')}
+$('#verRasc').onclick=irRascunho;
+
+$('#reset').onclick=()=>{Object.assign(state,{copiado:false,avisoVisto:false});localStorage.removeItem(KEY);$('#optPrimeira').checked=true;$('#optLogado').checked=true;$('#toast').classList.remove('on');close_()};
+</script>
+</body>
+</html>

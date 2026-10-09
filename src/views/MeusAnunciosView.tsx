@@ -3,6 +3,7 @@ import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
 import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { useI18n } from '../context/I18nContext';
+import { excluirRascunhoShopee, fundoDeImagem, getRascunhosShopee, modoDoRascunho } from '../lib/rascunhosShopee';
 
 // Réplica da tela "Meus Anúncios" em produção (print de João, 08/09/2026) —
 // listagem dos anúncios criados pelo Gerador, com busca, ordenação, filtro
@@ -15,11 +16,14 @@ import { useI18n } from '../context/I18nContext';
 // o usuário já baixou os arquivos, mas não publicou em nenhum marketplace) →
 // Publicado (já está no ar em algum marketplace). Cada tag tem um tooltip
 // (title) explicando o que ela significa.
-type StatusAnuncio = 'gerando' | 'baixado' | 'publicado';
+type StatusAnuncio = 'rascunho' | 'gerando' | 'baixado' | 'publicado';
 type MarketplaceAnuncio = 'ml' | 'shopee' | 'etsy' | 'outros';
 
 interface Anuncio {
   id: string;
+  // Rascunho copiado da Shopee pela extensão do Chrome — "Continuar" abre o Gerador já preenchido.
+  rascunhoShopee?: boolean;
+  soCopia?: boolean; // copiado em modo "apenas copiar": etapas de IA bloqueadas
   nome: string;
   status: StatusAnuncio;
   // Teste: um anúncio pode estar publicado em mais de um marketplace ao
@@ -31,22 +35,25 @@ interface Anuncio {
 }
 
 const CHAVES_STATUS_LABEL: Record<StatusAnuncio, string> = {
+  rascunho: 'meusAnuncios.rascunho',
   gerando: 'meusAnuncios.gerando',
   baixado: 'meusAnuncios.baixado',
   publicado: 'meusAnuncios.publicado',
 };
 const CHAVES_STATUS_TOOLTIP: Record<StatusAnuncio, string> = {
+  rascunho: 'meusAnuncios.tooltipRascunho',
   gerando: 'meusAnuncios.tooltipGerando',
   baixado: 'meusAnuncios.tooltipBaixado',
   publicado: 'meusAnuncios.tooltipPublicado',
 };
 const STATUS_CLASSE: Record<StatusAnuncio, string> = {
+  rascunho: 'ma-status-rascunho-copia',
   gerando: 'status-pausado',
   baixado: 'ma-status-rascunho',
   publicado: 'status-ativo',
 };
 
-const STATUS_FILTRO: StatusAnuncio[] = ['gerando', 'baixado', 'publicado'];
+const STATUS_FILTRO: StatusAnuncio[] = ['rascunho', 'gerando', 'baixado', 'publicado'];
 
 const MARKETPLACES_FILTRO: { id: MarketplaceAnuncio; chave: string }[] = [
   { id: 'ml', chave: 'gerador.mkMercadoLivre' },
@@ -71,14 +78,28 @@ function paraData(d: string) {
   return new Date(ano, mes - 1, dia).getTime();
 }
 
+function rascunhosComoAnuncios(): Anuncio[] {
+  return getRascunhosShopee().map((r) => ({
+    id: r.id,
+    rascunhoShopee: true,
+    soCopia: modoDoRascunho(r) === 'copia',
+    nome: r.titulo,
+    status: 'rascunho',
+    marketplaces: ['shopee'],
+    data: new Date(r.criadoEm).toLocaleDateString('pt-BR'),
+    cor: fundoDeImagem(r.imagens[0] ?? 'linear-gradient(160deg,#efe6d8,#d9c7a3)'),
+  }));
+}
+
 interface Props {
-  onCriarAnuncio: () => void;
+  // id = rascunho copiado da Shopee a abrir no Gerador; sem id = anúncio novo.
+  onCriarAnuncio: (rascunhoId?: string) => void;
 }
 
 export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
   const { t } = useI18n();
   const ORDENS = [t('meusAnuncios.ordenarRecentes'), t('meusAnuncios.ordenarMaisAntigos'), t('meusAnuncios.ordenarNomeAZ')];
-  const [anuncios, setAnuncios] = useState<Anuncio[]>(MOCK_INICIAL);
+  const [anuncios, setAnuncios] = useState<Anuncio[]>(() => [...rascunhosComoAnuncios(), ...MOCK_INICIAL]);
   const [busca, setBusca] = useState('');
   const [ordem, setOrdem] = useState(ORDENS[0]);
   const [modo, setModo] = useState<'cards' | 'lista'>('cards');
@@ -105,14 +126,26 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
   }
   function excluir(a: Anuncio) {
     if (!confirm(`Excluir "${a.nome}"? Essa ação não pode ser desfeita.`)) return;
+    if (a.rascunhoShopee) excluirRascunhoShopee(a.id);
     setAnuncios((prev) => prev.filter((x) => x.id !== a.id));
   }
 
   return (
     <div>
-      <div className="hero">
-        <h1>{t('meusAnuncios.heroTitulo')} <span className="accent">{t('meusAnuncios.heroTituloDestaque')}</span></h1>
-        <p>Visualize, edite ou duplique anúncios já criados. Você pode filtrar por status, idioma ou tipo de produto pra encontrar o que precisa rápido.</p>
+      <div className="hero-row">
+        <div className="hero">
+          <h1>{t('meusAnuncios.heroTitulo')} <span className="accent">{t('meusAnuncios.heroTituloDestaque')}</span></h1>
+          <p>Visualize, edite ou duplique anúncios já criados. Você pode filtrar por status, idioma ou tipo de produto pra encontrar o que precisa rápido.</p>
+        </div>
+        {/* Protótipo da extensão "Copiar anúncio da Shopee" (página estática em public/_mock) */}
+        <a
+          className="btn-outline hist-nova-btn"
+          href={`${import.meta.env.BASE_URL}_mock/copiar-anuncio-shopee.html`}
+          target="_blank" rel="noreferrer"
+          title={t('meusAnuncios.simularCopiaShopeeDica')}
+        >
+          {t('meusAnuncios.simularCopiaShopee')}
+        </a>
       </div>
 
       <div className="ma-toolbar">
@@ -140,12 +173,12 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
           onChange={setMarketplaceFiltro}
         />
         <PopoverList label="" options={ORDENS} value={ordem} onChange={setOrdem} />
-        <button type="button" className="btn-dark ma-novo" onClick={onCriarAnuncio}>{t('meusAnuncios.novoAnuncio')}</button>
+        <button type="button" className="btn-dark ma-novo" onClick={() => onCriarAnuncio()}>{t('meusAnuncios.novoAnuncio')}</button>
       </div>
 
       {modo === 'cards' ? (
         <div className="ma-grid">
-          <button type="button" className="ma-card ma-card-novo" onClick={onCriarAnuncio}>
+          <button type="button" className="ma-card ma-card-novo" onClick={() => onCriarAnuncio()}>
             <div className="ma-card-media ma-card-novo-media">
               <span className="ma-card-novo-icone"><Icon name="plus" size={20} /></span>
             </div>
@@ -168,11 +201,12 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
                     {a.marketplaces.map((id) => (
                       <span key={id} className={'mp-tag ' + classeTagMarketplace(id)}>{t(MARKETPLACES_FILTRO.find((m) => m.id === id)!.chave)}</span>
                     ))}
+                    {a.soCopia && <span className="mp-tag ma-tag-so-copia" title={t('meusAnuncios.tooltipSoCopia')}>{t('meusAnuncios.soCopia')}</span>}
                   </div>
                   <span>{a.data}</span>
                 </div>
                 <div className="ma-card-acoes">
-                  <button type="button" className="btn-outline ma-continuar" onClick={onCriarAnuncio}>
+                  <button type="button" className="btn-outline ma-continuar" onClick={() => onCriarAnuncio(a.rascunhoShopee ? a.id : undefined)}>
                     <Icon name="chevron" size={12} style={{ transform: 'rotate(180deg)' }} /> {a.status === 'publicado' ? t('meusAnuncios.verAnuncio') : t('meusAnuncios.continuar')}
                   </button>
                   <button type="button" className="ma-icone-btn" title={t('meusAnuncios.baixar')} onClick={() => baixar(a)}><Icon name="download" size={14} /></button>
@@ -213,7 +247,7 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
                     <td>{a.data}</td>
                     <td>
                       <div className="ma-card-acoes" style={{ justifyContent: 'flex-end' }}>
-                        <button type="button" className="btn-outline ma-continuar" onClick={onCriarAnuncio}>{a.status === 'publicado' ? t('meusAnuncios.verAnuncio') : t('meusAnuncios.continuar')}</button>
+                        <button type="button" className="btn-outline ma-continuar" onClick={() => onCriarAnuncio(a.rascunhoShopee ? a.id : undefined)}>{a.status === 'publicado' ? t('meusAnuncios.verAnuncio') : t('meusAnuncios.continuar')}</button>
                         <button type="button" className="ma-icone-btn" title={t('meusAnuncios.baixar')} onClick={() => baixar(a)}><Icon name="download" size={14} /></button>
                         <button type="button" className="ma-icone-btn ma-icone-btn-red" title={t('meusAnuncios.excluir')} onClick={() => excluir(a)}><Icon name="trash" size={14} /></button>
                       </div>
