@@ -58,3 +58,10 @@ export function impostoDasPrefs(prefs: Preferencias, idioma: Idioma): number {
 export function moedaDasPrefs(prefs: Preferencias, idioma: Idioma): Moeda {
   return idioma === 'es' ? (prefs.moedaEs ?? 'ARS') : (prefs.moeda || 'BRL');
 }
+
+// Módulo Vendas físicas (feiras, eventos e lojas físicas): por enquanto só em PT.
+export const MOSTRAR_FEIRAS: Record<Idioma, boolean> = {
+  pt: true,
+  en: false,
+  es: false,
+};

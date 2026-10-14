@@ -83,6 +83,8 @@ export interface HistoricoEntry {
   anuncioLink: string;
   comPromo: boolean;
   descontoPromo: number;
+  // Cálculo cadastrado pelo catálogo de Vendas físicas (só estes entram no catálogo).
+  origemCatalogo?: boolean;
   // formato antigo, mantido só pra leitura de exemplos semeados
   custoFilamento?: number;
 }

@@ -19,16 +19,17 @@ import MarketingLogoView from './views/MarketingLogoView';
 import MarketingBannersView from './views/MarketingBannersView';
 import MarketingEtiquetasView from './views/MarketingEtiquetasView';
 import MarketingDecoracaoLojaView from './views/MarketingDecoracaoLojaView';
+import FeirasModule, { type FeirasView } from './feiras/FeirasModule';
 import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { I18nProvider, useI18n } from './context/I18nContext';
-import { MOSTRAR_CONFIGURACOES, MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
+import { MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS, MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { PARAM_ABRIR } from './lib/rascunhosShopee';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-pedidos' | 'feiras-catalogo' | 'feiras-eventos';
 
 function AppShell() {
   const { idioma } = useI18n();
@@ -99,7 +100,8 @@ function AppShell() {
   // leva pra Primeiros passos, ou pra Calculadora se o checklist já sumiu.
   const viewOculta =
     (!MOSTRAR_MENUS_PRINCIPAIS[idioma] && (view === 'dashboard' || view === 'pedidos' || view === 'produtos')) ||
-    (!MOSTRAR_CONFIGURACOES[idioma] && view === 'configuracoes');
+    (!MOSTRAR_CONFIGURACOES[idioma] && view === 'configuracoes') ||
+    (!MOSTRAR_FEIRAS[idioma] && view.startsWith('feiras-'));
   useEffect(() => {
     if (viewOculta) setView(todosPassosCompletos ? 'calculadora' : 'primeirospassos');
   }, [viewOculta, todosPassosCompletos]);
@@ -117,7 +119,7 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} onNovaConversa={view === 'assistente' && conversaAtiva ? novaConversa : undefined} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'historico' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' ? ' content-wide' : '') + (view === 'historico' ? ' content-full' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'historico' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' || view.startsWith('feiras-') ? ' content-wide' : '') + (view === 'historico' ? ' content-full' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
@@ -141,7 +143,7 @@ function AppShell() {
               onFiltroSemCustoConsumido={() => setProdutosFiltroSemCusto(false)}
             />
           )}
-          {view === 'calculadora' && <CalculadoraView onSaved={aoSalvarCalculo} />}
+          {view === 'calculadora' && <CalculadoraView onSaved={aoSalvarCalculo} onVoltarCatalogo={() => setView('feiras-catalogo')} />}
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} onIrParaMeusAnuncios={() => setView('gerador-meus')} />}
@@ -153,6 +155,7 @@ function AppShell() {
           {view === 'marketing-banners' && <MarketingBannersView />}
           {view === 'marketing-etiquetas' && <MarketingEtiquetasView />}
           {view === 'marketing-decoracao' && <MarketingDecoracaoLojaView />}
+          {view.startsWith('feiras-') && <FeirasModule view={view.slice(7) as FeirasView} onNavigate={(v) => setView(('feiras-' + v) as View)} onIrParaCalculadora={() => setView('calculadora')} />}
         </div>
         <AppFooter />
       </div>

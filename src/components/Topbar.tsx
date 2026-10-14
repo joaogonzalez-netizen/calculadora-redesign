@@ -21,6 +21,12 @@ const CHAVES_TITULO: Record<View, string> = {
   'marketing-banners': 'topbar.title.marketing-banners',
   'marketing-etiquetas': 'topbar.title.marketing-etiquetas',
   'marketing-decoracao': 'topbar.title.marketing-decoracao',
+  'feiras-painel': 'topbar.title.feiras-painel',
+  'feiras-negocios': 'topbar.title.feiras-negocios',
+  'feiras-clientes': 'topbar.title.feiras-clientes',
+  'feiras-pedidos': 'topbar.title.feiras-pedidos',
+  'feiras-catalogo': 'topbar.title.feiras-catalogo',
+  'feiras-eventos': 'topbar.title.feiras-eventos',
 };
 
 interface Props {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { View } from '../App';
 import { USUARIO } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
-import { MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_CONFIGURACOES } from '../lib/versoes';
+import { MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS } from '../lib/versoes';
 import Icon, { LogoMark, type IconName } from './Icon';
 
 interface Props {
@@ -14,12 +14,12 @@ interface Props {
   mostrarPrimeirosPassos: boolean;
 }
 
-/** Grupos de FERRAMENTAS com submenu — Buscador é item flat (tela única, sem submenu). */
-type GrupoId = 'gerador' | 'calculadora' | 'marketing';
+/** Grupos de FERRAMENTAS com submenu — Buscador é item flat (tela única, sem submenu).
+ *  Vendas físicas e Marketing são seções próprias, com os itens direto no menu. */
+type GrupoId = 'gerador' | 'calculadora';
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
 const VIEWS_DO_GERADOR: View[] = ['gerador-criar', 'gerador-meus'];
-const VIEWS_DO_MARKETING: View[] = ['marketing-logo', 'marketing-banners', 'marketing-etiquetas', 'marketing-decoracao'];
 
 export default function Sidebar({ view, onNavigate, histCount, collapsed, onToggleCollapsed, mostrarPrimeirosPassos }: Props) {
   const { t, idioma } = useI18n();
@@ -27,21 +27,19 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
   const mostrarConfiguracoes = MOSTRAR_CONFIGURACOES[idioma];
   const naCalculadora = VIEWS_DA_CALCULADORA.includes(view);
   const noGerador = VIEWS_DO_GERADOR.includes(view);
-  const noMarketing = VIEWS_DO_MARKETING.includes(view);
-  const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : noMarketing ? 'marketing' : null);
+  const mostrarFeiras = MOSTRAR_FEIRAS[idioma];
+  const [aberto, setAberto] = useState<GrupoId | null>(naCalculadora ? 'calculadora' : noGerador ? 'gerador' : null);
 
   const GRUPOS: { id: GrupoId; label: string; icon: IconName }[] = [
     { id: 'gerador', label: t('nav.geradorAnuncios'), icon: 'gerador' },
     { id: 'calculadora', label: t('nav.calculadoraPrecos'), icon: 'calculadora' },
-    { id: 'marketing', label: t('nav.marketing'), icon: 'box' },
   ];
 
   // O grupo da tela ativa abre sozinho ao navegar pra ela.
   useEffect(() => {
     if (naCalculadora) setAberto('calculadora');
     else if (noGerador) setAberto('gerador');
-    else if (noMarketing) setAberto('marketing');
-  }, [naCalculadora, noGerador, noMarketing]);
+  }, [naCalculadora, noGerador]);
 
   function toggleGrupo(id: GrupoId) {
     if (collapsed) onToggleCollapsed();
@@ -78,14 +76,12 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
 
         <div className="nav-label">{t('nav.ferramentas')}</div>
         <NavItem icon="message" label={t('nav.assistente')} active={view === 'assistente'} collapsed={collapsed} onClick={() => onNavigate('assistente')} />
-        <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;
           const grupoAtivoGerador = g.id === 'gerador' && noGerador;
-          const grupoAtivoMarketing = g.id === 'marketing' && noMarketing;
           return (
             <div key={g.id}>
-              <button type="button" className={'nav-item nav-group' + (grupoAtivo || grupoAtivoGerador || grupoAtivoMarketing ? ' active' : '')} onClick={() => toggleGrupo(g.id)}>
+              <button type="button" className={'nav-item nav-group' + (grupoAtivo || grupoAtivoGerador ? ' active' : '')} onClick={() => toggleGrupo(g.id)}>
                 <span className="ic"><Icon name={g.icon} /></span>
                 <span className="nav-text">{g.label}</span>
                 <span className={'nav-caret' + (aberto === g.id ? ' open' : '')}>▾</span>
@@ -105,25 +101,36 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
                   <div className={view === 'gerador-meus' ? 'active' : ''} onClick={() => onNavigate('gerador-meus')}>{t('nav.meusAnuncios')}</div>
                 </div>
               )}
-              {g.id === 'marketing' && aberto === 'marketing' && !collapsed && (
-                <div className="nav-sub">
-                  <div className={view === 'marketing-logo' ? 'active' : ''} onClick={() => onNavigate('marketing-logo')}>{t('nav.geradorLogo')}</div>
-                  <div className={view === 'marketing-banners' ? 'active' : ''} onClick={() => onNavigate('marketing-banners')}>{t('nav.geradorBanners')}</div>
-                  <div className={view === 'marketing-etiquetas' ? 'active' : ''} onClick={() => onNavigate('marketing-etiquetas')}>{t('nav.etiquetasAgradecimento')}</div>
-                  <div className={view === 'marketing-decoracao' ? 'active' : ''} onClick={() => onNavigate('marketing-decoracao')}>{t('nav.decoracaoLoja')}</div>
-                </div>
-              )}
             </div>
           );
         })}
-        <NavItem icon="otimizador" label={t('nav.otimizador')} collapsed={collapsed} muted badge={t('nav.emBreveBadge')} />
+        <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />
+
+        {mostrarFeiras && (
+          <>
+            <div className="nav-label">{t('nav.feiras')}</div>
+            <NavItem icon="message" label={t('nav.feiras.negocios')} active={view === 'feiras-negocios'} collapsed={collapsed} onClick={() => onNavigate('feiras-negocios')} />
+            <NavItem icon="tag" label={t('nav.feiras.clientes')} active={view === 'feiras-clientes'} collapsed={collapsed} onClick={() => onNavigate('feiras-clientes')} />
+            <NavItem icon="box" label={t('nav.feiras.pedidos')} active={view === 'feiras-pedidos'} collapsed={collapsed} onClick={() => onNavigate('feiras-pedidos')} />
+            <NavItem icon="list" label={t('nav.feiras.catalogo')} active={view === 'feiras-catalogo'} collapsed={collapsed} onClick={() => onNavigate('feiras-catalogo')} />
+            <NavItem icon="home" label={t('nav.feiras.eventos')} active={view === 'feiras-eventos'} collapsed={collapsed} onClick={() => onNavigate('feiras-eventos')} />
+          </>
+        )}
+
+        <div className="nav-label">{t('nav.marketing')}</div>
+        <NavItem icon="crown" label={t('nav.geradorLogo')} active={view === 'marketing-logo'} collapsed={collapsed} onClick={() => onNavigate('marketing-logo')} />
+        <NavItem icon="list" label={t('nav.geradorBanners')} active={view === 'marketing-banners'} collapsed={collapsed} onClick={() => onNavigate('marketing-banners')} />
+        <NavItem icon="tag" label={t('nav.etiquetasAgradecimento')} active={view === 'marketing-etiquetas'} collapsed={collapsed} onClick={() => onNavigate('marketing-etiquetas')} />
+        <NavItem icon="home" label={t('nav.decoracaoLoja')} active={view === 'marketing-decoracao'} collapsed={collapsed} onClick={() => onNavigate('marketing-decoracao')} />
+
+        <div className="nav-label">{t('nav.sistema')}</div>
+        {mostrarConfiguracoes && (
+          <NavItem icon="config" label={t('nav.configuracoes')} active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
+        )}
+        <NavItem icon="integracoes" label={t('nav.integracoes')} collapsed={collapsed} />
       </div>
 
-      <div className="nav-label">{t('nav.sistema')}</div>
-      {mostrarConfiguracoes && (
-        <NavItem icon="config" label={t('nav.configuracoes')} active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
-      )}
-      <NavItem icon="integracoes" label={t('nav.integracoes')} collapsed={collapsed} />
+
 
       <div className="sidebar-footer">
         <div className="avatar">{USUARIO.iniciais}</div>

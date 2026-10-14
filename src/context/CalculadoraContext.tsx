@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import type { AccItem, CalculoResultado, CalculoState, FilamentoItem, HistoricoEntry } from '../types';
 import { calcular, validar, type ValidacaoFaltando } from '../lib/calc';
 import { getHistorico, saveHistoricoArr } from '../lib/storage';
+import { veioDoCatalogo } from '../lib/origemCalculadora';
 import { useLibrarias } from './LibrariasContext';
 import { useI18n } from './I18nContext';
 import { impostoDasPrefs } from '../lib/versoes';
@@ -169,6 +170,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       anuncioLink: state.anuncioLink,
       comPromo: state.comPromo,
       descontoPromo: state.descontoPromo,
+      ...(veioDoCatalogo() ? { origemCatalogo: true } : {}),
     };
     // Gap conhecido e documentado (PRD seção 9): reabrir + editar + salvar de novo
     // cria item duplicado, não atualiza o existente. Não corrigir sem validar com o time.
