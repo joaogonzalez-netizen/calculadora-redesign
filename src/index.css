@@ -139,9 +139,9 @@ input,select{font-family:var(--font-b);}
 .bell-dot{position:absolute;top:7px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--surface);}
 .user-chip{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;}
 
-.content{max-width:900px;margin:0 auto;padding:44px 24px 120px;width:100%;flex:1;}
-.content-wide{max-width:1240px;padding:40px 40px 60px;}
-@media (max-width:900px){ .content-wide{padding:32px 20px 48px;} }
+.content{max-width:none;margin:0;padding:40px 30px 120px;width:100%;flex:1;}
+.content-wide{max-width:none;padding:40px 30px 60px;}
+@media (max-width:900px){ .content-wide{padding:32px 30px 48px;} }
 
 .app-footer{
   display:flex;align-items:center;justify-content:space-between;gap:16px;
@@ -2317,7 +2317,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .hist-table th,.hist-table td{padding-left:7px !important;padding-right:7px !important;}
 .hist-table td:not(:first-child):not(:nth-last-child(2)){white-space:nowrap;}
 /* Histórico: tabela ocupa a largura toda, com margens menores */
-.content-wide.content-full{max-width:none;padding:28px 20px 48px;}
+.content-wide.content-full{max-width:none;padding:40px 30px 48px;}
 .content-full .hist-table-card .card-body{padding-left:10px;padding-right:10px;}
 a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;color:var(--text-1);}
 
@@ -2381,7 +2381,7 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 .canal-vigencia-corpo a{font-weight:700;color:#6b5200;text-decoration:underline;align-self:flex-start;}
 
 /* ===== Calculadora: coluna única + cartão Resumo (visual da produção) ===== */
-.calc-coluna{max-width:860px;margin:0 auto;}
+.calc-coluna{width:100%;}
 .calc-calcular .card-body{align-items:center;text-align:center;gap:12px;padding-top:22px;}
 .calc-calcular-hint{margin:0;font-size:13px;color:var(--text-2);}
 .calc-calcular .btn-calc{width:100%;}
