@@ -7,39 +7,34 @@ import PrecificacaoCard from '../components/PrecificacaoCard';
 import CanalCard from '../components/CanalCard';
 import CustosExtrasCard from '../components/CustosExtrasCard';
 import AdsCard from '../components/AdsCard';
-import ResultsSection from '../components/ResultsSection';
-import StickyBar from '../components/StickyBar';
+import ResumoCard from '../components/ResumoCard';
 
+// Layout de coluna única, igual ao da tela de produção (captura de 14/10/2026):
+// cartões do formulário em sequência, botão "Calcular preço de venda" e, por
+// último, o cartão "Resumo". O painel fixo "mesa de impressão" (PrecoPanel,
+// ver .impeccable/surfaces/src-views-calculadoraview-tsx.md) segue no
+// repositório, mas fora de uso.
 export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
-  const { faltando, calcularClick, salvarHistorico, state } = useCalculadora();
+  const { faltando, calcularClick, salvarHistorico } = useCalculadora();
   const { t } = useI18n();
 
   function handleCalcular() {
     calcularClick();
-    if (faltando.length > 0) {
-      const el = document.getElementById(faltando[0].id);
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => (el as HTMLElement | null)?.focus?.({ preventScroll: true }), 350);
-    }
+    const alvo = faltando.length > 0
+      ? document.getElementById(faltando[0].id)
+      : document.getElementById('resultsSection');
+    alvo?.scrollIntoView({ behavior: 'smooth', block: faltando.length > 0 ? 'center' : 'start' });
+    if (faltando.length > 0) setTimeout(() => (alvo as HTMLElement | null)?.focus?.({ preventScroll: true }), 350);
   }
 
   function handleSalvar() {
     if (faltando.length > 0) { handleCalcular(); return; }
     salvarHistorico();
     onSaved();
-    alert(t('calc.calculoSalvoNoHistorico'));
-  }
-
-  function handleGerarAnuncio() {
-    alert(t('calc.redirecionandoGeradorAnuncios').replace('{nome}', state.nomePeca || 'produto'));
-  }
-
-  function verResumo() {
-    document.getElementById('resultsSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   return (
-    <div>
+    <div className="calc-coluna">
       <div className="hero">
         <h1>{t('calc.heroTitlePart1')} <span className="accent">{t('calc.heroTitleAccent')}</span> {t('calc.heroTitlePart2')}</h1>
         <p>{t('calc.heroSubtitle')}</p>
@@ -53,20 +48,15 @@ export default function CalculadoraView({ onSaved }: { onSaved: () => void }) {
       <CustosExtrasCard />
       <AdsCard />
 
-      <ResultsSection />
-
-      <div className="calc-footer">
-        <div className="placeholder" style={{ display: faltando.length ? 'block' : 'none' }}>{t('calc.preencherCamposCalcular')}</div>
-        <button className="btn-calc" onClick={handleCalcular}>{t('calc.calcularPrecoDeVenda')}</button>
-        <div className="validation-hint">{faltando.length ? t('calc.faltaPreencher') + ' ' + faltando.map((f) => t(f.labelKey)).join(', ') : ''}</div>
-        <div className="required-hint">{t('calc.camposObrigatorios')}</div>
-        <div className="actions-secondary">
-          <button type="button" className="btn-outline" onClick={handleSalvar}>💾 {t('calc.salvarNoHistorico')}</button>
-          <button type="button" className="btn-outline" onClick={handleGerarAnuncio}>✨ {t('calc.gerarAnuncioComIA')}</button>
+      <div className="card calc-calcular">
+        <div className="card-body">
+          <p className="calc-calcular-hint">{t('calc.preencherCamposCalcular')}</p>
+          <button type="button" className="btn-calc" onClick={handleCalcular}>{t('calc.calcularPrecoDeVenda')}</button>
+          <span className="required-hint">{t('calc.camposObrigatorios')}</span>
         </div>
       </div>
 
-      <StickyBar onCalcular={handleCalcular} onVerResumo={verResumo} />
+      <ResumoCard onSalvar={handleSalvar} />
     </div>
   );
 }

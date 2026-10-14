@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useCalculadora } from '../context/CalculadoraContext';
 import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
@@ -6,18 +7,9 @@ import type { Canal, PgtoId } from '../types';
 import { brl, fmtMoeda, moedaSimbolo } from '../lib/format';
 import { CALC_CANAIS_VISIVEIS } from '../lib/versoes';
 import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
+import { CANAIS, CANAL_LABEL_KEYS } from '../lib/canal';
 import Card from './Card';
-
-const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Mercado Livre Argentina', 'Shopee', 'Etsy', 'TikTok Shop'];
-
-const CANAL_LABEL_KEYS: Record<Canal, string> = {
-  'Venda direta': 'calc.canalVendaDireta',
-  'Mercado Livre': 'calc.canalMercadoLivre',
-  'Mercado Livre Argentina': 'calc.canalMercadoLivreArgentina',
-  'Shopee': 'calc.canalShopee',
-  'Etsy': 'calc.canalEtsy',
-  'TikTok Shop': 'calc.canalTiktokShop',
-};
+import Icon from './Icon';
 
 function usd(v: number): string {
   const n = isNaN(v) || v === null ? 0 : v;
@@ -66,6 +58,8 @@ const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
 ];
 
 export default function CanalCard() {
+  // Aviso de vigência das regras da Shopee: começa recolhido, expande no clique.
+  const [vigenciaAberta, setVigenciaAberta] = useState(false);
   const { state, set, errorIds, resultado } = useCalculadora();
   const { prefs } = useLibrarias();
   const { t, idioma } = useI18n();
@@ -224,6 +218,7 @@ export default function CanalCard() {
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlCategoriaDoAnuncio2')}</label>
             <select
+              id="mlCategoria"
               value={state.mlCategoria}
               onChange={(e) => onMlCategoriaChange(e.target.value)}
               className={errorIds.has('mlCategoria') ? 'input-error' : ''}
@@ -294,6 +289,7 @@ export default function CanalCard() {
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlCategoriaDoAnuncio2')}</label>
             <select
+              id="mlArCategoria"
               value={state.mlArCategoria}
               onChange={(e) => onMlArCategoriaChange(e.target.value)}
               className={errorIds.has('mlArCategoria') ? 'input-error' : ''}
@@ -363,11 +359,26 @@ export default function CanalCard() {
 
           <div className="field">
             <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.comissaoPorFaixaPreco2')}</label>
+            <div className={'canal-vigencia' + (vigenciaAberta ? ' aberta' : '')}>
+              <button type="button" className="canal-vigencia-head" aria-expanded={vigenciaAberta} onClick={() => setVigenciaAberta((v) => !v)}>
+                <b>{t('calc.shopeeVigenciaTitulo')}</b>
+                <span className="canal-vigencia-acao">
+                  {vigenciaAberta ? t('calc.shopeeVigenciaOcultar') : t('calc.shopeeVigenciaVer')}
+                  <Icon name="chevron" size={12} />
+                </span>
+              </button>
+              {vigenciaAberta && (
+                <div className="canal-vigencia-corpo">
+                  <span>{t('calc.shopeeVigenciaTexto')}</span>
+                  <a href="https://seller.br.shopee.cn/edu/article/26839/Comissao-para-vendedores-CNPJ-e-CPF-em-2026" target="_blank" rel="noreferrer">{t('calc.shopeeVigenciaLink')}</a>
+                </div>
+              )}
+            </div>
             <div className="canal-tabela-wrap">
               <table className="canal-tabela">
                 <thead><tr><th>{t('calc.thFaixa')}</th><th>{t('calc.thComissao')}</th><th>{t('calc.thTaxaFixa')}</th><th>{t('calc.thSubsidioFrete')}</th><th>{t('calc.thSubsidioPix')}</th></tr></thead>
                 <tbody>
-                  <tr><td>{t('calc.shopeeFaixaAte79')}</td><td>20%</td><td>R$ 4,00</td><td>R$ 20,00</td><td>—</td></tr>
+                  <tr><td>{t('calc.shopeeFaixaAte79')}</td><td>20%</td><td>R$ 4,50</td><td>R$ 20,00</td><td>—</td></tr>
                   <tr><td>{t('calc.shopeeFaixa80a99')}</td><td>14%</td><td>R$ 16,00</td><td>R$ 30,00</td><td>5%</td></tr>
                   <tr><td>{t('calc.shopeeFaixa100a199')}</td><td>14%</td><td>R$ 20,00</td><td>R$ 30,00</td><td>5%</td></tr>
                   <tr><td>{t('calc.shopeeFaixa200a499')}</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>5%</td></tr>

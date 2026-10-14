@@ -35,8 +35,13 @@ export function getMlFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
   return { faixaPesoLabel, faixaPrecoLabel, custo: Math.max(0, custoComDesconto) };
 }
 
+// Shopee BR — regras de comissão vigentes desde 01/10/2026 (artigo publicado em
+// 18/09/2026): a taxa fixa por item até R$ 79,99 passou de R$ 4,00 para
+// R$ 4,50; o limite da regra de baixo valor do CNPJ passou de R$ 8 para R$ 9.
+// Percentuais, demais faixas e subsídio Pix não mudaram.
+// https://seller.br.shopee.cn/edu/article/26839/Comissao-para-vendedores-CNPJ-e-CPF-em-2026
 export function getShopeeFaixa(preco: number) {
-  if (preco <= 79.99) return { pct: 0.20, fixo: 4.00, subFrete: 20, subPix: 0 };
+  if (preco <= 79.99) return { pct: 0.20, fixo: 4.50, subFrete: 20, subPix: 0 };
   if (preco <= 99.99) return { pct: 0.14, fixo: 16.00, subFrete: 30, subPix: 5 };
   if (preco <= 199.99) return { pct: 0.14, fixo: 20.00, subFrete: 30, subPix: 5 };
   if (preco <= 499.99) return { pct: 0.14, fixo: 26.00, subFrete: 40, subPix: 5 };
@@ -45,7 +50,8 @@ export function getShopeeFaixa(preco: number) {
 
 export function getShopeeFixo(preco: number, faixaFixo: number, shopeeTipo: 'cnpj' | 'cpf') {
   if (shopeeTipo === 'cnpj') {
-    if (preco < 8) return preco * 0.5;
+    // abaixo de R$ 9 o adicional é metade do preço (em R$ 9 já dá os R$ 4,50 da faixa)
+    if (preco < 9) return preco * 0.5;
     return faixaFixo;
   }
   if (preco < 12) {

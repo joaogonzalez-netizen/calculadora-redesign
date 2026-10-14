@@ -2370,3 +2370,74 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 .cfg-ext-link{margin-left:auto;background:none;border:0;color:var(--primary-dark);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;}
 .cfg-ext-aviso{margin-top:14px;font-size:12px;color:var(--text-3);}
 @media (max-width:860px){.cfg-ext-passos{grid-template-columns:1fr;}.cfg-ext-card{padding:20px;}}
+
+/* Aviso de vigência das regras de comissão (Shopee) — recolhido por padrão */
+.canal-vigencia{background:#fff8e6;border:1px solid #f3dd9b;color:#6b5200;border-radius:12px;margin:8px 0 12px;font-size:13px;line-height:1.5;}
+.canal-vigencia-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:10px 14px;font:inherit;color:inherit;cursor:pointer;text-align:left;}
+.canal-vigencia-acao{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:12.5px;white-space:nowrap;}
+.canal-vigencia-acao svg{transform:rotate(-90deg);transition:transform .15s;}
+.canal-vigencia.aberta .canal-vigencia-acao svg{transform:rotate(90deg);}
+.canal-vigencia-corpo{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px;color:#7a6320;}
+.canal-vigencia-corpo a{font-weight:700;color:#6b5200;text-decoration:underline;align-self:flex-start;}
+
+/* ===== Calculadora: coluna única + cartão Resumo (visual da produção) ===== */
+.calc-coluna{max-width:860px;margin:0 auto;}
+.calc-calcular .card-body{align-items:center;text-align:center;gap:12px;padding-top:22px;}
+.calc-calcular-hint{margin:0;font-size:13px;color:var(--text-2);}
+.calc-calcular .btn-calc{width:100%;}
+.calc-calcular .required-hint{color:var(--text-3);}
+
+.resumo-card{padding:0;overflow:hidden;}
+.resumo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;border-bottom:1px solid var(--border);}
+.resumo-head .htitle{display:flex;align-items:center;gap:12px;}
+.resumo-head h3{font-size:17px;margin:0;}
+.resumo-status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;background:#fff3bf;color:#6b5200;}
+.resumo-status.pronto{background:var(--primary-tint);color:var(--primary-dark);}
+.resumo-status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;font-style:normal;}
+.resumo-limpar{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--red);font:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.resumo-corpo{padding:22px 24px;display:flex;flex-direction:column;gap:18px;}
+.resumo-rotulo{font-size:12px;font-weight:600;color:var(--text-2);}
+.resumo-preco{display:flex;flex-direction:column;gap:4px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.resumo-preco-valor{font-family:var(--font-h);font-size:44px;font-weight:800;color:var(--primary-dark);line-height:1.05;letter-spacing:-.01em;}
+.resumo-sub{font-size:13px;color:var(--text-2);}
+.resumo-metricas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.resumo-tile{display:flex;flex-direction:column;gap:6px;background:var(--bg,#f7f8f7);border:1px solid var(--border);border-radius:14px;padding:14px 16px;}
+.resumo-tile.destaque{background:var(--primary-tint);border-color:var(--primary-tint-strong);}
+.resumo-tile.destaque.m-red{background:var(--red-tint);border-color:#f6cccc;}
+.resumo-tile.destaque.m-gold{background:#fff7e6;border-color:#f3e2b3;}
+.resumo-tile-valor{font-family:var(--font-h);font-size:22px;font-weight:800;}
+.resumo-tile-valor.verde{color:var(--primary-dark);}
+.m-red .resumo-tile-valor.verde{color:var(--red);}
+.m-gold .resumo-tile-valor.verde{color:var(--accent);}
+.resumo-pill{align-self:flex-start;font-size:11.5px;font-weight:700;background:#fff;border:1px solid var(--primary-tint-strong);color:var(--primary-dark);border-radius:999px;padding:1px 9px;}
+.resumo-subtitulo{margin:4px 0 -6px;font-size:14px;font-weight:800;}
+.resumo-taxas{background:var(--red-tint);border:1px solid #f6cccc;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;}
+.resumo-taxas-topo{display:flex;justify-content:space-between;gap:10px;}
+.resumo-taxas-canal{font-size:12px;color:var(--text-2);}
+.resumo-taxas-valor{font-family:var(--font-h);font-size:26px;font-weight:800;color:var(--red);}
+.resumo-taxas-linhas{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--text-2);}
+.resumo-taxas-linhas div{display:flex;justify-content:space-between;gap:10px;}
+.resumo-linhas{display:flex;flex-direction:column;gap:12px;}
+.resumo-linha-topo{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:var(--text-2);}
+.resumo-linha-topo b{color:var(--text-1);font-family:var(--font-h);}
+.resumo-barra{height:5px;border-radius:999px;background:var(--border);overflow:hidden;}
+.resumo-barra-fill{height:100%;border-radius:999px;}
+.resumo-barra-fill.verde{background:var(--primary);}
+.resumo-barra-fill.vermelho{background:var(--red);}
+.resumo-barra-fill.ambar{background:var(--accent);}
+.resumo-total{display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);font-size:13.5px;font-weight:700;}
+.resumo-potencial{background:var(--primary-tint);border:1px solid var(--primary-tint-strong);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.resumo-potencial-titulo{font-size:13px;font-weight:700;color:var(--primary-dark);}
+.resumo-potencial-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.resumo-potencial-card{background:#fff;border:1px solid var(--primary-tint-strong);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;}
+.resumo-potencial-card b{font-family:var(--font-h);font-size:21px;font-weight:800;color:var(--primary-dark);}
+.resumo-potencial-card small{font-size:11.5px;color:var(--text-3);}
+.resumo-acoes{padding:0 24px 24px;display:flex;flex-direction:column;gap:10px;}
+.resumo-acoes .btn-calc{width:100%;}
+.resumo-gerar{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;font:inherit;font-weight:700;color:var(--text-3);cursor:not-allowed;}
+.resumo-embreve{font-size:9.5px;font-weight:800;letter-spacing:.04em;background:var(--border);color:var(--text-2);border-radius:6px;padding:2px 6px;}
+.resumo-confirmacao{text-align:center;font-size:13px;font-weight:600;color:var(--primary-dark);}
+.resumo-faltando{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
+.resumo-faltando button{width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--border);padding:9px 2px;font:inherit;font-size:13px;font-weight:600;color:var(--text-1);cursor:pointer;}
+.resumo-faltando button:hover{color:var(--primary-dark);}
+@media (max-width:700px){.resumo-metricas,.resumo-potencial-grid{grid-template-columns:1fr;}.resumo-preco-valor{font-size:36px;}}
