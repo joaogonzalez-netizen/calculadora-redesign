@@ -30,8 +30,7 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
   const { t } = useI18n();
   const [layout, setLayout] = useState<LayoutCalc>(layoutInicial);
   const lateral = layout === 'lateral';
-  function trocarLayout() {
-    const prox: LayoutCalc = lateral ? 'coluna' : 'lateral';
+  function mudarLayout(prox: LayoutCalc) {
     setLayout(prox);
     try { localStorage.setItem(LAYOUT_KEY, prox); } catch { /* sem storage */ }
   }
@@ -68,9 +67,13 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
 
   return (
     <div className={lateral ? 'calc-lateral' : 'calc-coluna'}>
-      <button type="button" className="calc-layout-toggle" onClick={trocarLayout} title="Botão temporário">
-        {lateral ? 'Layout: totais na lateral' : 'Layout: coluna única'} · trocar
-      </button>
+      <div className="cluster-modo-row">
+        <span className="hint">{t('calc.layoutLabel')}</span>
+        <div className="cluster-modo-toggle painel-modo-toggle">
+          <button type="button" className={lateral ? '' : 'active'} onClick={() => mudarLayout('coluna')}>{t('calc.layoutColuna')}</button>
+          <button type="button" className={lateral ? 'active' : ''} onClick={() => mudarLayout('lateral')}>{t('calc.layoutLateral')}</button>
+        </div>
+      </div>
       <div className="hero">
         <h1>{t('calc.heroTitlePart1')} <span className="accent">{t('calc.heroTitleAccent')}</span> {t('calc.heroTitlePart2')}</h1>
         <p>{t('calc.heroSubtitle')}</p>

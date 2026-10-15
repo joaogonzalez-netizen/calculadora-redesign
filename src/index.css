@@ -2452,8 +2452,6 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 @media (max-width:700px){.calc-origem-catalogo{flex-direction:column;align-items:flex-start;}}
 
 /* ===== Calculadora: versão com totalizadores na lateral (alternância temporária) ===== */
-.calc-layout-toggle{position:fixed;left:55%;top:14px;transform:translateX(-50%);z-index:50;background:var(--text-1);color:#fff;border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:.85;}
-.calc-layout-toggle:hover{opacity:1;}
 .calc-lateral{width:100%;}
 .calc-lateral-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start;}
 .calc-lateral-resumo{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;border-radius:var(--radius-l,16px);scrollbar-width:thin;}
@@ -2492,3 +2490,5 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 .resumo-previa-preco{display:flex;flex-direction:column;gap:2px;}
 .resumo-previa-preco b{font-family:var(--font-h);font-size:30px;font-weight:800;color:var(--text-3);}
 .resumo-previa-linha{display:flex;justify-content:space-between;font-size:13px;color:var(--text-3);}
+
+.calc-coluna > .cluster-modo-row,.calc-lateral > .cluster-modo-row{margin-bottom:18px;}
