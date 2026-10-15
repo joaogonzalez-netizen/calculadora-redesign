@@ -64,27 +64,65 @@ export default function ResumoCard({ onSalvar }: Props) {
     </div>
   );
 
-  // Ainda falta preencher algo: lista os campos pendentes, clicáveis.
+  const fmt = (v: number) => fmtMoeda(v, moeda);
+
+  // Ainda falta preencher algo: diz quanto falta, destaca o próximo campo e
+  // mostra uma prévia esmaecida do que vai aparecer quando o cálculo estiver pronto.
   if (!resultado) {
+    const [proximo, ...demais] = faltando;
+    const titulo = faltando.length === 1
+      ? t('calc.vazioFaltaUm')
+      : t('calc.vazioFaltam').replace('{n}', String(faltando.length));
     return (
       <div className="card resumo-card" id="resultsSection">
         {cabecalho(false)}
         <div className="resumo-corpo">
-          <p className="hint" style={{ margin: 0 }}>{t('calc.painelVazioDesc')}</p>
-          {faltando.length > 0 && (
-            <ul className="resumo-faltando">
-              {faltando.map((f) => (
-                <li key={f.id}><button type="button" onClick={() => irParaCampo(f.id)}>{t(f.labelKey)}</button></li>
+          <div className="resumo-vazio-topo">
+            <b>{titulo}</b>
+            <p className="hint">{t('calc.painelVazioDesc')}</p>
+          </div>
+
+          {proximo && (
+            <div className="resumo-vazio-lista">
+              <button type="button" className="resumo-vazio-proximo" onClick={() => irParaCampo(proximo.id)}>
+                <span className="resumo-vazio-num">1</span>
+                <span className="resumo-vazio-texto">
+                  <small>{t('calc.vazioProximo')}</small>
+                  {t(proximo.labelKey)}
+                </span>
+                <Icon name="chevron" size={14} style={{ transform: 'rotate(180deg)' }} />
+              </button>
+              {demais.map((f, i) => (
+                <button type="button" className="resumo-vazio-item" key={f.id + i} onClick={() => irParaCampo(f.id)}>
+                  <span className="resumo-vazio-num">{i + 2}</span>
+                  <span className="resumo-vazio-texto">{t(f.labelKey)}</span>
+                </button>
               ))}
-            </ul>
+            </div>
           )}
+
+          <div className="resumo-previa" aria-hidden="true">
+            <span className="resumo-rotulo">{t('calc.vazioPrevia')}</span>
+            <div className="resumo-previa-preco">
+              <span className="resumo-rotulo">{t('calc.precoParaOConsumidor')}</span>
+              <b>{fmt(0)}</b>
+            </div>
+            <div className="resumo-previa-linha">
+              <span>{t('calc.custoPorUnidade')}</span><span>{fmt(0)}</span>
+            </div>
+            <div className="resumo-previa-linha">
+              <span>{t('calc.margemDeContribuicao')}</span><span>0%</span>
+            </div>
+            <div className="resumo-previa-linha">
+              <span>{t('calc.potencialMensal')}</span><span>{fmt(0)}</span>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   const r = resultado;
-  const fmt = (v: number) => fmtMoeda(v, moeda);
   const pct = (v: number) => v.toFixed(1).replace('.', ',');
   const markup = r.custoUnit > 0 ? r.precoConsumidor / r.custoUnit : 0;
   const margemClasse = r.margem < 25 ? 'm-red' : r.margem <= 35 ? 'm-gold' : 'm-green';

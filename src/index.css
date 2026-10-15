@@ -2473,3 +2473,22 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
   .calc-lateral-grid{grid-template-columns:1fr;}
   .calc-lateral-resumo{position:static;max-height:none;order:-1;}
 }
+
+/* Calculadora vazia: quanto falta, próximo passo e prévia esmaecida */
+.resumo-vazio-topo{display:flex;flex-direction:column;gap:4px;}
+.resumo-vazio-topo b{font-family:var(--font-h);font-size:17px;font-weight:800;}
+.resumo-vazio-topo .hint{margin:0;font-size:13px;line-height:1.5;}
+.resumo-vazio-lista{display:flex;flex-direction:column;gap:6px;}
+.resumo-vazio-proximo,.resumo-vazio-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;cursor:pointer;border-radius:12px;}
+.resumo-vazio-proximo{background:var(--primary-tint);border:1px solid var(--primary-tint-strong);padding:12px 14px;color:var(--primary-dark);font-weight:700;}
+.resumo-vazio-proximo:hover{filter:brightness(.98);}
+.resumo-vazio-item{background:none;border:1px solid var(--border);padding:10px 14px;font-size:13.5px;font-weight:600;color:var(--text-1);}
+.resumo-vazio-item:hover{border-color:var(--primary);color:var(--primary-dark);}
+.resumo-vazio-num{flex:none;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:#fff;border:1px solid var(--primary-tint-strong);color:var(--primary-dark);}
+.resumo-vazio-item .resumo-vazio-num{background:var(--bg,#f7f8f7);border-color:var(--border);color:var(--text-2);}
+.resumo-vazio-texto{flex:1;display:flex;flex-direction:column;gap:1px;}
+.resumo-vazio-texto small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--primary);}
+.resumo-previa{border:1px dashed var(--border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;opacity:.7;}
+.resumo-previa-preco{display:flex;flex-direction:column;gap:2px;}
+.resumo-previa-preco b{font-family:var(--font-h);font-size:30px;font-weight:800;color:var(--text-3);}
+.resumo-previa-linha{display:flex;justify-content:space-between;font-size:13px;color:var(--text-3);}
