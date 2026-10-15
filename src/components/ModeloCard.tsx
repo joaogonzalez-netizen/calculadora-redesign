@@ -30,10 +30,6 @@ export default function ModeloCard() {
         <label>{t('calc.referenciaConcorrente')}</label>
         <input type="url" placeholder={t('calc.placeholderReferenciaConcorrente')} value={state.concorrenteLink} onChange={(e) => set('concorrenteLink', e.target.value)} />
       </div>
-      <div className="field">
-        <label>{t('calc.linkAnuncioPublicado')}</label>
-        <input type="url" placeholder={t('calc.placeholderLinkAnuncio')} value={state.anuncioLink} onChange={(e) => set('anuncioLink', e.target.value)} />
-      </div>
     </Card>
   );
 }
