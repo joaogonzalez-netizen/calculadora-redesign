@@ -16,9 +16,25 @@ import { limparOrigemCatalogo, marcarOrigemCatalogo, veioDoCatalogo } from '../l
 // último, o cartão "Resumo". O painel fixo "mesa de impressão" (PrecoPanel,
 // ver .impeccable/surfaces/src-views-calculadoraview-tsx.md) segue no
 // repositório, mas fora de uso.
+// TEMPORÁRIO: alterna entre o layout de coluna única e o de totalizadores na
+// lateral, enquanto as duas versões são avaliadas. Remover o botão e a versão
+// descartada quando houver decisão.
+type LayoutCalc = 'coluna' | 'lateral';
+const LAYOUT_KEY = 'calc.layoutTemp';
+function layoutInicial(): LayoutCalc {
+  try { return localStorage.getItem(LAYOUT_KEY) === 'lateral' ? 'lateral' : 'coluna'; } catch { return 'coluna'; }
+}
+
 export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved: () => void; onVoltarCatalogo?: () => void }) {
   const { faltando, calcularClick, salvarHistorico } = useCalculadora();
   const { t } = useI18n();
+  const [layout, setLayout] = useState<LayoutCalc>(layoutInicial);
+  const lateral = layout === 'lateral';
+  function trocarLayout() {
+    const prox: LayoutCalc = lateral ? 'coluna' : 'lateral';
+    setLayout(prox);
+    try { localStorage.setItem(LAYOUT_KEY, prox); } catch { /* sem storage */ }
+  }
   // Veio do catálogo de Vendas físicas? Mostra o aviso e o atalho de volta.
   const [doCatalogo, setDoCatalogo] = useState(veioDoCatalogo);
   // Saiu da calculadora: o que for salvo depois não vai para o catálogo.
@@ -51,7 +67,10 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
   }
 
   return (
-    <div className="calc-coluna">
+    <div className={lateral ? 'calc-lateral' : 'calc-coluna'}>
+      <button type="button" className="calc-layout-toggle" onClick={trocarLayout} title="Botão temporário">
+        {lateral ? 'Layout: totais na lateral' : 'Layout: coluna única'} · trocar
+      </button>
       <div className="hero">
         <h1>{t('calc.heroTitlePart1')} <span className="accent">{t('calc.heroTitleAccent')}</span> {t('calc.heroTitlePart2')}</h1>
         <p>{t('calc.heroSubtitle')}</p>
@@ -67,6 +86,8 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
         </div>
       )}
 
+      <div className={lateral ? 'calc-lateral-grid' : undefined}>
+      <div className={lateral ? 'calc-lateral-form' : undefined}>
       <MoedaTopoCard />
       <ModeloCard />
       <ImpressaoCard />
@@ -83,7 +104,11 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
         </div>
       </div>
 
-      <ResumoCard onSalvar={handleSalvar} />
+      </div>
+      {lateral && <aside className="calc-lateral-resumo"><ResumoCard onSalvar={handleSalvar} /></aside>}
+      </div>
+
+      {!lateral && <ResumoCard onSalvar={handleSalvar} />}
     </div>
   );
 }

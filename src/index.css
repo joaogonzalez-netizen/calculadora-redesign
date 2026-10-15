@@ -2450,3 +2450,26 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 .calc-origem-catalogo span{color:var(--text-2);display:block;}
 .calc-origem-catalogo .btn-outline{flex:0 0 auto;white-space:nowrap;}
 @media (max-width:700px){.calc-origem-catalogo{flex-direction:column;align-items:flex-start;}}
+
+/* ===== Calculadora: versão com totalizadores na lateral (alternância temporária) ===== */
+.calc-layout-toggle{position:fixed;left:55%;top:14px;transform:translateX(-50%);z-index:50;background:var(--text-1);color:#fff;border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:.85;}
+.calc-layout-toggle:hover{opacity:1;}
+.calc-lateral{width:100%;}
+.calc-lateral-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start;}
+.calc-lateral-resumo{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;border-radius:var(--radius-l,16px);scrollbar-width:thin;}
+.calc-lateral-resumo .resumo-head{padding:14px 18px;position:sticky;top:0;background:var(--surface);z-index:1;}
+.calc-lateral-resumo .resumo-corpo{padding:16px 18px;gap:14px;}
+.calc-lateral-resumo .resumo-preco{padding-bottom:14px;}
+.calc-lateral-resumo .resumo-preco-valor{font-size:36px;}
+.calc-lateral-resumo .resumo-metricas{grid-template-columns:1fr 1fr;gap:8px;}
+.calc-lateral-resumo .resumo-metricas .resumo-tile:first-child{grid-column:1 / -1;flex-direction:row;align-items:center;justify-content:space-between;}
+.calc-lateral-resumo .resumo-tile{padding:10px 12px;}
+.calc-lateral-resumo .resumo-tile-valor{font-size:18px;}
+.calc-lateral-resumo .resumo-potencial-grid{grid-template-columns:1fr;gap:8px;}
+.calc-lateral-resumo .resumo-potencial-card{padding:10px 12px;}
+.calc-lateral-resumo .resumo-potencial-card b{font-size:18px;}
+.calc-lateral-resumo .resumo-acoes{padding:0 18px 18px;position:sticky;bottom:0;background:var(--surface);padding-top:12px;border-top:1px solid var(--border);}
+@media (max-width:1100px){
+  .calc-lateral-grid{grid-template-columns:1fr;}
+  .calc-lateral-resumo{position:static;max-height:none;order:-1;}
+}
