@@ -5,6 +5,7 @@ import { addDias, dataLonga, hoje } from '../../lib/format';
 import { STATUS_PEDIDO, type ItemPedido, type StatusPedido } from '../../lib/types';
 import { Drawer, Field } from '../ui';
 import Icon from '../Icon';
+import ClienteBusca from '../ClienteBusca';
 import ItensEditor from '../ItensEditor';
 
 export default function PedidoDrawer() {
@@ -12,7 +13,7 @@ export default function PedidoDrawer() {
   const s = useStore();
   const { db } = s;
   const ex = db.pedidos.find((p) => p.id === drawer?.id);
-  const [clienteId, setClienteId] = useState(ex?.clienteId ?? db.clientes[0]?.id ?? '');
+  const [clienteId, setClienteId] = useState(ex?.clienteId ?? '');
   const [status, setStatus] = useState<StatusPedido>(ex?.status ?? 'Na fila');
   const [data, setData] = useState(ex?.dataPedido ?? hoje());
   const [entrega, setEntrega] = useState(ex?.entrega ?? addDias(7));
@@ -21,7 +22,7 @@ export default function PedidoDrawer() {
   const [erro, setErro] = useState('');
 
   function salvar() {
-    if (!clienteId) return setErro('Escolha o cliente.');
+    if (!clienteId) return setErro('Busque o cliente ou cadastre um novo.');
     const validos = itens.filter((i) => (i.nome.trim() || i.produtoId) && i.qtd > 0);
     if (!validos.length) return setErro('Adicione ao menos um item.');
     s.salvarPedido({ id: ex?.id, clienteId, itens: validos, status, dataPedido: data, entrega, obs });
@@ -36,12 +37,10 @@ export default function PedidoDrawer() {
         <button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>Salvar pedido</button></>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
       <div className="fe-form-grid">
-        <Field label="Cliente" className="fe-full">
-          <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} disabled={!!ex}>
-            {db.clientes.length === 0 && <option value="">Cadastre um cliente primeiro</option>}
-            {db.clientes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-          </select>
-        </Field>
+        <div className="fe-field fe-full">
+          <span className="fe-lbl">Cliente</span>
+          <ClienteBusca clienteId={clienteId} onChange={setClienteId} disabled={!!ex} onAvisar={avisar} />
+        </div>
         <Field label="Data do pedido"><input type="date" value={data} onChange={(e) => setData(e.target.value)} /></Field>
         <Field label="Entrega"><input type="date" value={entrega} onChange={(e) => setEntrega(e.target.value)} /></Field>
       </div>
