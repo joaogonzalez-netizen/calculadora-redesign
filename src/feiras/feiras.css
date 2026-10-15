@@ -216,3 +216,7 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-cli-sel{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--primary-tint-strong);background:var(--primary-tint);border-radius:var(--radius-m);padding:10px 14px;}
 .fe-cli-sel div{display:flex;flex-direction:column;gap:2px;}
 .fe-cli-sel span{font-size:12px;color:var(--text-2);}
+
+/* Alternância Lista / Kanban na barra de ferramentas */
+.fe-toolbar .fe-seg{width:auto;flex:none;}
+.fe-toolbar .fe-seg button{flex:none;padding:7px 18px;}
