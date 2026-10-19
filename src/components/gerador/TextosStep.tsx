@@ -3,7 +3,7 @@ import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 // Réplica do passo "Textos" do Gerador de anúncios em produção (print de
-// João, 08/09/2026) — revisão dos textos que a IA gerou a partir das
+// João, 08/09/2026), revisão dos textos que a IA gerou a partir das
 // imagens e informações dos passos anteriores. Tudo mockado: título,
 // variações e descrição vêm de um texto fixo por idioma; "Re-gerar" e o
 // botão de chat (pedir ajuste pontual num texto) ainda não chamam IA de
@@ -15,7 +15,7 @@ interface TextosMock {
 }
 
 // Etsy exige campos dedicados de tags (até 13) e atributos (material, cor,
-// medidas) que alimentam os filtros de busca do comprador — mockado no
+// medidas) que alimentam os filtros de busca do comprador, mockado no
 // mesmo padrão do resto do passo, por idioma do anúncio.
 interface EtsyMock {
   tags: string[];
@@ -56,7 +56,7 @@ const ETSY_MOCK: Record<'pt' | 'en', EtsyMock> = {
 const ETSY_TAGS_LIMITE = 13;
 
 // Sugestões de keywords via EverBee Research API (GET /api/v1/keywords/{keyword})
-// — mockado no mesmo formato do retorno real (keyword, vol, competition, score),
+//, mockado no mesmo formato do retorno real (keyword, vol, competition, score),
 // pra já sair plugável quando a integração de verdade entrar (ver US de
 // exploração de custo por anúncio). Keywords em inglês porque é assim que a
 // busca do Etsy funciona de verdade, independente do idioma do anúncio.
@@ -118,12 +118,12 @@ Adicione um toque divertido à sua decoração!`,
       'Sloth Incense Holder for Kids Room and Leisure Area Fun Green Brown Decorative Piece',
       'Sloth Incense Holder with Natural Design and Colorful Details Green Brown Kids Room Piece',
     ],
-    descricao: `The Fun Sloth Incense Holder for Home Decoration is the perfect piece to bring a playful, cheerful touch to any room — ideal for kids' bedrooms and leisure areas. This incense holder combines function with a charming design, creating moments of relaxation and well-being.
+    descricao: `The Fun Sloth Incense Holder for Home Decoration is the perfect piece to bring a playful, cheerful touch to any room, ideal for kids' bedrooms and leisure areas. This incense holder combines function with a charming design, creating moments of relaxation and well-being.
 
 Benefits:
 - The decorative piece creates a cozy, fun atmosphere, great for children.
 - Its playful shape brings joy not only to kids but also to the adults who share those spaces.
-- Leaf-inspired stylized design — a charming addition to interior decor.
+- Leaf-inspired stylized design, a charming addition to interior decor.
 - Available in green and brown, matching a nature-inspired aesthetic perfectly.
 - A static piece with no moving parts, focused on visual beauty and room decoration.
 
@@ -164,7 +164,7 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
   const [tags, setTags] = useState<string[]>(() => [...ETSY_MOCK.pt.tags]);
   const [everbeeBusca, setEverbeeBusca] = useState('sloth decor');
 
-  // Tags acompanham o idioma do anúncio, igual título/descrição — troca de
+  // Tags acompanham o idioma do anúncio, igual título/descrição, troca de
   // idioma reseta pra lista gerada daquele idioma (perde edições manuais,
   // mesmo comportamento de "Re-gerar" pro resto do texto).
   useEffect(() => {

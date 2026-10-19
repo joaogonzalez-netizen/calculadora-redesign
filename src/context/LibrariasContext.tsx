@@ -6,7 +6,7 @@ import {
   usePersistedState,
 } from '../lib/storage';
 
-// Bibliotecas reutilizáveis (PRD seção 5) — impressoras, filamentos e custos extras.
+// Bibliotecas reutilizáveis (PRD seção 5), impressoras, filamentos e custos extras.
 // Fonte de dado única: editar em Preferências reflete na calculadora, e vice-versa,
 // porque ambos leem/escrevem o mesmo estado global aqui.
 interface Ctx {

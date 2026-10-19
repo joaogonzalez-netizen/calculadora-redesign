@@ -48,7 +48,7 @@ export default function PainelView() {
       <div className="fe-grid-kpi">
         <div className="fe-card fe-kpi fe-hi"><div className="fe-l">Em negociação</div><div className="fe-v">{brlCurto(d.pipe)}</div><div className="fe-s">{d.abertos.length} negociações abertas</div></div>
         <div className="fe-card fe-kpi"><div className="fe-l">Vendas fechadas</div><div className="fe-v">{brlCurto(d.receita)}</div><div className="fe-s">Lucro estimado {brlCurto(d.lucro)}</div></div>
-        <div className="fe-card fe-kpi"><div className="fe-l">Taxa de fechamento</div><div className="fe-v">{d.conv === null ? '—' : d.conv + '%'}</div><div className="fe-s">Entre negócios decididos</div></div>
+        <div className="fe-card fe-kpi"><div className="fe-l">Taxa de fechamento</div><div className="fe-v">{d.conv === null ? 'N/D' : d.conv + '%'}</div><div className="fe-s">Entre negócios decididos</div></div>
         <div className="fe-card fe-kpi"><div className="fe-l">Fila de produção</div><div className="fe-v">{d.fila.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} h</div><div className="fe-s">Pedidos na fila e imprimindo</div></div>
       </div>
 

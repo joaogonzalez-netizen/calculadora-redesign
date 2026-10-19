@@ -1,4 +1,4 @@
-// Núcleo de cálculo — porte fiel de calcular() do protótipo HTML.
+// Núcleo de cálculo, porte fiel de calcular() do protótipo HTML.
 // Fórmulas críticas (PRD seção 4) preservadas exatamente, inclusive o solver
 // de ponto fixo do modo "margem mínima" e as regras de canal da seção 4/11.
 
@@ -12,8 +12,8 @@ import type {
 export function getMlFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
   const bandasPeso = [0.3, 0.5, 1, 2, 3, 5, 9, 13, 17, 25];
   const labelsPeso = [
-    'Até 0,3 kg', '0,3–0,5 kg', '0,5–1 kg', '1–2 kg', '2–3 kg',
-    '3–5 kg', '5–9 kg', '9–13 kg', '13–17 kg', 'Acima de 17 kg',
+    'Até 0,3 kg', '0,3 a 0,5 kg', '0,5 a 1 kg', '1 a 2 kg', '2 a 3 kg',
+    '3 a 5 kg', '5 a 9 kg', '9 a 13 kg', '13 a 17 kg', 'Acima de 17 kg',
   ];
   let idx = bandasPeso.findIndex((b) => pesoKg <= b);
   if (idx === -1) idx = bandasPeso.length - 1;
@@ -22,12 +22,12 @@ export function getMlFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
   let faixaPrecoLabel: string;
   let custoBase: number;
   if (preco < 19) { faixaPrecoLabel = 'Até R$ 19'; custoBase = Math.min(preco * 0.5, 3 + idx * 1.2); }
-  else if (preco < 50) { faixaPrecoLabel = 'R$ 19 – R$ 49,99'; custoBase = 5 + idx * 1.6; }
-  else if (preco < 79) { faixaPrecoLabel = 'R$ 50 – R$ 78,99'; custoBase = 7 + idx * 2.0; }
-  else if (preco < 120) { faixaPrecoLabel = 'R$ 79 – R$ 119,99'; custoBase = 9 + idx * 2.4; }
-  else if (preco < 200) { faixaPrecoLabel = 'R$ 120 – R$ 199,99'; custoBase = 11 + idx * 2.8; }
-  else if (preco < 350) { faixaPrecoLabel = 'R$ 200 – R$ 349,99'; custoBase = 13 + idx * 3.2; }
-  else if (preco < 600) { faixaPrecoLabel = 'R$ 350 – R$ 599,99'; custoBase = 15 + idx * 3.6; }
+  else if (preco < 50) { faixaPrecoLabel = 'R$ 19 a R$ 49,99'; custoBase = 5 + idx * 1.6; }
+  else if (preco < 79) { faixaPrecoLabel = 'R$ 50 a R$ 78,99'; custoBase = 7 + idx * 2.0; }
+  else if (preco < 120) { faixaPrecoLabel = 'R$ 79 a R$ 119,99'; custoBase = 9 + idx * 2.4; }
+  else if (preco < 200) { faixaPrecoLabel = 'R$ 120 a R$ 199,99'; custoBase = 11 + idx * 2.8; }
+  else if (preco < 350) { faixaPrecoLabel = 'R$ 200 a R$ 349,99'; custoBase = 13 + idx * 3.2; }
+  else if (preco < 600) { faixaPrecoLabel = 'R$ 350 a R$ 599,99'; custoBase = 15 + idx * 3.6; }
   else { faixaPrecoLabel = 'Acima de R$ 600'; custoBase = 18 + idx * 4.0; }
 
   // até 70% de desconto por reputação verde, usamos 50% como estimativa conservadora
@@ -35,7 +35,7 @@ export function getMlFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
   return { faixaPesoLabel, faixaPrecoLabel, custo: Math.max(0, custoComDesconto) };
 }
 
-// Shopee BR — regras de comissão vigentes desde 01/10/2026 (artigo publicado em
+// Shopee BR, regras de comissão vigentes desde 01/10/2026 (artigo publicado em
 // 18/09/2026): a taxa fixa por item até R$ 79,99 passou de R$ 4,00 para
 // R$ 4,50; o limite da regra de baixo valor do CNPJ passou de R$ 8 para R$ 9.
 // Percentuais, demais faixas e subsídio Pix não mudaram.
@@ -74,39 +74,39 @@ export function getTiktokTaxaServicoFrete(preco: number) {
   return Math.min(preco * 0.06, 50);
 }
 
-// Mercado Livre Argentina — custo por unidade vendida (Envíos Full, correio,
+// Mercado Livre Argentina, custo por unidade vendida (Envíos Full, correio,
 // coleta e pontos de despacho), por faixa de peso × faixa de preço (AR$).
 // Fonte oficial: mercadolibre.com.ar/knowledge-hub/42400 (capturado 16/09/2026),
 // válida pra produtos abaixo de $33.000. Não há tabela oficial pra preços a
-// partir de $33.000 — por decisão do time, reaplicamos os valores da faixa
+// partir de $33.000, por decisão do time, reaplicamos os valores da faixa
 // "$24.000 a $32.999" pra qualquer preço igual ou acima disso.
 const ML_AR_FRETE_TABELA: { max: number; label: string; ate15k: number; de15ka24k: number; de24kAcima: number }[] = [
   { max: 0.3, label: 'Até 0,3 kg', ate15k: 1330, de15ka24k: 2740, de24kAcima: 3320 },
-  { max: 0.5, label: '0,3–0,5 kg', ate15k: 1370, de15ka24k: 2760, de24kAcima: 3340 },
-  { max: 1, label: '0,5–1 kg', ate15k: 1390, de15ka24k: 2780, de24kAcima: 3360 },
-  { max: 1.5, label: '1–1,5 kg', ate15k: 1410, de15ka24k: 2800, de24kAcima: 3380 },
-  { max: 2, label: '1,5–2 kg', ate15k: 1430, de15ka24k: 2820, de24kAcima: 3400 },
-  { max: 3, label: '2–3 kg', ate15k: 1450, de15ka24k: 2860, de24kAcima: 3470 },
-  { max: 4, label: '3–4 kg', ate15k: 1470, de15ka24k: 2910, de24kAcima: 3520 },
-  { max: 5, label: '4–5 kg', ate15k: 1500, de15ka24k: 3040, de24kAcima: 3670 },
-  { max: 8, label: '5–8 kg', ate15k: 1520, de15ka24k: 3130, de24kAcima: 3760 },
-  { max: 10, label: '8–10 kg', ate15k: 1560, de15ka24k: 3180, de24kAcima: 3910 },
-  { max: 13, label: '10–13 kg', ate15k: 1590, de15ka24k: 3220, de24kAcima: 4020 },
-  { max: 15, label: '13–15 kg', ate15k: 1620, de15ka24k: 3280, de24kAcima: 4060 },
-  { max: 20, label: '15–20 kg', ate15k: 1640, de15ka24k: 3320, de24kAcima: 4100 },
-  { max: 25, label: '20–25 kg', ate15k: 1660, de15ka24k: 3380, de24kAcima: 4170 },
-  { max: 30, label: '25–30 kg', ate15k: 1680, de15ka24k: 3410, de24kAcima: 4210 },
-  { max: 40, label: '30–40 kg', ate15k: 1700, de15ka24k: 3440, de24kAcima: 4250 },
-  { max: 50, label: '40–50 kg', ate15k: 1720, de15ka24k: 3460, de24kAcima: 4300 },
-  { max: 60, label: '50–60 kg', ate15k: 1740, de15ka24k: 3480, de24kAcima: 4320 },
-  { max: 70, label: '60–70 kg', ate15k: 1760, de15ka24k: 3510, de24kAcima: 4350 },
-  { max: 80, label: '70–80 kg', ate15k: 1780, de15ka24k: 3530, de24kAcima: 4370 },
-  { max: 90, label: '80–90 kg', ate15k: 1800, de15ka24k: 3560, de24kAcima: 4400 },
-  { max: 100, label: '90–100 kg', ate15k: 1820, de15ka24k: 3580, de24kAcima: 4420 },
-  { max: 120, label: '100–120 kg', ate15k: 1840, de15ka24k: 3600, de24kAcima: 4450 },
-  { max: 140, label: '120–140 kg', ate15k: 1860, de15ka24k: 3620, de24kAcima: 4470 },
-  { max: 160, label: '140–160 kg', ate15k: 1880, de15ka24k: 3650, de24kAcima: 4500 },
-  { max: 180, label: '160–180 kg', ate15k: 1900, de15ka24k: 3680, de24kAcima: 4520 },
+  { max: 0.5, label: '0,3 a 0,5 kg', ate15k: 1370, de15ka24k: 2760, de24kAcima: 3340 },
+  { max: 1, label: '0,5 a 1 kg', ate15k: 1390, de15ka24k: 2780, de24kAcima: 3360 },
+  { max: 1.5, label: '1 a 1,5 kg', ate15k: 1410, de15ka24k: 2800, de24kAcima: 3380 },
+  { max: 2, label: '1,5 a 2 kg', ate15k: 1430, de15ka24k: 2820, de24kAcima: 3400 },
+  { max: 3, label: '2 a 3 kg', ate15k: 1450, de15ka24k: 2860, de24kAcima: 3470 },
+  { max: 4, label: '3 a 4 kg', ate15k: 1470, de15ka24k: 2910, de24kAcima: 3520 },
+  { max: 5, label: '4 a 5 kg', ate15k: 1500, de15ka24k: 3040, de24kAcima: 3670 },
+  { max: 8, label: '5 a 8 kg', ate15k: 1520, de15ka24k: 3130, de24kAcima: 3760 },
+  { max: 10, label: '8 a 10 kg', ate15k: 1560, de15ka24k: 3180, de24kAcima: 3910 },
+  { max: 13, label: '10 a 13 kg', ate15k: 1590, de15ka24k: 3220, de24kAcima: 4020 },
+  { max: 15, label: '13 a 15 kg', ate15k: 1620, de15ka24k: 3280, de24kAcima: 4060 },
+  { max: 20, label: '15 a 20 kg', ate15k: 1640, de15ka24k: 3320, de24kAcima: 4100 },
+  { max: 25, label: '20 a 25 kg', ate15k: 1660, de15ka24k: 3380, de24kAcima: 4170 },
+  { max: 30, label: '25 a 30 kg', ate15k: 1680, de15ka24k: 3410, de24kAcima: 4210 },
+  { max: 40, label: '30 a 40 kg', ate15k: 1700, de15ka24k: 3440, de24kAcima: 4250 },
+  { max: 50, label: '40 a 50 kg', ate15k: 1720, de15ka24k: 3460, de24kAcima: 4300 },
+  { max: 60, label: '50 a 60 kg', ate15k: 1740, de15ka24k: 3480, de24kAcima: 4320 },
+  { max: 70, label: '60 a 70 kg', ate15k: 1760, de15ka24k: 3510, de24kAcima: 4350 },
+  { max: 80, label: '70 a 80 kg', ate15k: 1780, de15ka24k: 3530, de24kAcima: 4370 },
+  { max: 90, label: '80 a 90 kg', ate15k: 1800, de15ka24k: 3560, de24kAcima: 4400 },
+  { max: 100, label: '90 a 100 kg', ate15k: 1820, de15ka24k: 3580, de24kAcima: 4420 },
+  { max: 120, label: '100 a 120 kg', ate15k: 1840, de15ka24k: 3600, de24kAcima: 4450 },
+  { max: 140, label: '120 a 140 kg', ate15k: 1860, de15ka24k: 3620, de24kAcima: 4470 },
+  { max: 160, label: '140 a 160 kg', ate15k: 1880, de15ka24k: 3650, de24kAcima: 4500 },
+  { max: 180, label: '160 a 180 kg', ate15k: 1900, de15ka24k: 3680, de24kAcima: 4520 },
   { max: Infinity, label: 'Acima de 180 kg', ate15k: 1920, de15ka24k: 3700, de24kAcima: 4550 },
 ];
 
@@ -140,7 +140,7 @@ function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
     const faixa = getShopeeFaixa(preco);
     const fixo = getShopeeFixo(preco, faixa.fixo, s.shopeeTipo);
     const cpfExtra = s.shopeeTipo === 'cpf' && s.shopeeCpfAlto ? 3 : 0;
-    // Subsídio de frete/Pix da tabela é só informativo — não entra no cálculo.
+    // Subsídio de frete/Pix da tabela é só informativo, não entra no cálculo.
     const campanhaExtraPct = s.shopeeCampanhaDestaque ? s.shopeeComissaoExtra / 100 : 0;
     const cupomExtra = s.shopeeCupomProprio ? s.shopeeCupomValor : 0;
     return { pct: faixa.pct + campanhaExtraPct, fixo: fixo + cpfExtra + s.shopeeFrete + cupomExtra };
@@ -238,7 +238,7 @@ export function calcular(s: CalculoState): CalculoResultado {
     lucroBruto = precoConsumidor - custoUnit;
     lucroLiquido = lucroBruto - precoConsumidor * impostoPct - taxaValorPromo;
     margem = precoConsumidor > 0 ? (lucroLiquido / precoConsumidor) * 100 : 0;
-    // NOTA matemática: (1+d)(1-d) = 1-d², não volta ao preço original — intencional.
+    // NOTA matemática: (1+d)(1-d) = 1-d², não volta ao preço original, intencional.
     precoComPromo = precoConsumidor * (1 - descPromo);
   }
 

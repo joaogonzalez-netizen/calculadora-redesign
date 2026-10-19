@@ -40,7 +40,7 @@ export default function PreferenciasView() {
 
   const [tab, setTab] = useState<Tab>('moeda');
 
-  // Buffer local — só grava em `prefs` (localStorage) ao clicar "Salvar preferências",
+  // Buffer local, só grava em `prefs` (localStorage) ao clicar "Salvar preferências",
   // igual ao protótipo. As bibliotecas (impressoras/filamentos/custos) já são live.
   const [moeda, setMoedaBuf] = useState<Moeda>(moedaDasPrefs(prefs, idioma));
   const [kwh, setKwh] = useState(String(prefs.kwh));
@@ -54,7 +54,7 @@ export default function PreferenciasView() {
   const [descontoPix, setDescontoPix] = useState(String(prefs.descontoPix));
   const [saved, setSaved] = useState(false);
 
-  // Imposto e moeda têm padrão próprio na versão ES — trocar de idioma recarrega os buffers.
+  // Imposto e moeda têm padrão próprio na versão ES, trocar de idioma recarrega os buffers.
   useEffect(() => {
     setMoedaBuf(moedaDasPrefs(prefs, idioma));
     setImposto(String(impostoDasPrefs(prefs, idioma)));
@@ -126,7 +126,7 @@ export default function PreferenciasView() {
     setCustosPadrao((p) => p.filter((_, ix) => ix !== idx));
   }
 
-  // --- Marcadores (organização do Histórico) — leitura direta do
+  // --- Marcadores (organização do Histórico), leitura direta do
   // localStorage via lib/cluster, igual ao que HistoricoView já faz. ---
   const [marcadoresOrg, setMarcadoresOrg] = useState(getMarcadores);
   const [marcadorVinculoOrg, setMarcadorVinculoOrg] = useState(getHistMarcadores);

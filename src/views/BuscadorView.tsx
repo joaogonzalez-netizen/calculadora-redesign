@@ -9,7 +9,7 @@ interface Props {
 }
 
 /** Tela "Buscador de Produtos" (Product Finder). Grid de produtos 3D em alta
- * — dados mockados, sem backend. Busca e favoritos são funcionais de verdade
+ *, dados mockados, sem backend. Busca e favoritos são funcionais de verdade
  * (favoritos persistem em localStorage); as demais faixas de filtro do
  * cabeçalho (preço, material, ordenação, tabs de marketplace) são só visuais
  * nesta versão, igual combinado no escopo da feature. */

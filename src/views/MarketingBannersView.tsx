@@ -24,7 +24,7 @@ const ESTILO_LABEL_KEY: Record<Estilo, string> = {
 };
 
 // V1 mockada, agora em wizard de passos (mesmo padrão do Gerador de
-// Anúncios) — dimensões de referência, não oficiais (ver Seção 4.2 da spec).
+// Anúncios), dimensões de referência, não oficiais (ver Seção 4.2 da spec).
 export default function MarketingBannersView() {
   const { t, idioma } = useI18n();
 

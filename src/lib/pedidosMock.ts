@@ -1,6 +1,6 @@
 // Mock da tela Pedidos, fiel aos prints de produção. Sem backend: os KPIs do
 // topo e a paginação usam o total real de produção (176 pedidos), mas só uma
-// amostra é gerada pra tabela — mesmo padrão de lib/produtosMock.ts.
+// amostra é gerada pra tabela, mesmo padrão de lib/produtosMock.ts.
 
 export type StatusPedido = 'Pago' | 'Enviado' | 'Pendente' | 'Cancelado' | 'Entregue';
 export type StatusPagamento = 'Aprovado' | 'Pendente' | 'Reembolsado';
@@ -70,12 +70,12 @@ const PRODUTOS_PEDIDO: { nome: string; preco: number }[] = [
   { nome: 'Organizador de mesa modular', preco: 39.9 },
   { nome: 'Luminária geométrica de mesa', preco: 39.9 },
   { nome: 'Porta-chaves parede minimalista', preco: 39.9 },
-  { nome: 'Letreiro decorativo - resina 12cm', preco: 39.9 },
+  { nome: 'Letreiro decorativo resina 12cm', preco: 39.9 },
 ];
 
 const CIDADES = ['São Paulo, SP', 'Rio de Janeiro, RJ', 'Belo Horizonte, MG', 'Curitiba, PR', 'Porto Alegre, RS'];
 
-// { status do pedido, status do pagamento } — proporção parecida com o print
+// { status do pedido, status do pagamento }, proporção parecida com o print
 // (maioria Entregue/Aprovado, um punhado em cada estado intermediário).
 const CICLO_STATUS: { status: StatusPedido; pagamento: StatusPagamento }[] = [
   { status: 'Pago', pagamento: 'Aprovado' },

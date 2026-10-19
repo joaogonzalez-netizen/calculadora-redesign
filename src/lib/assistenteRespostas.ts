@@ -1,5 +1,5 @@
-// Respostas do Assistente (v2). Ainda sem IA: as 4 perguntas sugeridas — e
-// perguntas digitadas que batem com elas por palavra-chave — respondem com os
+// Respostas do Assistente (v2). Ainda sem IA: as 4 perguntas sugeridas, e
+// perguntas digitadas que batem com elas por palavra-chave, respondem com os
 // mesmos dados mock do Painel e de Produtos (dashboardMock/produtosMock), então
 // os números do chat sempre fecham com o que o maker vê nas outras telas.
 import type { Idioma } from './i18n';

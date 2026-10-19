@@ -4,9 +4,9 @@ import { PEDIDOS } from '../lib/pedidosMock';
 import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { preencherMensagemEtiqueta, getCreditosMock, descontarCreditosMock, CUSTO_CREDITOS } from '../lib/marketing';
 
-// V1 mockada — fonte do dado é Pedidos (não o Histórico da Calculadora, que
+// V1 mockada, fonte do dado é Pedidos (não o Histórico da Calculadora, que
 // não guarda nome de comprador). Geração final usa impressão do navegador
-// (@media print), não uma lib de PDF — ver Seção 5.3/10 da spec.
+// (@media print), não uma lib de PDF, ver Seção 5.3/10 da spec.
 export default function MarketingEtiquetasView() {
   const { t } = useI18n();
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
@@ -115,7 +115,7 @@ export default function MarketingEtiquetasView() {
             </div>
           </div>
 
-          {/* Folhas de impressão — só ficam visíveis dentro de @media print (index.css), 4 etiquetas por folha A4. */}
+          {/* Folhas de impressão, só ficam visíveis dentro de @media print (index.css), 4 etiquetas por folha A4. */}
           <div className="etiquetas-print-sheet">
             {folhas.map((grupo, i) => (
               <div className="etiquetas-print-folha" key={i}>

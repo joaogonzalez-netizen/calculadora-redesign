@@ -31,7 +31,7 @@ const ML_CATEGORIAS: { value: string; labelKey: string }[] = [
   { value: 'outra', labelKey: 'calc.catOutraCategoria' },
 ];
 
-// Mercado Livre Argentina — comissão por categoria (Clásica|Premium). Fonte
+// Mercado Livre Argentina, comissão por categoria (Clásica|Premium). Fonte
 // terceirizada, ainda não validada oficialmente (ver aviso na UI, spec Argentina v1).
 const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
   { value: 'alimentosBebidas|11.8|14.80', labelKey: 'calc.mlArCatAlimentosBebidas' },
@@ -178,7 +178,7 @@ export default function CanalCard() {
               </div>
               <div className="field">
                 <label>{t('calc.precoNoPixComDesconto')}</label>
-                <input type="text" readOnly value={resultado ? fmtMoeda(precoAtual * (1 - state.pgtoPixDesconto / 100), moeda) : '-'} placeholder="-" />
+                <input type="text" readOnly value={resultado ? fmtMoeda(precoAtual * (1 - state.pgtoPixDesconto / 100), moeda) : 'N/D'} placeholder="N/D" />
               </div>
             </div>
           )}
@@ -378,7 +378,7 @@ export default function CanalCard() {
               <table className="canal-tabela">
                 <thead><tr><th>{t('calc.thFaixa')}</th><th>{t('calc.thComissao')}</th><th>{t('calc.thTaxaFixa')}</th><th>{t('calc.thSubsidioFrete')}</th><th>{t('calc.thSubsidioPix')}</th></tr></thead>
                 <tbody>
-                  <tr><td>{t('calc.shopeeFaixaAte79')}</td><td>20%</td><td>R$ 4,50</td><td>R$ 20,00</td><td>—</td></tr>
+                  <tr><td>{t('calc.shopeeFaixaAte79')}</td><td>20%</td><td>R$ 4,50</td><td>R$ 20,00</td><td>N/D</td></tr>
                   <tr><td>{t('calc.shopeeFaixa80a99')}</td><td>14%</td><td>R$ 16,00</td><td>R$ 30,00</td><td>5%</td></tr>
                   <tr><td>{t('calc.shopeeFaixa100a199')}</td><td>14%</td><td>R$ 20,00</td><td>R$ 30,00</td><td>5%</td></tr>
                   <tr><td>{t('calc.shopeeFaixa200a499')}</td><td>14%</td><td>R$ 26,00</td><td>R$ 40,00</td><td>5%</td></tr>
@@ -449,9 +449,9 @@ export default function CanalCard() {
 
           <div className="divider-label">{t('calc.resumoEtsy')}</div>
           <div className="mini-table mini-table-muted">
-            <div className="mini-row"><span>{t('calc.totalDeTaxas')}</span><b>{resultado ? usd(resultado.taxaValor) : '—'}</b></div>
-            <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? usd(resultado.lucroLiquido) : '—'}</b></div>
-            <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
+            <div className="mini-row"><span>{t('calc.totalDeTaxas')}</span><b>{resultado ? usd(resultado.taxaValor) : 'N/D'}</b></div>
+            <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? usd(resultado.lucroLiquido) : 'N/D'}</b></div>
+            <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : 'N/D'}</b></div>
           </div>
           <div className="hint">{t('calc.painelSomenteLeituraHint')}</div>
         </div>
@@ -504,9 +504,9 @@ export default function CanalCard() {
 
           <div className="divider-label">{t('calc.resumoTiktokShop')}</div>
           <div className="mini-table mini-table-muted">
-            <div className="mini-row"><span>{t('calc.totalDeTaxas')}</span><b>{resultado ? fmtMoeda(resultado.taxaValor, moeda) : '—'}</b></div>
-            <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? fmtMoeda(resultado.lucroLiquido, moeda) : '—'}</b></div>
-            <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : '—'}</b></div>
+            <div className="mini-row"><span>{t('calc.totalDeTaxas')}</span><b>{resultado ? fmtMoeda(resultado.taxaValor, moeda) : 'N/D'}</b></div>
+            <div className="mini-row"><span>{t('calc.lucroEstimado')}</span><b>{resultado ? fmtMoeda(resultado.lucroLiquido, moeda) : 'N/D'}</b></div>
+            <div className="mini-row"><span>{t('calc.margemLabel')}</span><b>{resultado ? `${resultado.margem.toFixed(1).replace('.', ',')}%` : 'N/D'}</b></div>
           </div>
           <div className="hint">{t('calc.painelSomenteLeituraHint')}</div>
         </div>

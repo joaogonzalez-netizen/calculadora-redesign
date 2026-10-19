@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 
-// Proteção simples client-side — impede acesso casual, não é segurança forte
+// Proteção simples client-side, impede acesso casual, não é segurança forte
 // (a senha fica no bundle JS). Pra proteção real, usar o Deployment Protection
 // nativo do Vercel (plano Pro).
 const SENHA_ACESSO = 'E6pYZhrvyr8C';
@@ -8,7 +8,7 @@ const STORAGE_KEY = 'calculadora-auth';
 
 export default function PasswordGate({ children }: { children: ReactNode }) {
   // localStorage (não sessionStorage) pra continuar logado entre sessões do
-  // navegador — e type="password" + autoComplete pra dar pro navegador
+  // navegador, e type="password" + autoComplete pra dar pro navegador
   // oferecer salvar/preencher a senha sozinho.
   const [autenticado, setAutenticado] = useState(() => localStorage.getItem(STORAGE_KEY) === '1');
   const [senha, setSenha] = useState('');

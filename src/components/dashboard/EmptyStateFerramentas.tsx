@@ -8,13 +8,13 @@ import PedidosRecentes from './PedidosRecentes';
 import DreCard from './DreCard';
 import { INSIGHTS, KPIS } from '../../lib/dashboardMock';
 
-function semAcao() { /* preview borrado — nada é clicável aqui */ }
+function semAcao() { /* preview borrado, nada é clicável aqui */ }
 
-// Variante B do empty state — teste pra validar a hipótese do funil de adoção
+// Variante B do empty state, teste pra validar a hipótese do funil de adoção
 // (Gerador de anúncios e Calculadora têm muito mais uso do que a conexão de
 // marketplace). Preview do painel completo, na mesma ordem de seções do "Com
 // dados" (KPIs → insights → gráfico → top produtos/pedidos → DRE). Os KPIs
-// ficam inteiros e visíveis (sem o popup por cima) — o popup fica só sobre a
+// ficam inteiros e visíveis (sem o popup por cima), o popup fica só sobre a
 // seção de insights, logo abaixo, com fundo sólido pra se destacar do blur.
 export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrParaConfiguracoes: () => void }) {
   const { t } = useI18n();

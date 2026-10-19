@@ -66,7 +66,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
   const aplicouPrefs = useRef(false);
 
   // Aplica impressora/filamento/imposto/margem/taxas padrão de Preferências (PRD seção 6)
-  // uma única vez, ao montar — sempre editável depois, sem travar nem afetar o padrão salvo.
+  // uma única vez, ao montar, sempre editável depois, sem travar nem afetar o padrão salvo.
   useEffect(() => {
     if (aplicouPrefs.current) return;
     aplicouPrefs.current = true;

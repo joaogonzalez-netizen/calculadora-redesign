@@ -22,8 +22,8 @@ export default function ClientesView() {
     const c = db.clientes.find((x) => x.id === id)!;
     const neg = db.negocios.filter((n) => n.clienteId === id);
     const ativo = neg.find((n) => n.etapa !== 'fechado' && n.etapa !== 'perdido');
-    const etapa = ativo ? ETAPAS.find((e) => e.id === ativo.etapa)!.label : neg.some((n) => n.etapa === 'fechado') ? 'Cliente' : '—';
-    return { etapa, ultimo: c.contatos[0]?.data ?? null, feira: db.feiras.find((f) => f.id === c.feiraId)?.nome ?? '—' };
+    const etapa = ativo ? ETAPAS.find((e) => e.id === ativo.etapa)!.label : neg.some((n) => n.etapa === 'fechado') ? 'Cliente' : 'N/D';
+    return { etapa, ultimo: c.contatos[0]?.data ?? null, feira: db.feiras.find((f) => f.id === c.feiraId)?.nome ?? 'N/D' };
   };
 
   return (
@@ -43,7 +43,7 @@ export default function ClientesView() {
                 <tr key={c.id} onClick={() => abrir('cliente', c.id)}>
                   <td><div className="fe-nm">{c.nome}</div><div className="fe-sub">{[c.empresa, c.telefone].filter(Boolean).join(' · ')}</div></td>
                   <td><span className={'fe-badge' + (i.etapa === 'Cliente' ? ' fe-green' : '')}>{i.etapa}</span></td>
-                  <td>{i.feira}</td><td>{c.cidade || '—'}</td><td>{dataCurta(i.ultimo)}</td>
+                  <td>{i.feira}</td><td>{c.cidade || 'N/D'}</td><td>{dataCurta(i.ultimo)}</td>
                   <td><div className="fe-row-actions">{c.telefone && <a className="fe-btn fe-btn-wa fe-btn-sm" href={waLink(c.telefone)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} aria-label="WhatsApp"><Icon name="whatsapp" size={15} /></a>}</div></td>
                 </tr>); })}</tbody></table></div>
             <div className="fe-cards-m" style={{ padding: 12 }}>

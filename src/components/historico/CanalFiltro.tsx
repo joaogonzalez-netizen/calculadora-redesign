@@ -11,7 +11,7 @@ interface Props {
   onLimpar: () => void;
 }
 
-// Filtro do Histórico por canal de venda, em dropdown — mesmo padrão do
+// Filtro do Histórico por canal de venda, em dropdown, mesmo padrão do
 // MarcadorFiltro. Cada cálculo tem só um canal, então combinar é sempre
 // "qualquer um dos marcados" (união), sem precisar do modo Todos.
 export default function CanalFiltro({ contagem, selecionados, onAlternar, onLimpar }: Props) {

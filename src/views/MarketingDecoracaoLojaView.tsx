@@ -38,7 +38,7 @@ function kb(bytes: number) {
   return Math.round(bytes / 1024);
 }
 
-// V1 mockada (P0 do PRD) — sem IA/backend real, mesmo espírito das outras
+// V1 mockada (P0 do PRD), sem IA/backend real, mesmo espírito das outras
 // telas de Marketing. A composição em si é mock, mas a validação de peso
 // (gerarJpegValidado) é real: nunca entrega um arquivo fora da spec da
 // Shopee. Ver docs/prd-decoracao-loja-shopee.md e spec-decoracao-loja-shopee.md.

@@ -51,10 +51,10 @@ const PLANOS: Plano[] = [
   },
 ];
 
-// Sub-escolha só aparece quando o vendedor marca "Outros" — muita gente
+// Sub-escolha só aparece quando o vendedor marca "Outros", muita gente
 // caía nessa opção por falta de destino específico, então aqui ele conta
 // exatamente pra onde vai (pode ser mais de um) e a IA ajusta o que gerar.
-// Cards simples (só o nome) — sem cor/ícone por destino, pra manter a grade
+// Cards simples (só o nome), sem cor/ícone por destino, pra manter a grade
 // rápida de escanear mesmo com vários itens (ver print de referência do João).
 interface Destino {
   id: string;
@@ -65,7 +65,7 @@ const OUTROS_MARKETPLACES: Destino[] = [
   { id: 'amazon', nome: 'Amazon' },
   { id: 'aliexpress', nome: 'AliExpress' },
   { id: 'ebay', nome: 'eBay' },
-  // "Facebook Marketplace" — fica aqui, não em Redes sociais, porque é canal
+  // "Facebook Marketplace", fica aqui, não em Redes sociais, porque é canal
   // de venda de verdade (forte nos EUA e principalmente na Argentina), não
   // só uma postagem social. Mesma lógica pra "TikTok Shop" vs. "TikTok" (rede).
   { id: 'facebook-marketplace', nome: 'Facebook Marketplace' },

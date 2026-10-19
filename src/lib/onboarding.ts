@@ -1,9 +1,9 @@
 // Progresso do checklist "Primeiros passos". Os 5 passos só marcam "feito"
-// numa ação deliberada do usuário — nunca a partir de dado de mock/seed que
+// numa ação deliberada do usuário, nunca a partir de dado de mock/seed que
 // já vem pré-carregado (10 cálculos de exemplo no histórico, marketplaces já
 // "conectados" por padrão em Configurações). Por isso os 5 ficam nesse mesmo
 // flag manual, gravado no clique real de cada ação (salvar cálculo, conectar
-// marketplace, marcar o vídeo como assistido, ou o CTA — hoje "em breve" —
+// marketplace, marcar o vídeo como assistido, ou o CTA, hoje "em breve" —
 // de Buscador/Gerador).
 import { readJson, writeJson } from './storage';
 

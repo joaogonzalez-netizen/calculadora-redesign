@@ -4,7 +4,7 @@ import Icon from '../Icon';
 import PublicarAnuncioModal from './PublicarAnuncioModal';
 
 // Réplica do passo final "Resultado" do Gerador de anúncios em produção
-// (print de João, 08/09/2026) — resumo de tudo que foi gerado (textos,
+// (print de João, 08/09/2026), resumo de tudo que foi gerado (textos,
 // imagens e vídeo), com seções recolhíveis e um "Re-gerar" por seção
 // (cada um com seu próprio custo em créditos, igual às telas anteriores).
 // Mesmo produto mockado dos passos Textos/Imagens/Video (Incensário
@@ -21,7 +21,7 @@ const DESCRICAO = `O Incensário Bicho-Preguiça Divertido para Decoração do A
 
 Benefícios:
 - Ambiente acolhedor e divertido, ideal para crianças.
-- Design estilizado que imita folhas — combina com a estética da natureza.
+- Design estilizado que imita folhas, combina com a estética da natureza.
 - Peça estática, sem partes móveis, focada na beleza visual.
 
 Especificações:

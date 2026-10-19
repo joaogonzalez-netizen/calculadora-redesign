@@ -1,7 +1,7 @@
 // Mock da tela Buscador de Produtos ("Product Finder"). Sem backend: lista
 // estática de produtos 3D em alta, seguindo o mesmo padrão de produtosMock.ts.
 // Não há convenção de foto real nos mocks existentes (produtosMock.ts guarda
-// só a contagem de imagens) — aqui usamos um emoji como placeholder visual
+// só a contagem de imagens), aqui usamos um emoji como placeholder visual
 // do card, em vez de introduzir URLs externas.
 
 export interface ProdutoBusca {

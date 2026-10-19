@@ -5,7 +5,7 @@ export function brl(v: number): string {
   return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Moeda de exibição é só o símbolo (PRD seção 7) — nunca há conversão de valor.
+// Moeda de exibição é só o símbolo (PRD seção 7), nunca há conversão de valor.
 export function fmtMoeda(v: number, moeda: Moeda): string {
   const n = isNaN(v) || v === null ? 0 : v;
   const num = n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

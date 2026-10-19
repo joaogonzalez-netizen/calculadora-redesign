@@ -6,7 +6,7 @@ import type { Idioma } from '../../lib/i18n';
 
 // Editor da imagem fixa "Medidas" do passo Imagens (print de João, 29/09/2026).
 // A imagem gerada é a foto do produto com cotas por cima. A lista de medidas é
-// livre — kits têm várias peças, e uma mesma peça pode querer duas alturas
+// livre, kits têm várias peças, e uma mesma peça pode querer duas alturas
 // (ex.: porta-controle sozinho e com o controle). Dois tipos de cota:
 // - reta: seta entre duas alças (largura, altura, comprimento…);
 // - diâmetro: linha de ponta a ponta da peça redonda, com o texto "Ø …" em
@@ -23,7 +23,7 @@ interface MedidaBase {
   prefixo: string; // começo do texto automático ("Comp.", "Ø")
   valor: string; // na unidade da config
   texto: string;
-  // true quando o maker editou o texto à mão — aí mudar nome/valor não sobrescreve mais.
+  // true quando o maker editou o texto à mão, aí mudar nome/valor não sobrescreve mais.
   textoManual: boolean;
   visivel: boolean;
 }
@@ -236,7 +236,7 @@ export default function MedidasModal({ inicial, onCancelar, onAprovar }: ModalPr
   }
 
   function setNome(id: string, nome: string) {
-    // renomear muda o começo do texto automático — menos no diâmetro, que é sempre "Ø"
+    // renomear muda o começo do texto automático, menos no diâmetro, que é sempre "Ø"
     atualizar(id, (m) => {
       const prefixo = m.tipo === 'diametro' ? m.prefixo : nome;
       return { ...m, nome, prefixo, texto: m.textoManual ? m.texto : textoAuto(prefixo, m.valor, simbolo) };

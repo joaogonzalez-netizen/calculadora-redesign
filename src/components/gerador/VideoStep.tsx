@@ -3,7 +3,7 @@ import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 // Réplica do passo "Vídeo" do Gerador de anúncios em produção (print de
-// João, 08/09/2026) — revisão do roteiro de narração antes de gerar o
+// João, 08/09/2026), revisão do roteiro de narração antes de gerar o
 // vídeo final. Mockado: o roteiro é um texto fixo editável, "Re-gerar
 // roteiro" e o formato de narração ainda não chamam IA de verdade.
 const ROTEIRO_MOCK = 'Incensário Bicho-Preguiça Divertido é a peça perfeita para quem quer trazer um toque lúdico e aconchegante para o ambiente. Ideal para quartos infantis e áreas de lazer, ele combina design encantador com funcionalidade, criando momentos de relaxamento e bem-estar em qualquer cantinho da casa.';

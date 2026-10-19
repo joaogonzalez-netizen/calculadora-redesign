@@ -51,9 +51,9 @@ function variacoesPadrao(preco: string): Variacao[] {
 }
 
 export const PRODUTOS: Produto[] = [
-  { id: 'p1', nome: 'Letreiro decorativo - resina 12cm', sku: 'MLB-2093012345678901', imagensQtd: 6, marketplace: 'Mercado Livre', status: 'Ativo', estoque: 47, estoqueSituacao: 'Saudável', vendidos: 32, preco: 'R$ 269,90', categoria: 'Suportes', categoriaSub: 'Acessórios para Celular', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
-  { id: 'p2', nome: 'Letreiro decorativo - PETG 15cm', sku: 'MLB-2093012345678902', imagensQtd: 4, marketplace: 'Shopee', status: 'Ativo', estoque: 24, estoqueSituacao: 'Saudável', vendidos: 12, preco: 'R$ 269,90', categoria: 'Decoração', categoriaSub: 'Objetos decorativos', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
-  { id: 'p3', nome: 'Letreiro decorativo - mini 8cm', sku: 'MLB-2093012345678903', imagensQtd: 5, marketplace: 'Mercado Livre', status: 'Pausado', estoque: 32, estoqueSituacao: 'Saudável', vendidos: 4, preco: 'R$ 269,90', categoria: 'Decoração', categoriaSub: 'Objetos decorativos', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
+  { id: 'p1', nome: 'Letreiro decorativo resina 12cm', sku: 'MLB-2093012345678901', imagensQtd: 6, marketplace: 'Mercado Livre', status: 'Ativo', estoque: 47, estoqueSituacao: 'Saudável', vendidos: 32, preco: 'R$ 269,90', categoria: 'Suportes', categoriaSub: 'Acessórios para Celular', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
+  { id: 'p2', nome: 'Letreiro decorativo PETG 15cm', sku: 'MLB-2093012345678902', imagensQtd: 4, marketplace: 'Shopee', status: 'Ativo', estoque: 24, estoqueSituacao: 'Saudável', vendidos: 12, preco: 'R$ 269,90', categoria: 'Decoração', categoriaSub: 'Objetos decorativos', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
+  { id: 'p3', nome: 'Letreiro decorativo mini 8cm', sku: 'MLB-2093012345678903', imagensQtd: 5, marketplace: 'Mercado Livre', status: 'Pausado', estoque: 32, estoqueSituacao: 'Saudável', vendidos: 4, preco: 'R$ 269,90', categoria: 'Decoração', categoriaSub: 'Objetos decorativos', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
   { id: 'p4', nome: 'Suporte de celular articulado', sku: 'MLB-2093012345678904', imagensQtd: 3, marketplace: 'Mercado Livre', status: 'Esgotado', estoque: 12, estoqueSituacao: 'Estoque baixo', vendidos: 24, preco: 'R$ 269,90', categoria: 'Suportes', categoriaSub: 'Acessórios para Celular', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
   { id: 'p5', nome: 'Vaso geométrico facetado', sku: 'MLB-2093012345678905', imagensQtd: 6, marketplace: 'Shopee', status: 'Ativo', estoque: 39, estoqueSituacao: 'Saudável', vendidos: 89, preco: 'R$ 269,90', categoria: 'Decoração', categoriaSub: 'Vasos e cachepots', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
   { id: 'p6', nome: 'Dragão articulado 20cm', sku: 'MLB-2093012345678906', imagensQtd: 8, marketplace: 'Mercado Livre', status: 'Esgotado', estoque: 0, estoqueSituacao: 'Sem estoque', vendidos: 43, preco: 'R$ 269,90', categoria: 'Brinquedos', categoriaSub: 'Miniaturas articuladas', controladoCatalogoMl: false, inventarioMl: false, linkPublico: true, variacoes: variacoesPadrao('R$ 39,90') },
@@ -67,7 +67,7 @@ export const PERIODOS = ['Hoje', 'Ontem', 'Últimos 7 dias', 'Últimos 30 dias',
 export const ORDENS = ['Mais recentes', 'Mais antigos', 'Título A-Z', 'Título Z-A'];
 
 /** Quantos produtos ainda não têm um cálculo de custo vinculado (nem manual, nem
- * da Calculadora) — usado no DRE do Painel pra sinalizar que "Custo de produção"
+ * da Calculadora), usado no DRE do Painel pra sinalizar que "Custo de produção"
  * pode estar subestimado, já que produtos sem vínculo entrariam com custo zero. */
 export function contarProdutosSemVinculo(): { semVinculo: number; total: number } {
   const vinculos = readJson<Record<string, unknown>>(PRODUTO_VINCULOS_KEY, {});

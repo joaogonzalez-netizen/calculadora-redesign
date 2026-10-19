@@ -1,4 +1,4 @@
-// Lista canônica de canais de venda — única fonte, usada pelo seletor da
+// Lista canônica de canais de venda, única fonte, usada pelo seletor da
 // Calculadora (CanalCard), pelo painel de preço (PrecoPanel) e pelo filtro
 // por canal do Histórico (CanalFiltro).
 import type { Canal } from '../types';

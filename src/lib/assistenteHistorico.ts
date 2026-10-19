@@ -1,6 +1,6 @@
 // Histórico do Assistente: as últimas conversas ficam no localStorage pra o
 // maker reabrir de onde parou. Guarda só as perguntas e qual resposta cada uma
-// recebeu (perguntaId) — o texto da resposta é remontado na hora a partir dos
+// recebeu (perguntaId), o texto da resposta é remontado na hora a partir dos
 // dados mock, então sai no idioma atual e com os números atualizados.
 import { readJson } from './storage';
 import type { PerguntaId } from './assistenteRespostas';

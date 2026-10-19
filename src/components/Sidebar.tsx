@@ -14,7 +14,7 @@ interface Props {
   mostrarPrimeirosPassos: boolean;
 }
 
-/** Grupos de FERRAMENTAS com submenu — Buscador é item flat (tela única, sem submenu).
+/** Grupos de FERRAMENTAS com submenu, Buscador é item flat (tela única, sem submenu).
  *  Vendas físicas e Marketing são seções próprias, com os itens direto no menu. */
 type GrupoId = 'gerador' | 'calculadora';
 

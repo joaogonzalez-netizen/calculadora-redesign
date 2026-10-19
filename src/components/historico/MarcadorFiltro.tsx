@@ -20,7 +20,7 @@ interface Props {
 
 // Filtro do Histórico por marcadores, em dropdown: um botão com a contagem de
 // filtros ativos abre um painel com checkbox por marcador (+ "Sem marcador")
-// e — com 2+ marcados — a escolha entre "Qualquer um" e "Todos".
+// e, com 2+ marcados, a escolha entre "Qualquer um" e "Todos".
 export default function MarcadorFiltro({
   marcadores, vinculo, totalSemMarcador, selecionados, semMarcador, modo,
   onAlternar, onSemMarcador, onModo, onLimpar,

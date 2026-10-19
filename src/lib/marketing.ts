@@ -1,4 +1,4 @@
-// Menu Marketing (Logo, Banners, Etiquetas) — v1 mockada, sem IA/backend real,
+// Menu Marketing (Logo, Banners, Etiquetas), v1 mockada, sem IA/backend real,
 // no mesmo espírito do Gerador de anúncios. Geração é determinística no client
 // (SVG/canvas), mas o arquivo final baixado é real (PNG de verdade).
 // Ver docs/spec-marketing-leigos.md.
@@ -9,7 +9,7 @@ import type { Idioma } from './i18n';
 export type Estilo = 'minimalista' | 'divertido' | 'elegante' | 'colorido';
 export type FormaLogo = 'circulo' | 'hexagono' | 'quadrado' | 'escudo';
 export type Plataforma = 'shopee' | 'mercado-livre';
-// Nichos comuns entre quem vende impressão 3D — cada um sugere um estilo
+// Nichos comuns entre quem vende impressão 3D, cada um sugere um estilo
 // default (usuário pode trocar), pra dar um contexto de negócio real pra IA
 // no futuro, mesmo hoje sendo geração mockada.
 export type Nicho = 'decoracao' | 'brinquedos' | 'casaJardim' | 'presentes' | 'pet' | 'papelaria' | 'pecasTecnicas' | 'miniaturasRpg' | 'outro';
@@ -30,7 +30,7 @@ export interface LogoAtual {
   usos?: UsoLogo[];
 }
 
-/** Onde a logo vai ser usada — contexto pra IA (formato, contraste, legibilidade). */
+/** Onde a logo vai ser usada, contexto pra IA (formato, contraste, legibilidade). */
 export type UsoLogo = 'redes' | 'marketplace' | 'embalagem' | 'site' | 'vestuario' | 'impressos';
 export const USOS_LOGO: { id: UsoLogo; chaveLabel: string }[] = [
   { id: 'redes', chaveLabel: 'marketing.logo.usoRedes' },
@@ -47,7 +47,7 @@ export interface CorNomeada {
   chaveLabel: string;
 }
 
-// Paleta nomeada pro seletor de "até 3 cores" — mesmos valores de CORES_LOGO,
+// Paleta nomeada pro seletor de "até 3 cores", mesmos valores de CORES_LOGO,
 // com rótulo pra exibir no swatch.
 export const PALETA_LOGO: CorNomeada[] = [
   { cor: '#00955a', chaveLabel: 'marketing.logo.corVerde' },
@@ -73,7 +73,7 @@ export const NICHOS: { id: Nicho; chaveLabel: string; estiloSugerido: Estilo }[]
   { id: 'outro', chaveLabel: 'marketing.logo.nichoOutro', estiloSugerido: 'minimalista' },
 ];
 
-// Sugestão de nome (mock) — combina um prefixo relacionado ao nicho com um
+// Sugestão de nome (mock), combina um prefixo relacionado ao nicho com um
 // sufixo genérico de marca maker/3D. Sem IA real: é uma combinatória fixa,
 // mas dá um ponto de partida pra quem ainda não batizou a loja.
 const SUFIXOS_NOME = ['3D', 'Prints', 'Studio', 'Maker', 'Lab', 'Co'];
@@ -113,7 +113,7 @@ const PREFIXOS_POR_NICHO: Record<Idioma, Record<Nicho, string[]>> = {
   },
 };
 
-/** Gera 4 sugestões de nome combinando um prefixo do nicho com um sufixo de marca — mock, sem IA. */
+/** Gera 4 sugestões de nome combinando um prefixo do nicho com um sufixo de marca, mock, sem IA. */
 export function sugerirNomes(idioma: Idioma, nicho: Nicho | null): string[] {
   const prefixos = PREFIXOS_POR_NICHO[idioma][nicho ?? 'outro'];
   return prefixos.map((prefixo, i) => {
@@ -124,7 +124,7 @@ export function sugerirNomes(idioma: Idioma, nicho: Nicho | null): string[] {
 
 /** Nomes pro gerador de logo quando o maker não tem nome: mistura os prefixos
  * de até 3 nichos (um de cada, alternando) com os sufixos de marca. `rodada`
- * avança a combinação pra cada nova geração trazer nomes novos — mock, sem IA. */
+ * avança a combinação pra cada nova geração trazer nomes novos, mock, sem IA. */
 export function sugerirNomesMarca(idioma: Idioma, nichos: Nicho[], rodada = 0, qtd = 6): string[] {
   const grupos = (nichos.length ? nichos : ['outro' as Nicho]).map((n) => PREFIXOS_POR_NICHO[idioma][n]);
   const prefixos: string[] = [];
@@ -175,7 +175,7 @@ const FORMAS_POR_ESTILO: Record<Estilo, FormaLogo[]> = {
 export const LOGO_ATUAL_KEY = 'stlseller_marketing_logo_atual';
 export const CREDITOS_MOCK_KEY = 'stlseller_creditos_mock';
 
-// Custo placeholder por geração — valor real é uma Pergunta em Aberto do PRD.
+// Custo placeholder por geração, valor real é uma Pergunta em Aberto do PRD.
 export const CUSTO_CREDITOS: Record<'logo' | 'banner' | 'etiquetas' | 'capaLoja' | 'carrosselSecao', number> = {
   logo: 10,
   banner: 10,
@@ -184,13 +184,13 @@ export const CUSTO_CREDITOS: Record<'logo' | 'banner' | 'etiquetas' | 'capaLoja'
   carrosselSecao: 6,
 };
 
-// Dimensões de referência (não oficiais — ver Seção 4.2 da spec).
+// Dimensões de referência (não oficiais, ver Seção 4.2 da spec).
 export const DIMENSOES_BANNER: Record<Plataforma, { largura: number; altura: number }> = {
   shopee: { largura: 2020, altura: 500 },
   'mercado-livre': { largura: 1140, altura: 220 },
 };
 
-// Specs oficiais da Shopee pro editor de decoração de loja — ver
+// Specs oficiais da Shopee pro editor de decoração de loja, ver
 // docs/prd-decoracao-loja-shopee.md.
 export const SPEC_CAPA_LOJA = {
   largura: 1200,
@@ -219,7 +219,7 @@ function iniciaisDe(nomeLoja: string): string {
   return (partes[0][0] + partes[1][0]).toUpperCase();
 }
 
-// Pseudo-aleatório determinístico a partir de uma string — mesma entrada
+// Pseudo-aleatório determinístico a partir de uma string, mesma entrada
 // sempre gera a mesma "geração", pra parecer consistente entre re-renders.
 function seedNumerico(texto: string): number {
   let h = 0;
@@ -231,7 +231,7 @@ export function gerarVariacoesLogo(nomeLoja: string, coresSelecionadas: string[]
   const iniciais = iniciaisDe(nomeLoja);
   const seed = seedNumerico(nomeLoja || 'stlseller');
   const formas = FORMAS_POR_ESTILO[estilo] ?? FORMAS_LOGO;
-  // Com cores escolhidas pelo usuário, cada variação cicla entre elas — com só
+  // Com cores escolhidas pelo usuário, cada variação cicla entre elas, com só
   // 1 cor, as 4 variações saem na mesma cor (comportamento esperado).
   const paleta = coresSelecionadas.length
     ? coresSelecionadas
@@ -277,7 +277,7 @@ function desenharFormaLogo(ctx: CanvasRenderingContext2D, forma: FormaLogo, tama
   }
 }
 
-/** Desenha a variação num canvas quadrado (fundo transparente) — usado tanto pro preview quanto pro export final. */
+/** Desenha a variação num canvas quadrado (fundo transparente), usado tanto pro preview quanto pro export final. */
 export function desenharLogoNoCanvas(canvas: HTMLCanvasElement, v: LogoVariacao, tamanho = 512) {
   canvas.width = tamanho;
   canvas.height = tamanho;
@@ -341,7 +341,7 @@ export function desenharBannerNoCanvas(
 }
 
 /**
- * Composição mock de "decoração de loja" — fundo em gradiente + colagem de
+ * Composição mock de "decoração de loja", fundo em gradiente + colagem de
  * retângulos representando as fotos de produto "enviadas" (mesmo espírito
  * do CORES_MOCK do Gerador de Anúncios: sem foto real, sem IA, só uma
  * composição plausível pra provar o fluxo fim a fim).
@@ -360,7 +360,7 @@ export function desenharDecoracaoNoCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // "variacao" muda a composição sem o usuário precisar alterar nada — é o
+  // "variacao" muda a composição sem o usuário precisar alterar nada, é o
   // que faz "Regenerar" parecer uma nova tentativa, já que o resto da
   // composição é determinístico a partir do prompt/estilo/dimensão.
   const seed = seedNumerico((promptTexto || estilo) + estilo) + variacao * 97;
@@ -398,7 +398,7 @@ export function desenharDecoracaoNoCanvas(
 
 /**
  * Exporta o canvas como JPEG reduzindo a qualidade progressivamente até
- * caber em pesoMaximoBytes — validação real de peso (não só um selo visual),
+ * caber em pesoMaximoBytes, validação real de peso (não só um selo visual),
  * conforme requisito P0 do PRD: nunca entregar arquivo fora da spec.
  */
 export function gerarJpegValidado(

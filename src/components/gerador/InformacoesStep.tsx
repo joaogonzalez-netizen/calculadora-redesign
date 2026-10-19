@@ -32,12 +32,12 @@ interface InfoState {
   sistemaEnergia: string;
 }
 
-// Sugestões que a IA "aplicou" a partir das imagens do passo 1 — mock fixo,
+// Sugestões que a IA "aplicou" a partir das imagens do passo 1, mock fixo,
 // mas em formato pronto pra trocar por uma geração real depois. "Reaplicar
 // sugestões" só restaura esse mesmo mock (sem chamada real ainda). Os campos
 // de confirmação (cor, onde fica, diferencial, pra que serve...) existem pra
 // o usuário revisar fato por fato, em vez de só marcar "li e confirmo" pro
-// parágrafo inteiro — ver docs/print de referência do João, 28/09/2026.
+// parágrafo inteiro, ver docs/print de referência do João, 28/09/2026.
 const MOCK_INICIAL: InfoState = {
   nome: 'Esqueleto de Dinossauro em 3D',
   contexto: 'Essa peça decorativa de esqueleto de dinossauro traz um toque divertido e educativo para sua decoração. Ideal para estudantes de paleontologia e entusiastas, é perfeita para exibições em salas de aula ou como adorno em escritórios e quartos.\nMaterial: PLA\nCor: Branco osso',
@@ -63,7 +63,7 @@ const MOCK_INICIAL: InfoState = {
   sistemaEnergia: '',
 };
 
-// Materiais mais comuns entre quem imprime e vende peça 3D — cobre o caso
+// Materiais mais comuns entre quem imprime e vende peça 3D, cobre o caso
 // comum com 1 clique; "Outro" mantém a porta aberta pro resto.
 const MATERIAIS = ['PLA', 'PETG', 'ABS', 'TPU', 'Resina'];
 
@@ -75,7 +75,7 @@ interface Props {
   // Campos já conhecidos (ex.: vindos de um anúncio copiado da Shopee) que
   // sobrescrevem as sugestões mockadas da IA.
   inicial?: Partial<InfoState>;
-  // Modo "apenas copiar": não há próxima etapa de IA — o fim do fluxo é publicar ou salvar o rascunho.
+  // Modo "apenas copiar": não há próxima etapa de IA, o fim do fluxo é publicar ou salvar o rascunho.
   // Aviso exibido logo acima dos botões de avançar/publicar.
   avisoCopia?: ReactNode;
   modoCopia?: { onPublicar: () => void; onSalvarRascunho: () => void };
@@ -91,7 +91,7 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
     setInfo((prev) => ({ ...prev, [campo]: valor }));
   }
 
-  // Acompanha a altura do texto digitado — sem isso, um contexto mais longo
+  // Acompanha a altura do texto digitado, sem isso, um contexto mais longo
   // fica cortado dentro de uma caixa de rolagem interna de 4 linhas fixas.
   function ajustarAlturaTextarea(el: HTMLTextAreaElement) {
     el.style.height = 'auto';
@@ -99,7 +99,7 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
   }
 
   // Só o que realmente muda o resultado e que a IA não tem como advinhar
-  // sozinha (nome + dimensões) trava o "Continuar" — os campos de confirmação
+  // sozinha (nome + dimensões) trava o "Continuar", os campos de confirmação
   // (cor, onde fica, diferencial...) vêm pré-preenchidos e o usuário ajusta
   // se quiser, sem precisar de um checkbox à parte pra "liberar" a tela.
   const podeContinuar =
@@ -155,7 +155,7 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
             </div>
           ) : (
             <>
-              {/* Campos de confirmação — cada fato que a IA "leu" da imagem vira um
+              {/* Campos de confirmação, cada fato que a IA "leu" da imagem vira um
                   campo próprio, pra revisar de verdade em vez de só marcar uma
                   caixinha genérica pro parágrafo inteiro. */}
               <div className="row2">
@@ -282,7 +282,7 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
         </div>
       )}
 
-      {/* Só depois de confirmar nome e contexto — antes disso o foco é revisar a identificação. */}
+      {/* Só depois de confirmar nome e contexto, antes disso o foco é revisar a identificação. */}
       {avisoCopia && identificacaoConfirmada && <div style={{ marginTop: 22 }}>{avisoCopia}</div>}
 
       <div className="ger-footer" style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>

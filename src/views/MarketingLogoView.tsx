@@ -9,7 +9,7 @@ import {
 } from '../lib/marketing';
 
 // Gerador de logo em formato de assistente (4 etapas) com prévia ao vivo.
-// V1 mockada — sem IA real (ver docs/spec-marketing-leigos.md): cada variação
+// V1 mockada, sem IA real (ver docs/spec-marketing-leigos.md): cada variação
 // é um canvas determinístico (iniciais + forma + cor), mas o PNG exportado é
 // um arquivo real. Ordem pensada como o maker fala da marca: "logo pra marca X,
 // que vende Y, com cara de Z":
@@ -64,10 +64,10 @@ export default function MarketingLogoView() {
   const [slogan, setSlogan] = useState('');
   const [nichos, setNichos] = useState<Nicho[]>([]);
   const [verTodosNichos, setVerTodosNichos] = useState(false);
-  // 2 · Estilo — segue o sugerido pelo 1º nicho até o maker escolher um.
+  // 2 · Estilo, segue o sugerido pelo 1º nicho até o maker escolher um.
   const [estilo, setEstilo] = useState<Estilo>('minimalista');
   const [estiloManual, setEstiloManual] = useState(false);
-  // 3 · Cores — vazio + automático = a IA escolhe a paleta pelo estilo.
+  // 3 · Cores, vazio + automático = a IA escolhe a paleta pelo estilo.
   const [coresSelecionadas, setCoresSelecionadas] = useState<string[]>([]);
   const [coresAuto, setCoresAuto] = useState(true);
   const [coresCustom, setCoresCustom] = useState<string[]>([]);

@@ -1,4 +1,4 @@
-// Schemas per PRD seção 5/6 — preservar nomes de campos exatamente.
+// Schemas per PRD seção 5/6, preservar nomes de campos exatamente.
 
 export type Canal = 'Venda direta' | 'Mercado Livre' | 'Mercado Livre Argentina' | 'Shopee' | 'Etsy' | 'TikTok Shop';
 export type ModoPrec = 'preco' | 'margem';
@@ -53,8 +53,8 @@ export interface Preferencias {
   taxaDebito: number;
   taxaCredito: number;
   taxaPix: number;
-  impostoEs?: number; // só versão ES — ausente = IVA 21%
-  moedaEs?: Moeda; // só versão ES — ausente = ARS
+  impostoEs?: number; // só versão ES, ausente = IVA 21%
+  moedaEs?: Moeda; // só versão ES, ausente = ARS
 }
 
 export interface HistoricoEntry {

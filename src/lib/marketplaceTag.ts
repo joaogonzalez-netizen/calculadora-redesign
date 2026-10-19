@@ -1,4 +1,4 @@
-// Cor da tag de marketplace — regra única pro produto inteiro (Produtos,
+// Cor da tag de marketplace, regra única pro produto inteiro (Produtos,
 // Pedidos, Meus Anúncios, Etiquetas...): Mercado Livre fica amarelo, Shopee
 // em tons de vermelho, Etsy em tons de laranja, TikTok em tons de azul.
 // Qualquer outro marketplace ("Outros", Amazon, Venda direta etc.) cai no

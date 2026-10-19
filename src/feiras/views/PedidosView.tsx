@@ -27,7 +27,7 @@ export default function PedidosView() {
   };
   const [filtro, setFiltro] = useState<StatusPedido | 'todos'>('todos');
   const lista = useMemo(() => db.pedidos.filter((p) => filtro === 'todos' || p.status === filtro), [db.pedidos, filtro]);
-  const nome = (id: string) => db.clientes.find((c) => c.id === id)?.nome ?? '—';
+  const nome = (id: string) => db.clientes.find((c) => c.id === id)?.nome ?? 'N/D';
   const resumo = (p: (typeof db.pedidos)[number]) => p.itens.map((i) => `${i.qtd}× ${i.nome}`).join(', ');
   const seletor = (p: (typeof db.pedidos)[number]) => (
     <select className="fe-select-sm" value={p.status} onClick={(e) => e.stopPropagation()} onChange={(e) => statusPedido(p.id, e.target.value as StatusPedido)} aria-label="Status do pedido" style={{ minHeight: 34, padding: '5px 8px', fontSize: 13 }}>

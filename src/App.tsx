@@ -70,13 +70,13 @@ function AppShell() {
   };
 
   // Passo "Buscador" só conta quando o usuário favorita um produto de verdade
-  // na tela — mesmo padrão do passo "Calculadora" acima.
+  // na tela, mesmo padrão do passo "Calculadora" acima.
   const aoFavoritarBuscador = () => {
     marcarOnboardingManual('buscador');
     refreshOnboarding();
   };
 
-  // onboardingTick não é lido diretamente — mudar o state força este componente
+  // onboardingTick não é lido diretamente, mudar o state força este componente
   // a re-renderizar, e as leituras de localStorage abaixo já saem atualizadas.
   void onboardingTick;
   const onboardingManual = getOnboardingManual();
@@ -89,14 +89,14 @@ function AppShell() {
   };
   // Nas versões ES/EN o passo "marketplace" nem aparece no checklist (não há
   // conexão de marketplace pra fazer), então ele não deve travar o "tudo
-  // completo" — do contrário "Primeiros passos" nunca sumiria da sidebar.
+  // completo", do contrário "Primeiros passos" nunca sumiria da sidebar.
   const passosConsiderados = MOSTRAR_PASSO_MARKETPLACE[idioma]
     ? passosCompletos
     : { ...passosCompletos, marketplace: true };
   const todosPassosCompletos = Object.values(passosConsiderados).every(Boolean);
 
   // Telas cujo menu some na versão do idioma (Painel/Pedidos/Produtos e
-  // Configurações só existem em PT) — abrir o app ou trocar de idioma nelas
+  // Configurações só existem em PT), abrir o app ou trocar de idioma nelas
   // leva pra Primeiros passos, ou pra Calculadora se o checklist já sumiu.
   const viewOculta =
     (!MOSTRAR_MENUS_PRINCIPAIS[idioma] && (view === 'dashboard' || view === 'pedidos' || view === 'produtos')) ||

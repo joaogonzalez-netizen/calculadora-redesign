@@ -81,7 +81,7 @@ function Cartao({ n, arrastando, onDrag }: { n: Negocio; arrastando: boolean; on
       <div className="fe-row"><span className="fe-who">{c?.nome ?? 'Cliente'}</span><span className={'fe-temp fe-' + n.temperatura}>{n.temperatura === 'quente' && <Icon name="flame" size={13} />}{n.temperatura}</span></div>
       <div className="fe-what">{n.titulo}</div>
       <div className="fe-row">
-        <span className="fe-val">{n.valor ? brl(n.valor) : '—'}</span>
+        <span className="fe-val">{n.valor ? brl(n.valor) : 'N/D'}</span>
         {aberto && c?.telefone && <a className="fe-btn fe-btn-wa fe-btn-sm" href={waLink(c.telefone)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`WhatsApp ${c.nome}`} style={{ padding: '4px 9px', minHeight: 30 }}><Icon name="whatsapp" size={14} /></a>}
       </div>
       {aberto && n.proximoContato && <div className={'fe-follow' + (atraso ? ' fe-late' : hojeC ? ' fe-today' : '')}><Icon name={atraso ? 'alert' : 'clock'} size={13} />Falar {relativo(n.proximoContato)}</div>}

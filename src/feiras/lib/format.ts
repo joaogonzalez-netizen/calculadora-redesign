@@ -17,13 +17,13 @@ export function diasEntre(a: string, b: string) {
 }
 
 export function dataCurta(iso: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'N/D';
   const [, m, d] = iso.split('-');
   return `${d}/${m}`;
 }
 
 export function dataLonga(iso: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'N/D';
   const [y, m, d] = iso.split('-');
   return `${d}/${m}/${y}`;
 }

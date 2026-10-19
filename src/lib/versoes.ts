@@ -1,11 +1,11 @@
-// Três "versões" do app, uma por idioma — cada mercado-alvo vê só os menus e
+// Três "versões" do app, uma por idioma, cada mercado-alvo vê só os menus e
 // canais de venda relevantes pra ele. Fonte única de verdade: trocar aqui
 // reflete em Sidebar (menus PRINCIPAL), Gerador de anúncios (marketplaces
 // do passo 2) e Calculadora (chips de Canal de venda).
 import type { Idioma } from './i18n';
 import type { Canal, Moeda, Preferencias } from '../types';
 
-// PRINCIPAL (Painel/Pedidos/Produtos) existe em PT e ES — a versão EN ainda
+// PRINCIPAL (Painel/Pedidos/Produtos) existe em PT e ES, a versão EN ainda
 // não tem dado de vendas/pedidos pro mercado dela.
 export const MOSTRAR_MENUS_PRINCIPAIS: Record<Idioma, boolean> = {
   pt: true,
@@ -13,7 +13,7 @@ export const MOSTRAR_MENUS_PRINCIPAIS: Record<Idioma, boolean> = {
   es: true,
 };
 
-// Configurações hoje é só a tela de conexão de marketplaces — ES/EN ainda
+// Configurações hoje é só a tela de conexão de marketplaces, ES/EN ainda
 // não têm nenhuma integração de marketplace pra conectar, então o menu
 // fica sem função nessas versões.
 export const MOSTRAR_CONFIGURACOES: Record<Idioma, boolean> = {

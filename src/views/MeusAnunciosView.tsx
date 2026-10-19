@@ -21,13 +21,13 @@ type MarketplaceAnuncio = 'ml' | 'shopee' | 'etsy' | 'outros';
 
 interface Anuncio {
   id: string;
-  // Rascunho copiado da Shopee pela extensão do Chrome — "Continuar" abre o Gerador já preenchido.
+  // Rascunho copiado da Shopee pela extensão do Chrome, "Continuar" abre o Gerador já preenchido.
   rascunhoShopee?: boolean;
   soCopia?: boolean; // copiado em modo "apenas copiar": etapas de IA bloqueadas
   nome: string;
   status: StatusAnuncio;
   // Teste: um anúncio pode estar publicado em mais de um marketplace ao
-  // mesmo tempo (ex: Shopee + Mercado Livre) — por isso é uma lista, não um
+  // mesmo tempo (ex: Shopee + Mercado Livre), por isso é uma lista, não um
   // valor único.
   marketplaces: MarketplaceAnuncio[];
   data: string;
@@ -117,8 +117,8 @@ export default function MeusAnunciosView({ onCriarAnuncio }: Props) {
     });
 
   function baixar(a: Anuncio) {
-    alert(`"${a.nome}" — ${t('meusAnuncios.baixarEmBreve')}`);
-    // Publicado é um estado mais forte — baixar uma cópia depois não deveria
+    alert(`"${a.nome}", ${t('meusAnuncios.baixarEmBreve')}`);
+    // Publicado é um estado mais forte, baixar uma cópia depois não deveria
     // "voltar" o anúncio pra Baixado. Só promove quem ainda tava Gerando.
     if (a.status !== 'publicado') {
       setAnuncios((prev) => prev.map((x) => (x.id === a.id ? { ...x, status: 'baixado' } : x)));

@@ -47,18 +47,18 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
   const [ordem, setOrdem] = useState<OrdemKey>('id_desc');
   const [selected, setSelected] = useState<HistoricoEntry | null>(null);
 
-  // Marcadores (até MAX_POR_CALCULO por cálculo) — única forma de organizar o Histórico.
+  // Marcadores (até MAX_POR_CALCULO por cálculo), única forma de organizar o Histórico.
   const [marcadores, setMarcadores] = useState<Marcador[]>([]);
   const [vinculo, setVinculo] = useState<VinculoMarcadores>({});
   const [filtroIds, setFiltroIds] = useState<Set<string>>(new Set());
   const [filtroSemMarcador, setFiltroSemMarcador] = useState(false);
   const [modoFiltro, setModoFiltro] = useState<ModoFiltro>('qualquer');
 
-  // Filtro por canal de venda — cada cálculo tem só um canal, então marcar
+  // Filtro por canal de venda, cada cálculo tem só um canal, então marcar
   // vários é sempre "qualquer um deles" (união).
   const [filtroCanais, setFiltroCanais] = useState<Set<Canal>>(new Set());
 
-  // Drawer de marcadores — 1 instância só, aberta na linha que o usuário clicou.
+  // Drawer de marcadores, 1 instância só, aberta na linha que o usuário clicou.
   const [drawerEntryId, setDrawerEntryId] = useState<number | null>(null);
 
   function reload() {
@@ -95,7 +95,7 @@ export default function HistoricoView({ onChange, onAbrirNaCalculadora }: { onCh
     alternarMarcador(entryId, m.id);
   }
 
-  // Filtro: marcadores e "Sem marcador" são excludentes — escolher um limpa o outro.
+  // Filtro: marcadores e "Sem marcador" são excludentes, escolher um limpa o outro.
   function alternarFiltro(id: string) {
     setFiltroSemMarcador(false);
     setFiltroIds((prev) => {

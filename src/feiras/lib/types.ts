@@ -37,7 +37,7 @@ export interface Negocio {
   criadoEm: string;
   atualizadoEm: string;
   pedidoId: string | null;
-  // Produtos do catálogo (e itens avulsos) que o cliente quer — viram o pedido ao fechar.
+  // Produtos do catálogo (e itens avulsos) que o cliente quer, viram o pedido ao fechar.
   itens?: ItemPedido[];
 }
 

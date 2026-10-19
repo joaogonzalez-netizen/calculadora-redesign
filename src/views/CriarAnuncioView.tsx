@@ -13,7 +13,7 @@ import ImagensStep from '../components/gerador/ImagensStep';
 import VideoStep from '../components/gerador/VideoStep';
 import ResultadoStep from '../components/gerador/ResultadoStep';
 
-// Réplica do Gerador de anúncios em produção (prints de João) — construído
+// Réplica do Gerador de anúncios em produção (prints de João), construído
 // tela por tela. Tudo mockado: sem upload real de arquivo, o clique na
 // dropzone simula uma imagem enviada (cor de placeholder), marketplace e
 // plano já vêm pré-selecionados, campos de Informações vêm com sugestões
@@ -157,7 +157,7 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, on
             )}
             {passoAtual !== 'upload' && passoAtual !== 'marketplace' && (
               <div className="ger-em-construcao">
-                <p>A etapa "{passoInfo.label}" ainda está sendo construída — manda o print dela que eu sigo daqui.</p>
+                <p>A etapa "{passoInfo.label}" ainda está sendo construída, manda o print dela que eu sigo daqui.</p>
               </div>
             )}
           </div>

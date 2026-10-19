@@ -5,14 +5,14 @@ import { MARKETPLACES_CONECTADOS_KEY } from '../../lib/onboarding';
 import { useI18n } from '../../context/I18nContext';
 
 // Réplica do fluxo "Publicar anúncio" do Figma (STLSELLER, node 22260-24646,
-// print de João 08/09/2026) — modal de 7 passos a partir do passo Resultado.
+// print de João 08/09/2026), modal de 7 passos a partir do passo Resultado.
 // Suporta Mercado Livre (fluxo original) e Shopee (requisitos passados por
 // João em 08/09/2026): conta/loja habilitada, categoria só por árvore fixa,
 // preço/estoque/SKU, atributos condicionais por categoria, variações e
 // atacado opcionais, canal de logística obrigatório e um checklist de
 // conformidade que também bloqueia a publicação. Tudo mockado, mas as
 // regras (o que falta, o que bloqueia) são calculadas de verdade a partir
-// do estado — nada hardcoded pra um único caminho "feliz".
+// do estado, nada hardcoded pra um único caminho "feliz".
 type Marketplace = 'ml' | 'shopee';
 type PassoPub = 'marketplace' | 'imagens' | 'titulo' | 'categoria' | 'ficha' | 'frete' | 'confirmar';
 
@@ -286,7 +286,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
   const categoriaResolvidaML = categoriaCarregando ? '' : (form.categoriaManual === CATEGORIAS_MANUAIS_ML[0] ? 'Casa, Móveis e Decoração > Decoração > Incensários e Aromatizadores' : form.categoriaManual);
   const categoriaAtual = mp === 'shopee' ? form.shopeeCategoria : categoriaResolvidaML;
 
-  // Loja Shopee não habilitada só vira aviso — não trava mais o wizard, já
+  // Loja Shopee não habilitada só vira aviso, não trava mais o wizard, já
   // que hoje não há de fato uma conexão real por trás pra impedir o resto.
   const lojaShopeeAvisoPendente = mp === 'shopee' && !lojaShopeeHabilitada;
 
@@ -470,7 +470,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                       <div className="pub-titulo-texto">{tit.texto}</div>
                       <div className="pub-titulo-meta">
                         <span className="pub-titulo-tags">{tit.tags}</span>
-                        <span className={'pub-titulo-contagem' + (corta ? ' erro' : '')}>{chars} {t('publicar.caracteres')} — {corta ? t('publicar.cortaNoMobile') : t('publicar.ideal')}</span>
+                        <span className={'pub-titulo-contagem' + (corta ? ' erro' : '')}>{chars} {t('publicar.caracteres')}, {corta ? t('publicar.cortaNoMobile') : t('publicar.ideal')}</span>
                       </div>
                     </div>
                   </button>
@@ -745,8 +745,8 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             </div>
             {form.freteGratis && (
               MOCK_MARGEM >= 20
-                ? <div className="pub-aviso pub-aviso-ok"><Icon name="check" size={14} /> Margem de {MOCK_MARGEM}% — suficiente para frete grátis sem comprometer o lucro.</div>
-                : <div className="pub-aviso pub-aviso-warn"><Icon name="alert" size={14} /> Margem de {MOCK_MARGEM}% — abaixo de 20%. Frete grátis pode zerar seu lucro. Reveja o preço antes de ativar.</div>
+                ? <div className="pub-aviso pub-aviso-ok"><Icon name="check" size={14} /> Margem de {MOCK_MARGEM}%, suficiente para frete grátis sem comprometer o lucro.</div>
+                : <div className="pub-aviso pub-aviso-warn"><Icon name="alert" size={14} /> Margem de {MOCK_MARGEM}%, abaixo de 20%. Frete grátis pode zerar seu lucro. Reveja o preço antes de ativar.</div>
             )}
 
             <div className="pub-toggle-full">
@@ -837,11 +837,11 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
               </div>
               <div className="pub-resumo-cel">
                 <div className="pub-resumo-label"><Icon name="upload" size={12} /> {t('publicar.imagens')}</div>
-                <div className="pub-resumo-valor">{form.imagensSelecionadas.length ? `${form.imagensSelecionadas.length} ${t('publicar.fotos')}` : '—'}</div>
+                <div className="pub-resumo-valor">{form.imagensSelecionadas.length ? `${form.imagensSelecionadas.length} ${t('publicar.fotos')}` : 'N/D'}</div>
               </div>
               <div className="pub-resumo-cel full">
                 <div className="pub-resumo-label"><Icon name="folder" size={12} /> {t('publicar.categoria')}</div>
-                <div className="pub-resumo-valor">{categoriaAtual || '—'}</div>
+                <div className="pub-resumo-valor">{categoriaAtual || 'N/D'}</div>
               </div>
 
               {mp === 'ml' ? (
@@ -852,11 +852,11 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="calculadora" size={12} /> {t('publicar.material')}</div>
-                    <div className="pub-resumo-valor">{form.material || '—'}</div>
+                    <div className="pub-resumo-valor">{form.material || 'N/D'}</div>
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="tag" size={12} /> {t('publicar.nicho')}</div>
-                    <div className="pub-resumo-valor">{form.nicho.length ? form.nicho.map((n) => t(CHAVES_LABEL_NICHO[n] ?? '') || n).join(', ') : '—'}</div>
+                    <div className="pub-resumo-valor">{form.nicho.length ? form.nicho.map((n) => t(CHAVES_LABEL_NICHO[n] ?? '') || n).join(', ') : 'N/D'}</div>
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="box" size={12} /> {t('publicar.pesoDimensoes')}</div>
@@ -871,19 +871,19 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                 <>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="creditos" size={12} /> {t('publicar.precoEstoque')}</div>
-                    <div className="pub-resumo-valor">R$ {form.precoVenda || '—'} · {form.estoque || '0'} {t('publicar.un')}</div>
+                    <div className="pub-resumo-valor">R$ {form.precoVenda || 'N/D'} · {form.estoque || '0'} {t('publicar.un')}</div>
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="tag" size={12} /> {t('publicar.marca')}</div>
-                    <div className="pub-resumo-valor">{form.semMarca ? t('publicar.semMarca') : (form.marca || '—')}</div>
+                    <div className="pub-resumo-valor">{form.semMarca ? t('publicar.semMarca') : (form.marca || 'N/D')}</div>
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="box" size={12} /> {t('publicar.pesoDimensoes')}</div>
-                    <div className="pub-resumo-valor">{form.peso || '—'}g · {somaDimensoes}cm</div>
+                    <div className="pub-resumo-valor">{form.peso || 'N/D'}g · {somaDimensoes}cm</div>
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="bolt" size={12} /> {t('publicar.canalLogistica')}</div>
-                    <div className="pub-resumo-valor">{form.canalLogistica || '—'}</div>
+                    <div className="pub-resumo-valor">{form.canalLogistica || 'N/D'}</div>
                   </div>
                   <div className="pub-resumo-cel">
                     <div className="pub-resumo-label"><Icon name="flag" size={12} /> {t('publicar.variacoes')}</div>

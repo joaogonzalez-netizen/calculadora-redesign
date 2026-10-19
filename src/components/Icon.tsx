@@ -259,7 +259,7 @@ interface Props {
   size?: number;
   className?: string;
   style?: CSSProperties;
-  /** Estado preenchido — usado hoje só pelo coração de favorito. */
+  /** Estado preenchido, usado hoje só pelo coração de favorito. */
   filled?: boolean;
 }
 

@@ -1,7 +1,7 @@
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
-// Réplica do Painel em produção antes de conectar qualquer marketplace — ver
+// Réplica do Painel em produção antes de conectar qualquer marketplace, ver
 // print anexado por João em 02/09/2026. Ações ainda não integradas (Mercado
 // Livre, Gerador de anúncios) caem num alert, igual a outros pontos do app
 // que já sinalizam "em breve" dessa forma.

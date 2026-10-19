@@ -13,14 +13,14 @@ export interface Marcador {
 
 export const MARCADORES_KEY = 'stlseller_hist_marcadores';
 export const HIST_MARCADORES_KEY = 'stlseller_hist_marcadores_vinculo';
-// Chaves da experiência de pastas — só lidas pra migrar.
+// Chaves da experiência de pastas, só lidas pra migrar.
 const PASTAS_KEY = 'stlseller_hist_pastas';
 const HIST_PASTA_KEY = 'stlseller_hist_pasta_vinculo';
 const MIGRACAO_KEY = 'stlseller_hist_pastas_migradas';
 
 export const CORES_CLUSTER = ['#00955a', '#06b2a1', '#3b6fd4', '#8a3bd4', '#c58a00', '#d4633b', '#d43b6f'];
 
-/** Teto de marcadores criados — cada um é um filtro rápido, não uma taxonomia. */
+/** Teto de marcadores criados, cada um é um filtro rápido, não uma taxonomia. */
 export const LIMITE_CLUSTER = 10;
 /** Quantos marcadores um mesmo cálculo pode ter. */
 export const MAX_POR_CALCULO = 3;
@@ -40,7 +40,7 @@ export function saveMarcadores(arr: Marcador[]): void {
   writeJson(MARCADORES_KEY, arr);
 }
 
-// Antes era 1 marcador por cálculo (valor string) — lê os dois formatos.
+// Antes era 1 marcador por cálculo (valor string), lê os dois formatos.
 export function getHistMarcadores(): VinculoMarcadores {
   const bruto = readJson<Record<string, string | string[]>>(HIST_MARCADORES_KEY, {});
   return Object.fromEntries(
@@ -93,9 +93,9 @@ export function migrarPastas(): void {
 // Primeira visita sem nenhum marcador: 4 de exemplo aplicados nos cálculos de
 // exemplo do Histórico (casados por nome), pra dar pra testar o filtro na hora.
 const EXEMPLOS: { marcador: Marcador; calculos: string[] }[] = [
-  { marcador: { id: 'tag_ex_decoracao', nome: 'Decoração', cor: '#00955a' }, calculos: ['Vaso geométrico facetado', 'Letreiro decorativo - resina 12cm', 'Letreiro decorativo - PETG 15cm', 'Letreiro decorativo - mini 8cm'] },
-  { marcador: { id: 'tag_ex_kit', nome: 'Kit', cor: '#3b6fd4' }, calculos: ['Letreiro decorativo - resina 12cm', 'Letreiro decorativo - PETG 15cm'] },
-  { marcador: { id: 'tag_ex_mais_vendido', nome: 'Mais vendido', cor: '#d4633b' }, calculos: ['Dragão articulado 20cm', 'Letreiro decorativo - resina 12cm'] },
+  { marcador: { id: 'tag_ex_decoracao', nome: 'Decoração', cor: '#00955a' }, calculos: ['Vaso geométrico facetado', 'Letreiro decorativo resina 12cm', 'Letreiro decorativo PETG 15cm', 'Letreiro decorativo mini 8cm'] },
+  { marcador: { id: 'tag_ex_kit', nome: 'Kit', cor: '#3b6fd4' }, calculos: ['Letreiro decorativo resina 12cm', 'Letreiro decorativo PETG 15cm'] },
+  { marcador: { id: 'tag_ex_mais_vendido', nome: 'Mais vendido', cor: '#d4633b' }, calculos: ['Dragão articulado 20cm', 'Letreiro decorativo resina 12cm'] },
   { marcador: { id: 'tag_ex_revisar', nome: 'Revisar preço', cor: '#c58a00' }, calculos: ['Suporte de celular articulado'] },
 ];
 

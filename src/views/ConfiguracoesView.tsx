@@ -14,10 +14,10 @@ interface MarketplaceConfig {
   idInicial?: string;
 }
 
-// Réplica da tela real de Configurações (print de João, 02/09/2026) — estado
+// Réplica da tela real de Configurações (print de João, 02/09/2026), estado
 // inicial: Mercado Livre e Amazon conectados, Shopee não. Conectar/desconectar
 // é só local (sem integração real ainda), igual ao resto do app. O passo 4 de
-// Primeiros passos só marca "feito" no clique real em "Conectar" — só abrir
+// Primeiros passos só marca "feito" no clique real em "Conectar", só abrir
 // essa tela (e ver ML/Amazon já conectados por padrão) não conta.
 const MARKETPLACES_CONFIG: MarketplaceConfig[] = [
   { id: 'ml', nome: 'Mercado Livre', cor: '#ffd400', formato: 'circulo', conectadoInicial: true },
@@ -105,7 +105,7 @@ export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: Co
   }
 
   // Conectar de fato só acontece depois que o usuário confirma que já tem
-  // conta (ou termina o cadastro mockado) — ver abrirConectar() abaixo.
+  // conta (ou termina o cadastro mockado), ver abrirConectar() abaixo.
   function finalizarConexao(id: string) {
     const idFake = 'ML' + Math.floor(100000000 + Math.random() * 900000000);
     atualizar({ ...estado, [id]: { conectado: true, id: idFake } });

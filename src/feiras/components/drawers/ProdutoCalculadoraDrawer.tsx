@@ -13,7 +13,7 @@ type Pgto = 'debito' | 'credito' | 'pix' | 'outra';
 // Calculadora (histórico, normalmente para um marketplace): o usuário escolhe
 // o cálculo e informa as taxas da VENDA DIRETA (pagamento, imposto, frete e
 // margem). O preço é calculado na hora e o resultado é salvo no histórico da
-// calculadora como um cálculo de Venda direta — é ele que aparece no catálogo.
+// calculadora como um cálculo de Venda direta, é ele que aparece no catálogo.
 export default function ProdutoCalculadoraDrawer() {
   const { fechar, avisar } = useUi();
   const { recarregarProdutos, db } = useStore();
@@ -113,7 +113,7 @@ export default function ProdutoCalculadoraDrawer() {
         <select value={id} onChange={(e) => escolher(e.target.value)}>
           <option value="">Selecione…</option>
           {opcoes.map((h) => (
-            <option key={h.id} value={h.id}>{h.nome} — {h.marketplace}{jaNoCatalogo.has(h.nome.toLowerCase()) ? ' (já no catálogo)' : ''}</option>
+            <option key={h.id} value={h.id}>{h.nome}, {h.marketplace}{jaNoCatalogo.has(h.nome.toLowerCase()) ? ' (já no catálogo)' : ''}</option>
           ))}
         </select>
       </Field>
@@ -141,7 +141,7 @@ export default function ProdutoCalculadoraDrawer() {
           </div>
 
           <div className="fe-totals">
-            <div><small>Preço de venda direta</small><br /><b>{calc ? brl(calc.preco) : '—'}</b></div>
+            <div><small>Preço de venda direta</small><br /><b>{calc ? brl(calc.preco) : 'N/D'}</b></div>
             <small style={{ maxWidth: 210, textAlign: 'right' }}>{calc ? `Taxa de pagamento ${brl(calc.taxaValor)} · lucro líquido ${brl(calc.lucroLiquido)} (${calc.margem.toFixed(1).replace('.', ',')}%)` : 'Ajuste a margem ou as taxas'}</small>
           </div>
         </>

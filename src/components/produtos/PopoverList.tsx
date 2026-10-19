@@ -6,12 +6,12 @@ interface Props {
   value: string;
   onChange: (v: string) => void;
   /** Traduz um valor da lista (que continua sendo a chave real usada nos filtros/comparações)
-   * pro texto exibido — usado quando `options` guarda valores vindos de mocks/lógica que não
+   * pro texto exibido, usado quando `options` guarda valores vindos de mocks/lógica que não
    * podem mudar com o idioma, mas o rótulo mostrado precisa. */
   getLabel?: (v: string) => string;
 }
 
-/** Botão que abre uma lista simples — usado pra Período e Ordem, no lugar do
+/** Botão que abre uma lista simples, usado pra Período e Ordem, no lugar do
  * calendário de duas colunas do Figma (peso de implementação alto pra um mock). */
 export default function PopoverList({ label, options, value, onChange, getLabel }: Props) {
   const [open, setOpen] = useState(false);

@@ -1,6 +1,6 @@
 // Dados do Dashboard. Tudo aqui é mock estático, fiel ao design de referência:
 // não existe backend nem pedidos reais no projeto ainda. Este arquivo é o ponto
-// único de troca quando a API existir — os componentes só consomem estas formas.
+// único de troca quando a API existir, os componentes só consomem estas formas.
 
 export interface MarketplaceConectado {
   id: string;
@@ -43,7 +43,7 @@ export interface TopProduto {
   vendas: number;
   margemPct: number;
   valor: string;
-  /** Largura da barra, 0–100. */
+  /** Largura da barra, 0 a 100. */
   barra: number;
 }
 
@@ -131,11 +131,11 @@ export const INSIGHTS: Insight[] = [
 ];
 
 export const SERIE_LUCRO: PontoSerie[] = [
-  { label: 'Sem 1', periodo: '7–14 jan', faturamento: 1120, custos: 580, lucro: 540 },
-  { label: 'Sem 2', periodo: '14–21 jan', faturamento: 1210, custos: 595, lucro: 615 },
-  { label: 'Sem 3', periodo: '21–28 jan', faturamento: 1340, custos: 610, lucro: 730 },
-  { label: 'Sem 4', periodo: '28 jan–4 fev', faturamento: 1520, custos: 620, lucro: 900 },
-  { label: 'Hoje', periodo: '4–11 fev', faturamento: 1760, custos: 640, lucro: 1120 },
+  { label: 'Sem 1', periodo: '7 a 14 jan', faturamento: 1120, custos: 580, lucro: 540 },
+  { label: 'Sem 2', periodo: '14 a 21 jan', faturamento: 1210, custos: 595, lucro: 615 },
+  { label: 'Sem 3', periodo: '21 a 28 jan', faturamento: 1340, custos: 610, lucro: 730 },
+  { label: 'Sem 4', periodo: '28 jan a 4 fev', faturamento: 1520, custos: 620, lucro: 900 },
+  { label: 'Hoje', periodo: '4 a 11 fev', faturamento: 1760, custos: 640, lucro: 1120 },
 ];
 
 /** Ticks do eixo Y, na mesma escala da série. */
@@ -161,7 +161,7 @@ export const PEDIDOS_RECENTES: PedidoRecente[] = [1, 2, 3].map((n) => ({
   status: 'Pago',
 }));
 
-// DRE simples do mês — fecha exatamente nos KPIs do topo do Painel:
+// DRE simples do mês, fecha exatamente nos KPIs do topo do Painel:
 // Receita bruta = Faturamento (R$ 29.376,00) e Lucro líquido = R$ 7.962,00 (margem 27,1%).
 export type DreTipo = 'receita' | 'deducao' | 'subtotal' | 'resultado';
 export interface DreSubitem { label: string; valor: number; }
@@ -192,7 +192,7 @@ export const DRE_LINHAS: DreLinha[] = [
   { label: 'Receita líquida', valor: 23795.00, tipo: 'subtotal' },
   {
     label: 'Custo de produção', valor: -13483.00, tipo: 'deducao', dependeDeVinculo: true,
-    hint: 'Só material, mão de obra e energia do cálculo vinculado a cada produto. Não inclui taxa de canal: a taxa de marketplace já vem separada, direto da integração real (linha acima) — somar as duas seria contar o custo do canal duas vezes.',
+    hint: 'Só material, mão de obra e energia do cálculo vinculado a cada produto. Não inclui taxa de canal: a taxa de marketplace já vem separada, direto da integração real (linha acima), somar as duas seria contar o custo do canal duas vezes.',
   },
   { label: 'Lucro bruto', valor: 10312.00, tipo: 'subtotal' },
   { label: 'Despesas operacionais', valor: -2350.00, tipo: 'deducao', hint: 'Ads/tráfego pago e outras despesas do mês' },

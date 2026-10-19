@@ -3,7 +3,7 @@
 // A extensão ainda não existe: a página de protótipo em
 // public/_mock/copiar-anuncio-shopee.html grava o rascunho aqui (mesma
 // origem, localStorage) e abre o STLSeller. Quando a extensão real existir,
-// ela troca esta gravação por uma chamada de API — o resto do fluxo (lista em
+// ela troca esta gravação por uma chamada de API, o resto do fluxo (lista em
 // Meus anúncios → Gerador de anúncios) continua igual.
 
 export interface RascunhoShopee {

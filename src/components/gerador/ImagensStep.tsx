@@ -70,7 +70,7 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
       <p className="ger-img-secao-desc">Sempre incluídas no anúncio. Não entram na seleção do vídeo.</p>
 
       <div className="ger-img-aviso">
-        <Icon name="lock" size={14} /> Estas 3 imagens não podem ser selecionadas para o vídeo — elas já fazem parte fixa do anúncio.
+        <Icon name="lock" size={14} /> Estas 3 imagens não podem ser selecionadas para o vídeo, elas já fazem parte fixa do anúncio.
       </div>
 
       <div className="ger-img-grid-fixas ger-txt-com-chat">

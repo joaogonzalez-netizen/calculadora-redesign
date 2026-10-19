@@ -11,7 +11,7 @@ import Icon from './Icon';
 // 14/10/2026): preço para o consumidor, três métricas (custo, margem, markup),
 // composição do custo com barras, potencial diário/mensal e as ações finais.
 // Substitui o painel fixo "mesa de impressão" (PrecoPanel), que continua no
-// repositório mas fora de uso — ver CalculadoraView.
+// repositório mas fora de uso, ver CalculadoraView.
 
 const CATS_LABEL_KEYS: Record<CustoCategoria, string> = {
   'Embalagem': 'calc.catEmbalagem',

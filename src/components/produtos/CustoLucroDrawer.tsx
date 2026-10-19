@@ -9,7 +9,7 @@ import Icon from '../Icon';
 import InfoDot from '../InfoDot';
 
 const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Shopee'];
-// Estimativa simples só pra pré-visualizar a taxa no modo manual — a fórmula real
+// Estimativa simples só pra pré-visualizar a taxa no modo manual, a fórmula real
 // e completa por canal já existe em lib/calc.ts e é usada dentro da Calculadora.
 const TAXA_ESTIMADA: Record<Produto['marketplace'], number> = { 'Mercado Livre': 0.14, Shopee: 0.14 };
 
@@ -37,7 +37,7 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
   const jaVinculado = vinculo?.tipo === 'calculo';
   const [tab, setTab] = useState<'vincular' | 'manual'>(vinculo?.tipo === 'manual' ? 'manual' : 'vincular');
   const [canal, setCanal] = useState<Canal>('Venda direta');
-  const [busca, setBusca] = useState(jaVinculado ? produto.nome.split(' - ')[0] : '');
+  const [busca, setBusca] = useState(jaVinculado ? produto.nome : '');
   const [selecionadoId, setSelecionadoId] = useState<number | null>(vinculo?.calculoId ?? null);
 
   const [custoProducao, setCustoProducao] = useState(String(vinculo?.custoProducao ?? 4.2));
@@ -64,7 +64,7 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
   function confirmarVinculo() {
     if (selecionadoId === null) return;
     const escolhido = historico.find((h) => h.id === selecionadoId);
-    // custoProducao guarda só o custoUnit do cálculo (sem taxa de canal) — é isso
+    // custoProducao guarda só o custoUnit do cálculo (sem taxa de canal), é isso
     // que entra no "Custo de produção" do DRE; a taxa real vem da integração do marketplace.
     onSave({ tipo: 'calculo', calculoId: selecionadoId, custoProducao: escolhido?.custoUnit });
   }
@@ -93,7 +93,7 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
         {tab === 'vincular' && (
           <div className="cl-body">
             <div className="cl-note cl-note-info">
-              Só o <b>custo de produção</b> do cálculo (material, mão de obra e energia) é usado aqui. A taxa de marketplace desse produto já vem da integração real com {produto.marketplace} — não da taxa simulada dentro da calculadora, pra não contar o custo de canal duas vezes.
+              Só o <b>custo de produção</b> do cálculo (material, mão de obra e energia) é usado aqui. A taxa de marketplace desse produto já vem da integração real com {produto.marketplace}, não da taxa simulada dentro da calculadora, pra não contar o custo de canal duas vezes.
             </div>
 
             <div className="field">
@@ -133,7 +133,7 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
             ))}
 
             {jaVinculado ? (
-              <div className="cl-note">Este produto já tem um cálculo vinculado. Cada produto aceita apenas um vínculo ativo — selecionar outro cálculo substitui o atual.</div>
+              <div className="cl-note">Este produto já tem um cálculo vinculado. Cada produto aceita apenas um vínculo ativo, selecionar outro cálculo substitui o atual.</div>
             ) : filtrados.length > 0 && (
               <div className="cl-note">Mostrando os {filtrados.length} cálculos mais recentes. Use a busca acima pra encontrar outros cálculos.</div>
             )}

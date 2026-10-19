@@ -1,4 +1,4 @@
-// Persistência em localStorage — mesmas chaves do protótipo (PRD seção 5/6),
+// Persistência em localStorage, mesmas chaves do protótipo (PRD seção 5/6),
 // pra facilitar uma migração futura pra API/banco sem quebrar dados existentes.
 
 import { useCallback, useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ export const PREF_CUSTO_KEY = 'stlseller_custos_padrao';
 export const PRODUTO_VINCULOS_KEY = 'stlseller_produto_vinculos';
 export const BUSCADOR_FAVORITOS_KEY = 'stlseller_buscador_favoritos';
 
-/** Vínculo de custo/lucro de um Produto (tela Produtos) — ou aponta pra um cálculo
+/** Vínculo de custo/lucro de um Produto (tela Produtos), ou aponta pra um cálculo
  * salvo da Calculadora, ou guarda custos digitados manualmente. Sem backend: fica
  * só em localStorage, mesma camada de persistência do resto do app. */
 export interface ProdutoVinculo {
@@ -128,21 +128,21 @@ export function seedHistoricoExemplo(nowMs: number): void {
       precoVenda: 7.20, stlLink: '', concorrenteLink: '', anuncioLink: '', comPromo: false, descontoPromo: 10,
     },
     {
-      id: nowMs - 2600000, nome: 'Letreiro decorativo - resina 12cm', marketplace: 'Venda direta',
+      id: nowMs - 2600000, nome: 'Letreiro decorativo resina 12cm', marketplace: 'Venda direta',
       custoUnit: 1.89, precoConsumidor: 5.90, precoVarejo: 2.95, lucroBruto: 4.01, lucroLiquido: 3.90,
       margem: 66, potMensal: 3540.00, taxaFalha: 1.5, custoKwh: 0.10, peso: 41, custoFilamento: 75,
       filamentoItems: filItem('STLFlix PLA', 'Branco', 75, 41), tempoH: 0.8, qtd: 2, imposto: 0, modoPrec: 'preco', margemDesejada: 40,
       precoVenda: 5.90, stlLink: '', concorrenteLink: '', anuncioLink: '', comPromo: false, descontoPromo: 10,
     },
     {
-      id: nowMs - 2500000, nome: 'Letreiro decorativo - PETG 15cm', marketplace: 'Mercado Livre',
+      id: nowMs - 2500000, nome: 'Letreiro decorativo PETG 15cm', marketplace: 'Mercado Livre',
       custoUnit: 1.60, precoConsumidor: 5.20, precoVarejo: 2.60, lucroBruto: 3.60, lucroLiquido: 2.81,
       margem: 54, potMensal: 3120.00, taxaFalha: 1.5, custoKwh: 0.10, peso: 54, custoFilamento: 68,
       filamentoItems: filItem('STLFlix PETG', 'Preto', 68, 54), tempoH: 1.1, qtd: 1, imposto: 0, modoPrec: 'preco', margemDesejada: 40,
       precoVenda: 5.20, stlLink: '', concorrenteLink: '', anuncioLink: '', comPromo: false, descontoPromo: 10,
     },
     {
-      id: nowMs - 2400000, nome: 'Letreiro decorativo - mini 8cm', marketplace: 'Shopee',
+      id: nowMs - 2400000, nome: 'Letreiro decorativo mini 8cm', marketplace: 'Shopee',
       custoUnit: 0.75, precoConsumidor: 2.10, precoVarejo: 1.05, lucroBruto: 1.35, lucroLiquido: 0.86,
       margem: 41, potMensal: 1512.00, taxaFalha: 1.5, custoKwh: 0.08, peso: 24, custoFilamento: 75,
       filamentoItems: filItem('STLFlix PLA', 'Dourado', 75, 24), tempoH: 0.5, qtd: 3, imposto: 0, modoPrec: 'preco', margemDesejada: 40,

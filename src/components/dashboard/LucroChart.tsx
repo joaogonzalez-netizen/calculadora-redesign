@@ -13,7 +13,7 @@ const SERIES = [
 const pontos = SERIE_LUCRO;
 const n = pontos.length;
 
-/** Coordenadas em % do viewBox 0–100, pra o SVG poder esticar junto com o card. */
+/** Coordenadas em % do viewBox 0 a 100, pra o SVG poder esticar junto com o card. */
 const px = (i: number) => (i / (n - 1)) * 100;
 const py = (v: number) => (1 - v / MAX_Y) * 100;
 

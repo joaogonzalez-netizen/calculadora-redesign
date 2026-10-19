@@ -29,7 +29,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
   const [faixaFiltro, setFaixaFiltro] = useState<{ valor: FaixaFiltro; estoque: FaixaFiltro } | null>(null);
   const [somenteSemCusto, setSomenteSemCusto] = useState(false);
 
-  // Chegou aqui pelo botão "Ver produtos sem custo" do DRE — abre já filtrado,
+  // Chegou aqui pelo botão "Ver produtos sem custo" do DRE, abre já filtrado,
   // em todos os canais, e consome o gatilho pra não re-aplicar em navegações futuras.
   useEffect(() => {
     if (!filtroSemCustoInicial) return;
@@ -198,7 +198,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
             </tbody>
           </table>
           <div className="prod-pagination">
-            <span>{t('produtos.exibindo')} 1–{produtos.length} {t('produtos.deLabel')} {PRODUTOS_KPIS.produtosAtivos.valor} {t('produtos.produtosPlural')}</span>
+            <span>{t('produtos.exibindo')} 1 a {produtos.length} {t('produtos.deLabel')} {PRODUTOS_KPIS.produtosAtivos.valor} {t('produtos.produtosPlural')}</span>
             <div className="prod-pages">
               <button type="button" className="page-btn">‹</button>
               <button type="button" className="page-btn active">1</button>

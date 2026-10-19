@@ -146,7 +146,7 @@ export default function PedidosView() {
           </div>
           {!exibidos.length && <div className="hint" style={{ textAlign: 'center', padding: 24 }}>{t('pedidos.nenhumPedidoEncontrado')}</div>}
           <div className="prod-pagination">
-            <span>{t('pedidos.exibindo')} 1–{exibidos.length} {t('pedidos.deLabel')} {PEDIDOS_KPIS.total} {t('pedidos.pedidosPlural')}</span>
+            <span>{t('pedidos.exibindo')} 1 a {exibidos.length} {t('pedidos.deLabel')} {PEDIDOS_KPIS.total} {t('pedidos.pedidosPlural')}</span>
             <div className="prod-pages">
               <button type="button" className="page-btn">‹</button>
               <button type="button" className="page-btn active">1</button>

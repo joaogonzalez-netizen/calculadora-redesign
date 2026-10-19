@@ -22,7 +22,7 @@ const ICONE: Record<PerguntaId, IconName> = {
   estoque: 'box',
 };
 
-// A resposta é remontada a partir de qual pergunta foi entendida — assim uma
+// A resposta é remontada a partir de qual pergunta foi entendida, assim uma
 // conversa reaberta do histórico sai no idioma atual.
 function respostaDe(m: Mensagem, idioma: Idioma): Resposta {
   return m.perguntaId ? responder(m.perguntaId, idioma) : respostaFallback(idioma);
@@ -46,7 +46,7 @@ function comNegrito(texto: string): ReactNode {
 }
 
 // V2 do Assistente (layout do Seller Tool 3D em produção): tela inicial com a
-// caixa de pergunta no centro e 4 perguntas sugeridas. Ainda sem IA — as
+// caixa de pergunta no centro e 4 perguntas sugeridas. Ainda sem IA, as
 // sugestões e perguntas digitadas que batem por palavra-chave respondem com os
 // dados mock do Painel/Produtos (ver lib/assistenteRespostas.ts).
 // Na conversa, cada pergunta abre um bloco com a resposta embaixo, e a pergunta
@@ -66,7 +66,7 @@ export default function AssistenteView({ onNavegar, onConversaAtiva }: Props) {
   const [digitando, setDigitando] = useState(false);
   const [conversas, setConversas] = useState<ConversaSalva[]>(getConversas);
   const conversaIdRef = useRef<string | null>(null);
-  // Quantas mensagens a conversa já tinha salvas — reabrir uma conversa sem
+  // Quantas mensagens a conversa já tinha salvas, reabrir uma conversa sem
   // perguntar nada não deve mexer na data dela.
   const qtdSalvaRef = useRef(0);
 
@@ -132,7 +132,7 @@ export default function AssistenteView({ onNavegar, onConversaAtiva }: Props) {
     }
   }
 
-  // Painel e Produtos não existem em todas as versões — sem o menu, o botão some.
+  // Painel e Produtos não existem em todas as versões, sem o menu, o botão some.
   const destinoVisivel = (d: Destino) => d === 'calculadora' || MOSTRAR_MENUS_PRINCIPAIS[idioma];
 
   function renderBloco(b: Bloco, i: number) {
