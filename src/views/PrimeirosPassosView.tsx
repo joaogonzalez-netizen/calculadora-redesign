@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { USUARIO } from '../lib/dashboardMock';
 import { marcarOnboardingManual } from '../lib/onboarding';
 import { useI18n } from '../context/I18nContext';
@@ -22,6 +23,14 @@ const PASSOS: Passo[] = [
   { id: 'marketplace', numero: 4, tituloChave: 'passos.marketplaceTitulo', descricaoChave: 'passos.marketplaceDescricao', icone: 'integracoes', ctaChave: 'passos.marketplaceCta' },
 ];
 
+// Vídeo de boas-vindas por idioma. Não há versão em espanhol gravada, então o
+// ES usa a versão em inglês com legendas em espanhol ligadas.
+const VIDEOS_BOAS_VINDAS = {
+  pt: { id: '4_Ury2eZHus', legenda: '' },
+  en: { id: 'pJG8oUatrRA', legenda: '' },
+  es: { id: 'pJG8oUatrRA', legenda: '&cc_load_policy=1&cc_lang_pref=es&hl=es' },
+} as const;
+
 interface Props {
   passosCompletos: Record<PassoId | 'video', boolean>;
   onIrParaCalculadora: () => void;
@@ -32,10 +41,12 @@ interface Props {
 
 export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculadora, onIrParaConfiguracoes, onIrParaBuscador, onAtualizarPassos }: Props) {
   const { t, idioma } = useI18n();
+  const [tocando, setTocando] = useState(false);
+  const video = VIDEOS_BOAS_VINDAS[idioma] ?? VIDEOS_BOAS_VINDAS.pt;
   // ES/EN não têm conexão com marketplaces (menu Configurações some nessas
   // versões), então o passo "Conectar marketplace" some do checklist também.
   const passos = MOSTRAR_PASSO_MARKETPLACE[idioma] ? PASSOS : PASSOS.filter((p) => p.id !== 'marketplace');
-  // Total considerado pra "N de X concluídos" e pra sumir o menu — inclui o
+  // Total considerado pra "N de X concluídos" e pra sumir o menu, inclui o
   // vídeo, que fica sempre disponível pra assistir de novo, diferente dos
   // outros passos que escondem o CTA quando completos.
   const totalPassos = passos.length + 1;
@@ -44,7 +55,7 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
 
   function acionar(passo: Passo) {
     // Passo "Buscador" só marca "feito" quando o usuário favorita algo de
-    // verdade na tela do Buscador — o CTA aqui só navega, como o da Calculadora.
+    // verdade na tela do Buscador, o CTA aqui só navega, como o da Calculadora.
     if (passo.id === 'buscador') { onIrParaBuscador(); return; }
     if (passo.id === 'calculadora') { onIrParaCalculadora(); return; }
     if (passo.id === 'gerador') { alert('Em breve: o gerador de anúncios com IA.'); marcarOnboardingManual('gerador'); onAtualizarPassos(); return; }
@@ -52,7 +63,7 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
   }
 
   function assistirVideo() {
-    alert('Em breve: player de vídeo embutido. Por enquanto, use o botão abaixo pra marcar como assistido.');
+    setTocando(true);
   }
 
   function alternarVideoAssistido(assistido: boolean) {
@@ -72,11 +83,21 @@ export default function PrimeirosPassosView({ passosCompletos, onIrParaCalculado
         <span className="hint passos-progresso-label">{totalCompletos} {t('passos.deLabel')} {totalPassos} {t('passos.concluidosPlural')}</span>
       </div>
 
-      <div className={'passo-video-card' + (videoAssistido ? ' completo' : '')}>
-        <button type="button" className="passo-video-player" onClick={assistirVideo}>
-          <span className="passo-video-play"><Icon name="play" size={20} /></span>
-          <span className="passo-video-duration">2:47</span>
-        </button>
+      <div className={'passo-video-card' + (videoAssistido ? ' completo' : '') + (tocando ? ' tocando' : '')}>
+        {tocando ? (
+          <div className="passo-video-player tocando">
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0${video.legenda}`}
+              title={t('passos.videoTitulo')}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              allowFullScreen
+            />
+          </div>
+        ) : (
+          <button type="button" className="passo-video-player" onClick={assistirVideo} style={{ backgroundImage: `url(https://i.ytimg.com/vi/${video.id}/hqdefault.jpg)` }}>
+            <span className="passo-video-play"><Icon name="play" size={20} /></span>
+          </button>
+        )}
         <div className="passo-video-info">
           <div className="passo-video-head">
             <h3>{t('passos.videoTitulo')}</h3>

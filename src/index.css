@@ -162,7 +162,7 @@ input,select{font-family:var(--font-b);}
 .hero-row .hist-nova-btn{width:auto;white-space:nowrap;flex:0 0 auto;padding:12px 20px;margin-top:2px;}
 .hist-count{white-space:nowrap;margin-left:auto;}
 
-/* Configurações — Marketplaces */
+/* Configurações, Marketplaces */
 .config-mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
 @media (max-width:980px){ .config-mp-grid{grid-template-columns:1fr 1fr;} }
 @media (max-width:700px){ .config-mp-grid{grid-template-columns:1fr;} }
@@ -218,7 +218,7 @@ input[type=text],input[type=number],input[type=url],select,textarea{
   border-radius:var(--radius-m);padding:12px 14px;font-size:14px;width:100%;transition:.15s;
 }
 textarea{font-family:var(--font-b);resize:vertical;min-height:90px;line-height:1.5;}
-/* Cresce junto com o texto digitado (altura ajustada via JS) — sem o puxador
+/* Cresce junto com o texto digitado (altura ajustada via JS), sem o puxador
    de resize manual, que não faz sentido numa caixa que já se ajusta sozinha. */
 .ger-textarea-auto{resize:none;overflow:hidden;}
 input::placeholder,textarea::placeholder{color:var(--text-3);}
@@ -290,7 +290,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 
 /* Chips (canal) */
 .chip-row{display:flex;gap:8px;background:#f4f5f4;border-radius:12px;padding:5px;width:fit-content;flex-wrap:wrap;}
-/* Filtro de status (Meus Anúncios) — mesma linguagem visual dos controles
+/* Filtro de status (Meus Anúncios), mesma linguagem visual dos controles
    de filtro ao lado (.ctl-btn/PopoverList): fundo branco, borda, rótulo. */
 .ma-filtro-status{
   display:flex;align-items:center;gap:9px;border:1px solid var(--border-strong);background:var(--surface);
@@ -385,7 +385,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .btn-calc:hover{filter:brightness(1.04);}
 .actions-secondary{display:flex;gap:10px;justify-content:center;margin-top:14px;}
 
-/* Calculadora — layout "mesa de impressão" (ver PrecoPanel.tsx e o direction
+/* Calculadora, layout "mesa de impressão" (ver PrecoPanel.tsx e o direction
    contract em .impeccable/surfaces/). Duas colunas no desktop: formulário +
    painel de preço fixo; no mobile o painel sobe pra logo abaixo do título. */
 .calc-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start;}
@@ -439,7 +439,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
   padding:8px 12px;text-align:center;
 }
 
-/* "Mesa de impressão": composição de custos como camadas empilhadas — a mesma
+/* "Mesa de impressão": composição de custos como camadas empilhadas, a mesma
    metáfora de uma peça crescendo camada por camada, do material até o lucro. */
 .mesa-impressao{display:flex;flex-direction:column;gap:10px;}
 .mesa-camadas{display:flex;height:34px;border-radius:8px;overflow:hidden;background:var(--page-bg);}
@@ -522,7 +522,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 
 .painel-modo-toggle{margin-top:4px;flex:0 0 auto;}
 
-/* Empty state do Painel (sem marketplace conectado) — réplica do print de produção */
+/* Empty state do Painel (sem marketplace conectado), réplica do print de produção */
 .btn-dark.pill{border-radius:999px;padding:13px 22px;}
 .onb-tag{
   display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;letter-spacing:.04em;
@@ -583,7 +583,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .onb-feature-card p{color:var(--text-2);font-size:13.5px;margin-bottom:18px;}
 @media (max-width:760px){ .onb-features-row{grid-template-columns:1fr;} }
 
-/* Empty state — variante "Ferramentas primeiro" (teste do funil de adoção) */
+/* Empty state, variante "Ferramentas primeiro" (teste do funil de adoção) */
 .onb-tag-muted{color:var(--text-3);}
 .onb-tools-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;}
 .onb-tool-card{
@@ -629,7 +629,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .onb-preview-popup svg{color:var(--text-3);}
 .onb-preview-popup p{color:var(--text-1);font-size:14px;font-weight:700;margin:0;}
 
-/* Primeiros passos — checklist em cards */
+/* Primeiros passos, checklist em cards */
 .passos-progresso-row{display:flex;align-items:center;gap:14px;margin-bottom:26px;}
 .passos-progresso-bar{flex:1;height:8px;border-radius:999px;background:var(--border);overflow:hidden;}
 .passos-progresso-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:999px;transition:width .3s ease;}
@@ -645,6 +645,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
   border:none;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;
   padding:0;overflow:hidden;
 }
+.passo-video-player{background-size:cover;background-position:center;}
+.passo-video-player.tocando{cursor:default;}
+.passo-video-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.passo-video-card.tocando .passo-video-player{flex:1 1 100%;width:100%;max-width:720px;}
+.passo-video-card.tocando .passo-video-info{flex-basis:100%;}
 .passo-video-play{
   width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.55);
   color:#fff;display:flex;align-items:center;justify-content:center;padding-left:3px;
@@ -928,7 +933,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .prod-table td{padding:14px 16px;border-top:1px solid var(--border);vertical-align:top;}
 .prod-name{font-weight:600;font-size:13.5px;}
 .prod-sku{font-size:11.5px;color:var(--text-3);margin-top:2px;}
-/* Cor por marketplace — ver src/lib/marketplaceTag.ts. Base = tom neutro pra
+/* Cor por marketplace, ver src/lib/marketplaceTag.ts. Base = tom neutro pra
    quem não é nenhum dos 4 mapeados (Outros, Amazon, Venda direta...). */
 .mp-tag{background:#f1f2f1;color:var(--text-2);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
 .mp-tag-ml{background:#fff2d9;color:#8a5a00;}
@@ -1098,7 +1103,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .auth-card .field{text-align:left;}
 .auth-card .btn-calc{width:100%;}
 
-/* Histórico — experimento de organização (Pastas x Marcadores) */
+/* Histórico, experimento de organização (Pastas x Marcadores) */
 .cluster-modo-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
 .cluster-modo-toggle{display:flex;border:1px solid var(--border-strong);border-radius:var(--radius-m);overflow:hidden;}
 .cluster-modo-toggle button{
@@ -1280,10 +1285,10 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 
 .ger-secao-titulo{font-size:16px;font-weight:800;margin:38px 0 20px;}
 /* Gerador: cards internos (.ger-subcard) pedem mais respiro que o padrão do
-   resto do app — gap maior só aqui, sem afetar os .card-body genéricos. */
+   resto do app, gap maior só aqui, sem afetar os .card-body genéricos. */
 /* Cards do Gerador nunca têm .card-head, então o topo fica sem padding por padrão: iguala ao padding de baixo (26px). */
 .ger-subcard .card-body{gap:26px;padding-top:26px;}
-/* Dentro de um .card-body (flex com gap — ver regra acima), a margem do
+/* Dentro de um .card-body (flex com gap, ver regra acima), a margem do
    título soma com o gap, afastando ele quase igualmente do que vem antes e
    do que vem depois (perdendo a hierarquia "título gruda no conteúdo que
    introduz"). Aqui a margem já desconta o gap: mais espaço antes, bem menos
@@ -1358,7 +1363,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .ger-subcard{margin-bottom:26px;}
 /* Título do próprio card (ex.: "Idioma do anúncio", "Informações do
    produto") + seu subtítulo direto: diferente de um divisor de seção, aqui
-   não tem "separação do que veio antes" — é a primeira linha do card. Com o
+   não tem "separação do que veio antes", é a primeira linha do card. Com o
    gap do .card-body (26px) descontado, fica colado no subtítulo que
    apresenta. Seletor de filho direto pra não pegar o <h3> de dentro de um
    .ger-narracao-head (esse fica em fluxo normal, sem o gap do card-body). */
@@ -1950,7 +1955,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 
 .busc-count-row{display:flex;justify-content:flex-end;margin-bottom:26px;}
 
-/* Dropdown "Filtros" do Buscador — Categoria + Vendas mínimas */
+/* Dropdown "Filtros" do Buscador, Categoria + Vendas mínimas */
 .filtros-busc-panel{min-width:260px;max-height:min(70vh,460px);overflow-y:auto;}
 .filtros-busc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:2px 4px 8px;}
 .filtros-busc-head h4{font-size:14.5px;font-weight:700;}
@@ -1984,7 +1989,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
   text-align:center;color:var(--text-3);font-size:13.5px;
 }
 
-/* Faixa horizontal com scroll — uma camada/categoria do Buscador. */
+/* Faixa horizontal com scroll, uma camada/categoria do Buscador. */
 .busc-row-scroll{display:flex;gap:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;}
 .busc-card{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);box-shadow:var(--shadow-card);
@@ -2019,8 +2024,8 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .busc-card-preco-original{font-size:12px;font-weight:600;color:var(--text-3);text-decoration:line-through;}
 .busc-card-vendas{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3);}
 
-/* Assistente — v2: início com caixa central + 4 sugestões; conversa em turnos
-   (pergunta presa no topo + resposta). Sem IA ainda — ver lib/assistenteRespostas.ts. */
+/* Assistente, v2: início com caixa central + 4 sugestões; conversa em turnos
+   (pergunta presa no topo + resposta). Sem IA ainda, ver lib/assistenteRespostas.ts. */
 .assist-inicio{display:flex;flex-direction:column;align-items:center;gap:22px;max-width:680px;margin:0 auto;padding:12vh 0 40px;}
 .assist-inicio h2{font-size:24px;font-weight:800;color:var(--text-1);text-align:center;}
 .assist-sugestoes{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
@@ -2119,7 +2124,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 }
 .topbar-nova-conversa:hover{filter:brightness(1.07);}
 
-/* Marketing — Logo/Banners/Etiquetas, v1 mockada (ver docs/spec-marketing-leigos.md). */
+/* Marketing, Logo/Banners/Etiquetas, v1 mockada (ver docs/spec-marketing-leigos.md). */
 .mkt-empty{
   display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
   padding:56px 20px;color:var(--text-2);border:1px dashed var(--border-strong);border-radius:var(--radius-l);
@@ -2281,7 +2286,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .mkt-etiqueta-produto{font-weight:700;color:var(--text-1);margin-bottom:6px;}
 .mkt-etiqueta-item p{margin:0;color:var(--text-2);}
 
-/* Decoração de loja (Shopee) — Capa + Carrossel, ver docs/spec-decoracao-loja-shopee.md */
+/* Decoração de loja (Shopee), Capa + Carrossel, ver docs/spec-decoracao-loja-shopee.md */
 .mkt-decor-canvas{max-width:100%;height:auto;border-radius:var(--radius-m);border:1px solid var(--border);display:block;margin-top:14px;}
 .mkt-decor-resultado{margin-top:4px;}
 .mkt-decor-validado{
@@ -2295,7 +2300,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
   aspect-ratio:16/9;border-radius:var(--radius-m);background:repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px;
 }
 
-/* Folhas de impressão das etiquetas — invisíveis na tela, só existem pro navegador
+/* Folhas de impressão das etiquetas, invisíveis na tela, só existem pro navegador
    imprimir/exportar em PDF. Uma .etiquetas-print-folha por grupo de 4 pedidos,
    cada uma com o tamanho exato de uma página A4 (page-break-after garante 4 por folha). */
 .etiquetas-print-sheet{display:none;}
@@ -2373,7 +2378,7 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 .cfg-ext-aviso{margin-top:14px;font-size:12px;color:var(--text-3);}
 @media (max-width:860px){.cfg-ext-passos{grid-template-columns:1fr;}.cfg-ext-card{padding:20px;}}
 
-/* Aviso de vigência das regras de comissão (Shopee) — recolhido por padrão */
+/* Aviso de vigência das regras de comissão (Shopee), recolhido por padrão */
 .canal-vigencia{background:#fff8e6;border:1px solid #f3dd9b;color:#6b5200;border-radius:12px;margin:8px 0 12px;font-size:13px;line-height:1.5;}
 .canal-vigencia-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:10px 14px;font:inherit;color:inherit;cursor:pointer;text-align:left;}
 .canal-vigencia-acao{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:12.5px;white-space:nowrap;}
