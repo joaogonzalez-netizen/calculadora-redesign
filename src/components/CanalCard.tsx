@@ -57,11 +57,9 @@ const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
   { value: 'outra', labelKey: 'calc.catOutraCategoria' },
 ];
 
-export default function CanalCard({ onCopiarParaCanal }: { onCopiarParaCanal?: (canal: Canal) => boolean }) {
+export default function CanalCard() {
   // Aviso de vigência das regras da Shopee: começa recolhido, expande no clique.
   const [vigenciaAberta, setVigenciaAberta] = useState(false);
-  const [copiando, setCopiando] = useState(false);
-  const [avisoCopia, setAvisoCopia] = useState<string | null>(null);
   const { state, set, errorIds, resultado } = useCalculadora();
   const { prefs } = useLibrarias();
   const { t, idioma } = useI18n();
@@ -70,15 +68,6 @@ export default function CanalCard({ onCopiarParaCanal }: { onCopiarParaCanal?: (
 
   function selectCanal(canal: Canal) {
     set('canalAtivo', canal);
-    setAvisoCopia(null);
-  }
-
-  // Duplica o cálculo atual: salva o que está na tela (se completo) e abre a cópia no canal escolhido.
-  function copiarPara(canal: Canal) {
-    const salvou = onCopiarParaCanal ? onCopiarParaCanal(canal) : (set('canalAtivo', canal), false);
-    setCopiando(false);
-    const nome = t(CANAL_LABEL_KEYS[canal]);
-    setAvisoCopia(t(salvou ? 'calc.copiadoPara' : 'calc.copiadoParaSemSalvar').replace('{canal}', nome));
   }
 
   function selectPgto(id: PgtoId, taxa: number) {
@@ -152,25 +141,6 @@ export default function CanalCard({ onCopiarParaCanal }: { onCopiarParaCanal?: (
           <button key={c} type="button" className={'chip' + (state.canalAtivo === c ? ' active' : '')} onClick={() => selectCanal(c)}>{t(CANAL_LABEL_KEYS[c])}</button>
         ))}
       </div>
-
-      {onCopiarParaCanal && canaisVisiveis.length > 1 && (
-        <div className="canal-copiar">
-          <button type="button" className="btn-outline canal-copiar-btn" aria-expanded={copiando} onClick={() => setCopiando(!copiando)}>
-            <Icon name="copy" size={14} /> {t('calc.copiarParaOutroCanal')}
-          </button>
-          {copiando && (
-            <div className="canal-copiar-menu" role="group" aria-label={t('calc.copiarParaOutroCanal')}>
-              <p>{t('calc.copiarExplica')}</p>
-              <div className="chip-row">
-                {canaisVisiveis.filter((c) => c !== state.canalAtivo).map((c) => (
-                  <button key={c} type="button" className="chip" onClick={() => copiarPara(c)}>{t(CANAL_LABEL_KEYS[c])}</button>
-                ))}
-              </div>
-            </div>
-          )}
-          {avisoCopia && <div className="canal-copiar-aviso" role="status">{avisoCopia}</div>}
-        </div>
-      )}
 
       {state.canalAtivo === 'Venda direta' && (
         <>

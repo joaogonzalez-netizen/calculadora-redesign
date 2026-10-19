@@ -157,6 +157,8 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       potMensal: resultado.potMensal,
       taxaFalha: state.taxaFalha,
       custoKwh: state.custoKwh,
+      precoKwh: state.precoKwh,
+      accItems: JSON.parse(JSON.stringify(state.accItems)),
       peso: state.filamentoItems.reduce((s, f) => s + (f.pesoG || 0), 0),
       filamentoItems: JSON.parse(JSON.stringify(state.filamentoItems)),
       tempoH: state.horasImpressao + state.minutosImpressao / 60,
@@ -185,6 +187,8 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       ...prev,
       nomePeca: h.nome || '',
       custoKwh: h.custoKwh || 0,
+      precoKwh: h.precoKwh ?? prev.precoKwh,
+      accItems: h.accItems?.length ? h.accItems.map((a) => novoAccItem(a.nome, a.valor, a.categoria)) : prev.accItems,
       quantidade: h.qtd || 1,
       taxaFalha: h.taxaFalha || 2,
       filamentoItems: h.filamentoItems && h.filamentoItems.length

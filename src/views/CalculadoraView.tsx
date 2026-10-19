@@ -9,7 +9,6 @@ import CanalCard from '../components/CanalCard';
 import CustosExtrasCard from '../components/CustosExtrasCard';
 import AdsCard from '../components/AdsCard';
 import ResumoCard from '../components/ResumoCard';
-import type { Canal } from '../types';
 import { limparOrigemCatalogo, marcarOrigemCatalogo, veioDoCatalogo } from '../lib/origemCalculadora';
 
 // Layout de coluna única, igual ao da tela de produção (captura de 14/10/2026):
@@ -27,7 +26,7 @@ function layoutInicial(): LayoutCalc {
 }
 
 export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved: () => void; onVoltarCatalogo?: () => void }) {
-  const { faltando, calcularClick, salvarHistorico, patch } = useCalculadora();
+  const { faltando, calcularClick, salvarHistorico } = useCalculadora();
   const { t } = useI18n();
   const [layout, setLayout] = useState<LayoutCalc>(layoutInicial);
   const lateral = layout === 'lateral';
@@ -66,14 +65,6 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
     onSaved();
   }
 
-  // Copiar para outro canal: salva o cálculo atual (se estiver completo) e troca o canal, mantendo todo o resto.
-  function handleCopiarParaCanal(canal: Canal): boolean {
-    const completo = faltando.length === 0;
-    if (completo) { salvarHistorico(); onSaved(); }
-    patch({ canalAtivo: canal });
-    return completo;
-  }
-
   return (
     <div className={lateral ? 'calc-lateral' : 'calc-coluna'}>
       <div className="cluster-modo-row">
@@ -104,7 +95,7 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
       <ModeloCard />
       <ImpressaoCard />
       <PrecificacaoCard />
-      <CanalCard onCopiarParaCanal={handleCopiarParaCanal} />
+      <CanalCard />
       <CustosExtrasCard />
       <AdsCard />
 

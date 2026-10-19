@@ -59,6 +59,9 @@ export interface Preferencias {
 
 export interface HistoricoEntry {
   id: number; // Date.now()
+  // Guardados para que copiar o cálculo para outro canal mantenha os extras e o preço do kWh.
+  accItems?: AccItem[];
+  precoKwh?: number;
   nome: string;
   marketplace: Canal;
   custoUnit: number;

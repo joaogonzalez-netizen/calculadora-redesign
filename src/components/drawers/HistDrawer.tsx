@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import type { HistoricoEntry } from '../../types';
 import { brl } from '../../lib/format';
 import { getHistorico, saveHistoricoArr } from '../../lib/storage';
+import type { Canal } from '../../types';
+import { CANAIS, CANAL_LABEL_KEYS } from '../../lib/canal';
+import { CALC_CANAIS_VISIVEIS } from '../../lib/versoes';
 import { useCalculadora } from '../../context/CalculadoraContext';
 import { useI18n } from '../../context/I18nContext';
 
@@ -13,11 +16,12 @@ interface Props {
 }
 
 export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculadora }: Props) {
-  const { restaurarHistorico } = useCalculadora();
-  const { t } = useI18n();
+  const { restaurarHistorico, patch } = useCalculadora();
+  const { t, idioma } = useI18n();
   const [nome, setNome] = useState('');
+  const [copiando, setCopiando] = useState(false);
 
-  useEffect(() => { setNome(entry?.nome || ''); }, [entry]);
+  useEffect(() => { setNome(entry?.nome || ''); setCopiando(false); }, [entry]);
 
   if (!entry) return null;
 
@@ -42,6 +46,15 @@ export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculad
     onAbrirNaCalculadora();
     onClose();
   }
+
+  // Duplica o cálculo: abre a Calculadora com os mesmos dados no canal escolhido. O original fica no histórico.
+  function copiarParaCanal(canal: Canal) {
+    restaurarHistorico(entry!);
+    patch({ canalAtivo: canal });
+    onAbrirNaCalculadora();
+    onClose();
+  }
+  const outrosCanais = CANAIS.filter((c) => CALC_CANAIS_VISIVEIS[idioma].includes(c) && c !== entry.marketplace);
 
   const filLines = entry.filamentoItems && entry.filamentoItems.length
     ? entry.filamentoItems.map((f, i) => (
@@ -81,6 +94,19 @@ export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculad
         <div className="divider-label">{t('calc.acoes')}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
           <button className="btn-outline" onClick={abrirNaCalculadora}>📂 {t('calc.abrirNaCalculadora')}</button>
+          {outrosCanais.length > 0 && (
+            <>
+              <button className="btn-outline" aria-expanded={copiando} onClick={() => setCopiando(!copiando)}>⧉ {t('calc.copiarParaOutroCanal')}</button>
+              {copiando && (
+                <div className="canal-copiar-menu" role="group" aria-label={t('calc.copiarParaOutroCanal')}>
+                  <p>{t('calc.copiarExplica')}</p>
+                  <div className="chip-row">
+                    {outrosCanais.map((c) => <button key={c} type="button" className="chip" onClick={() => copiarParaCanal(c)}>{t(CANAL_LABEL_KEYS[c])}</button>)}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           <button className="btn-outline" style={{ borderColor: 'var(--red)', color: 'var(--red)' }} onClick={excluir}>🗑 {t('calc.excluirCalculo')}</button>
         </div>
       </div>
