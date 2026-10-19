@@ -18,6 +18,11 @@ export const IDIOMAS_DISPONIVEIS: { id: Idioma; label: string; bandeira: string 
 type Dicionario = Record<string, string>;
 
 const pt: Dicionario = {
+  'calc.copiarParaOutroCanal': 'Copiar para outro canal',
+  'calc.copiarExplica': 'Escolha o canal. O cálculo atual é salvo no histórico e uma cópia abre no canal escolhido, pronta para ajustar o preço.',
+  'calc.copiadoPara': 'Cópia aberta em {canal}. Ajuste o preço e salve.',
+  'calc.copiadoParaSemSalvar': 'Cópia aberta em {canal}. O cálculo anterior não foi salvo porque ainda está incompleto.',
+  'calc.copiarFechar': 'Fechar',
   'calc.grupoPecaImpressao': 'Peça & impressão',
   'calc.grupoPrecoCanal': 'Preço & canal',
   'calc.grupoExtras': 'Extras',
@@ -1530,6 +1535,11 @@ const pt: Dicionario = {
 };
 
 const en: Dicionario = {
+  'calc.copiarParaOutroCanal': 'Copy to another channel',
+  'calc.copiarExplica': 'Pick the channel. The current calculation is saved to history and a copy opens in the chosen channel, ready for you to adjust the price.',
+  'calc.copiadoPara': 'Copy opened in {canal}. Adjust the price and save.',
+  'calc.copiadoParaSemSalvar': 'Copy opened in {canal}. The previous calculation was not saved because it is incomplete.',
+  'calc.copiarFechar': 'Close',
   'calc.grupoPecaImpressao': 'Piece & printing',
   'calc.grupoPrecoCanal': 'Price & channel',
   'calc.grupoExtras': 'Extras',
@@ -1886,6 +1896,11 @@ const en: Dicionario = {
 };
 
 const es: Dicionario = {
+  'calc.copiarParaOutroCanal': 'Copiar a otro canal',
+  'calc.copiarExplica': 'Elegí el canal. El cálculo actual se guarda en el historial y se abre una copia en el canal elegido, lista para ajustar el precio.',
+  'calc.copiadoPara': 'Copia abierta en {canal}. Ajustá el precio y guardá.',
+  'calc.copiadoParaSemSalvar': 'Copia abierta en {canal}. El cálculo anterior no se guardó porque está incompleto.',
+  'calc.copiarFechar': 'Cerrar',
   'calc.grupoPecaImpressao': 'Pieza e impresión',
   'calc.grupoPrecoCanal': 'Precio y canal',
   'calc.grupoExtras': 'Extras',
