@@ -120,9 +120,6 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
 
         <div className="nav-label">{t('nav.marketing')}</div>
         <NavItem icon="crown" label={t('nav.geradorLogo')} active={view === 'marketing-logo'} collapsed={collapsed} onClick={() => onNavigate('marketing-logo')} />
-        <NavItem icon="list" label={t('nav.geradorBanners')} active={view === 'marketing-banners'} collapsed={collapsed} onClick={() => onNavigate('marketing-banners')} />
-        <NavItem icon="tag" label={t('nav.etiquetasAgradecimento')} active={view === 'marketing-etiquetas'} collapsed={collapsed} onClick={() => onNavigate('marketing-etiquetas')} />
-        <NavItem icon="home" label={t('nav.decoracaoLoja')} active={view === 'marketing-decoracao'} collapsed={collapsed} onClick={() => onNavigate('marketing-decoracao')} />
 
         <div className="nav-label">{t('nav.sistema')}</div>
         {mostrarConfiguracoes && (
