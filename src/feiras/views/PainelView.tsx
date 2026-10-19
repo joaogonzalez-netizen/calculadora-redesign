@@ -36,7 +36,7 @@ export default function PainelView() {
     return (
       <Pagina titulo="Painel">
         <div className="fe-card"><Vazio titulo="Vamos registrar o primeiro contato" texto="No ponto de venda, toque em “Contato rápido” a cada pessoa que passar por lá. Depois é só acompanhar aqui."
-          acao={<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}><button className="fe-btn fe-btn-primary" onClick={() => abrir('lead')}><Icon name="plus" /> Registrar lead</button><button className="fe-btn fe-btn-outline" onClick={carregarExemplo}>Carregar dados de exemplo</button></div>} /></div>
+          acao={<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}><button className="fe-btn fe-btn-primary" onClick={() => abrir('lead')}><Icon name="plus" /> Registrar contato</button><button className="fe-btn fe-btn-outline" onClick={carregarExemplo}>Carregar dados de exemplo</button></div>} /></div>
       </Pagina>
     );
   }
