@@ -112,7 +112,7 @@ export default function FilaView() {
   };
 
   return (
-    <Pagina titulo="Fila de pedidos" sub="O que precisa ser impresso e despachado, de todos os canais num lugar só."
+    <Pagina titulo="Fila de produção" sub="O que precisa ser impresso e despachado, de todos os canais num lugar só."
       acoes={<button className="fe-btn fe-btn-primary" onClick={() => abrir('pedido')}><Icon name="plus" /> Novo pedido de venda física</button>}>
       <div className="fe-grid-kpi">
         <div className="fe-card fe-kpi fe-hi"><div className="fe-l">Na fila agora</div><div className="fe-v">{visiveis.filter((c) => c.etapa === 'fila').length}</div><div className="fe-s">pedidos esperando para imprimir</div></div>
