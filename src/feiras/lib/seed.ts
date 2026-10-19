@@ -54,6 +54,10 @@ function exemplo(): Db {
       neg('n3', 'c1', 'Capivaras para revenda (atacado)', 1480, 'orcamento', 'quente', f1, -1, 1),
       neg('n4', 'c2', '3 luminárias Lua', 690, 'negociando', 'morno', f1, 1, 1),
       neg('n5', 'c4', '20 vasos espiral M', 2100, 'fechado', 'quente', f2, null, 38, { pedidoId: 'o1' }),
+      neg('n7', 'c3', '40 chaveiros com a logo da padaria', 310, 'fechado', 'quente', f1, null, 3, { pedidoId: 'o2' }),
+      neg('n8', 'c1', '24 capivaras para revenda', 461, 'fechado', 'quente', f1, null, 2, { pedidoId: 'o3' }),
+      neg('n9', 'c2', '3 luminárias Lua', 329, 'fechado', 'morno', f1, null, 5, { pedidoId: 'o4' }),
+      neg('n10', 'c6', '30 chaveiros personalizados', 232, 'fechado', 'quente', f1, null, 6, { pedidoId: 'o5' }),
       neg('n6', 'c5', '12 suportes de cardápio', 540, 'perdido', 'frio', f2, null, 38, { motivoPerda: 'Achou caro frente à impressão do concorrente' }),
     ],
     prospectos: [],
@@ -61,6 +65,22 @@ function exemplo(): Db {
       {
         id: 'o1', clienteId: 'c4', negocioId: 'n5', feiraId: f2, status: 'Pago', dataPedido: addDias(-35), entrega: addDias(-28), obs: 'Pagamento via Pix.',
         itens: [{ produtoId: 'p1', nome: 'Vaso Espiral M', qtd: 20, unit: 105, custoUnit: 36.4, tempoH: 3.5 }],
+      },
+      {
+        id: 'o2', clienteId: 'c3', negocioId: 'n7', feiraId: f1, status: 'Imprimindo', dataPedido: addDias(-3), entrega: addDias(3), obs: 'Logo enviada por WhatsApp.',
+        itens: [{ produtoId: 'p5', nome: 'Chaveiro Personalizado', qtd: 40, unit: 7.74, custoUnit: 2.58, tempoH: 0.4 }],
+      },
+      {
+        id: 'o3', clienteId: 'c1', negocioId: 'n8', feiraId: f1, status: 'Na fila', dataPedido: addDias(-2), entrega: addDias(6), obs: '',
+        itens: [{ produtoId: 'p2', nome: 'Capivara Sentada', qtd: 24, unit: 19.2, custoUnit: 6.4, tempoH: 2 }],
+      },
+      {
+        id: 'o4', clienteId: 'c2', negocioId: 'n9', feiraId: f1, status: 'Pronto', dataPedido: addDias(-5), entrega: addDias(1), obs: 'Retirada no ponto de venda.',
+        itens: [{ produtoId: 'p4', nome: 'Luminária Lua', qtd: 3, unit: 109.8, custoUnit: 36.6, tempoH: 8 }],
+      },
+      {
+        id: 'o5', clienteId: 'c6', negocioId: 'n10', feiraId: f1, status: 'Na fila', dataPedido: addDias(-6), entrega: addDias(-1), obs: 'Cores: preto e verde.',
+        itens: [{ produtoId: 'p5', nome: 'Chaveiro Personalizado', qtd: 30, unit: 7.74, custoUnit: 2.58, tempoH: 0.4 }],
       },
     ],
   };
