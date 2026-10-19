@@ -8,19 +8,20 @@ import PedidoMarketplaceDrawer from '../../components/pedidos/PedidoDrawer';
 import { Pagina } from '../components/ui';
 import Icon from '../components/Icon';
 
-type Etapa = 'fila' | 'imprimindo' | 'pronto' | 'concluido';
+type Etapa = 'fila' | 'imprimindo' | 'preparacao' | 'pronto' | 'concluido';
 type Origem = 'Mercado Livre' | 'Shopee' | 'Venda física';
 
 const ETAPAS: { id: Etapa; label: string; hint: string }[] = [
   { id: 'fila', label: 'Na fila', hint: 'Pago e esperando para imprimir' },
   { id: 'imprimindo', label: 'Imprimindo', hint: 'Na mesa agora' },
+  { id: 'preparacao', label: 'Em preparação para envio', hint: 'Acabamento, embalagem e etiqueta' },
   { id: 'pronto', label: 'Pronto para envio', hint: 'Impresso, falta despachar ou entregar' },
   { id: 'concluido', label: 'Concluídos', hint: 'Enviados ou entregues' },
 ];
 
 // Venda física: etapa da fila <-> status do pedido da feira.
-const STATUS_DA_ETAPA: Record<Etapa, StatusPedido> = { fila: 'Na fila', imprimindo: 'Imprimindo', pronto: 'Pronto', concluido: 'Entregue' };
-const ETAPA_DO_STATUS: Partial<Record<StatusPedido, Etapa>> = { 'Na fila': 'fila', Imprimindo: 'imprimindo', Pronto: 'pronto', Entregue: 'concluido', Pago: 'concluido' };
+const STATUS_DA_ETAPA: Record<Etapa, StatusPedido> = { fila: 'Na fila', imprimindo: 'Imprimindo', preparacao: 'Em preparação para envio', pronto: 'Pronto', concluido: 'Entregue' };
+const ETAPA_DO_STATUS: Partial<Record<StatusPedido, Etapa>> = { 'Na fila': 'fila', Imprimindo: 'imprimindo', 'Em preparação para envio': 'preparacao', Pronto: 'pronto', Entregue: 'concluido', Pago: 'concluido' };
 
 // Marketplace: o mock só conhece Pago/Enviado/Entregue. Mover o cartão guarda a etapa aqui.
 const KEY_ETAPAS = 'stlseller.fila.etapas.v1';

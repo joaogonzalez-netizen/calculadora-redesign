@@ -1,7 +1,7 @@
 export type Etapa = 'novo' | 'conversa' | 'orcamento' | 'negociando' | 'fechado' | 'perdido';
 export type Temperatura = 'frio' | 'morno' | 'quente';
 export type TipoContato = 'presencial' | 'whatsapp' | 'ligacao' | 'email' | 'prospeccao';
-export type StatusPedido = 'Na fila' | 'Imprimindo' | 'Pronto' | 'Entregue' | 'Pago' | 'Cancelado';
+export type StatusPedido = 'Na fila' | 'Imprimindo' | 'Em preparação para envio' | 'Pronto' | 'Entregue' | 'Pago' | 'Cancelado';
 
 export interface Contato {
   id: string;
@@ -131,7 +131,7 @@ export const ETAPAS: { id: Etapa; label: string; hint: string }[] = [
   { id: 'perdido', label: 'Perdido', hint: 'Não avançou' },
 ];
 
-export const STATUS_PEDIDO: StatusPedido[] = ['Na fila', 'Imprimindo', 'Pronto', 'Entregue', 'Pago', 'Cancelado'];
+export const STATUS_PEDIDO: StatusPedido[] = ['Na fila', 'Imprimindo', 'Em preparação para envio', 'Pronto', 'Entregue', 'Pago', 'Cancelado'];
 export const TIPOS_CONTATO: { id: TipoContato; label: string }[] = [
   { id: 'presencial', label: 'No ponto de venda' },
   { id: 'whatsapp', label: 'WhatsApp' },

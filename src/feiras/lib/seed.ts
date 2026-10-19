@@ -9,7 +9,7 @@ export const dbVazio = (): Db => ({
 /** Os ids do exemplo ganham um sufixo único: no Supabase a chave primária é global. */
 export function dbExemplo(): Db {
   const suf = '-' + uid().slice(0, 6);
-  return JSON.parse(JSON.stringify(exemplo()).replace(/"(f-geek|f-maker|[pcno]\d|c\dc1)"/g, (_, id) => `"${id}${suf}"`));
+  return JSON.parse(JSON.stringify(exemplo()).replace(/"(f-geek|f-maker|[pcno]\d+|c\dc1)"/g, (_, id) => `"${id}${suf}"`));
 }
 
 function exemplo(): Db {
@@ -58,6 +58,7 @@ function exemplo(): Db {
       neg('n8', 'c1', '24 capivaras para revenda', 461, 'fechado', 'quente', f1, null, 2, { pedidoId: 'o3' }),
       neg('n9', 'c2', '3 luminárias Lua', 329, 'fechado', 'morno', f1, null, 5, { pedidoId: 'o4' }),
       neg('n10', 'c6', '30 chaveiros personalizados', 232, 'fechado', 'quente', f1, null, 6, { pedidoId: 'o5' }),
+      neg('n11', 'c4', '12 porta-lápis para o studio', 276, 'fechado', 'quente', f2, null, 4, { pedidoId: 'o6' }),
       neg('n6', 'c5', '12 suportes de cardápio', 540, 'perdido', 'frio', f2, null, 38, { motivoPerda: 'Achou caro frente à impressão do concorrente' }),
     ],
     prospectos: [],
@@ -81,6 +82,10 @@ function exemplo(): Db {
       {
         id: 'o5', clienteId: 'c6', negocioId: 'n10', feiraId: f1, status: 'Na fila', dataPedido: addDias(-6), entrega: addDias(-1), obs: 'Cores: preto e verde.',
         itens: [{ produtoId: 'p5', nome: 'Chaveiro Personalizado', qtd: 30, unit: 7.74, custoUnit: 2.58, tempoH: 0.4 }],
+      },
+      {
+        id: 'o6', clienteId: 'c4', negocioId: 'n11', feiraId: f2, status: 'Em preparação para envio', dataPedido: addDias(-4), entrega: addDias(2), obs: 'Embalar em caixa individual.',
+        itens: [{ produtoId: 'p6', nome: 'Porta-Lápis Hexagonal', qtd: 12, unit: 22.98, custoUnit: 7.66, tempoH: 1.8 }],
       },
     ],
   };
