@@ -48,7 +48,7 @@ export default function NegocioDrawer() {
 
   function salvar() {
     if (!clienteId) return setErro('Escolha o cliente ou clique em “Novo cliente” para cadastrar.');
-    if (!resumoItens) return setErro('Adicione ao menos um produto do catálogo ou um item avulso.');
+    if (!resumoItens) return setErro('Adicione ao menos um produto da calculadora ou um item avulso.');
     const id = s.salvarNegocio({ id: existente?.id, clienteId, titulo: resumoItens, valor: Math.round(totalItens * 100) / 100, temperatura: temp, proximoContato: prox || null, itens: itensValidos });
     avisar('Negociação salva');
     if (novo) abrir('negocio', id); else fechar();
@@ -188,7 +188,7 @@ export default function NegocioDrawer() {
             <div>
               <div className="fe-sec-title">O que ele quer?</div>
               <ItensEditor itens={itens} onChange={setItens} rotuloTotal="Valor estimado" />
-              {db.produtos.length === 0 && <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--text-3)' }}>O catálogo está vazio: cadastre produtos em Catálogo para escolher aqui. Enquanto isso, descreva o item avulso.</p>}
+              {db.produtos.length === 0 && <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--text-3)' }}>Nenhum cálculo de Venda direta salvo: calcule o produto na Calculadora de preços e salve para escolher aqui. Enquanto isso, descreva o item avulso.</p>}
             </div>
           )}
           {existente && <p style={{ fontSize: 12.5, color: 'var(--text-3)' }}>Valor atual {brl(existente.valor)} · criado em {dataLonga(existente.criadoEm)}</p>}

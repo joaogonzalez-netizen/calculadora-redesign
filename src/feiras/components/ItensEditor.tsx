@@ -39,7 +39,7 @@ export default function ItensEditor({ itens, onChange, rotuloTotal = 'Total do p
             <span className="fe-lbl">{idx === 0 ? 'Produto' : <span style={{ visibility: 'hidden' }}>.</span>}</span>
             {db.produtos.length > 0 && (
               <select value={it.produtoId ?? (avulso(it) ? '__avulso' : '')} onChange={(e) => trocarProduto(idx, e.target.value)}>
-                <option value="">Escolher do catálogo…</option>
+                <option value="">Escolher da calculadora…</option>
                 {db.produtos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
                 <option value="__avulso">Item avulso (digitar)</option>
               </select>
@@ -53,7 +53,7 @@ export default function ItensEditor({ itens, onChange, rotuloTotal = 'Total do p
           <button type="button" className="fe-icon-btn" aria-label="Remover item" onClick={() => onChange(itens.filter((_, i) => i !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
         </div>
       ))}
-      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> Adicionar item do catálogo</button></div>
+      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> Adicionar item da calculadora</button></div>
       <div className="fe-totals"><div><small>{rotuloTotal}</small><br /><b>{brl(total)}</b></div>{custo > 0 && <div style={{ textAlign: 'right' }}><small>Lucro estimado</small><br /><b>{brl(total - custo)}</b></div>}</div>
     </div>
   );
