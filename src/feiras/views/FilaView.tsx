@@ -12,7 +12,7 @@ type Etapa = 'fila' | 'imprimindo' | 'preparacao' | 'pronto' | 'concluido';
 type Origem = 'Mercado Livre' | 'Shopee' | 'Venda física';
 
 const ETAPAS: { id: Etapa; label: string; hint: string }[] = [
-  { id: 'fila', label: 'Na fila', hint: 'Pago e esperando para imprimir' },
+  { id: 'fila', label: 'Na fila', hint: 'Pedidos novos de todos os canais' },
   { id: 'imprimindo', label: 'Imprimindo', hint: 'Na mesa agora' },
   { id: 'preparacao', label: 'Em preparação para envio', hint: 'Acabamento, embalagem e etiqueta' },
   { id: 'pronto', label: 'Pronto para envio', hint: 'Impresso, falta despachar ou entregar' },
@@ -26,7 +26,13 @@ const ETAPA_DO_STATUS: Partial<Record<StatusPedido, Etapa>> = { 'Na fila': 'fila
 // Marketplace: o mock só conhece Pago/Enviado/Entregue. Mover o cartão guarda a etapa aqui.
 const KEY_ETAPAS = 'stlseller.fila.etapas.v1';
 const lerEtapas = (): Record<string, Etapa> => { try { return JSON.parse(localStorage.getItem(KEY_ETAPAS) || '{}'); } catch { return {}; } };
-const etapaBase = (p: PedidoMarketplace): Etapa | null => (p.status === 'Pago' ? 'fila' : p.status === 'Enviado' || p.status === 'Entregue' ? 'concluido' : null);
+// Todo pedido novo do marketplace cai direto na fila (pago ou com pagamento pendente). Cancelado não entra.
+// Quando o marketplace marca Enviado/Entregue, o pedido vai para Concluídos sozinho, mesmo que o cartão tenha sido movido à mão.
+const etapaMarketplace = (p: PedidoMarketplace, manual?: Etapa): Etapa | null => {
+  if (p.status === 'Cancelado') return null;
+  if (p.status === 'Enviado' || p.status === 'Entregue') return 'concluido';
+  return manual ?? 'fila';
+};
 const isoDeBr = (d: string) => { const [dd, mm, aa] = d.split('/'); return `${aa}-${mm}-${dd}`; };
 const somaDias = (iso: string, n: number) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 
@@ -41,6 +47,7 @@ interface Cartao {
   prazo: string;
   valor: number;
   etapa: Etapa;
+  pagamentoPendente?: boolean;
 }
 
 const COR_ORIGEM: Record<Origem, string> = { 'Mercado Livre': 'fe-amber', Shopee: 'fe-red', 'Venda física': 'fe-green' };
@@ -68,11 +75,11 @@ export default function FilaView() {
       }];
     });
     const mkt = PEDIDOS.flatMap((p): Cartao[] => {
-      const base = etapaBase(p);
-      if (!base) return [];
+      const etapa = etapaMarketplace(p, etapas[p.id]);
+      if (!etapa) return [];
       return [{
         chave: 'm:' + p.id, id: p.id, origem: p.marketplace, cliente: p.comprador, resumo: `${p.qtd}× ${p.produto}`, pecas: p.qtd, horas: null,
-        prazo: somaDias(isoDeBr(p.data), 2), valor: p.valorTotal, etapa: etapas[p.id] ?? base,
+        prazo: somaDias(isoDeBr(p.data), 2), valor: p.valorTotal, etapa, pagamentoPendente: p.status === 'Pendente',
       }];
     });
     return [...fisicos, ...mkt].sort((a, b) => a.prazo.localeCompare(b.prazo));
@@ -143,7 +150,7 @@ export default function FilaView() {
                     role="button" tabIndex={0} onClick={() => abrirCartao(c)} onKeyDown={(ev) => ev.key === 'Enter' && abrirCartao(c)} style={{ cursor: 'pointer' }}>
                     <div className="fe-row"><span className="fe-who">{c.cliente}</span><span className={'fe-badge ' + COR_ORIGEM[c.origem]}>{c.origem}</span></div>
                     <div className="fe-what">{c.resumo}</div>
-                    <div className="fe-row"><span className="fe-val">{brl(c.valor)}</span><span className="fe-sub" style={{ color: 'var(--text-3)', fontSize: 12 }}>{c.pecas} {c.pecas === 1 ? 'peça' : 'peças'}{c.horas ? ` · ${c.horas.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} h` : ''}</span></div>
+                    <div className="fe-row"><span className="fe-val">{brl(c.valor)}</span><span className="fe-sub" style={{ color: 'var(--text-3)', fontSize: 12 }}>{c.pagamentoPendente ? 'Pagamento pendente · ' : ''}{c.pecas} {c.pecas === 1 ? 'peça' : 'peças'}{c.horas ? ` · ${c.horas.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} h` : ''}</span></div>
                     {c.etapa !== 'concluido' && <div className={'fe-follow' + (atraso ? ' fe-late' : '')}><Icon name={atraso ? 'alert' : 'clock'} size={13} />Prazo {dataCurta(c.prazo)}</div>}
                   </div>
                 );
