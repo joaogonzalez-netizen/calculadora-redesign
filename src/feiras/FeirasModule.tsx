@@ -6,7 +6,7 @@ import Icon from './components/Icon';
 import PainelView from './views/PainelView';
 import NegociosView from './views/NegociosView';
 import ClientesView from './views/ClientesView';
-import PedidosView from './views/PedidosView';
+import FilaView from './views/FilaView';
 import CatalogoView from './views/CatalogoView';
 import FeirasView from './views/FeirasView';
 import ProspeccaoView from './views/ProspeccaoView';
@@ -48,7 +48,7 @@ function Conteudo() {
       {view === 'painel' && <PainelView />}
       {view === 'negocios' && <NegociosView />}
       {view === 'clientes' && <ClientesView />}
-      {view === 'pedidos' && <PedidosView />}
+      {view === 'fila' && <FilaView />}
       {view === 'catalogo' && <CatalogoView />}
       {view === 'eventos' && <FeirasView />}
       {view === 'prospeccao' && <ProspeccaoView />}

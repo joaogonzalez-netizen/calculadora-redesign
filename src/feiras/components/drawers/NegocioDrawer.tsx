@@ -75,7 +75,7 @@ export default function NegocioDrawer() {
     if (!validos.length) return setErro('Adicione ao menos um item ao pedido.');
     s.fecharNegocio(existente!.id, validos, entrega);
     fechar();
-    avisar('Negócio fechado! Pedido criado na fila.', { label: 'Ver pedidos', fn: () => ir('pedidos') });
+    avisar('Negócio fechado! Pedido criado na fila.', { label: 'Ver fila de pedidos', fn: () => ir('fila') });
   }
 
   const salvarBar = modo === 'ver' ? (

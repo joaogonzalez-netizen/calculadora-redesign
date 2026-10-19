@@ -24,10 +24,10 @@ const CHAVES_TITULO: Record<View, string> = {
   'feiras-painel': 'topbar.title.feiras-painel',
   'feiras-negocios': 'topbar.title.feiras-negocios',
   'feiras-clientes': 'topbar.title.feiras-clientes',
-  'feiras-pedidos': 'topbar.title.feiras-pedidos',
   'feiras-catalogo': 'topbar.title.feiras-catalogo',
   'feiras-eventos': 'topbar.title.feiras-eventos',
   'feiras-prospeccao': 'topbar.title.feiras-prospeccao',
+  'fila-pedidos': 'topbar.title.fila-pedidos',
 };
 
 interface Props {
