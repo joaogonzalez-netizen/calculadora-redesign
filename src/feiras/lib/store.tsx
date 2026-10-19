@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Cliente, Contato, Db, Etapa, Feira, ItemPedido, Negocio, Pedido, Produto, StatusPedido, Temperatura, TipoContato } from './types';
+import type { Cliente, Contato, Db, Etapa, Feira, ItemPedido, Negocio, Pedido, Produto, Prospecto, StatusPedido, Temperatura, TipoContato } from './types';
 import { addDias, hoje, uid } from './format';
 import { dbExemplo, dbVazio } from './seed';
 import { precoAtacado, precoVarejo, custoProduto } from './pricing';
@@ -43,6 +43,10 @@ interface Store {
   excluirProduto: (id: string) => void;
   setConfig: (c: Partial<Db['config']>) => void;
   itemDoProduto: (p: Produto, tipo: 'atacado' | 'varejo', qtd?: number) => ItemPedido;
+
+  adicionarProspecto: (l: { placeId: string; nome: string; telefone: string; endereco: string; bairro: string; tipo: string; site: string }) => { clienteId: string; existente: boolean };
+  descartarProspecto: (placeId: string, nome: string) => void;
+  restaurarProspecto: (placeId: string) => void;
 
   recarregarProdutos: () => void;
   carregarExemplo: () => void;
@@ -232,6 +236,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         unit: Math.round((tipo === 'atacado' ? precoAtacado(p, db.config) : precoVarejo(p, db.config)) * 100) / 100,
         custoUnit: Math.round(custoProduto(p, db.config) * 100) / 100, tempoH: p.tempoH,
       }),
+
+      adicionarProspecto: (l) => {
+        const tel = l.telefone.replace(/\D/g, '');
+        let clienteId = '';
+        let existente = false;
+        up((d) => {
+          const ja = tel ? d.clientes.find((c) => c.telefone.replace(/\D/g, '') === tel) : undefined;
+          existente = !!ja;
+          clienteId = ja?.id ?? uid();
+          const contato: Contato = { id: uid(), data: hoje(), tipo: 'prospeccao', nota: `Encontrado na busca do Google (${l.tipo || 'loja'}). ${l.endereco}` };
+          const clientes = ja ? d.clientes.map((c) => (c.id === ja.id ? { ...c, contatos: [contato, ...c.contatos] } : c)) : [{
+            id: clienteId, nome: l.nome, empresa: l.nome, categoria: l.tipo, telefone: l.telefone, email: '', cidade: l.endereco.split(',').slice(-1)[0]?.replace(/\s*-\s*[A-Z]{2}$/, '').trim() ?? '',
+            obs: l.site ? `Site: ${l.site}` : '', feiraId: null, criadoEm: hoje(), contatos: [contato],
+          } as Cliente, ...d.clientes];
+          const neg: Negocio = {
+            id: uid(), clienteId, titulo: `Prospecção: ${l.nome}`, valor: 0, etapa: 'novo', temperatura: 'frio', feiraId: null,
+            proximoContato: addDias(1), motivoPerda: '', criadoEm: hoje(), atualizadoEm: hoje(), pedidoId: null,
+          };
+          const pr: Prospecto = { id: uid(), placeId: l.placeId, nome: l.nome, status: 'lead', clienteId, atualizadoEm: hoje() };
+          return { ...d, clientes, negocios: [neg, ...d.negocios], prospectos: [pr, ...(d.prospectos ?? []).filter((x) => x.placeId !== l.placeId)] };
+        });
+        return { clienteId, existente };
+      },
+      descartarProspecto: (placeId, nome) => up((d) => ({
+        ...d, prospectos: [{ id: uid(), placeId, nome, status: 'descartado' as const, clienteId: null, atualizadoEm: hoje() }, ...(d.prospectos ?? []).filter((x) => x.placeId !== placeId)],
+      })),
+      restaurarProspecto: (placeId) => up((d) => ({ ...d, prospectos: (d.prospectos ?? []).filter((x) => x.placeId !== placeId) })),
 
       carregarExemplo: () => setDb(dbExemplo()),
       limpar: () => setDb(dbVazio()),

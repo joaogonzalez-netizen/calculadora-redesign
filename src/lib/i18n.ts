@@ -55,6 +55,7 @@ const pt: Dicionario = {
   'nav.feiras.pedidos': 'Encomendas',
   'nav.feiras.catalogo': 'Catálogo',
   'nav.feiras.eventos': 'Pontos de venda (Lojas ou Feiras)',
+  'nav.feiras.prospeccao': 'Prospecção',
   'nav.buscadorProdutos': 'Buscador de produtos',
   'nav.novaCalculadora': 'Nova calculadora',
   'nav.historico': 'Histórico',
@@ -94,6 +95,7 @@ const pt: Dicionario = {
   'topbar.title.feiras-pedidos': 'Encomendas',
   'topbar.title.feiras-catalogo': 'Catálogo',
   'topbar.title.feiras-eventos': 'Pontos de venda (Lojas ou Feiras)',
+  'topbar.title.feiras-prospeccao': 'Prospecção',
 
   'idioma.selecionarIdioma': 'Idioma',
 
@@ -1568,6 +1570,7 @@ const en: Dicionario = {
   'nav.feiras.pedidos': 'Custom orders',
   'nav.feiras.catalogo': 'Catalog',
   'nav.feiras.eventos': 'Points of sale (Stores or Fairs)',
+  'nav.feiras.prospeccao': 'Prospecting',
   'nav.buscadorProdutos': 'Product finder',
   'nav.novaCalculadora': 'New calculation',
   'nav.historico': 'History',
@@ -1606,6 +1609,7 @@ const en: Dicionario = {
   'topbar.title.feiras-pedidos': 'Custom orders',
   'topbar.title.feiras-catalogo': 'Catalog',
   'topbar.title.feiras-eventos': 'Points of sale (Stores or Fairs)',
+  'topbar.title.feiras-prospeccao': 'Prospecting',
 
   'idioma.selecionarIdioma': 'Language',
 
@@ -1919,6 +1923,7 @@ const es: Dicionario = {
   'nav.feiras.pedidos': 'Encargos',
   'nav.feiras.catalogo': 'Catálogo',
   'nav.feiras.eventos': 'Puntos de venta (Tiendas o Ferias)',
+  'nav.feiras.prospeccao': 'Prospección',
   'nav.buscadorProdutos': 'Buscador de productos',
   'nav.novaCalculadora': 'Nueva calculadora',
   'nav.historico': 'Historial',
@@ -1958,6 +1963,7 @@ const es: Dicionario = {
   'topbar.title.feiras-pedidos': 'Encargos',
   'topbar.title.feiras-catalogo': 'Catálogo',
   'topbar.title.feiras-eventos': 'Puntos de venta (Tiendas o Ferias)',
+  'topbar.title.feiras-prospeccao': 'Prospección',
 
   'idioma.selecionarIdioma': 'Idioma',
 

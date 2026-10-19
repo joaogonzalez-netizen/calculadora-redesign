@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
-export type View = 'painel' | 'negocios' | 'clientes' | 'pedidos' | 'catalogo' | 'eventos';
+export type View = 'painel' | 'negocios' | 'clientes' | 'pedidos' | 'catalogo' | 'eventos' | 'prospeccao';
 export type DrawerTipo = 'lead' | 'negocio' | 'cliente' | 'pedido' | 'produto' | 'produto-calc';
 export interface DrawerState { tipo: DrawerTipo; id: string | null; ctx?: string | null }
 

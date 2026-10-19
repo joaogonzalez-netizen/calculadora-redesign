@@ -1,6 +1,6 @@
 export type Etapa = 'novo' | 'conversa' | 'orcamento' | 'negociando' | 'fechado' | 'perdido';
 export type Temperatura = 'frio' | 'morno' | 'quente';
-export type TipoContato = 'presencial' | 'whatsapp' | 'ligacao' | 'email';
+export type TipoContato = 'presencial' | 'whatsapp' | 'ligacao' | 'email' | 'prospeccao';
 export type StatusPedido = 'Na fila' | 'Imprimindo' | 'Pronto' | 'Entregue' | 'Pago' | 'Cancelado';
 
 export interface Contato {
@@ -95,7 +95,17 @@ export interface Config {
   markupVarejo: number;
 }
 
+export interface Prospecto {
+  id: string;
+  placeId: string;
+  nome: string;
+  status: 'lead' | 'descartado';
+  clienteId: string | null;
+  atualizadoEm: string;
+}
+
 export interface Db {
+  prospectos: Prospecto[];
   clientes: Cliente[];
   negocios: Negocio[];
   produtos: Produto[];
@@ -127,4 +137,5 @@ export const TIPOS_CONTATO: { id: TipoContato; label: string }[] = [
   { id: 'whatsapp', label: 'WhatsApp' },
   { id: 'ligacao', label: 'Ligação' },
   { id: 'email', label: 'E-mail' },
+  { id: 'prospeccao', label: 'Prospecção' },
 ];

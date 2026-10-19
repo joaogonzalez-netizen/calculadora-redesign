@@ -110,6 +110,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
           <>
             <div className="nav-label">{t('nav.feiras')}</div>
             <NavItem icon="message" label={t('nav.feiras.negocios')} active={view === 'feiras-negocios'} collapsed={collapsed} onClick={() => onNavigate('feiras-negocios')} />
+            <NavItem icon="search" label={t('nav.feiras.prospeccao')} active={view === 'feiras-prospeccao'} collapsed={collapsed} onClick={() => onNavigate('feiras-prospeccao')} />
             <NavItem icon="tag" label={t('nav.feiras.clientes')} active={view === 'feiras-clientes'} collapsed={collapsed} onClick={() => onNavigate('feiras-clientes')} />
             <NavItem icon="box" label={t('nav.feiras.pedidos')} active={view === 'feiras-pedidos'} collapsed={collapsed} onClick={() => onNavigate('feiras-pedidos')} />
             <NavItem icon="list" label={t('nav.feiras.catalogo')} active={view === 'feiras-catalogo'} collapsed={collapsed} onClick={() => onNavigate('feiras-catalogo')} />

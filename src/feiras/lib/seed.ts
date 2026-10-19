@@ -3,7 +3,7 @@ import { addDias, uid } from './format';
 import { CONFIG_PADRAO } from './pricing';
 
 export const dbVazio = (): Db => ({
-  clientes: [], negocios: [], produtos: [], pedidos: [], feiras: [], feiraAtivaId: null, config: { ...CONFIG_PADRAO },
+  clientes: [], negocios: [], prospectos: [], produtos: [], pedidos: [], feiras: [], feiraAtivaId: null, config: { ...CONFIG_PADRAO },
 });
 
 /** Os ids do exemplo ganham um sufixo único: no Supabase a chave primária é global. */
@@ -56,6 +56,7 @@ function exemplo(): Db {
       neg('n5', 'c4', '20 vasos espiral M', 2100, 'fechado', 'quente', f2, null, 38, { pedidoId: 'o1' }),
       neg('n6', 'c5', '12 suportes de cardápio', 540, 'perdido', 'frio', f2, null, 38, { motivoPerda: 'Achou caro frente à impressão do concorrente' }),
     ],
+    prospectos: [],
     pedidos: [
       {
         id: 'o1', clienteId: 'c4', negocioId: 'n5', feiraId: f2, status: 'Pago', dataPedido: addDias(-35), entrega: addDias(-28), obs: 'Pagamento via Pix.',

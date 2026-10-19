@@ -27,6 +27,7 @@ const CHAVES_TITULO: Record<View, string> = {
   'feiras-pedidos': 'topbar.title.feiras-pedidos',
   'feiras-catalogo': 'topbar.title.feiras-catalogo',
   'feiras-eventos': 'topbar.title.feiras-eventos',
+  'feiras-prospeccao': 'topbar.title.feiras-prospeccao',
 };
 
 interface Props {

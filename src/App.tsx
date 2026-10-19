@@ -29,7 +29,7 @@ import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { PARAM_ABRIR } from './lib/rascunhosShopee';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-pedidos' | 'feiras-catalogo' | 'feiras-eventos';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-pedidos' | 'feiras-catalogo' | 'feiras-eventos' | 'feiras-prospeccao';
 
 function AppShell() {
   const { idioma } = useI18n();

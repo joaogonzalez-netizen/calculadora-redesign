@@ -9,6 +9,7 @@ import ClientesView from './views/ClientesView';
 import PedidosView from './views/PedidosView';
 import CatalogoView from './views/CatalogoView';
 import FeirasView from './views/FeirasView';
+import ProspeccaoView from './views/ProspeccaoView';
 import LeadRapido from './components/drawers/LeadRapido';
 import NegocioDrawer from './components/drawers/NegocioDrawer';
 import ClienteDrawer from './components/drawers/ClienteDrawer';
@@ -50,6 +51,7 @@ function Conteudo() {
       {view === 'pedidos' && <PedidosView />}
       {view === 'catalogo' && <CatalogoView />}
       {view === 'eventos' && <FeirasView />}
+      {view === 'prospeccao' && <ProspeccaoView />}
 
       {drawer?.tipo === 'lead' && <LeadRapido />}
       {drawer?.tipo === 'negocio' && <NegocioDrawer key={drawer.id ?? 'novo'} />}
