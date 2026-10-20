@@ -949,6 +949,26 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .sit-estoque-baixo{color:var(--accent);}
 .sit-sem-estoque{color:var(--red);}
 .vincular-custo-btn{padding:7px 12px;font-size:12px;white-space:nowrap;}
+/* Modal "Levar para outro marketplace" (Produtos) */
+.modal-levar{width:680px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.modal-levar h4{margin:0;padding-right:36px;font-size:20px;}
+.modal-levar-x{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--text-1);padding:6px;border-radius:8px;display:flex;}
+.modal-levar-x:hover{background:var(--border);}
+.levar-produto{display:flex;gap:14px;align-items:center;background:#fafbfa;border-radius:var(--radius-m);padding:14px 16px;}
+.levar-thumb{flex:0 0 auto;width:56px;height:56px;border-radius:10px;background:var(--border);color:var(--text-3);display:flex;align-items:center;justify-content:center;}
+.levar-produto-nome{font-size:15px;font-weight:800;line-height:1.35;}
+.levar-produto-preco{font-size:15px;margin-top:2px;}
+.levar-produto small{font-size:12px;color:var(--text-3);}
+.levar-aviso{align-items:flex-start;line-height:1.5;}
+.levar-aviso svg{flex:0 0 auto;margin-top:2px;}
+.levar-link{display:block;margin-top:6px;background:none;border:none;padding:0;color:inherit;font-weight:700;text-decoration:underline;font-size:inherit;cursor:pointer;}
+.levar-pergunta{font-size:13.5px;font-weight:800;margin-top:6px;}
+.levar-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:600px){ .levar-opcoes{grid-template-columns:1fr;} }
+.levar-opcao{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);padding:18px;cursor:pointer;transition:border-color .15s,background-color .15s;}
+.levar-opcao:hover{border-color:var(--primary);background:var(--primary-tint);}
+.levar-opcao b{display:flex;align-items:center;gap:8px;font-size:15px;}
+.levar-opcao span{font-size:13px;line-height:1.5;color:var(--text-2);}
 .otimizar-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;font-size:12px;white-space:nowrap;}
 .custo-vinculado{cursor:pointer;}
 .custo-vinculado b{display:block;font-size:12.5px;color:var(--accent);}

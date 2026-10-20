@@ -141,6 +141,7 @@ function AppShell() {
             <ProdutosView
               filtroSemCustoInicial={produtosFiltroSemCusto}
               onFiltroSemCustoConsumido={() => setProdutosFiltroSemCusto(false)}
+              onIrParaConfiguracoes={() => setView('configuracoes')}
             />
           )}
           {view === 'calculadora' && <CalculadoraView onSaved={aoSalvarCalculo} onVoltarCatalogo={() => setView('feiras-catalogo')} />}
