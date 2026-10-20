@@ -2501,7 +2501,7 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 .resumo-faltando button:hover{color:var(--primary-dark);}
 @media (max-width:700px){.resumo-metricas,.resumo-potencial-grid{grid-template-columns:1fr;}.resumo-preco-valor{font-size:36px;}}
 
-/* Aviso: calculadora aberta a partir do catálogo de Vendas físicas */
+/* Aviso: calculadora aberta a partir do catálogo de Venda direta */
 .calc-origem-catalogo{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--primary-tint);border:1px solid var(--primary-tint-strong);color:var(--primary-dark);border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.5;}
 .calc-origem-catalogo b{display:block;}
 .calc-origem-catalogo span{color:var(--text-2);display:block;}
