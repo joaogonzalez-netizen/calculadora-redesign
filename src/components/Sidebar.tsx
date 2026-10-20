@@ -113,6 +113,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
             <NavItem icon="dashboard" label={t('nav.feiras.painel')} active={view === 'feiras-painel'} collapsed={collapsed} onClick={() => onNavigate('feiras-painel')} />
             <NavItem icon="message" label={t('nav.feiras.negocios')} active={view === 'feiras-negocios'} collapsed={collapsed} onClick={() => onNavigate('feiras-negocios')} />
             <NavItem icon="tag" label={t('nav.feiras.clientes')} active={view === 'feiras-clientes'} collapsed={collapsed} onClick={() => onNavigate('feiras-clientes')} />
+            <NavItem icon="home" label={t('nav.feiras.eventos')} active={view === 'feiras-eventos'} collapsed={collapsed} onClick={() => onNavigate('feiras-eventos')} />
           </>
         )}
 

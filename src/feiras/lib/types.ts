@@ -80,12 +80,21 @@ export interface Pedido {
   obs: string;
 }
 
+// Produto que será vendido numa feira/ponto de venda: vem do catálogo (calculadora) e leva a
+// quantidade de unidades que o vendedor pretende levar.
+export interface ProdutoDaFeira {
+  produtoId: string;
+  qtd: number;
+}
+
 export interface Feira {
   id: string;
   nome: string;
   local: string;
   inicio: string;
   fim: string;
+  // Ausente em feiras antigas (conta como lista vazia).
+  produtos?: ProdutoDaFeira[];
 }
 
 export interface Config {

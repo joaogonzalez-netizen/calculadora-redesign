@@ -127,11 +127,28 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-empty .fe-btn{margin-top:10px;}
 .fe-feira-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;}
 .fe-feira-card{padding:20px;display:flex;flex-direction:column;gap:14px;}
+.fe-feira-card.fe-clicavel{cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.fe-feira-card.fe-clicavel:hover{border-color:var(--border-strong);box-shadow:0 4px 14px rgba(0,0,0,.06);}
+.fe-feira-card.fe-clicavel:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+.fe-prod-feira-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+.fe-prod-feira-head h4{font-size:15px;font-weight:800;margin:0 0 4px;}
+.fe-prod-feira-head p{font-size:12.5px;color:var(--text-2);margin:0;}
+.fe-prod-escolha{border:1px solid var(--border);border-radius:var(--radius-m);padding:14px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;background:#fafbfa;}
+.fe-prod-lista{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;}
+.fe-prod-opcao{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-m);background:#fff;cursor:pointer;}
+.fe-prod-opcao.fe-marcado{border-color:var(--primary);background:var(--primary-tint);}
+.fe-prod-opcao .fe-grow{display:flex;flex-direction:column;min-width:0;}
+.fe-prod-opcao input{width:17px;height:17px;accent-color:var(--primary);}
+.fe-prod-escolha-acoes{display:flex;justify-content:flex-end;gap:10px;}
+.fe-prod-resumo{font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px;}
+.fe-prod-qtd{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--text-3);}
+.fe-prod-qtd input{width:78px;padding:7px 9px;}
 .fe-feira-card.fe-ativa{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,149,90,.12);}
 .fe-feira-card h3{font-size:17px;font-weight:800;}
 .fe-feira-card .fe-loc{font-size:13px;color:var(--text-3);display:flex;gap:5px;align-items:center;margin-top:3px;}
 .fe-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .fe-metrics div{background:#f6f7f6;border-radius:var(--radius-s);padding:9px 11px;}
+.fe-feira-card .fe-metrics{grid-template-columns:repeat(2,1fr);}
 .fe-metrics b{display:block;font-family:var(--font-h);font-size:17px;}
 .fe-metrics span{font-size:11.5px;color:var(--text-3);}
 .fe-overlay{position:fixed;inset:0;background:rgba(14,18,16,.42);z-index:60;display:flex;justify-content:flex-end;animation:fe-fade .15s ease;}
