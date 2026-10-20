@@ -913,11 +913,11 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
         )}
 
         <div className="pub-footer">
-          {idxAtual > 0 ? <button type="button" className="btn-outline" onClick={voltar}>{t('publicar.voltar')}</button> : <span />}
+          {idxAtual > 0 ? <button type="button" className="btn-outline pill ger-btn" onClick={voltar}>{t('publicar.voltar')}</button> : <span />}
           {passo === 'confirmar' ? (
-            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!prontoParaPublicar} onClick={publicar}>{t('publicar.publicarAnuncio')}</button>
+            <button type="button" className="btn-dark pill ger-btn" disabled={!prontoParaPublicar} onClick={publicar}>{t('publicar.publicarAnuncio')}</button>
           ) : (
-            <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} onClick={avancar}>{t('publicar.continuar')}</button>
+            <button type="button" className="btn-dark pill ger-btn" onClick={avancar}>{t('publicar.continuar')}</button>
           )}
         </div>
       </div>

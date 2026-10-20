@@ -52,7 +52,7 @@ export default function UploadStep({ imagens, onAdicionar, onRemover, onContinua
       {avisoCopia && <div style={{ marginTop: 22 }}>{avisoCopia}</div>}
 
       <div className="ger-footer">
-        <button type="button" className="btn-calc" style={{ width: 'auto', padding: '13px 28px' }} disabled={!podeContinuar} onClick={onContinuar}>{t('gerador.continuar')}</button>
+        <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={onContinuar}>{t('gerador.continuar')}</button>
       </div>
     </>
   );

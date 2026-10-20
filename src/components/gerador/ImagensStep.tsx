@@ -1,60 +1,41 @@
 import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
-import MedidasModal, { MedidasOverlay, medidasPadrao, type MedidasConfig } from './MedidasModal';
+import MedidasModal, { MedidasOverlay, medidasPadrao, type DimensoesProduto, type MedidasConfig } from './MedidasModal';
 import fotoProduto from '../../assets/gerador-produto-mock.jpg';
+import { CENAS_VIDEO, OUTRAS_IMAGENS, type ImagemGerada } from './imagensGeradas';
 
 // Réplica do passo "Imagens" do Gerador de anúncios em produção (print de
-// João, 08/09/2026). 3 imagens fixas (capa, medidas, características) que
-// sempre entram no anúncio + 6 imagens individuais geradas, das quais o
-// usuário escolhe exatamente 4 pro vídeo. Capa e Medidas usam uma foto mock
-// do produto (a Medidas com as setas editáveis do MedidasModal por cima); os
-// demais cards usam um gradiente de cor no lugar da imagem gerada pela IA.
-const MAX_SELECAO = 4;
-
-interface ImagemVideo {
-  id: string;
-  labelChave: string;
-  gradiente: string;
-  escuro?: boolean;
-}
-
-const IMAGENS_VIDEO: ImagemVideo[] = [
-  { id: 'uso1', labelChave: 'gerador.imgAmbientadaUso1', gradiente: 'linear-gradient(160deg,#efe6d8,#d9c7a3)' },
-  { id: 'uso2', labelChave: 'gerador.imgAmbientadaUso2', gradiente: 'linear-gradient(160deg,#e9eee6,#cddac6)' },
-  { id: 'uso3', labelChave: 'gerador.imgAmbientadaUso3', gradiente: 'linear-gradient(160deg,#f4f1ea,#e3ddca)' },
-  { id: 'detalhe', labelChave: 'gerador.imgDetalheAcabamento', gradiente: 'linear-gradient(160deg,#2b2f27,#14171b)', escuro: true },
-  { id: 'destaque', labelChave: 'gerador.imgDestaqueBeneficio', gradiente: 'linear-gradient(160deg,#efe0cd,#d6b98c)' },
-  { id: 'hero', labelChave: 'gerador.imgHeroCenaFinal', gradiente: 'linear-gradient(160deg,#e8e3da,#c9beac)' },
-];
-
-const SELECAO_INICIAL = new Set(['uso1', 'uso2', 'uso3', 'detalhe']);
-
+// João, 20/10/2026). Três menus, todos só para conferir e aprovar: imagens
+// FIXAS (capa, medidas, características e detalhe do acabamento), CENAS
+// preparadas para o vídeo e OUTRAS imagens disponíveis. Aqui não há seleção:
+// escolher quais 4 imagens viram o vídeo acontece no passo seguinte (Vídeo).
+// Capa e Medidas usam uma foto mock do produto (a Medidas com as setas
+// editáveis do MedidasModal por cima); os demais cards usam um gradiente de
+// cor no lugar da imagem gerada pela IA.
 function pedirAjuste(secao: string) {
   alert(`Em breve: peça ajustes no(a) "${secao}" direto por chat com a IA.`);
 }
 
 interface Props {
+  // Dimensões digitadas em Informações: a imagem de medidas já nasce com elas.
+  dimensoes?: DimensoesProduto;
   onVoltar: () => void;
   onContinuar: () => void;
 }
 
-export default function ImagensStep({ onVoltar, onContinuar }: Props) {
+export default function ImagensStep({ dimensoes, onVoltar, onContinuar }: Props) {
   const { t, idioma } = useI18n();
-  const [selecionadas, setSelecionadas] = useState<Set<string>>(SELECAO_INICIAL);
-  const [medidas, setMedidas] = useState<MedidasConfig>(() => medidasPadrao(t, idioma));
+  const [medidas, setMedidas] = useState<MedidasConfig>(() => medidasPadrao(t, idioma, dimensoes));
   const [editandoMedidas, setEditandoMedidas] = useState(false);
 
-  function alternar(id: string) {
-    setSelecionadas((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else if (next.size < MAX_SELECAO) {
-        next.add(id);
-      }
-      return next;
-    });
+  function cardImagem(img: ImagemGerada, rotulo: string) {
+    return (
+      <div key={img.id} className="ger-img-card">
+        <div className="ger-img-card-media" style={{ background: img.gradiente }} />
+        <div className="ger-img-card-label">{rotulo}</div>
+      </div>
+    );
   }
 
   return (
@@ -63,14 +44,14 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-titulo-bloco">
         <h2>{t('gerador.imagensGeradas')}</h2>
-        <p>3 imagens fixas (capa, medidas e características) + 6 imagens individuais. Escolha exatamente 4 imagens para o vídeo.</p>
+        <p>{t('gerador.imagensDescConfirmar')}</p>
       </div>
 
       <h3 className="ger-secao-titulo" style={{ marginTop: 0 }}>{t('gerador.imagensFixas')}</h3>
-      <p className="ger-img-secao-desc">Sempre incluídas no anúncio. Não entram na seleção do vídeo.</p>
+      <p className="ger-img-secao-desc">{t('gerador.imagensFixasDesc')}</p>
 
       <div className="ger-img-aviso">
-        <Icon name="lock" size={14} /> Estas 3 imagens não podem ser selecionadas para o vídeo, elas já fazem parte fixa do anúncio.
+        <Icon name="lock" size={14} /> {t('gerador.imagensFixasAviso')}
       </div>
 
       <div className="ger-img-grid-fixas ger-txt-com-chat">
@@ -107,6 +88,13 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
           <div className="ger-img-card-label">{t('gerador.caracteristicas')}</div>
         </div>
 
+        <div className="ger-img-card">
+          <div className="ger-img-card-media" style={{ background: 'linear-gradient(160deg,#2b2f27,#14171b)' }}>
+            <span className="ger-img-badge-fixa">{t('gerador.fixa')}</span>
+          </div>
+          <div className="ger-img-card-label">{t('gerador.imgDetalheAcabamento')}</div>
+        </div>
+
         <button type="button" className="ger-txt-chat" onClick={() => pedirAjuste('Imagens fixas')} title="Pedir ajuste via chat">
           <Icon name="message" size={16} />
         </button>
@@ -114,39 +102,28 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
 
       <div className="ger-img-secao-head">
         <div>
-          <h3 className="ger-secao-titulo" style={{ margin: '0 0 4px' }}>{t('gerador.imagensParaVideo')}</h3>
-          <p className="ger-img-secao-desc">{t('gerador.selecioneExatamente4')}</p>
+          <h3 className="ger-secao-titulo" style={{ margin: '0 0 4px' }}>{t('gerador.cenasVideoTitulo')}</h3>
+          <p className="ger-img-secao-desc">{t('gerador.cenasPreparadasDesc')}</p>
         </div>
-        <span className="ger-img-contador">{selecionadas.size} {t('gerador.de')} {MAX_SELECAO} {t('gerador.selecionadas')}</span>
       </div>
 
       <div className="ger-img-grid-video ger-txt-com-chat">
-        {IMAGENS_VIDEO.map((img) => {
-          const marcada = selecionadas.has(img.id);
-          const desabilitada = !marcada && selecionadas.size >= MAX_SELECAO;
-          return (
-            <div
-              key={img.id}
-              className={'ger-img-card ger-img-card-video' + (marcada ? ' selecionada' : '') + (desabilitada ? ' desabilitada' : '')}
-              onClick={() => alternar(img.id)}
-            >
-              <div className="ger-img-card-media" style={{ background: img.gradiente }}>
-                <span className={'ger-img-check' + (marcada ? ' marcada' : '')}><Icon name="check" size={13} /></span>
-                {img.id === 'uso3' && (
-                  <div className="ger-img-capa-texto">
-                    <h4>Incensário de Bicho-Preguiça</h4>
-                    <span>Design Lúdico e Toque Descontraído</span>
-                  </div>
-                )}
-              </div>
-              <div className={'ger-img-card-label' + (img.escuro ? '' : '')}>{t(img.labelChave)}</div>
-            </div>
-          );
-        })}
+        {CENAS_VIDEO.map((img) => cardImagem(img, `${t('gerador.ambiente')} ${img.label}`))}
 
-        <button type="button" className="ger-txt-chat" onClick={() => pedirAjuste('Imagens para o vídeo')} title="Pedir ajuste via chat">
+        <button type="button" className="ger-txt-chat" onClick={() => pedirAjuste('Cenas para o vídeo')} title="Pedir ajuste via chat">
           <Icon name="message" size={16} />
         </button>
+      </div>
+
+      <div className="ger-img-secao-head">
+        <div>
+          <h3 className="ger-secao-titulo" style={{ margin: '0 0 4px' }}>{t('gerador.outrasImagensTitulo')}</h3>
+          <p className="ger-img-secao-desc">{t('gerador.outrasDisponiveisDesc')}</p>
+        </div>
+      </div>
+
+      <div className="ger-img-grid-video">
+        {OUTRAS_IMAGENS.map((img) => cardImagem(img, t(img.label)))}
       </div>
 
       {editandoMedidas && (
@@ -163,10 +140,10 @@ export default function ImagensStep({ onVoltar, onContinuar }: Props) {
           <span className="hint">Aprovar para continuar para o próximo passo, ou re-gerar.</span>
         </div>
         <div className="ger-txt-footer-actions">
-          <button type="button" className="btn-outline" onClick={() => pedirAjuste('todas as imagens (re-gerar)')}>
+          <button type="button" className="btn-outline pill ger-btn" onClick={() => pedirAjuste('todas as imagens (re-gerar)')}>
             <Icon name="sync" size={13} /> {t('gerador.regerar')} · 2 {t('gerador.creditos')}
           </button>
-          <button type="button" className="btn-calc ger-txt-aprovar" onClick={onContinuar}>
+          <button type="button" className="btn-dark pill ger-btn" onClick={onContinuar}>
             <Icon name="thumbUp" size={14} /> {t('gerador.aprovarEContinuar')}
           </button>
         </div>

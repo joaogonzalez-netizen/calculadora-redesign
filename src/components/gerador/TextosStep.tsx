@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
@@ -26,55 +26,44 @@ interface EtsyMock {
   altura: string;
 }
 
-const ETSY_MOCK: Record<'pt' | 'en', EtsyMock> = {
-  pt: {
-    tags: [
-      'incensário bicho', 'preguiça decoração', 'quarto infantil', 'área de lazer verde',
-      'peça decorativa pla', 'presente criança', 'decoração lúdica', 'incensário 3d',
-      'bicho preguiça mini', 'decoração natureza', 'presente divertido', 'enfeite mesa', 'decoração verde marrom',
-    ],
-    material: 'PLA',
-    cor: 'Verde e marrom',
-    largura: '23 cm · 9.1 in',
-    profundidade: '23 cm · 9.1 in',
-    altura: '23 cm · 9.1 in',
-  },
-  en: {
-    tags: [
-      'sloth incense', 'sloth holder decor', 'kids bedroom', 'green leisure area',
-      'pla decor piece', 'gift for kids', 'playful decor', '3d incense holder',
-      'mini sloth figure', 'nature decor', 'fun gift idea', 'desk decor', 'green brown decor',
-    ],
-    material: 'PLA',
-    cor: 'Green and brown',
-    largura: '23 cm · 9.1 in',
-    profundidade: '23 cm · 9.1 in',
-    altura: '23 cm · 9.1 in',
-  },
+// Etsy só tem versão em inglês: é o idioma em que o comprador busca, então a
+// etapa não tem abas de idioma (print de produção, 20/10/2026).
+const ETSY_MOCK: EtsyMock = {
+  tags: [
+    '3d printed decor', 'fantasy figurine', 'desk sculpture', 'articulated dragon',
+    'hand painted statue', 'tabletop rpg figure', 'gift for gamer', 'collectible statue',
+    'dinosaur fidget toy', 'dino desk toy', 'office stress relief', 'dinosaur decor',
+  ],
+  material: 'PLA',
+  cor: 'Bone Beige',
+  largura: '4 cm · 1.6 in',
+  profundidade: '4 cm · 1.6 in',
+  altura: '4 cm · 1.6 in',
+};
+
+const ETSY_TEXTOS: TextosMock = {
+  titulo: 'Articulated T-Rex Fidget Toy, Dinosaur Stress Relief Accessory, PLA Bone Beige Material, Detailed Desk Display Decor, Gift for Dino Fans',
+  variacoes: [
+    'T-Rex Fidget Toy Model, Dinosaur Lovers 3D Printed, PLA Light Beige Finish, Articulated Stress Relief Piece, Gift for Dino Fans',
+    'Articulated Dinosaur Fidget Toy, Desk Decor 3D Printed, PLA Detailed Skeleton Design, Office Use, Gift for Dino Fans',
+    'Articulated T-Rex Desk Decor, Dinosaur Fidget Toy Model, PLA Bone Beige Sculpture, Stress Relief Articulated Design',
+  ],
+  descricao: `Articulated T-Rex Fidget Toy is an intricately designed piece, perfect for stress relief.
+
+This Articulated T-Rex Fidget Toy showcases a highly detailed skeleton design, serving both as a playful fidget accessory and an eye-catching desk decoration.
+
+Details:
+- Material: PLA, plant-based and renewable, with a great finish.
+- Color: Bone Beige
+- Size: 4x4x4 cm
+
+Care:
+Avoid sun and intense heat, do not leave inside a car.
+
+Add a fun touch to your desk!`,
 };
 
 const ETSY_TAGS_LIMITE = 13;
-
-// Sugestões de keywords via EverBee Research API (GET /api/v1/keywords/{keyword})
-//, mockado no mesmo formato do retorno real (keyword, vol, competition, score),
-// pra já sair plugável quando a integração de verdade entrar (ver US de
-// exploração de custo por anúncio). Keywords em inglês porque é assim que a
-// busca do Etsy funciona de verdade, independente do idioma do anúncio.
-interface EverbeeKeyword {
-  keyword: string;
-  vol: number;
-  competition: number;
-  score: number;
-}
-
-const EVERBEE_MOCK: EverbeeKeyword[] = [
-  { keyword: 'sloth decor', vol: 8420, competition: 210, score: 4010 },
-  { keyword: 'sloth gift', vol: 12680, competition: 640, score: 3210 },
-  { keyword: 'kids room decor', vol: 31200, competition: 2890, score: 1870 },
-  { keyword: 'cute animal decor', vol: 6150, competition: 95, score: 5290 },
-  { keyword: 'incense holder', vol: 9870, competition: 480, score: 3450 },
-  { keyword: 'nursery decor', vol: 18400, competition: 1320, score: 2210 },
-];
 
 const MOCK: Record<'pt' | 'en', TextosMock> = {
   pt: {
@@ -161,28 +150,9 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
   const { t } = useI18n();
   const [idioma, setIdioma] = useState<'pt' | 'en'>('pt');
   const [copiado, setCopiado] = useState<string | null>(null);
-  const [tags, setTags] = useState<string[]>(() => [...ETSY_MOCK.pt.tags]);
-  const [everbeeBusca, setEverbeeBusca] = useState('sloth decor');
-
-  // Tags acompanham o idioma do anúncio, igual título/descrição, troca de
-  // idioma reseta pra lista gerada daquele idioma (perde edições manuais,
-  // mesmo comportamento de "Re-gerar" pro resto do texto).
-  useEffect(() => {
-    setTags([...ETSY_MOCK[idioma].tags]);
-  }, [idioma]);
-
-  const textos = MOCK[idioma];
-  const etsyAttrs = ETSY_MOCK[idioma];
   const isEtsy = marketplace === 'etsy';
-
-  function adicionarTagEverbee(keyword: string) {
-    if (tags.includes(keyword) || tags.length >= ETSY_TAGS_LIMITE) return;
-    setTags((prev) => [...prev, keyword]);
-  }
-
-  function removerTag(tag: string) {
-    setTags((prev) => prev.filter((tg) => tg !== tag));
-  }
+  const textos = isEtsy ? ETSY_TEXTOS : MOCK[idioma];
+  const etsyAttrs = ETSY_MOCK;
 
   function copiar(chave: string, texto: string) {
     navigator.clipboard?.writeText(texto);
@@ -206,10 +176,12 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
         <h2>{t('gerador.reviseAprovarTextos')}</h2>
       </div>
 
-      <div className="ger-txt-idioma-tabs">
-        <button type="button" className={idioma === 'pt' ? 'active' : ''} onClick={() => setIdioma('pt')}>{t('gerador.portugues')}</button>
-        <button type="button" className={idioma === 'en' ? 'active' : ''} onClick={() => setIdioma('en')}>{t('gerador.ingles')}</button>
-      </div>
+      {!isEtsy && (
+        <div className="ger-txt-idioma-tabs">
+          <button type="button" className={idioma === 'pt' ? 'active' : ''} onClick={() => setIdioma('pt')}>{t('gerador.portugues')}</button>
+          <button type="button" className={idioma === 'en' ? 'active' : ''} onClick={() => setIdioma('en')}>{t('gerador.ingles')}</button>
+        </div>
+      )}
 
       <div className="ger-txt-card">
         <div className="ger-txt-card-head">
@@ -252,16 +224,13 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
           <div className="ger-txt-card">
             <div className="ger-txt-card-head">
               <div className="ger-txt-label">{t('gerador.etsyTags')}</div>
-              <span className="ger-txt-tags-contagem">{tags.length}/{ETSY_TAGS_LIMITE}</span>
+              <span className="ger-txt-tags-contagem">{ETSY_MOCK.tags.length}/{ETSY_TAGS_LIMITE}</span>
             </div>
             <div className="ger-txt-tags-lista">
-              {tags.map((tag) => (
+              {ETSY_MOCK.tags.map((tag) => (
                 <div className="ger-txt-tag" key={tag}>
                   <span>{tag}</span>
                   {botaoCopiar('tag-' + tag, tag)}
-                  <button type="button" onClick={() => removerTag(tag)} title={t('gerador.removerTag')}>
-                    <Icon name="close" size={12} />
-                  </button>
                 </div>
               ))}
             </div>
@@ -274,9 +243,9 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
               {[
                 { chave: 'material', label: t('gerador.material'), valor: etsyAttrs.material },
                 { chave: 'cor', label: t('gerador.corConfirmada'), valor: etsyAttrs.cor },
-                { chave: 'largura', label: t('gerador.larguraX'), valor: etsyAttrs.largura },
-                { chave: 'profundidade', label: t('gerador.alturaY'), valor: etsyAttrs.profundidade },
-                { chave: 'altura', label: t('gerador.comprimentoZ'), valor: etsyAttrs.altura },
+                { chave: 'largura', label: t('gerador.etsyLarguraX'), valor: etsyAttrs.largura },
+                { chave: 'profundidade', label: t('gerador.etsyProfundidadeY'), valor: etsyAttrs.profundidade },
+                { chave: 'altura', label: t('gerador.etsyAlturaZ'), valor: etsyAttrs.altura },
               ].map((attr) => (
                 <div className="ger-txt-attr-row" key={attr.chave}>
                   <span className="ger-txt-attr-label">{attr.label}</span>
@@ -284,38 +253,6 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
                   {botaoCopiar('attr-' + attr.chave, attr.valor)}
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div className="ger-txt-card">
-            <div className="ger-txt-label" style={{ marginBottom: 4 }}>{t('gerador.everbeeTitulo')}</div>
-            <div className="hint" style={{ marginBottom: 14 }}>{t('gerador.everbeeDesc')}</div>
-            <div className="cl-search ger-txt-everbee-busca">
-              <Icon name="search" size={15} />
-              <input type="text" placeholder={t('gerador.everbeeBuscarPlaceholder')} value={everbeeBusca} onChange={(e) => setEverbeeBusca(e.target.value)} />
-            </div>
-            <div className="ger-txt-everbee-lista">
-              {EVERBEE_MOCK.filter((k) => k.keyword.toLowerCase().includes(everbeeBusca.trim().toLowerCase())).map((k) => {
-                const jaAdicionada = tags.includes(k.keyword);
-                return (
-                  <div className="ger-txt-everbee-row" key={k.keyword}>
-                    <div className="ger-txt-everbee-info">
-                      <span className="ger-txt-everbee-keyword">{k.keyword}</span>
-                      <span className="ger-txt-everbee-metricas">
-                        {t('gerador.everbeeVolume')} {k.vol.toLocaleString('pt-BR')} · {t('gerador.everbeeConcorrencia')} {k.competition.toLocaleString('pt-BR')}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className={'ger-txt-everbee-add' + (jaAdicionada ? ' adicionada' : '')}
-                      disabled={jaAdicionada || tags.length >= ETSY_TAGS_LIMITE}
-                      onClick={() => adicionarTagEverbee(k.keyword)}
-                    >
-                      <Icon name={jaAdicionada ? 'check' : 'plus'} size={13} /> {jaAdicionada ? t('gerador.everbeeAdicionada') : t('gerador.everbeeAdicionar')}
-                    </button>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </>
@@ -327,10 +264,10 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
           <span className="hint">Aprovar para continuar para o próximo passo, ou re-gerar.</span>
         </div>
         <div className="ger-txt-footer-actions">
-          <button type="button" className="btn-outline" onClick={() => pedirAjuste('todos os textos (re-gerar)')}>
+          <button type="button" className="btn-outline pill ger-btn" onClick={() => pedirAjuste('todos os textos (re-gerar)')}>
             <Icon name="sync" size={13} /> {t('gerador.regerar')} · 1 {t('gerador.credito')}
           </button>
-          <button type="button" className="btn-calc ger-txt-aprovar" onClick={onContinuar}>
+          <button type="button" className="btn-dark pill ger-btn" onClick={onContinuar}>
             <Icon name="thumbUp" size={14} /> {t('gerador.aprovarEContinuar')}
           </button>
         </div>

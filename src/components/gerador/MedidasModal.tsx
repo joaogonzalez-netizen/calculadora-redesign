@@ -77,16 +77,20 @@ function reta(nome: string, prefixo: string, valor: string, simbolo: string, a: 
   return { id: novoId(), tipo: 'reta', nome, prefixo, valor, texto: textoAuto(prefixo, valor, simbolo), textoManual: false, visivel: true, a, b };
 }
 
-export function medidasPadrao(t: T, idioma: Idioma): MedidasConfig {
+// Dimensões em cm digitadas no passo Informações; quando existem, a imagem já
+// nasce com o tamanho que o usuário informou em vez de um valor de exemplo.
+export interface DimensoesProduto { largura: string; altura: string; comprimento: string }
+
+export function medidasPadrao(t: T, idioma: Idioma, dims?: DimensoesProduto): MedidasConfig {
   const unidade = unidadePadrao(idioma);
   const sim = simboloUnidade(t, unidade);
   const v = (cm: string) => converter(cm, 'cm', unidade, idioma);
   return {
     unidade,
     medidas: [
-      reta(t('gerador.medidaLargura'), t('gerador.medidaLarguraTexto'), v('6'), sim, { x: 150, y: 905 }, { x: 850, y: 905 }),
-      reta(t('gerador.medidaAltura'), t('gerador.medidaAlturaTexto'), v('6'), sim, { x: 95, y: 130 }, { x: 95, y: 840 }),
-      reta(t('gerador.medidaComprimento'), t('gerador.medidaComprimentoTexto'), v('11'), sim, { x: 330, y: 870 }, { x: 860, y: 560 }),
+      reta(t('gerador.medidaLargura'), t('gerador.medidaLarguraTexto'), v(dims?.largura.trim() || '6'), sim, { x: 150, y: 905 }, { x: 850, y: 905 }),
+      reta(t('gerador.medidaAltura'), t('gerador.medidaAlturaTexto'), v(dims?.altura.trim() || '6'), sim, { x: 95, y: 130 }, { x: 95, y: 840 }),
+      reta(t('gerador.medidaComprimento'), t('gerador.medidaComprimentoTexto'), v(dims?.comprimento.trim() || '11'), sim, { x: 330, y: 870 }, { x: 860, y: 560 }),
     ],
   };
 }
@@ -366,8 +370,8 @@ export default function MedidasModal({ inicial, onCancelar, onAprovar }: ModalPr
         </div>
 
         <div className="ger-med-footer">
-          <button type="button" className="btn-outline" onClick={onCancelar}>{t('gerador.cancelar')}</button>
-          <button type="button" className="btn-calc" onClick={() => onAprovar(cfg)}>{t('gerador.aprovar')}</button>
+          <button type="button" className="btn-outline pill ger-btn" onClick={onCancelar}>{t('gerador.cancelar')}</button>
+          <button type="button" className="btn-dark pill ger-btn" onClick={() => onAprovar(cfg)}>{t('gerador.aprovar')}</button>
         </div>
       </div>
     </div>

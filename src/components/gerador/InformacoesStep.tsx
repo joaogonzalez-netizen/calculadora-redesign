@@ -71,7 +71,8 @@ const VOLTAGENS = ['110V', '220V', 'Bivolt', 'N/A'];
 
 interface Props {
   onVoltar: () => void;
-  onContinuar: () => void;
+  // Devolve as dimensões em cm, que o passo Imagens usa na imagem de medidas.
+  onContinuar: (dims: { largura: string; altura: string; comprimento: string }) => void;
   // Campos já conhecidos (ex.: vindos de um anúncio copiado da Shopee) que
   // sobrescrevem as sugestões mockadas da IA.
   inicial?: Partial<InfoState>;
@@ -89,6 +90,13 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
 
   function set<K extends keyof InfoState>(campo: K, valor: InfoState[K]) {
     setInfo((prev) => ({ ...prev, [campo]: valor }));
+    // Mexeu no nome ou no contexto depois de confirmar: a trava volta, porque
+    // é daí que saem o título e a descrição do anúncio.
+    if (campo === 'nome' || campo === 'contexto') desfazerConfirmacao();
+  }
+
+  function desfazerConfirmacao() {
+    setIdentificacaoConfirmada(false);
   }
 
   // Acompanha a altura do texto digitado, sem isso, um contexto mais longo
@@ -117,7 +125,7 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
       {!modoCopia && (
         <div className="ger-ia-banner">
           <span><Icon name="gerador" size={16} /> {t('gerador.sugestoesIaAplicadas')}</span>
-          <button type="button" className="btn-outline" onClick={() => { setInfo({ ...MOCK_INICIAL, ...inicial }); setIdentificacaoConfirmada(false); }}>{t('gerador.reaplicarSugestoes')}</button>
+          <button type="button" className="btn-outline" onClick={() => { setInfo({ ...MOCK_INICIAL, ...inicial }); desfazerConfirmacao(); }}>{t('gerador.reaplicarSugestoes')}</button>
         </div>
       )}
 
@@ -126,35 +134,59 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
           <h3>{t('gerador.informacoesDoProduto')}</h3>
           <p className="ger-subcard-desc">{t('gerador.camposObrigatorios')}</p>
 
-          <h4 className="ger-secao-titulo">{t('gerador.secaoIdentificacao')}</h4>
-          <div className="field">
-            <label>{t('gerador.nomeDoProduto')}</label>
-            <input type="text" value={info.nome} onChange={(e) => set('nome', e.target.value)} />
-          </div>
-          <div className="field">
-            <label>{t('gerador.contextoInformacoesProduto')}</label>
-            <textarea
-              rows={4}
-              className="ger-textarea-auto"
-              value={info.contexto}
-              onChange={(e) => { set('contexto', e.target.value); ajustarAlturaTextarea(e.target); }}
-              ref={(el) => { if (el) ajustarAlturaTextarea(el); }}
-            />
+          <div className={'ger-confirma-bloco' + (identificacaoConfirmada ? ' confirmado' : '')}>
+            <h4 className="ger-secao-titulo" style={{ marginTop: 0 }}>{t('gerador.secaoIdentificacao')}</h4>
+            {!identificacaoConfirmada && (
+              <div className="ger-confirma-aviso">
+                <Icon name="alert" size={16} />
+                <div>
+                  <b>{t('gerador.confirmaAvisoTitulo')}</b>
+                  <p>{t('gerador.confirmaAvisoTexto')}</p>
+                </div>
+              </div>
+            )}
+            <div className="field">
+              <label>{t('gerador.nomeDoProduto')}</label>
+              <input type="text" value={info.nome} onChange={(e) => set('nome', e.target.value)} />
+            </div>
+            <div className="field">
+              <label>{t('gerador.contextoInformacoesProduto')}</label>
+              <textarea
+                rows={4}
+                className="ger-textarea-auto"
+                value={info.contexto}
+                onChange={(e) => { set('contexto', e.target.value); ajustarAlturaTextarea(e.target); }}
+                ref={(el) => { if (el) ajustarAlturaTextarea(el); }}
+              />
+            </div>
+
+            {!identificacaoConfirmada ? (
+              <div className="ger-confirma-acao">
+                <button
+                  type="button"
+                  className="btn-dark pill ger-btn"
+                  disabled={info.nome.trim() === '' || info.contexto.trim() === ''}
+                  onClick={() => setIdentificacaoConfirmada(true)}
+                >
+                  {t('gerador.confirmarIdentificacao')}
+                </button>
+              </div>
+            ) : (
+              <div className="ger-confirma-ok">
+                <span><Icon name="check" size={14} /> {t('gerador.identificacaoConfirmada')}</span>
+                <button type="button" className="ger-confirma-editar" onClick={desfazerConfirmacao}>{t('gerador.editarIdentificacao')}</button>
+              </div>
+            )}
           </div>
 
-          {!identificacaoConfirmada ? (
-            <div className="ger-footer" style={{ marginTop: 4 }}>
-              <button
-                type="button"
-                className="btn-dark pill"
-                disabled={info.nome.trim() === '' || info.contexto.trim() === ''}
-                onClick={() => setIdentificacaoConfirmada(true)}
-              >
-                {t('gerador.confirmarIdentificacao')}
-              </button>
-            </div>
-          ) : (
-            <>
+          {/* Antes de confirmar, o resto do formulário fica visível mas desfocado e
+              inerte: dá pra ver o que vem depois, não dá pra preencher no escuro. */}
+          <div className={'ger-bloqueavel' + (identificacaoConfirmada ? '' : ' bloqueado')} inert={!identificacaoConfirmada} aria-hidden={!identificacaoConfirmada}>
+            {!identificacaoConfirmada && (
+              <div className="ger-bloqueavel-aviso"><Icon name="lock" size={15} /> {t('gerador.camposBloqueados')}</div>
+            )}
+            <div className="ger-bloqueavel-conteudo">
+              <>
               {/* Campos de confirmação, cada fato que a IA "leu" da imagem vira um
                   campo próprio, pra revisar de verdade em vez de só marcar uma
                   caixinha genérica pro parágrafo inteiro. */}
@@ -247,13 +279,14 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
                 <div className="field"><label>{t('gerador.estruturalSustentaPeso')}</label><input type="text" placeholder={t('gerador.estruturalSustentaPesoPlaceholder')} value={info.estruturalSustentaPeso} onChange={(e) => set('estruturalSustentaPeso', e.target.value)} /></div>
                 <div className="field"><label>{t('gerador.contatoComAlimento')}</label><input type="text" placeholder={t('gerador.contatoComAlimentoPlaceholder')} value={info.contatoComAlimento} onChange={(e) => set('contatoComAlimento', e.target.value)} /></div>
               </div>
-            </>
-          )}
+              </>
+            </div>
+          </div>
         </div>
       </div>
 
-      {identificacaoConfirmada && (
-        <div className="card ger-subcard">
+      <div className={'ger-bloqueavel' + (identificacaoConfirmada ? '' : ' bloqueado')} inert={!identificacaoConfirmada} aria-hidden={!identificacaoConfirmada}>
+        <div className="ger-bloqueavel-conteudo card ger-subcard">
           <div className="card-body">
             <div className="ger-narracao-head">
               <div><h3>{t('gerador.secaoEnergia')}</h3></div>
@@ -280,7 +313,7 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
             )}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Só depois de confirmar nome e contexto, antes disso o foco é revisar a identificação. */}
       {avisoCopia && identificacaoConfirmada && <div style={{ marginTop: 22 }}>{avisoCopia}</div>}
@@ -288,13 +321,15 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
       <div className="ger-footer" style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {modoCopia ? (
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <button type="button" className="btn-outline" onClick={modoCopia.onSalvarRascunho}>{t('gerador.salvarRascunho')}</button>
-            <button type="button" className="btn-dark pill" disabled={!podeContinuar} onClick={modoCopia.onPublicar}>{t('gerador.publicarAnuncio')}</button>
+            <button type="button" className="btn-outline pill ger-btn" onClick={modoCopia.onSalvarRascunho}>{t('gerador.salvarRascunho')}</button>
+            <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={modoCopia.onPublicar}>{t('gerador.publicarAnuncio')}</button>
           </div>
         ) : (
-          <button type="button" className="btn-dark pill" disabled={!podeContinuar} onClick={onContinuar}>{t('gerador.continuar')}</button>
+          <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={() => onContinuar({ largura: info.largura, altura: info.altura, comprimento: info.comprimento })}>{t('gerador.continuar')}</button>
         )}
-        {!podeContinuar && identificacaoConfirmada && <span className="hint">{t('gerador.camposFaltando')}</span>}
+        {!podeContinuar && (
+          <span className="hint">{t(identificacaoConfirmada ? 'gerador.camposFaltando' : 'gerador.confirmeParaContinuar')}</span>
+        )}
       </div>
     </>
   );

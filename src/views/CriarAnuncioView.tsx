@@ -12,6 +12,7 @@ import TextosStep from '../components/gerador/TextosStep';
 import ImagensStep from '../components/gerador/ImagensStep';
 import VideoStep from '../components/gerador/VideoStep';
 import ResultadoStep from '../components/gerador/ResultadoStep';
+import type { DimensoesProduto } from '../components/gerador/MedidasModal';
 
 // Réplica do Gerador de anúncios em produção (prints de João), construído
 // tela por tela. Tudo mockado: sem upload real de arquivo, o clique na
@@ -66,6 +67,7 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, on
   const [imagens, setImagens] = useState<string[]>(() => rascunho?.imagens.slice(0, 5) ?? []);
   const [marketplace, setMarketplace] = useState(() => GERADOR_MARKETPLACES_VISIVEIS[idioma][0]);
   const [plano, setPlano] = useState('premium');
+  const [dimensoes, setDimensoes] = useState<DimensoesProduto | undefined>();
 
   function adicionarImagem() {
     setImagens((prev) => (prev.length >= 5 ? prev : [...prev, CORES_MOCK[prev.length % CORES_MOCK.length]]));
@@ -123,11 +125,11 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, on
       </div>
 
       {passoAtual === 'info' ? (
-        <InformacoesStep avisoCopia={avisoCopia} inicial={rascunho ? infoDoRascunho(rascunho) : undefined} modoCopia={soCopia ? { onPublicar: () => setPublicarAberto(true), onSalvarRascunho: () => onSalvarRascunho?.() } : undefined} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('info', 'textos')} />
+        <InformacoesStep avisoCopia={avisoCopia} inicial={rascunho ? infoDoRascunho(rascunho) : undefined} modoCopia={soCopia ? { onPublicar: () => setPublicarAberto(true), onSalvarRascunho: () => onSalvarRascunho?.() } : undefined} onVoltar={voltar} onContinuar={(dims) => { setDimensoes(dims); marcarVisitadoEIr('info', 'textos'); }} />
       ) : passoAtual === 'textos' ? (
         <TextosStep marketplace={marketplace} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('textos', 'imagens')} />
       ) : passoAtual === 'imagens' ? (
-        <ImagensStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
+        <ImagensStep dimensoes={dimensoes} onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('imagens', 'video')} />
       ) : passoAtual === 'video' ? (
         <VideoStep onVoltar={voltar} onContinuar={() => marcarVisitadoEIr('video', 'resultado')} />
       ) : passoAtual === 'resultado' ? (

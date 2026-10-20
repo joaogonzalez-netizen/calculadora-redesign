@@ -110,8 +110,8 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
           </div>
         </div>
         <div className="ger-res-acoes">
-          <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTudo')}</button>
-          <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>{t('gerador.publicarAnuncio')}</button>
+          <button type="button" className="btn-outline pill ger-btn" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTudo')}</button>
+          <button type="button" className="btn-dark pill ger-btn" onClick={() => setPublicarAberto(true)}>{t('gerador.publicarAnuncio')}</button>
         </div>
       </div>
 
@@ -186,8 +186,8 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
       </div>
 
       <div className="ger-res-acoes ger-res-acoes-rodape">
-        <button type="button" className="btn-outline" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTudo')}</button>
-        <button type="button" className="btn-dark" onClick={() => setPublicarAberto(true)}>{t('gerador.publicarAnuncio')}</button>
+        <button type="button" className="btn-outline pill ger-btn" onClick={baixarTudo}><Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarTudo')}</button>
+        <button type="button" className="btn-dark pill ger-btn" onClick={() => setPublicarAberto(true)}>{t('gerador.publicarAnuncio')}</button>
       </div>
     </>
   );

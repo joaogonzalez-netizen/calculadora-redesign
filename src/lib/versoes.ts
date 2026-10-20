@@ -32,8 +32,8 @@ export const MOSTRAR_PASSO_MARKETPLACE: Record<Idioma, boolean> = {
 
 // ids batem com os de MARKETPLACES em src/components/gerador/MarketplaceStep.tsx
 export const GERADOR_MARKETPLACES_VISIVEIS: Record<Idioma, string[]> = {
-  pt: ['ml', 'shopee', 'outros'],
-  es: ['ml', 'outros'],
+  pt: ['ml', 'shopee', 'etsy', 'outros'],
+  es: ['ml', 'etsy', 'outros'],
   en: ['etsy', 'outros'],
 };
 

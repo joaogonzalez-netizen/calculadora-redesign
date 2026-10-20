@@ -12,11 +12,14 @@ interface Marketplace {
 interface ItemPlano {
   labelChave: string;
   incluso: boolean;
+  // Destaca o que muda entre os planos: a linha ganha peso e uma etiqueta.
+  tagChave?: string;
 }
 
 interface Plano {
   id: string;
   nome: string;
+  taglineChave: string;
   icone: IconName;
   creditos: number;
   recomendado?: boolean;
@@ -32,21 +35,21 @@ const MARKETPLACES: Marketplace[] = [
 
 const PLANOS: Plano[] = [
   {
-    id: 'core', nome: 'Core', icone: 'bolt', creditos: 1,
+    id: 'core', nome: 'Core', taglineChave: 'gerador.planoCoreTagline', icone: 'bolt', creditos: 1,
     itens: [
-      { labelChave: 'gerador.imagensGeradas9', incluso: true },
-      { labelChave: 'gerador.variacoesTitulos4', incluso: true },
-      { labelChave: 'gerador.descricaoMarketplace1', incluso: true },
-      { labelChave: 'gerador.videoDemonstracaoNarrado', incluso: false },
+      { labelChave: 'gerador.planoImagens9', incluso: true },
+      { labelChave: 'gerador.planoTitulosSeo', incluso: true },
+      { labelChave: 'gerador.planoDescricaoSeo', incluso: true },
+      { labelChave: 'gerador.videoDemonstracaoNarrado', incluso: false, tagChave: 'gerador.planoSoPremium' },
     ],
   },
   {
-    id: 'premium', nome: 'Premium', icone: 'crown', creditos: 10, recomendado: true,
+    id: 'premium', nome: 'Premium', taglineChave: 'gerador.planoPremiumTagline', icone: 'crown', creditos: 10, recomendado: true,
     itens: [
-      { labelChave: 'gerador.imagensGeradas9', incluso: true },
-      { labelChave: 'gerador.variacoesTitulos4', incluso: true },
-      { labelChave: 'gerador.descricaoMarketplace1', incluso: true },
-      { labelChave: 'gerador.videoDemonstracaoNarrado', incluso: true },
+      { labelChave: 'gerador.planoImagens13', incluso: true, tagChave: 'gerador.planoImagensMais4' },
+      { labelChave: 'gerador.planoTitulosSeo', incluso: true },
+      { labelChave: 'gerador.planoDescricaoSeo', incluso: true },
+      { labelChave: 'gerador.videoDemonstracaoNarrado', incluso: true, tagChave: 'gerador.planoNovo' },
     ],
   },
 ];
@@ -212,10 +215,12 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
               <span className="ger-plano-nome">{p.nome}</span>
               <span className="ger-radio-dot" />
             </div>
+            <p className="ger-plano-tagline">{t(p.taglineChave)}</p>
             <ul className="ger-plano-lista">
               {p.itens.map((it) => (
-                <li key={it.labelChave} className={it.incluso ? 'sim' : 'nao'}>
+                <li key={it.labelChave} className={(it.incluso ? 'sim' : 'nao') + (it.tagChave ? ' exclusivo' : '')}>
                   <Icon name={it.incluso ? 'check' : 'close'} size={13} /> {t(it.labelChave)}
+                  {it.tagChave && <span className="ger-plano-exclusivo-tag">{t(it.tagChave)}</span>}
                 </li>
               ))}
             </ul>
@@ -225,7 +230,7 @@ export default function MarketplaceStep({ marketplace, plano, onSelecionarMarket
       </div>
 
       <div className="ger-footer">
-        <button type="button" className="btn-dark pill" disabled={ehOutros && totalDestinos === 0} onClick={onContinuar}>{t('gerador.continuar')}</button>
+        <button type="button" className="btn-dark pill ger-btn" disabled={ehOutros && totalDestinos === 0} onClick={onContinuar}>{t('gerador.continuar')}</button>
       </div>
     </>
   );
