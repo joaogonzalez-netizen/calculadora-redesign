@@ -3,9 +3,11 @@ import { useStore, totalPedido } from '../../lib/store';
 import { useUi } from '../../lib/ui';
 import { brl, dataLonga, mascaraTel, waLink } from '../../lib/format';
 import { TIPOS_CONTATO, type TipoContato } from '../../lib/types';
-import { Drawer, Field } from '../ui';
+import { Drawer, Field, Mais, Secao } from '../ui';
 import Icon from '../Icon';
 import { useFeirasT, CHAVE_STATUS } from '../../lib/i18n';
+
+const SEGMENTOS = ['presentes', 'decoracao', 'floricultura', 'papelaria', 'games', 'brindes', 'cafeteria', 'escritorio', 'consumidor'];
 
 export default function ClienteDrawer() {
   const { drawer, fechar, abrir, avisar } = useUi();
@@ -17,6 +19,9 @@ export default function ClienteDrawer() {
     nome: ex?.nome ?? '', empresa: ex?.empresa ?? '', categoria: ex?.categoria ?? '', telefone: ex?.telefone ?? '',
     email: ex?.email ?? '', cidade: ex?.cidade ?? '', obs: ex?.obs ?? '',
   });
+  // Segmento: lista pronta + "Outros" com texto livre (valor guardado é o texto exibido).
+  const rotulos = SEGMENTOS.map((id) => t('feiras.seg.' + id));
+  const [outroSeg, setOutroSeg] = useState(!!f.categoria && !rotulos.includes(f.categoria));
   const [tipo, setTipo] = useState<TipoContato>('whatsapp');
   const [nota, setNota] = useState('');
   const [erro, setErro] = useState('');
@@ -39,21 +44,36 @@ export default function ClienteDrawer() {
         {ex && <button className="fe-btn fe-btn-danger" onClick={() => { if (confirm(t('feiras.cliente.confirmarExcluir', { nome: ex.nome }))) { s.excluirCliente(ex.id); fechar(); } }}><Icon name="trash" size={16} /></button>}
         <button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>{ex ? t('feiras.cliente.salvarAlt') : t('feiras.cliente.cadastrar')}</button></>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
+      <Secao titulo={t('feiras.secao.dados')}>
       {ex?.telefone && <div><a className="fe-btn fe-btn-wa" href={waLink(ex.telefone)} target="_blank" rel="noreferrer"><Icon name="whatsapp" size={16} /> {t('feiras.comum.whatsappNome', { nome: ex.telefone })}</a></div>}
       <div className="fe-form-grid">
         <Field label={t('feiras.cliente.nome')} className="fe-full"><input value={f.nome} onChange={set('nome')} placeholder={t('feiras.cliente.nomeCompleto')} /></Field>
-        <Field label={t('feiras.cliente.empresa')}><input value={f.empresa} onChange={set('empresa')} /></Field>
-        <Field label={t('feiras.cliente.segmento')}><input value={f.categoria} onChange={set('categoria')} placeholder={t('feiras.cliente.segmentoEx')} /></Field>
-        <Field label={t('feiras.cliente.whatsapp')}><input value={f.telefone} onChange={(e) => setF((x) => ({ ...x, telefone: mascaraTel(e.target.value) }))} inputMode="tel" placeholder={t('feiras.comum.telPlaceholder')} /></Field>
-        <Field label={t('feiras.cliente.email')}><input type="email" value={f.email} onChange={set('email')} inputMode="email" /></Field>
-        <Field label={t('feiras.cliente.cidade')} className="fe-full"><input value={f.cidade} onChange={set('cidade')} /></Field>
-        <Field label={t('feiras.cliente.obs')} className="fe-full"><textarea value={f.obs} onChange={set('obs')} placeholder={t('feiras.cliente.obsEx')} /></Field>
+        <Field label={t('feiras.cliente.whatsapp')} className="fe-full"><input value={f.telefone} onChange={(e) => setF((x) => ({ ...x, telefone: mascaraTel(e.target.value) }))} inputMode="tel" placeholder={t('feiras.comum.telPlaceholder')} /></Field>
       </div>
+      </Secao>
+      <Mais rotulo={t('feiras.comum.maisDetalhes')} aberto={!!(ex && (ex.empresa || ex.categoria || ex.email || ex.cidade || ex.obs))}>
+        <div className="fe-form-grid">
+          <Field label={t('feiras.cliente.empresa')}><input value={f.empresa} onChange={set('empresa')} /></Field>
+          <Field label={t('feiras.cliente.segmento')}>
+            <select value={outroSeg ? '__outros' : f.categoria} onChange={(e) => {
+              if (e.target.value === '__outros') { setOutroSeg(true); setF((x) => ({ ...x, categoria: rotulos.includes(x.categoria) ? '' : x.categoria })); }
+              else { setOutroSeg(false); setF((x) => ({ ...x, categoria: e.target.value })); }
+            }}>
+              <option value="">{t('feiras.cliente.segmentoSelecione')}</option>
+              {rotulos.map((r) => <option key={r} value={r}>{r}</option>)}
+              <option value="__outros">{t('feiras.seg.outros')}</option>
+            </select>
+          </Field>
+          {outroSeg && <Field label={t('feiras.cliente.segmentoOutro')}><input autoFocus value={f.categoria} onChange={set('categoria')} placeholder={t('feiras.cliente.segmentoEx')} /></Field>}
+          <Field label={t('feiras.cliente.email')}><input type="email" value={f.email} onChange={set('email')} inputMode="email" /></Field>
+          <Field label={t('feiras.cliente.cidade')}><input value={f.cidade} onChange={set('cidade')} /></Field>
+          <Field label={t('feiras.cliente.obs')} className="fe-full"><textarea value={f.obs} onChange={set('obs')} placeholder={t('feiras.cliente.obsEx')} /></Field>
+        </div>
+      </Mais>
 
       {ex && (
         <>
-          <div>
-            <div className="fe-sec-title">{t('feiras.cliente.negociacoes', { n: negocios.length })}</div>
+          <Secao titulo={t('feiras.cliente.negociacoes', { n: negocios.length })}>
             {negocios.length === 0 ? <p style={{ fontSize: 13, color: 'var(--text-3)' }}>{t('feiras.cliente.nenhumaNeg')}</p> : (
               <div className="fe-list">{negocios.map((n) => (
                 <button key={n.id} className="fe-list-item" onClick={() => abrir('negocio', n.id)}>
@@ -61,20 +81,18 @@ export default function ClienteDrawer() {
                 </button>))}</div>
             )}
             <button className="fe-btn fe-btn-outline fe-btn-sm" style={{ marginTop: 10 }} onClick={() => abrir('negocio', null, ex.id)}><Icon name="plus" size={14} /> {t('feiras.cliente.novaNeg')}</button>
-          </div>
+          </Secao>
 
           {pedidos.length > 0 && (
-            <div>
-              <div className="fe-sec-title">{t('feiras.cliente.pedidos', { n: pedidos.length })}</div>
+            <Secao titulo={t('feiras.cliente.pedidos', { n: pedidos.length })}>
               <div className="fe-list">{pedidos.map((p) => (
                 <button key={p.id} className="fe-list-item" onClick={() => abrir('pedido', p.id)}>
                   <div className="fe-grow"><div className="fe-t">{brl(totalPedido(p))}</div><div className="fe-s">{t(CHAVE_STATUS[p.status])} · {dataLonga(p.dataPedido)}</div></div><Icon name="chevron" size={16} />
                 </button>))}</div>
-            </div>
+            </Secao>
           )}
 
-          <div>
-            <div className="fe-sec-title">{t('feiras.cliente.historico')}</div>
+          <Secao titulo={t('feiras.cliente.historico')}>
             <div className="fe-inline-add" style={{ marginBottom: 14 }}>
               <div className="fe-seg">{TIPOS_CONTATO.map((tc) => <button key={tc.id} type="button" className={tipo === tc.id ? 'fe-on' : ''} onClick={() => setTipo(tc.id)}>{t('feiras.contato.' + tc.id)}</button>)}</div>
               <input className="fe-input" value={nota} onChange={(e) => setNota(e.target.value)} placeholder={t('feiras.cliente.oQueConversado')} />
@@ -87,7 +105,7 @@ export default function ClienteDrawer() {
                   <div className="fe-n">{c.nota}</div></div></div>
               ))}
             </div>
-          </div>
+          </Secao>
         </>
       )}
     </Drawer>

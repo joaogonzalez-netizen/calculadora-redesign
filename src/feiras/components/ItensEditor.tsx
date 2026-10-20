@@ -9,7 +9,7 @@ import { useFeirasT } from '../lib/i18n';
 export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: ItemPedido[]; onChange: (i: ItemPedido[]) => void; rotuloTotal?: string }) {
   const { t } = useFeirasT();
   const { db, itemDoProduto } = useStore();
-  const [tipo, setTipo] = useState<'atacado' | 'varejo'>('varejo');
+  const [tipo, setTipo] = useState<'atacado' | 'varejo'>('atacado');
   const avulso = (it: ItemPedido) => !it.produtoId && (!!it.avulso || !!it.nome.trim());
   const total = itens.reduce((s, i) => s + i.qtd * i.unit, 0);
   const custo = itens.reduce((s, i) => s + i.qtd * i.custoUnit, 0);
@@ -33,7 +33,7 @@ export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: I
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
         <div className="fe-sec-title">{t('feiras.itens.tabela')}</div>
-        <Seg valor={tipo} onChange={repricing} opcoes={[{ id: 'varejo', label: t('feiras.itens.clienteFinal') }, { id: 'atacado', label: t('feiras.itens.loja') }]} />
+        <Seg valor={tipo} onChange={repricing} opcoes={[{ id: 'atacado', label: t('feiras.itens.loja') }, { id: 'varejo', label: t('feiras.itens.clienteFinal') }]} />
       </div>
       {itens.map((it, idx) => (
         <div key={idx} className="fe-item-row">

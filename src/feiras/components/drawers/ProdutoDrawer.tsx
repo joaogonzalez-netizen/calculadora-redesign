@@ -4,7 +4,7 @@ import { useUi } from '../../lib/ui';
 import { brl } from '../../lib/format';
 import { atacadoAuto, custoProduto, varejoAuto } from '../../lib/pricing';
 import type { Produto } from '../../lib/types';
-import { Drawer, Field } from '../ui';
+import { Drawer, Field, Secao } from '../ui';
 import Icon from '../Icon';
 import { useFeirasT } from '../../lib/i18n';
 
@@ -44,6 +44,7 @@ export default function ProdutoDrawer() {
         {ex && <button className="fe-btn fe-btn-danger" onClick={() => { if (confirm(t('feiras.produto.confirmarExcluir'))) { s.excluirProduto(ex.id); fechar(); } }}><Icon name="trash" size={16} /></button>}
         <button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>{t('feiras.produto.salvar')}</button></>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
+      <Secao titulo={t('feiras.secao.produto')}>
       <div className="fe-form-grid">
         <Field label={t('feiras.produto.nome')} className="fe-full"><input value={f.nome} onChange={set('nome')} placeholder={t('feiras.produto.nomeEx')} /></Field>
         <Field label={t('feiras.produto.sku')}><input value={f.sku} onChange={set('sku')} placeholder="DEC-001" /></Field>
@@ -53,13 +54,13 @@ export default function ProdutoDrawer() {
         <Field label={t('feiras.produto.peso')}><input type="number" inputMode="decimal" min={0} value={f.pesoG} onChange={set('pesoG')} /></Field>
         <Field label={t('feiras.produto.acessorio')}><input type="number" inputMode="decimal" step="0.01" min={0} value={f.acessorio} onChange={set('acessorio')} /></Field>
       </div>
-      <div>
-        <div className="fe-sec-title">{t('feiras.produto.precos')}</div>
+      </Secao>
+      <Secao titulo={t('feiras.produto.precos')}>
         <div className="fe-form-grid">
           <Field label={t('feiras.produto.atacado')} hint={t('feiras.produto.atacadoHint', { v: brl(atacadoAuto(prev, db.config)) })}><input type="number" inputMode="decimal" step="0.01" min={0} value={f.atacado} onChange={set('atacado')} placeholder={atacadoAuto(prev, db.config).toFixed(2)} /></Field>
           <Field label={t('feiras.produto.varejo')} hint={t('feiras.produto.varejoHint', { v: brl(varejoAuto(prev, db.config)) })}><input type="number" inputMode="decimal" step="0.01" min={0} value={f.varejo} onChange={set('varejo')} placeholder={varejoAuto(prev, db.config).toFixed(2)} /></Field>
         </div>
-      </div>
+      </Secao>
       <div className="fe-totals"><div><small>{t('feiras.produto.custoProducao')}</small><br /><b>{brl(custo)}</b></div><small style={{ maxWidth: 190, textAlign: 'right' }}>{t('feiras.produto.custoNota')}</small></div>
     </Drawer>
   );

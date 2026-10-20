@@ -15,7 +15,7 @@ interface Props {
 }
 
 /** Grupos de FERRAMENTAS com submenu, Buscador é item flat (tela única, sem submenu).
- *  Vendas físicas e Marketing são seções próprias, com os itens direto no menu. */
+ *  Venda direta e Marketing são seções próprias, com os itens direto no menu. */
 type GrupoId = 'gerador' | 'calculadora';
 
 const VIEWS_DA_CALCULADORA: View[] = ['calculadora', 'historico', 'preferencias'];
@@ -76,7 +76,6 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
 
         <div className="nav-label">{t('nav.ferramentas')}</div>
         <NavItem icon="message" label={t('nav.assistente')} active={view === 'assistente'} collapsed={collapsed} onClick={() => onNavigate('assistente')} />
-        {mostrarFeiras && <NavItem icon="pedidos" label={t('nav.filaPedidos')} active={view === 'fila-pedidos'} collapsed={collapsed} onClick={() => onNavigate('fila-pedidos')} />}
         {GRUPOS.map((g) => {
           const grupoAtivo = g.id === 'calculadora' && naCalculadora;
           const grupoAtivoGerador = g.id === 'gerador' && noGerador;
@@ -106,6 +105,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
           );
         })}
         <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />
+        {mostrarFeiras && <NavItem icon="pedidos" label={t('nav.filaPedidos')} active={view === 'fila-pedidos'} collapsed={collapsed} onClick={() => onNavigate('fila-pedidos')} />}
 
         {mostrarFeiras && (
           <>

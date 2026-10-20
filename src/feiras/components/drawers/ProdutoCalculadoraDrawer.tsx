@@ -5,13 +5,13 @@ import { brl } from '../../lib/format';
 import { getHistorico, saveHistoricoArr } from '../../../lib/storage';
 import { useLibrarias } from '../../../context/LibrariasContext';
 import type { HistoricoEntry } from '../../../types';
-import { Drawer, Field, Seg } from '../ui';
+import { Drawer, Field, Seg, Secao } from '../ui';
 import { useFeirasT, decimalLocal } from '../../lib/i18n';
 import { idiomaDoFormato } from '../../../lib/format';
 
 type Pgto = 'debito' | 'credito' | 'pix' | 'outra';
 
-// Cadastra, no catálogo de Vendas físicas, um produto que já foi calculado na
+// Cadastra, no catálogo de Venda direta, um produto que já foi calculado na
 // Calculadora (histórico, normalmente para um marketplace): o usuário escolhe
 // o cálculo e informa as taxas da VENDA DIRETA (pagamento, imposto, frete e
 // margem). O preço é calculado na hora e o resultado é salvo no histórico da
@@ -113,6 +113,7 @@ export default function ProdutoCalculadoraDrawer() {
       rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>{t('feiras.pc.cadastrar')}</button>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
 
+      <Secao titulo={t('feiras.secao.calculo')}>
       <Field label={t('feiras.pc.produtoCalculado')} hint={opcoes.length === 0 ? t('feiras.pc.nenhumCalculo') : undefined}>
         <select value={id} onChange={(e) => escolher(e.target.value)}>
           <option value="">{t('feiras.pc.selecione')}</option>
@@ -121,13 +122,13 @@ export default function ProdutoCalculadoraDrawer() {
           ))}
         </select>
       </Field>
+      </Secao>
 
       {base && (
         <>
           <div className="fe-totals"><div><small>{t('feiras.pc.custoUnidade')}</small><br /><b>{brl(base.custoUnit)}</b></div><small style={{ maxWidth: 210, textAlign: 'right' }}>{t('feiras.pc.precoNoCanal', { canal: nomeCanal(base.marketplace), v: brl(base.precoConsumidor) })}</small></div>
 
-          <div>
-            <div className="fe-sec-title">{t('feiras.pc.taxasTitulo')}</div>
+          <Secao titulo={t('feiras.pc.taxasTitulo')}>
             <Field label={t('feiras.pc.formaPgto')}>
               <Seg<Pgto> valor={pgto} onChange={setPgto} opcoes={[
                 { id: 'debito', label: t('feiras.pc.debito', { p: decimalLocal(taxaDebito) }) },
@@ -142,7 +143,7 @@ export default function ProdutoCalculadoraDrawer() {
               <Field label={t('feiras.pc.frete')} hint={t('feiras.pc.freteHint')}><input type="number" inputMode="decimal" step="0.01" min={0} value={frete} onChange={(e) => setFrete(e.target.value)} placeholder={t('feiras.comum.zero')} /></Field>
               <Field label={t('feiras.pc.margem')}><input type="number" inputMode="decimal" step="0.1" min={0} value={margem} onChange={(e) => setMargem(e.target.value)} /></Field>
             </div>
-          </div>
+          </Secao>
 
           <div className="fe-totals">
             <div><small>{t('feiras.pc.precoVendaDireta')}</small><br /><b>{calc ? brl(calc.preco) : t('feiras.comum.nd')}</b></div>

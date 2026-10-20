@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import './feiras.css';
 import { StoreProvider, useStore } from './lib/store';
 import { UiProvider, useUi, type View } from './lib/ui';
-import Icon from './components/Icon';
 import PainelView from './views/PainelView';
 import NegociosView from './views/NegociosView';
 import ClientesView from './views/ClientesView';
@@ -21,7 +20,7 @@ export type { View as FeirasView } from './lib/ui';
 
 interface Props { view: View; onNavigate: (v: View) => void; onIrParaCalculadora: () => void }
 
-/** Módulo de vendas físicas (feiras, eventos e lojas) dentro do STLSeller. PT e EN (ES usa PT); dados em localStorage (mesma camada do resto do protótipo). */
+/** Módulo de venda direta (feiras, eventos e lojas) dentro do STLSeller. PT e EN (ES usa PT); dados em localStorage (mesma camada do resto do protótipo). */
 export default function FeirasModule({ view, onNavigate, onIrParaCalculadora }: Props) {
   const nav = useCallback((v: View) => onNavigate(v), [onNavigate]);
   return (
@@ -35,7 +34,7 @@ export default function FeirasModule({ view, onNavigate, onIrParaCalculadora }: 
 
 function Conteudo() {
   const { feiraAtiva } = useStore();
-  const { view, ir, drawer, abrir, toast } = useUi();
+  const { view, ir, drawer, toast } = useUi();
   const { t } = useFeirasT();
   return (
     <div className="fe">
@@ -44,7 +43,6 @@ function Conteudo() {
           <span className="fe-dot" />
           <span className="fe-t">{feiraAtiva ? feiraAtiva.nome : t('feiras.modulo.nenhumAtivo')}</span>
         </button>
-        <button className="fe-btn fe-btn-primary" onClick={() => abrir('lead')}><Icon name="plus" /> {t('feiras.modulo.contatoRapido')}</button>
       </div>
 
       {view === 'painel' && <PainelView />}

@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useStore } from '../lib/store';
 import { useUi } from '../lib/ui';
 import { brl, dataCurta, hoje } from '../lib/format';
-import { precoVarejo } from '../lib/pricing';
-import { Pagina, Vazio, Drawer, Field } from '../components/ui';
+import { Pagina, Vazio, Drawer, Field, Secao, Seg } from '../components/ui';
+import { precoAtacado, precoVarejo } from '../lib/pricing';
 import Icon from '../components/Icon';
 import type { Feira, ProdutoDaFeira } from '../lib/types';
 import { useFeirasT } from '../lib/i18n';
@@ -15,24 +15,12 @@ export default function FeirasView() {
   const [edit, setEdit] = useState<Partial<Feira> | null>(null);
   // Feira aberta no painel de produtos (clicar no card) e estado do seletor de produtos.
   const [detalheId, setDetalheId] = useState<string | null>(null);
-  const [escolhendo, setEscolhendo] = useState(false);
-  const [buscaProd, setBuscaProd] = useState('');
-  const [marcados, setMarcados] = useState<string[]>([]);
   const detalhe = db.feiras.find((f) => f.id === detalheId) ?? null;
-  const produtosDaFeira = detalhe?.produtos ?? [];
 
-  function abrirDetalhe(id: string) { setDetalheId(id); setEscolhendo(false); setBuscaProd(''); setMarcados([]); }
-  function fecharDetalhe() { setDetalheId(null); setEscolhendo(false); }
+  function abrirDetalhe(id: string) { setDetalheId(id); }
+  function fecharDetalhe() { setDetalheId(null); }
   function gravarProdutos(f: Feira, produtos: ProdutoDaFeira[]) { salvarFeira({ ...f, produtos }); }
 
-  // Catálogo (calculadora) que ainda não está na feira, filtrado pela busca.
-  const disponiveis = useMemo(() => {
-    const jaIds = new Set(produtosDaFeira.map((p) => p.produtoId));
-    const q = buscaProd.trim().toLowerCase();
-    return db.produtos.filter((p) => !jaIds.has(p.id) && (!q || p.nome.toLowerCase().includes(q)));
-  }, [db.produtos, produtosDaFeira, buscaProd]);
-  const catalogoTodoAdicionado = db.produtos.length > 0 && db.produtos.every((p) => produtosDaFeira.some((x) => x.produtoId === p.id));
-  const totalUnidades = produtosDaFeira.reduce((s, p) => s + p.qtd, 0);
 
   const metricas = (id: string) => {
     const ns = db.negocios.filter((n) => n.feiraId === id);
@@ -67,68 +55,7 @@ export default function FeirasView() {
       {detalhe && (
         <Drawer aberto largo titulo={detalhe.nome} subtitulo={t('feiras.pontos.detalheSub', { local: detalhe.local || t('feiras.pontos.localNaoInformado'), a: dataCurta(detalhe.inicio), b: dataCurta(detalhe.fim) })} onClose={fecharDetalhe}
           rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={fecharDetalhe}>{t('feiras.pontos.concluir')}</button>}>
-          <div className="fe-prod-feira-head">
-            <div>
-              <h4>{t('feiras.pontos.prodTitulo')}</h4>
-              <p>{t('feiras.pontos.prodDesc')}</p>
-            </div>
-            {!escolhendo && db.produtos.length > 0 && (
-              <button className="fe-btn fe-btn-primary" onClick={() => { setEscolhendo(true); setBuscaProd(''); setMarcados([]); }} disabled={catalogoTodoAdicionado}><Icon name="plus" /> {t('feiras.pontos.prodAdicionar')}</button>
-            )}
-          </div>
-
-          {escolhendo && (
-            <div className="fe-prod-escolha">
-              <input value={buscaProd} onChange={(e) => setBuscaProd(e.target.value)} placeholder={t('feiras.pontos.prodBuscar')} autoFocus />
-              <div className="fe-prod-lista">
-                {catalogoTodoAdicionado ? <p className="fe-sub">{t('feiras.pontos.prodTodos')}</p>
-                  : disponiveis.length === 0 ? <p className="fe-sub">{t('feiras.pontos.prodNenhumResultado')}</p>
-                  : disponiveis.map((p) => {
-                    const marcado = marcados.includes(p.id);
-                    return (
-                      <label key={p.id} className={'fe-prod-opcao' + (marcado ? ' fe-marcado' : '')}>
-                        <input type="checkbox" checked={marcado} onChange={() => setMarcados((m) => (marcado ? m.filter((x) => x !== p.id) : [...m, p.id]))} />
-                        <span className="fe-grow"><span className="fe-nm">{p.nome}</span><span className="fe-sub">{p.material}</span></span>
-                        <b>{brl(precoVarejo(p, db.config))}</b>
-                      </label>
-                    );
-                  })}
-              </div>
-              <div className="fe-prod-escolha-acoes">
-                <button className="fe-btn fe-btn-outline" onClick={() => { setEscolhendo(false); setMarcados([]); }}>{t('feiras.pontos.prodCancelarEscolha')}</button>
-                <button className="fe-btn fe-btn-primary" disabled={marcados.length === 0} onClick={() => {
-                  gravarProdutos(detalhe, [...produtosDaFeira, ...marcados.map((produtoId) => ({ produtoId, qtd: 1 }))]);
-                  avisar(t('feiras.pontos.prodAdicionados', { n: marcados.length }));
-                  setEscolhendo(false); setMarcados([]);
-                }}>{t('feiras.pontos.prodAdicionarN', { n: marcados.length })}</button>
-              </div>
-            </div>
-          )}
-
-          {db.produtos.length === 0 ? (
-            <Vazio titulo={t('feiras.pontos.prodCatalogoVazioTitulo')} texto={t('feiras.pontos.prodCatalogoVazioTexto')} acao={<button className="fe-btn fe-btn-primary" onClick={irParaCalculadora}>{t('feiras.pontos.prodIrCalculadora')}</button>} />
-          ) : produtosDaFeira.length === 0 ? (
-            !escolhendo && <Vazio titulo={t('feiras.pontos.prodVazioTitulo')} texto={t('feiras.pontos.prodVazioTexto')} acao={<button className="fe-btn fe-btn-primary" onClick={() => setEscolhendo(true)}>{t('feiras.pontos.prodAdicionar')}</button>} />
-          ) : (
-            <>
-              <div className="fe-prod-resumo">{t('feiras.pontos.prodResumo', { n: produtosDaFeira.length, u: totalUnidades })}</div>
-              <div className="fe-prod-feira-lista">
-                {produtosDaFeira.map((item) => {
-                  const p = db.produtos.find((x) => x.id === item.produtoId);
-                  if (!p) return null;
-                  return (
-                    <div key={item.produtoId} className="fe-list-item">
-                      <div className="fe-grow"><div className="fe-t">{p.nome}</div><div className="fe-s">{t('feiras.pontos.prodPreco', { v: brl(precoVarejo(p, db.config)) })}</div></div>
-                      <label className="fe-prod-qtd"><span>{t('feiras.pontos.prodQtd')}</span>
-                        <input type="number" min={1} value={item.qtd} onChange={(e) => gravarProdutos(detalhe, produtosDaFeira.map((x) => (x.produtoId === item.produtoId ? { ...x, qtd: Math.max(1, parseInt(e.target.value, 10) || 1) } : x)))} />
-                      </label>
-                      <button className="fe-icon-btn" onClick={() => { gravarProdutos(detalhe, produtosDaFeira.filter((x) => x.produtoId !== item.produtoId)); avisar(t('feiras.pontos.prodRemovido')); }} aria-label={t('feiras.pontos.prodRemover')} title={t('feiras.pontos.prodRemover')}><Icon name="trash" size={16} /></button>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <ProdutosDoPonto key={detalhe.id} feira={detalhe} onSalvar={(produtos) => gravarProdutos(detalhe, produtos)} onCalculadora={irParaCalculadora} />
         </Drawer>
       )}
 
@@ -136,14 +63,66 @@ export default function FeirasView() {
         <Drawer aberto titulo={edit.id ? t('feiras.pontos.editarTitulo') : t('feiras.pontos.novoTitulo')} onClose={() => setEdit(null)}
           rodape={<>{edit.id && <button className="fe-btn fe-btn-danger" onClick={() => { if (confirm(t('feiras.pontos.confirmarExcluir'))) { excluirFeira(edit.id!); setEdit(null); } }}><Icon name="trash" size={16} /></button>}
             <button className="fe-btn fe-btn-primary fe-grow" onClick={() => { if (!edit.nome?.trim()) return; salvarFeira({ ...edit, nome: edit.nome.trim() }); setEdit(null); avisar(t('feiras.pontos.salvo')); }}>{t('feiras.comum.salvar')}</button></>}>
+          <Secao titulo={t('feiras.secao.pontoDados')}>
           <Field label={t('feiras.pontos.nomeEvento')}><input autoFocus value={edit.nome ?? ''} onChange={(e) => setEdit({ ...edit, nome: e.target.value })} placeholder={t('feiras.pontos.nomePlaceholder')} /></Field>
           <Field label={t('feiras.pontos.local')}><input value={edit.local ?? ''} onChange={(e) => setEdit({ ...edit, local: e.target.value })} placeholder={t('feiras.pontos.localPlaceholder')} /></Field>
           <div className="fe-form-grid">
             <Field label={t('feiras.pontos.inicio')}><input type="date" value={edit.inicio ?? ''} onChange={(e) => setEdit({ ...edit, inicio: e.target.value })} /></Field>
             <Field label={t('feiras.pontos.fim')}><input type="date" value={edit.fim ?? ''} onChange={(e) => setEdit({ ...edit, fim: e.target.value })} /></Field>
           </div>
+          </Secao>
         </Drawer>
       )}
     </Pagina>
+  );
+}
+
+/** Produtos que serão vendidos no ponto: mesma experiência dos itens da negociação (produto, qtd, valor un.). */
+function ProdutosDoPonto({ feira, onSalvar, onCalculadora }: { feira: Feira; onSalvar: (p: ProdutoDaFeira[]) => void; onCalculadora: () => void }) {
+  const { db } = useStore();
+  const { t } = useFeirasT();
+  const [tipo, setTipo] = useState<'atacado' | 'varejo'>('atacado');
+  // Linhas em edição (inclui a linha nova ainda sem produto); só as com produto são gravadas.
+  const [linhas, setLinhas] = useState<{ produtoId: string; qtd: number; unit: number }[]>(() => (feira.produtos ?? []).map((p) => {
+    const prod = db.produtos.find((x) => x.id === p.produtoId);
+    return { produtoId: p.produtoId, qtd: p.qtd, unit: p.unit ?? (prod ? precoAtacado(prod, db.config) : 0) };
+  }));
+  const preco = (id: string, tp = tipo) => { const p = db.produtos.find((x) => x.id === id); return p ? Math.round((tp === 'atacado' ? precoAtacado(p, db.config) : precoVarejo(p, db.config)) * 100) / 100 : 0; };
+  const gravar = (novas: typeof linhas) => { setLinhas(novas); onSalvar(novas.filter((l) => l.produtoId).map((l) => ({ produtoId: l.produtoId, qtd: l.qtd, unit: l.unit }))); };
+  const alterar = (i: number, p: Partial<(typeof linhas)[number]>) => gravar(linhas.map((l, k) => (k === i ? { ...l, ...p } : l)));
+  const total = linhas.reduce((s, l) => s + l.qtd * l.unit, 0);
+
+  if (db.produtos.length === 0) {
+    return (
+      <Secao titulo={t('feiras.pontos.prodTitulo')} desc={t('feiras.pontos.prodDesc')}>
+        <Vazio titulo={t('feiras.pontos.prodCatalogoVazioTitulo')} texto={t('feiras.pontos.prodCatalogoVazioTexto')} acao={<button className="fe-btn fe-btn-primary" onClick={onCalculadora}>{t('feiras.pontos.prodIrCalculadora')}</button>} />
+      </Secao>
+    );
+  }
+  return (
+    <Secao titulo={t('feiras.pontos.prodTitulo')} desc={t('feiras.pontos.prodDesc')}>
+      <div>
+        <div className="fe-sec-title">{t('feiras.itens.tabela')}</div>
+        <Seg valor={tipo} onChange={(novo) => { setTipo(novo); gravar(linhas.map((l) => (l.produtoId ? { ...l, unit: preco(l.produtoId, novo) } : l))); }} opcoes={[{ id: 'atacado', label: t('feiras.itens.loja') }, { id: 'varejo', label: t('feiras.itens.clienteFinal') }]} />
+      </div>
+      {linhas.map((l, idx) => (
+        <div key={idx} className="fe-item-row">
+          <label className="fe-field">
+            <span className="fe-lbl">{idx === 0 ? t('feiras.itens.produto') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
+            <select value={l.produtoId} onChange={(e) => alterar(idx, { produtoId: e.target.value, unit: preco(e.target.value) })}>
+              <option value="">{t('feiras.itens.escolher')}</option>
+              {db.produtos.filter((p) => p.id === l.produtoId || !linhas.some((x) => x.produtoId === p.id)).map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
+            </select>
+          </label>
+          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.qtd') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
+            <input type="number" inputMode="numeric" min={1} value={l.qtd} onChange={(e) => alterar(idx, { qtd: Math.max(1, Number(e.target.value) || 1) })} /></label>
+          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.valorUn') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
+            <input type="number" inputMode="decimal" min={0} step="0.01" value={l.unit} onChange={(e) => alterar(idx, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
+          <button type="button" className="fe-icon-btn" aria-label={t('feiras.pontos.prodRemover')} onClick={() => gravar(linhas.filter((_, k) => k !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
+        </div>
+      ))}
+      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" disabled={linhas.length >= db.produtos.length} onClick={() => setLinhas([...linhas, { produtoId: '', qtd: 1, unit: 0 }])}><Icon name="plus" size={14} /> {t('feiras.pontos.prodAdicionar')}</button></div>
+      <div className="fe-totals"><div><small>{t('feiras.pontos.prodTotal')}</small><br /><b>{brl(total)}</b></div><div style={{ textAlign: 'right' }}><small>{t('feiras.pontos.prodUnidades')}</small><br /><b>{linhas.filter((l) => l.produtoId).reduce((s, l) => s + l.qtd, 0)}</b></div></div>
+    </Secao>
   );
 }
