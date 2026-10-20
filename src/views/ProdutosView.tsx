@@ -15,14 +15,17 @@ import { destinoDaCopia } from '../lib/copiarAnuncio';
 
 const STATUS_OPTS: (ProdutoStatus | 'Todos')[] = ['Todos', 'Ativo', 'Pausado', 'Esgotado'];
 const CANAL_OPTS = ['Todos', 'Mercado Livre', 'Shopee'];
+// Coluna "Otimizar" escondida por enquanto; é só voltar para true.
+const MOSTRAR_OTIMIZAR = false;
 
 interface Props {
   filtroSemCustoInicial?: boolean;
   onFiltroSemCustoConsumido?: () => void;
   onIrParaConfiguracoes?: () => void;
+  onReescreverAnuncio?: (produto: Produto) => void;
 }
 
-export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoConsumido, onIrParaConfiguracoes }: Props) {
+export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoConsumido, onIrParaConfiguracoes, onReescreverAnuncio }: Props) {
   const { t } = useI18n();
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState('Maio 2026');
@@ -143,7 +146,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           <table className="prod-table">
             <thead>
               <tr>
-                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th><th>{t('produtos.colunaLevar')}</th><th>{t('produtos.colunaOtimizar')}</th><th>{t('produtos.colunaAcoes')}</th>
+                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th><th>{t('produtos.colunaLevar')}</th>{MOSTRAR_OTIMIZAR && <th>{t('produtos.colunaOtimizar')}</th>}<th>{t('produtos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -176,11 +179,13 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                     <td>
                       <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setLevarProduto(p)}>{t('produtos.levarBtn' + destinoDaCopia(p).sufixo)}</button>
                     </td>
-                    <td>
-                      <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
-                        <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
-                      </button>
-                    </td>
+                    {MOSTRAR_OTIMIZAR && (
+                      <td>
+                        <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
+                          <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
+                        </button>
+                      </td>
+                    )}
                     <td>
                       <div className="prod-acoes">
                         <button type="button" title={t('produtos.verDetalhes')} onClick={() => setDetalheProduto(p)}><Icon name="eye" size={16} /></button>
@@ -239,6 +244,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           produto={levarProduto}
           onClose={() => setLevarProduto(null)}
           onIrParaConfiguracoes={onIrParaConfiguracoes ? () => { setLevarProduto(null); onIrParaConfiguracoes(); } : undefined}
+          onReescrever={onReescreverAnuncio ? () => { const p = levarProduto; setLevarProduto(null); onReescreverAnuncio(p); } : undefined}
         />
       )}
       {otimizarProduto && <OtimizarAnuncioDrawer produto={otimizarProduto} onClose={() => setOtimizarProduto(null)} />}

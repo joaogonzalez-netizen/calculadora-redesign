@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../context/I18nContext';
 import { GERADOR_MARKETPLACES_VISIVEIS } from '../lib/versoes';
 import Icon from '../components/Icon';
-import { getRascunhoShopee, infoDoRascunho, modoDoRascunho, setModoRascunho } from '../lib/rascunhosShopee';
+import { getRascunhoShopee, infoDoRascunho, modoDoRascunho, setModoRascunho, type RascunhoShopee } from '../lib/rascunhosShopee';
 import PublicarAnuncioModal from '../components/gerador/PublicarAnuncioModal';
 import GeradorStepper from '../components/gerador/GeradorStepper';
 import UploadStep from '../components/gerador/UploadStep';
@@ -28,14 +28,16 @@ interface Props {
   onIrParaConfiguracoes: () => void;
   // Rascunho copiado da Shopee pela extensão: pré-preenche imagens e informações.
   rascunhoId?: string | null;
+  // Rascunho em memória (ex.: "Reescrever com o Seller" em Produtos), usado quando não há rascunho salvo.
+  rascunhoInicial?: RascunhoShopee | null;
   onSalvarRascunho?: () => void;
 }
 
-export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, onSalvarRascunho }: Props) {
+export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, rascunhoInicial, onSalvarRascunho }: Props) {
   const { t, idioma } = useI18n();
   const [passoAtual, setPassoAtual] = useState<PassoId>('upload');
   const [visitados, setVisitados] = useState<Set<PassoId>>(new Set());
-  const [rascunho] = useState(() => getRascunhoShopee(rascunhoId));
+  const [rascunho] = useState(() => getRascunhoShopee(rascunhoId) ?? rascunhoInicial ?? null);
   const [modo, setModo] = useState(() => modoDoRascunho(rascunho));
   const [publicarAberto, setPublicarAberto] = useState(false);
 
@@ -110,8 +112,8 @@ export default function CriarAnuncioView({ onIrParaConfiguracoes, rascunhoId, on
         <div className="ger-rascunho-banner">
           <Icon name="download" size={16} />
           <div>
-            <b>{t('gerador.rascunhoShopeeTitulo')}</b>
-            <span>{t('gerador.rascunhoShopeeDesc')}</span>
+            <b>{t(rascunho.origem === 'produto' ? 'gerador.reescreverBannerTitulo' : 'gerador.rascunhoShopeeTitulo')}</b>
+            <span>{t(rascunho.origem === 'produto' ? 'gerador.reescreverBannerDesc' : 'gerador.rascunhoShopeeDesc')}</span>
           </div>
         </div>
       )}

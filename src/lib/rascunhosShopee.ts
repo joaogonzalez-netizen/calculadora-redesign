@@ -22,6 +22,9 @@ export interface RascunhoShopee {
   //  'ia'    = copiar e criar com IA → Gerador completo (textos e imagens novos, consome créditos).
   // Rascunhos antigos, sem o campo, contam como 'ia'.
   modo?: ModoCopia;
+  // De onde veio: a extensão do Chrome (padrão) ou "Duplicar → Reescrever com o
+  // Seller" na lista de Produtos (rascunho só em memória, não vai pra Meus anúncios).
+  origem?: 'extensao' | 'produto';
 }
 
 export type ModoCopia = 'copia' | 'ia';

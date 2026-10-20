@@ -26,7 +26,8 @@ import { CalculadoraProvider } from './context/CalculadoraContext';
 import { I18nProvider, useI18n } from './context/I18nContext';
 import { MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS, MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
-import { PARAM_ABRIR } from './lib/rascunhosShopee';
+import { PARAM_ABRIR, type RascunhoShopee } from './lib/rascunhosShopee';
+import { rascunhoDoProduto } from './lib/copiarAnuncio';
 import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
 
 export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-catalogo' | 'feiras-eventos' | 'feiras-prospeccao' | 'fila-pedidos';
@@ -37,6 +38,8 @@ function AppShell() {
   const [view, setView] = useState<View>(() => new URLSearchParams(window.location.search).get(PARAM_ABRIR) === 'meus-anuncios' ? 'gerador-meus' : 'dashboard');
   // Rascunho copiado da Shopee que o Gerador deve abrir (null = anúncio novo, do zero).
   const [rascunhoId, setRascunhoId] = useState<string | null>(null);
+  // "Reescrever com o Seller" (Produtos): rascunho só em memória, com as imagens do anúncio.
+  const [rascunhoInicial, setRascunhoInicial] = useState<RascunhoShopee | null>(null);
   const [histCount, setHistCount] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
   const [produtosFiltroSemCusto, setProdutosFiltroSemCusto] = useState(false);
@@ -47,7 +50,7 @@ function AppShell() {
   const novaConversa = () => setAssistenteKey((k) => k + 1);
   const navegar = (v: View) => {
     if (v === 'assistente') novaConversa();
-    if (v === 'gerador-criar') setRascunhoId(null);
+    if (v === 'gerador-criar') { setRascunhoId(null); setRascunhoInicial(null); }
     setView(v);
   };
   const aoMudarConversa = useCallback((ativa: boolean) => setConversaAtiva(ativa), []);
@@ -142,13 +145,14 @@ function AppShell() {
               filtroSemCustoInicial={produtosFiltroSemCusto}
               onFiltroSemCustoConsumido={() => setProdutosFiltroSemCusto(false)}
               onIrParaConfiguracoes={() => setView('configuracoes')}
+              onReescreverAnuncio={(p) => { setRascunhoId(null); setRascunhoInicial(rascunhoDoProduto(p)); setView('gerador-criar'); }}
             />
           )}
           {view === 'calculadora' && <CalculadoraView onSaved={aoSalvarCalculo} onVoltarCatalogo={() => setView('feiras-catalogo')} />}
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} onIrParaMeusAnuncios={() => setView('gerador-meus')} />}
-          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? 'novo'} rascunhoId={rascunhoId} onSalvarRascunho={() => setView('gerador-meus')} onIrParaConfiguracoes={() => setView('configuracoes')} />}
+          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? rascunhoInicial?.id ?? 'novo'} rascunhoId={rascunhoId} rascunhoInicial={rascunhoInicial} onSalvarRascunho={() => setView('gerador-meus')} onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={(id) => { setRascunhoId(id ?? null); setView('gerador-criar'); }} />}
           {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
           {view === 'assistente' && <AssistenteView key={assistenteKey} onNavegar={setView} onConversaAtiva={aoMudarConversa} />}

@@ -12,13 +12,15 @@ interface Props {
   produto: Produto;
   onClose: () => void;
   onIrParaConfiguracoes?: () => void;
+  // Reescrever leva direto pro Gerador de anúncios, com as imagens e dados do anúncio.
+  onReescrever?: () => void;
 }
 
 // Leva um anúncio de um marketplace para o outro. Duas formas: copiar como está
 // (só revisa e publica) ou reescrever com o Seller (consome créditos como um
 // anúncio novo). Mockado: nada é publicado nem gravado, o modal só mostra o
 // aviso certo pro destino e confirma a escolha.
-export default function LevarAnuncioModal({ produto, onClose, onIrParaConfiguracoes }: Props) {
+export default function LevarAnuncioModal({ produto, onClose, onIrParaConfiguracoes, onReescrever }: Props) {
   const { t } = useI18n();
   const destino = destinoDaCopia(produto);
   const [escolha, setEscolha] = useState<Modo | null>(null);
@@ -75,7 +77,7 @@ export default function LevarAnuncioModal({ produto, onClose, onIrParaConfigurac
                 <b><Icon name="copy" size={16} /> {t('produtos.levarCopiarTitulo')}</b>
                 <span>{t('produtos.levarCopiarDesc')}</span>
               </button>
-              <button type="button" className="levar-opcao" onClick={() => setEscolha('reescrever')}>
+              <button type="button" className="levar-opcao" onClick={() => (onReescrever ? onReescrever() : setEscolha('reescrever'))}>
                 <b><Icon name="pencil" size={16} /> {t('produtos.levarReescreverTitulo')}</b>
                 <span>{t('produtos.levarReescreverDesc')}</span>
               </button>
