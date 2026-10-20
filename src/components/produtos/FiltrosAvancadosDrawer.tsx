@@ -10,7 +10,9 @@ interface Props {
 }
 
 export default function FiltrosAvancadosDrawer({ onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const en = idioma === 'en';
+  const moeda = en ? '$' : 'R$';
   const [valor, setValor] = useState<FaixaFiltro>({ min: '', max: '' });
   const [estoque, setEstoque] = useState<FaixaFiltro>({ min: '', max: '' });
 
@@ -28,16 +30,16 @@ export default function FiltrosAvancadosDrawer({ onClose, onApply }: Props) {
 
         <div className="field" style={{ marginTop: 18 }}>
           <label>{t('produtos.faixaDeValor')}</label>
-          <div className="hint">Filtre produtos dentro de uma faixa de preço de venda</div>
+          <div className="hint">{en ? 'Filter products within a sale price range' : 'Filtre produtos dentro de uma faixa de preço de venda'}</div>
           <div className="row2">
-            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" value={valor.min} onChange={(e) => setValor({ ...valor, min: e.target.value })} /></div>
-            <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" value={valor.max} onChange={(e) => setValor({ ...valor, max: e.target.value })} /></div>
+            <div className="prefix-wrap"><span className="pfx">{moeda}</span><input type="number" value={valor.min} onChange={(e) => setValor({ ...valor, min: e.target.value })} /></div>
+            <div className="prefix-wrap"><span className="pfx">{moeda}</span><input type="number" value={valor.max} onChange={(e) => setValor({ ...valor, max: e.target.value })} /></div>
           </div>
         </div>
 
         <div className="field" style={{ marginTop: 18 }}>
           <label>{t('produtos.faixaDeEstoque')}</label>
-          <div className="hint">Mostre apenas produtos com estoque dentro do intervalo</div>
+          <div className="hint">{en ? 'Only show products with inventory within the range' : 'Mostre apenas produtos com estoque dentro do intervalo'}</div>
           <div className="row2">
             <input type="number" placeholder={t('produtos.minimoPlaceholder')} value={estoque.min} onChange={(e) => setEstoque({ ...estoque, min: e.target.value })} />
             <input type="number" placeholder={t('produtos.maximoPlaceholder')} value={estoque.max} onChange={(e) => setEstoque({ ...estoque, max: e.target.value })} />

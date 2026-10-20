@@ -1,9 +1,10 @@
-import { MARKETPLACES, ULTIMA_SINCRONIZACAO } from '../../lib/dashboardMock';
+import { dashboardDoIdioma } from '../../lib/dashboardMock';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
 export default function SyncBar() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const { marketplaces: MARKETPLACES, ultimaSincronizacao: ULTIMA_SINCRONIZACAO } = dashboardDoIdioma(idioma);
   return (
     <div className="sync-bar">
       <span className="sync-dot" />

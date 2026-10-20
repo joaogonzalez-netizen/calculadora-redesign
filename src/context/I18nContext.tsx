@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { IDIOMA_PADRAO, IDIOMA_STORAGE_KEY, traduzir, type Idioma } from '../lib/i18n';
+import { definirIdiomaFormato } from '../lib/format';
 
 interface Ctx {
   idioma: Idioma;
@@ -21,6 +22,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setIdiomaState(i);
     localStorage.setItem(IDIOMA_STORAGE_KEY, i);
   }
+
+  // Antes de renderizar os filhos: formatação de moeda/número já sai no idioma certo.
+  definirIdiomaFormato(idioma);
 
   function t(chave: string): string {
     return traduzir(idioma, chave);

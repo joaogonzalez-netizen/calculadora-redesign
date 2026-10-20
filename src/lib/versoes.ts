@@ -9,7 +9,7 @@ import type { Canal, Moeda, Preferencias } from '../types';
 // não tem dado de vendas/pedidos pro mercado dela.
 export const MOSTRAR_MENUS_PRINCIPAIS: Record<Idioma, boolean> = {
   pt: true,
-  en: false,
+  en: true,
   es: true,
 };
 
@@ -18,7 +18,7 @@ export const MOSTRAR_MENUS_PRINCIPAIS: Record<Idioma, boolean> = {
 // fica sem função nessas versões.
 export const MOSTRAR_CONFIGURACOES: Record<Idioma, boolean> = {
   pt: true,
-  en: false,
+  en: true,
   es: false,
 };
 
@@ -26,7 +26,7 @@ export const MOSTRAR_CONFIGURACOES: Record<Idioma, boolean> = {
 // Configurações, que não existe nas versões ES/EN.
 export const MOSTRAR_PASSO_MARKETPLACE: Record<Idioma, boolean> = {
   pt: true,
-  en: false,
+  en: true,
   es: false,
 };
 
@@ -43,7 +43,7 @@ export const GERADOR_MARKETPLACES_VISIVEIS: Record<Idioma, string[]> = {
 export const CALC_CANAIS_VISIVEIS: Record<Idioma, Canal[]> = {
   pt: ['Venda direta', 'Mercado Livre', 'Shopee', 'TikTok Shop'],
   es: ['Venda direta', 'Mercado Livre Argentina'],
-  en: ['Venda direta', 'Mercado Livre Argentina'],
+  en: ['Venda direta', 'Etsy', 'TikTok Shop'],
 };
 
 // Padrões de precificação da versão ES (Argentina): IVA de 21% e peso argentino.
@@ -51,17 +51,32 @@ export const CALC_CANAIS_VISIVEIS: Record<Idioma, Canal[]> = {
 // neles em ES não mude o padrão das versões PT/EN, e vice-versa.
 export const IVA_ARGENTINA = 21;
 
+// EUA: imposto de venda varia por estado e normalmente é cobrado pelo próprio marketplace,
+// então o padrão da versão EN é 0% e o vendedor ajusta se precisar.
+export const IMPOSTO_PADRAO_EUA = 0;
+
 export function impostoDasPrefs(prefs: Preferencias, idioma: Idioma): number {
-  return idioma === 'es' ? (prefs.impostoEs ?? IVA_ARGENTINA) : prefs.imposto;
+  if (idioma === 'es') return prefs.impostoEs ?? IVA_ARGENTINA;
+  if (idioma === 'en') return prefs.impostoEn ?? IMPOSTO_PADRAO_EUA;
+  return prefs.imposto;
 }
 
 export function moedaDasPrefs(prefs: Preferencias, idioma: Idioma): Moeda {
-  return idioma === 'es' ? (prefs.moedaEs ?? 'ARS') : (prefs.moeda || 'BRL');
+  if (idioma === 'es') return prefs.moedaEs ?? 'ARS';
+  if (idioma === 'en') return prefs.moedaEn ?? 'USD';
+  return prefs.moeda || 'BRL';
 }
+
+// Pix é um meio de pagamento brasileiro: a versão EN (EUA) não mostra desconto/taxa de Pix.
+export const MOSTRAR_PIX: Record<Idioma, boolean> = {
+  pt: true,
+  en: false,
+  es: true,
+};
 
 // Módulo Vendas físicas (feiras, eventos e lojas físicas): por enquanto só em PT.
 export const MOSTRAR_FEIRAS: Record<Idioma, boolean> = {
   pt: true,
-  en: false,
+  en: true,
   es: false,
 };

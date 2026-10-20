@@ -2,6 +2,8 @@
 // topo e a paginação usam o total real de produção (176 pedidos), mas só uma
 // amostra é gerada pra tabela, mesmo padrão de lib/produtosMock.ts.
 
+import type { Idioma } from './i18n';
+
 export type StatusPedido = 'Pago' | 'Enviado' | 'Pendente' | 'Cancelado' | 'Entregue';
 export type StatusPagamento = 'Aprovado' | 'Pendente' | 'Reembolsado';
 
@@ -19,13 +21,18 @@ export interface EtapaTimeline {
   detalhe?: string;
 }
 
-export interface Pedido {
+// Marketplaces do mock brasileiro (PT/ES) e do americano (EN). PEDIDOS segue
+// tipado só com ML/Shopee porque outras telas (Fila de produção) dependem disso.
+export type MarketplacePedidoBr = 'Mercado Livre' | 'Shopee';
+export type MarketplacePedidoUs = 'Etsy' | 'TikTok Shop';
+
+export interface Pedido<M extends string = MarketplacePedidoBr | MarketplacePedidoUs> {
   id: string;
   codigoMlb: string;
   produto: string;
   qtd: number;
   data: string;
-  marketplace: 'Mercado Livre' | 'Shopee';
+  marketplace: M;
   comprador: string;
   compradorHandle: string;
   compradorCompras: number;
@@ -103,13 +110,13 @@ function montarTimeline(status: StatusPedido, dataBase: number): EtapaTimeline[]
   return etapas;
 }
 
-export function gerarPedidos(qtd: number): Pedido[] {
+export function gerarPedidos(qtd: number): Pedido<MarketplacePedidoBr>[] {
   const agora = Date.now();
   return Array.from({ length: qtd }, (_, i) => {
     const ciclo = CICLO_STATUS[i % CICLO_STATUS.length];
     const comprador = NOMES_COMPRADORES[i % NOMES_COMPRADORES.length];
     const produto = PRODUTOS_PEDIDO[i % PRODUTOS_PEDIDO.length];
-    const marketplace: Pedido['marketplace'] = i % 3 === 1 ? 'Shopee' : 'Mercado Livre';
+    const marketplace: MarketplacePedidoBr = i % 3 === 1 ? 'Shopee' : 'Mercado Livre';
     const qtdItem = 2;
     const frete = 18.5;
     const valorTotal = produto.preco * qtdItem;
@@ -144,4 +151,118 @@ export function gerarPedidos(qtd: number): Pedido[] {
   });
 }
 
-export const PEDIDOS: Pedido[] = gerarPedidos(30);
+export const PEDIDOS: Pedido<MarketplacePedidoBr>[] = gerarPedidos(30);
+
+// ---------------------------------------------------------------------------
+// Variante EN (mercado americano): Etsy e TikTok Shop, valores em dólar,
+// compradores e endereços dos EUA, datas mm/dd/yyyy. Status e pagamento
+// continuam com as chaves em português (são chaves de filtro/estilo); a tela
+// traduz o rótulo exibido.
+// ---------------------------------------------------------------------------
+
+export const PEDIDOS_KPIS_EN = {
+  total: 176,
+  faturamento: 5875,
+  aguardandoEnvio: 6,
+  taxasEstimadas: 646,
+};
+
+const COMPRADORES_EN = [
+  { nome: 'Emily Rodriguez', handle: '@emilyrod', compras: 12 },
+  { nome: 'Tyler Brooks', handle: '@tbrooks', compras: 4 },
+  { nome: 'Madison Kelly', handle: '@madikelly', compras: 1 },
+  { nome: 'Jordan Mitchell', handle: '@jmitch', compras: 7 },
+  { nome: 'Ashley Nguyen', handle: '@ashnguyen', compras: 2 },
+  { nome: 'Ryan Cooper', handle: '@ryancooper', compras: 9 },
+  { nome: 'Hannah Patel', handle: '@hannahp', compras: 3 },
+  { nome: 'Austin Walker', handle: '@awalker', compras: 5 },
+];
+
+const PRODUTOS_PEDIDO_EN: { nome: string; preco: number }[] = [
+  { nome: 'Articulated phone stand', preco: 12.99 },
+  { nome: 'Geometric faceted planter', preco: 18.99 },
+  { nome: 'Articulated dragon 8"', preco: 24.99 },
+  { nome: 'Modular desk organizer', preco: 22.99 },
+  { nome: 'Geometric desk lamp', preco: 34.99 },
+  { nome: 'Minimalist wall key holder', preco: 14.99 },
+  { nome: 'Resin decorative sign 5"', preco: 19.99 },
+];
+
+const DESTINOS_EN = [
+  { cidade: 'Austin, TX', zip: '78701' },
+  { cidade: 'Portland, OR', zip: '97205' },
+  { cidade: 'Denver, CO', zip: '80202' },
+  { cidade: 'Columbus, OH', zip: '43215' },
+  { cidade: 'Raleigh, NC', zip: '27601' },
+];
+
+function fmtDataHoraEn(ms: number) {
+  return new Date(ms).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(',', ' ·');
+}
+
+function montarTimelineEn(status: StatusPedido, dataBase: number): EtapaTimeline[] {
+  const etapas: EtapaTimeline[] = [
+    { label: 'Order placed', data: fmtDataHoraEn(dataBase), feito: true },
+    { label: 'Payment approved', data: fmtDataHoraEn(dataBase + 60000), feito: status !== 'Pendente' && status !== 'Cancelado' },
+    { label: 'Shipping label created', data: fmtDataHoraEn(dataBase + 3 * 3600000), feito: ['Enviado', 'Entregue'].includes(status) },
+    { label: 'Order shipped', data: fmtDataHoraEn(dataBase + 19 * 3600000), feito: status === 'Entregue', detalhe: status === 'Entregue' ? 'Picked up by the carrier' : undefined },
+    { label: 'Estimated delivery', data: 'By ' + new Date(dataBase + 4 * 86400000).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }), feito: false, detalhe: status === 'Entregue' ? 'Delivered to recipient' : 'Waiting for a carrier update' },
+  ];
+  if (status === 'Entregue') etapas[4] = { ...etapas[4], feito: true, label: 'Order delivered' };
+  return etapas;
+}
+
+export function gerarPedidosEn(qtd: number): Pedido<MarketplacePedidoUs>[] {
+  const agora = Date.now();
+  return Array.from({ length: qtd }, (_, i) => {
+    const ciclo = CICLO_STATUS[i % CICLO_STATUS.length];
+    const comprador = COMPRADORES_EN[i % COMPRADORES_EN.length];
+    const produto = PRODUTOS_PEDIDO_EN[i % PRODUTOS_PEDIDO_EN.length];
+    const destino = DESTINOS_EN[i % DESTINOS_EN.length];
+    const marketplace: MarketplacePedidoUs = i % 3 === 1 ? 'TikTok Shop' : 'Etsy';
+    const qtdItem = 2;
+    const frete = 4.99;
+    const valorTotal = Math.round(produto.preco * qtdItem * 100) / 100;
+    const taxaPct = marketplace === 'Etsy' ? 0.1 : 0.08;
+    const dataBase = agora - (i + 1) * 8 * 3600000;
+    const numero = marketplace === 'Etsy' ? String(3412987650 + i) : String(576912038400000 + i);
+    const rastreio = '9400 1118 9922 ' + String(3456 + i).padStart(4, '0') + ' ' + String(7801 + i).padStart(4, '0') + ' 21';
+
+    return {
+      id: numero,
+      codigoMlb: (marketplace === 'Etsy' ? 'ETSY-' : 'TTS-') + numero,
+      produto: produto.nome,
+      qtd: qtdItem,
+      data: new Date(dataBase).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+      marketplace,
+      comprador: comprador.nome,
+      compradorHandle: comprador.handle,
+      compradorCompras: comprador.compras,
+      status: ciclo.status,
+      pagamento: ciclo.pagamento,
+      pagamentoData: fmtDataHoraEn(dataBase + 60000).replace(' ·', ','),
+      valorTotal,
+      precoUnit: produto.preco,
+      frete,
+      taxaPct,
+      envioMetodo: marketplace === 'Etsy' ? 'USPS Ground Advantage' : 'TikTok Shop Shipping (UPS)',
+      envioCodigo: rastreio,
+      destinoCidade: destino.cidade,
+      destinoCep: destino.zip,
+      rastreio,
+      itens: [{ nome: produto.nome, qtd: qtdItem, precoUnit: produto.preco, cor: 'Black' }],
+      timeline: montarTimelineEn(ciclo.status, dataBase),
+    };
+  });
+}
+
+export const PEDIDOS_EN: Pedido<MarketplacePedidoUs>[] = gerarPedidosEn(30);
+
+/** Pedidos de exemplo do idioma ativo: EN usa a variante americana, PT e ES o mock original. */
+export function pedidosDoIdioma(idioma: Idioma): Pedido[] {
+  return idioma === 'en' ? PEDIDOS_EN : PEDIDOS;
+}
+
+export function pedidosKpisDoIdioma(idioma: Idioma) {
+  return idioma === 'en' ? PEDIDOS_KPIS_EN : PEDIDOS_KPIS;
+}

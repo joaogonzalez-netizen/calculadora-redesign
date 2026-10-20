@@ -1,15 +1,20 @@
 import type { Db } from './types';
 import { addDias, uid } from './format';
 import { CONFIG_PADRAO } from './pricing';
+import { idiomaDoFormato } from '../../lib/format';
+import type { Idioma } from '../../lib/i18n';
 
-export const dbVazio = (): Db => ({
-  clientes: [], negocios: [], prospectos: [], produtos: [], pedidos: [], feiras: [], feiraAtivaId: null, config: { ...CONFIG_PADRAO },
+// Na versão EN o módulo trabalha em dólar: custos por kg/hora em escala de dólar.
+const CONFIG_EN = { custoKg: 25, custoHora: 0.5, markupAtacado: 3, markupVarejo: 1.8 };
+
+export const dbVazio = (idioma: Idioma = idiomaDoFormato()): Db => ({
+  clientes: [], negocios: [], prospectos: [], produtos: [], pedidos: [], feiras: [], feiraAtivaId: null, config: { ...(idioma === 'en' ? CONFIG_EN : CONFIG_PADRAO) },
 });
 
 /** Os ids do exemplo ganham um sufixo único: no Supabase a chave primária é global. */
-export function dbExemplo(): Db {
+export function dbExemplo(idioma: Idioma = idiomaDoFormato()): Db {
   const suf = '-' + uid().slice(0, 6);
-  return JSON.parse(JSON.stringify(exemplo()).replace(/"(f-geek|f-maker|f-expo|(?:[pcno]|pr)\d+|c\d+c\d)"/g, (_, id) => `"${id}${suf}"`));
+  return JSON.parse(JSON.stringify(idioma === 'en' ? exemploEn() : exemplo()).replace(/"(f-geek|f-maker|f-expo|(?:[pcno]|pr)\d+|c\d+c\d)"/g, (_, id) => `"${id}${suf}"`));
 }
 
 type Neg = Db['negocios'][number];
@@ -105,6 +110,102 @@ function exemplo(): Db {
     prospectos: [
       { id: 'pr1', placeId: 'mock-02', nome: 'Floricultura Jardim das Cores', status: 'lead', clienteId: 'c11', atualizadoEm: addDias(-1) },
       { id: 'pr2', placeId: 'mock-14', nome: 'Canto da Rosa Floricultura', status: 'descartado', clienteId: null, atualizadoEm: addDias(-1) },
+    ],
+  };
+}
+
+/** Versão em inglês (EUA): nomes, cidades, eventos e valores em dólar. */
+function exemploEn(): Db {
+  const f1 = 'f-geek', f2 = 'f-maker', f3 = 'f-expo';
+  const cfg = { ...CONFIG_EN };
+  const prod = (id: string, nome: string, sku: string, categoria: string, material: string, tempoH: number, pesoG: number, acessorio = 0) => ({
+    id, nome, sku, categoria, material, tempoH, pesoG, acessorio, atacadoManual: null, varejoManual: null,
+  });
+  const produtos = [
+    prod('p1', 'Spiral Vase M', 'DEC-001', 'Decor', 'PLA', 3.5, 85),
+    prod('p2', 'Sitting Capybara', 'FIG-001', 'Figurines', 'PLA', 2, 40),
+    prod('p3', 'Headset Stand', 'ORG-001', 'Organization', 'PETG', 5, 120),
+    prod('p4', 'Moon Lamp', 'DEC-002', 'Decor', 'PLA', 8, 150, 2.4),
+    prod('p5', 'Custom Keychain', 'ACE-001', 'Accessories', 'PLA', 0.4, 6, 0.3),
+    prod('p6', 'Hexagon Pencil Holder', 'ORG-002', 'Organization', 'PLA', 1.8, 55),
+    prod('p7', 'Mini Succulent Planter', 'DEC-003', 'Decor', 'PLA', 1.2, 30),
+    prod('p8', 'Geometric Planter', 'DEC-004', 'Decor', 'PETG', 4.5, 110),
+  ];
+  const custo = (id: string) => { const p = produtos.find((x) => x.id === id)!; return (p.pesoG / 1000) * cfg.custoKg + p.tempoH * cfg.custoHora + p.acessorio; };
+  const item = (id: string, qtd: number, tipo: 'atacado' | 'varejo' = 'atacado') => {
+    const p = produtos.find((x) => x.id === id)!; const c = custo(id);
+    const unit = Math.round(c * cfg.markupAtacado * (tipo === 'varejo' ? cfg.markupVarejo : 1) * 100) / 100;
+    return { produtoId: id, nome: p.nome, qtd, unit, custoUnit: Math.round(c * 100) / 100, tempoH: p.tempoH };
+  };
+  const cli = (id: string, nome: string, empresa: string, categoria: string, telefone: string, cidade: string, feiraId: string | null, dias: number, nota: string, extra: { tipo?: 'presencial' | 'whatsapp' | 'ligacao'; obs?: string } = {}) => ({
+    id, nome, empresa, categoria, telefone, email: '', cidade, obs: extra.obs ?? '', feiraId, criadoEm: addDias(-dias),
+    contatos: [{ id: id + 'c1', data: addDias(-dias), tipo: extra.tipo ?? ('presencial' as const), nota }],
+  });
+  const neg = (id: string, clienteId: string, titulo: string, valor: number, etapa: Neg['etapa'], temperatura: Neg['temperatura'], feiraId: string | null, prox: number | null, dias: number, extra: Partial<Neg> = {}): Neg => ({
+    id, clienteId, titulo, valor, etapa, temperatura, feiraId, proximoContato: prox === null ? null : addDias(prox),
+    motivoPerda: '', criadoEm: addDias(-dias), atualizadoEm: addDias(-Math.max(0, dias - 1)), pedidoId: null, ...extra,
+  });
+  const ped = (id: string, clienteId: string, negocioId: string, feiraId: string | null, status: Db['pedidos'][number]['status'], dataDias: number, entregaDias: number, itens: ReturnType<typeof item>[], obs = '') => ({
+    id, clienteId, negocioId, feiraId, status, dataPedido: addDias(dataDias), entrega: addDias(entregaDias), obs, itens,
+  });
+  const total = (itens: ReturnType<typeof item>[]) => Math.round(itens.reduce((s, i) => s + i.qtd * i.unit, 0));
+
+  const pedidos = [
+    ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Paid by bank transfer.'),
+    ped('o2', 'c7', 'n9', f1, 'Imprimindo', -1, 6, [item('p2', 40), item('p5', 40)], 'Keychains with the store logo.'),
+    ped('o3', 'c8', 'n10', f1, 'Na fila', 0, 9, [item('p7', 30), item('p8', 12)]),
+    ped('o4', 'c9', 'n11', f2, 'Em preparação para envio', -3, 1, [item('p6', 24)], 'Still needs packing and the shipping label.'),
+    ped('o5', 'c10', 'n12', f3, 'Pronto', -6, 2, [item('p4', 4, 'varejo'), item('p1', 6, 'varejo')], 'Pickup at the booth.'),
+    ped('o6', 'c5', 'n13', f2, 'Cancelado', -37, -30, [item('p3', 12)], 'Customer backed out after the quote.'),
+  ];
+
+  return {
+    config: cfg,
+    feiraAtivaId: f1,
+    feiras: [
+      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1) },
+      { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), fim: addDias(-38) },
+      { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), fim: addDias(-10) },
+    ],
+    produtos,
+    clientes: [
+      cli('c1', 'Emily Carter', 'Gifts & Co', 'Gift shop', '(512) 555-0134', 'Austin', f1, 1, 'Store owner. Asked for the capybara wholesale price list.'),
+      cli('c2', 'Michael Turner', '', 'End customer', '(512) 555-0178', 'Round Rock', f1, 1, 'Wants 3 moon lamps as a wedding gift.'),
+      cli('c3', 'Maple Street Bakery', 'Maple Street Bakery', 'Snacks', '(512) 555-0192', 'Austin', f1, 2, 'Owner wants giveaways for loyal customers.'),
+      cli('c4', 'Jessica Brooks', 'Studio J. Decor', 'Decor', '(210) 555-0143', 'San Antonio', f2, 38, 'Resells home decor. Liked the spiral vase.'),
+      cli('c5', 'Daniel Foster', 'Origin Coffee', 'Coffee shop', '(210) 555-0166', 'San Antonio', f2, 38, 'Wants a menu holder.'),
+      cli('c6', 'Ashley Morgan', '', 'End customer', '(512) 555-0121', 'Cedar Park', f1, 0, 'Asked about custom keychains.'),
+      cli('c7', 'Tyler Bennett', 'Bennett Promo Goods', 'Corporate gifts', '(512) 555-0109', 'Austin', f1, 1, 'Closed a batch of keychains and capybaras for an event.'),
+      cli('c8', 'Lauren Mitchell', 'Bloom & Leaf', 'Florist', '(512) 555-0187', 'Austin', f1, 2, 'Wants mini planters to resell with arrangements.'),
+      cli('c9', 'Greg Reynolds', 'Reynolds Office Group', 'Office', '(210) 555-0152', 'New Braunfels', f2, 36, 'Bought pencil holders for the team.'),
+      cli('c10', 'Camille Dawson', 'Dawson Home', 'Decor', '(214) 555-0138', 'Dallas', f3, 7, 'Decor store owner, bought lamps.'),
+      cli('c11', 'Garden Bloom Florist', 'Garden Bloom Florist', 'Florist', '(512) 555-0174', 'Austin', null, 1, 'Found through a Google search (Florist). 1150 Congress Ave, Downtown, Austin, TX', { tipo: 'whatsapp' }),
+      cli('c12', 'Henry Collins', 'Collins Games', 'Game store', '(214) 555-0145', 'Dallas', f3, 8, 'Interested in figurines for the display window.'),
+      cli('c13', 'Olivia Ramirez', '', 'End customer', '(512) 555-0163', 'Austin', f1, 0, 'Wants a custom birthday gift.'),
+      cli('c14', 'Ryan Fletcher', 'Fletcher Events', 'Events', '(512) 555-0116', 'Georgetown', f3, 9, 'Quoted party favors for a wedding with 120 guests.', { tipo: 'whatsapp' }),
+    ],
+    negocios: [
+      neg('n1', 'c6', '30 custom keychains', 105, 'novo', 'morno', f1, 1, 0),
+      neg('n2', 'c13', 'Custom Moon Lamp', 59, 'novo', 'quente', f1, 0, 0),
+      neg('n3', 'c11', 'Prospecting: Garden Bloom Florist', 0, 'novo', 'frio', null, 1, 1),
+      neg('n4', 'c3', 'Giveaways: 100 keychains with logo', 190, 'conversa', 'quente', f1, 0, 2),
+      neg('n5', 'c4', '20 Spiral Vase M', total([item('p1', 20)]), 'fechado', 'quente', f2, null, 38, { pedidoId: 'o1' }),
+      neg('n6', 'c5', '12 menu holders', 108, 'perdido', 'frio', f2, null, 38, { motivoPerda: "Found it pricey next to a competitor's print" }),
+      neg('n7', 'c1', 'Capybaras for resale (wholesale)', 296, 'orcamento', 'quente', f1, -1, 1),
+      neg('n8', 'c2', '3 Moon Lamps', 165, 'negociando', 'morno', f1, 1, 1),
+      neg('n9', 'c7', '40 capybaras + 40 keychains', total([item('p2', 40), item('p5', 40)]), 'fechado', 'quente', f1, null, 2, { pedidoId: 'o2' }),
+      neg('n10', 'c8', 'Mini planters and geometric planters for resale', total([item('p7', 30), item('p8', 12)]), 'fechado', 'quente', f1, null, 1, { pedidoId: 'o3' }),
+      neg('n11', 'c9', '24 pencil holders', total([item('p6', 24)]), 'fechado', 'morno', f2, null, 36, { pedidoId: 'o4' }),
+      neg('n12', 'c10', 'Lamps and vases for the store', total([item('p4', 4, 'varejo'), item('p1', 6, 'varejo')]), 'fechado', 'quente', f3, null, 7, { pedidoId: 'o5' }),
+      neg('n13', 'c5', '12 menu holders (2nd proposal)', 104, 'fechado', 'frio', f2, null, 37, { pedidoId: 'o6' }),
+      neg('n14', 'c12', '15 figurines for the display window', 156, 'orcamento', 'morno', f3, 2, 8),
+      neg('n15', 'c14', '120 wedding favors', 480, 'negociando', 'quente', f3, 0, 9),
+      neg('n16', 'c3', 'T-shirts + keychains for the team', 180, 'perdido', 'frio', f1, null, 20, { motivoPerda: 'Went with a local t-shirt supplier' }),
+    ],
+    pedidos,
+    prospectos: [
+      { id: 'pr1', placeId: 'mock-02', nome: 'Garden Bloom Florist', status: 'lead', clienteId: 'c11', atualizadoEm: addDias(-1) },
+      { id: 'pr2', placeId: 'mock-14', nome: 'Rosewood Flower Shop', status: 'descartado', clienteId: null, atualizadoEm: addDias(-1) },
     ],
   };
 }

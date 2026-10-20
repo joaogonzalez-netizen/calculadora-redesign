@@ -1,4 +1,4 @@
-import type { Produto } from './produtosMock';
+import { precoProdutoNumero, type Produto } from './produtosMock';
 import type { RascunhoShopee } from './rascunhosShopee';
 import fotoProduto from '../assets/gerador-produto-mock.jpg';
 
@@ -21,7 +21,7 @@ export function destinoDaCopia(produto: Produto): DestinoCopia {
 // anúncio original, no fluxo completo (IA). Como o mock de Produtos não tem as
 // fotos de verdade, a foto de exemplo do Gerador faz o papel de cada imagem salva.
 export function rascunhoDoProduto(produto: Produto): RascunhoShopee {
-  const preco = parseFloat(produto.preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+  const preco = precoProdutoNumero(produto.preco);
   return {
     id: 'produto-' + produto.id,
     titulo: produto.nome,

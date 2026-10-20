@@ -1,3 +1,5 @@
+import type { Idioma } from './i18n';
+
 // Dados do Dashboard. Tudo aqui é mock estático, fiel ao design de referência:
 // não existe backend nem pedidos reais no projeto ainda. Este arquivo é o ponto
 // único de troca quando a API existir, os componentes só consomem estas formas.
@@ -208,3 +210,174 @@ export const USUARIO = {
   plano: 'Plano Starter',
   primeiroNome: 'João',
 };
+
+// ---------------------------------------------------------------------------
+// Variante EN (mercado americano): mesmos formatos, dados de exemplo dos EUA
+// (Etsy e TikTok Shop, dólar, compradores e produtos em inglês). PT e ES
+// continuam usando as constantes acima, sem nenhuma mudança.
+// ---------------------------------------------------------------------------
+
+export const MARKETPLACES_EN: MarketplaceConectado[] = [
+  { id: 'etsy', sigla: 'E', bg: '#f1641e', fg: '#ffffff' },
+  { id: 'tiktok', sigla: 'T', bg: '#111111', fg: '#ffffff' },
+];
+
+export const ULTIMA_SINCRONIZACAO_EN = 'Last synced 2 minutes ago';
+
+export const KPIS_EN: Kpi[] = [
+  {
+    id: 'faturamento',
+    label: 'Revenue',
+    tooltip: 'Gross value of all paid orders in the period, before fees and costs.',
+    prefixo: '$',
+    inteiro: '5,875',
+    decimal: '.00',
+    deltaPct: '+9.8%',
+    deltaPositivo: true,
+    comparativo: 'vs. previous 30 days',
+  },
+  {
+    id: 'pedidos',
+    label: 'Orders',
+    tooltip: 'Number of paid orders in the period, across all connected marketplaces.',
+    inteiro: '176',
+    deltaPct: '+6.7%',
+    deltaPositivo: true,
+    comparativo: 'vs. 165 previous',
+  },
+  {
+    id: 'lucro',
+    label: 'Net profit',
+    tooltip: 'Revenue minus product costs, marketplace fees, shipping and taxes.',
+    prefixo: '$',
+    inteiro: '1,592',
+    decimal: '.00',
+    deltaPct: '+2.4%',
+    deltaPositivo: true,
+    comparativo: 'margin 27.1%',
+  },
+  {
+    id: 'ticket',
+    label: 'Average order value',
+    tooltip: 'Revenue divided by the number of orders in the period.',
+    prefixo: '$',
+    inteiro: '33',
+    decimal: '.38',
+    deltaPct: '+2.9%',
+    deltaPositivo: true,
+    comparativo: 'vs. $32.43 previous',
+  },
+];
+
+export const INSIGHTS_EN: Insight[] = [
+  {
+    id: 'melhor-dia',
+    titulo: 'Best day of the week',
+    partes: ['', 'Thursdays', ' account for ', '32%', ' of your sales. Consider scheduling promotions and ads for that day.'],
+  },
+  {
+    id: 'reputacao',
+    titulo: 'Etsy Star Seller status',
+    partes: ['Your message response rate dropped below 95%. ', '4 buyer messages', ' have been waiting more than 24 hours for a reply.'],
+  },
+  {
+    id: 'margem',
+    titulo: 'Margin opportunity',
+    partes: ['Your top 3 products have an average margin of ', '26%', '. Cutting costs on the ', 'Articulated dragon', ' by 8% would add ', '$195/mo', ' to your profit.'],
+  },
+];
+
+export const SERIE_LUCRO_EN: PontoSerie[] = [
+  { label: 'Wk 1', periodo: 'Jan 7–14', faturamento: 224, custos: 116, lucro: 108 },
+  { label: 'Wk 2', periodo: 'Jan 14–21', faturamento: 242, custos: 119, lucro: 123 },
+  { label: 'Wk 3', periodo: 'Jan 21–28', faturamento: 268, custos: 122, lucro: 146 },
+  { label: 'Wk 4', periodo: 'Jan 28–Feb 4', faturamento: 304, custos: 124, lucro: 180 },
+  { label: 'Today', periodo: 'Feb 4–11', faturamento: 352, custos: 128, lucro: 224 },
+];
+export const TICKS_Y_EN = [0, 140, 260, 400];
+export const MAX_Y_EN = 400;
+
+export const TOP_PRODUTOS_EN: TopProduto[] = [
+  { rank: 1, nome: 'Articulated dragon 8"', vendas: 38, margemPct: 31, valor: '$949', barra: 100 },
+  { rank: 2, nome: 'Geometric faceted planter', vendas: 41, margemPct: 28, valor: '$779', barra: 82 },
+  { rank: 3, nome: 'Modular desk organizer', vendas: 26, margemPct: 24, valor: '$623', barra: 66 },
+  { rank: 4, nome: 'Articulated phone stand', vendas: 44, margemPct: 29, valor: '$571', barra: 60 },
+  { rank: 5, nome: 'Minimalist wall key holder', vendas: 30, margemPct: 26, valor: '$449', barra: 47 },
+];
+
+export const PEDIDOS_RECENTES_EN: PedidoRecente[] = [
+  { id: 'pedido-1', canalSigla: 'ET', produto: 'Articulated dragon 8"', quando: '8 minutes ago', codigo: '#3412987650', comprador: 'Emily R.', valor: '$49.98', status: 'Paid' },
+  { id: 'pedido-2', canalSigla: 'TT', produto: 'Articulated phone stand', quando: '26 minutes ago', codigo: '#5769120384', comprador: 'Tyler B.', valor: '$25.98', status: 'Paid' },
+  { id: 'pedido-3', canalSigla: 'ET', produto: 'Geometric faceted planter', quando: '1 hour ago', codigo: '#3412987651', comprador: 'Madison K.', valor: '$37.98', status: 'Paid' },
+];
+
+// DRE do mês em dólar, fecha nos KPIS_EN: receita bruta $5,875.00 e lucro
+// líquido $1,592.00 (margem 27,1%).
+export const DRE_LINHAS_EN: DreLinha[] = [
+  { label: 'Gross revenue', valor: 5875.00, tipo: 'receita', hint: 'Total value of all paid orders in the month' },
+  { label: 'Taxes on sales', valor: -235.00, tipo: 'deducao', pct: '4.0%' },
+  {
+    label: 'Marketplace fees', valor: -881.00, tipo: 'deducao', pct: '15.0%',
+    hint: 'Transaction, payment processing, listing and shipping fees from each connected marketplace',
+    subitens: [
+      { label: 'Etsy', valor: -612.00 },
+      { label: 'TikTok Shop', valor: -269.00 },
+    ],
+  },
+  { label: 'Net revenue', valor: 4759.00, tipo: 'subtotal' },
+  {
+    label: 'Production cost', valor: -2697.00, tipo: 'deducao', dependeDeVinculo: true,
+    hint: 'Only material, labor and energy from the calculation linked to each product. It does not include channel fees: marketplace fees come separately, straight from the real integration (line above), so adding both would count the channel cost twice.',
+  },
+  { label: 'Gross profit', valor: 2062.00, tipo: 'subtotal' },
+  { label: 'Operating expenses', valor: -470.00, tipo: 'deducao', hint: 'Ads and other expenses for the month' },
+  { label: 'Net profit', valor: 1592.00, tipo: 'resultado' },
+];
+export const DRE_MARGEM_LIQUIDA_EN = '27.1%';
+
+export interface DadosDashboard {
+  marketplaces: MarketplaceConectado[];
+  ultimaSincronizacao: string;
+  kpis: Kpi[];
+  insights: Insight[];
+  serieLucro: PontoSerie[];
+  ticksY: number[];
+  maxY: number;
+  topProdutos: TopProduto[];
+  pedidosRecentes: PedidoRecente[];
+  dreLinhas: DreLinha[];
+  dreMargemLiquida: string;
+}
+
+const DASHBOARD_PT: DadosDashboard = {
+  marketplaces: MARKETPLACES,
+  ultimaSincronizacao: ULTIMA_SINCRONIZACAO,
+  kpis: KPIS,
+  insights: INSIGHTS,
+  serieLucro: SERIE_LUCRO,
+  ticksY: TICKS_Y,
+  maxY: MAX_Y,
+  topProdutos: TOP_PRODUTOS,
+  pedidosRecentes: PEDIDOS_RECENTES,
+  dreLinhas: DRE_LINHAS,
+  dreMargemLiquida: DRE_MARGEM_LIQUIDA,
+};
+
+const DASHBOARD_EN: DadosDashboard = {
+  marketplaces: MARKETPLACES_EN,
+  ultimaSincronizacao: ULTIMA_SINCRONIZACAO_EN,
+  kpis: KPIS_EN,
+  insights: INSIGHTS_EN,
+  serieLucro: SERIE_LUCRO_EN,
+  ticksY: TICKS_Y_EN,
+  maxY: MAX_Y_EN,
+  topProdutos: TOP_PRODUTOS_EN,
+  pedidosRecentes: PEDIDOS_RECENTES_EN,
+  dreLinhas: DRE_LINHAS_EN,
+  dreMargemLiquida: DRE_MARGEM_LIQUIDA_EN,
+};
+
+/** Dados do Painel no idioma ativo: EN usa a variante americana, PT e ES o mock original. */
+export function dashboardDoIdioma(idioma: Idioma): DadosDashboard {
+  return idioma === 'en' ? DASHBOARD_EN : DASHBOARD_PT;
+}

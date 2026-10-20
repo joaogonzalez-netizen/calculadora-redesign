@@ -4,12 +4,14 @@ import { useUi } from '../../lib/ui';
 import { addDias, mascaraTel } from '../../lib/format';
 import type { Temperatura } from '../../lib/types';
 import { Drawer, Field } from '../ui';
+import { useFeirasT } from '../../lib/i18n';
 
-const PRAZOS = [{ d: 1, l: 'Amanhã' }, { d: 3, l: '3 dias' }, { d: 7, l: '1 semana' }, { d: 0, l: 'Sem data' }];
+const PRAZOS = [1, 3, 7, 0];
 
 export default function LeadRapido() {
   const { db, feiraAtiva, capturarLead } = useStore();
   const { fechar, abrir, avisar } = useUi();
+  const { t } = useFeirasT();
   const vazio = { nome: '', telefone: '', interesse: '', valor: '', nota: '' };
   const [f, setF] = useState(vazio);
   const [temp, setTemp] = useState<Temperatura>('morno');
@@ -23,51 +25,51 @@ export default function LeadRapido() {
   }, [f.telefone, db.clientes]);
 
   function salvar(continuar: boolean) {
-    if (!f.nome.trim() && !duplicado) return setErro('Informe o nome de quem visitou o ponto de venda.');
-    if (!f.telefone.replace(/\D/g, '') && !f.nome.trim()) return setErro('Informe ao menos nome ou WhatsApp.');
+    if (!f.nome.trim() && !duplicado) return setErro(t('feiras.lead.erroNome'));
+    if (!f.telefone.replace(/\D/g, '') && !f.nome.trim()) return setErro(t('feiras.lead.erroNomeOuTel'));
     const r = capturarLead({
       nome: f.nome.trim() || duplicado!.nome, telefone: f.telefone, interesse: f.interesse.trim(), valor: Number(f.valor) || 0,
       temperatura: temp, nota: f.nota.trim(), proximoContato: prazo ? addDias(prazo) : null,
     });
     if (continuar) {
       setF(vazio); setTemp('morno'); setPrazo(1); setErro('');
-      avisar(`${f.nome.trim() || duplicado!.nome} salvo. Próximo!`);
+      avisar(t('feiras.lead.salvoProximo', { nome: f.nome.trim() || duplicado!.nome }));
     } else {
       fechar();
-      avisar(`${f.nome.trim() || duplicado!.nome} salvo no funil`, { label: 'Abrir', fn: () => abrir('negocio', r.negocioId) });
+      avisar(t('feiras.lead.salvoFunil', { nome: f.nome.trim() || duplicado!.nome }), { label: t('feiras.lead.abrir'), fn: () => abrir('negocio', r.negocioId) });
     }
   }
 
   return (
-    <Drawer aberto titulo="Contato rápido" subtitulo={feiraAtiva ? `Registrando em ${feiraAtiva.nome}` : 'Nenhum ponto de venda ativo: o contato ficará sem ponto de venda'} onClose={fechar}
-      rodape={<><button className="fe-btn fe-btn-outline" onClick={() => salvar(true)}>Salvar e novo</button><button className="fe-btn fe-btn-primary fe-grow" onClick={() => salvar(false)}>Salvar lead</button></>}>
+    <Drawer aberto titulo={t('feiras.lead.titulo')} subtitulo={feiraAtiva ? t('feiras.lead.subAtiva', { nome: feiraAtiva.nome }) : t('feiras.lead.subSem')} onClose={fechar}
+      rodape={<><button className="fe-btn fe-btn-outline" onClick={() => salvar(true)}>{t('feiras.lead.salvarNovo')}</button><button className="fe-btn fe-btn-primary fe-grow" onClick={() => salvar(false)}>{t('feiras.lead.salvarLead')}</button></>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
       <div className="fe-form-grid">
-        <Field label="Nome" className="fe-full"><input autoFocus value={f.nome} onChange={set('nome')} autoComplete="off" placeholder="Quem visitou o ponto de venda?" /></Field>
-        <Field label="WhatsApp" className="fe-full" hint={duplicado ? undefined : 'Usado para o próximo contato'}>
-          <input value={f.telefone} onChange={(e) => setF((s) => ({ ...s, telefone: mascaraTel(e.target.value) }))} inputMode="tel" autoComplete="off" placeholder="(47) 99999-9999" />
+        <Field label={t('feiras.lead.nome')} className="fe-full"><input autoFocus value={f.nome} onChange={set('nome')} autoComplete="off" placeholder={t('feiras.lead.nomePlaceholder')} /></Field>
+        <Field label={t('feiras.lead.whatsapp')} className="fe-full" hint={duplicado ? undefined : t('feiras.lead.whatsappHint')}>
+          <input value={f.telefone} onChange={(e) => setF((s) => ({ ...s, telefone: mascaraTel(e.target.value) }))} inputMode="tel" autoComplete="off" placeholder={t('feiras.comum.telPlaceholder')} />
         </Field>
-        {duplicado && <div className="fe-notice fe-full">Já existe <b>{duplicado.nome}</b> com esse número. Vamos adicionar uma nova negociação nele.</div>}
-        <Field label="Interesse" className="fe-full">
-          <input list="lead-prod" value={f.interesse} onChange={set('interesse')} autoComplete="off" placeholder="Ex: 20 capivaras para revenda" />
+        {duplicado && <div className="fe-notice fe-full">{t('feiras.lead.dupAntes')} <b>{duplicado.nome}</b> {t('feiras.lead.dupDepois')}</div>}
+        <Field label={t('feiras.lead.interesse')} className="fe-full">
+          <input list="lead-prod" value={f.interesse} onChange={set('interesse')} autoComplete="off" placeholder={t('feiras.lead.interesseEx')} />
           <datalist id="lead-prod">{db.produtos.map((p) => <option key={p.id} value={p.nome} />)}</datalist>
         </Field>
       </div>
       <div>
-        <div className="fe-sec-title">Temperatura</div>
+        <div className="fe-sec-title">{t('feiras.lead.temperatura')}</div>
         <div className="fe-seg" role="radiogroup">
-          {([['frio', 'Curioso'], ['morno', 'Interessado'], ['quente', 'Quer comprar']] as const).map(([id, l]) => (
-            <button key={id} type="button" role="radio" aria-checked={temp === id} data-t={id} className={temp === id ? 'fe-on' : ''} onClick={() => setTemp(id)}>{l}</button>
+          {(['frio', 'morno', 'quente'] as const).map((id) => (
+            <button key={id} type="button" role="radio" aria-checked={temp === id} data-t={id} className={temp === id ? 'fe-on' : ''} onClick={() => setTemp(id)}>{t('feiras.tempLead.' + id)}</button>
           ))}
         </div>
       </div>
       <div>
-        <div className="fe-sec-title">Voltar a falar</div>
-        <div className="fe-chips">{PRAZOS.map((p) => <button key={p.d} type="button" className={'fe-chip' + (prazo === p.d ? ' fe-on' : '')} onClick={() => setPrazo(p.d)}>{p.l}</button>)}</div>
+        <div className="fe-sec-title">{t('feiras.lead.voltar')}</div>
+        <div className="fe-chips">{PRAZOS.map((p) => <button key={p} type="button" className={'fe-chip' + (prazo === p ? ' fe-on' : '')} onClick={() => setPrazo(p)}>{t('feiras.lead.prazo' + p)}</button>)}</div>
       </div>
       <div className="fe-form-grid">
-        <Field label="Valor estimado (opcional)"><input type="number" inputMode="decimal" min={0} value={f.valor} onChange={set('valor')} placeholder="R$ 0,00" /></Field>
-        <Field label="Anotação" className="fe-full"><textarea value={f.nota} onChange={set('nota')} placeholder="Ex: prefere pagar no Pix, quer cores neutras" /></Field>
+        <Field label={t('feiras.lead.valor')}><input type="number" inputMode="decimal" min={0} value={f.valor} onChange={set('valor')} placeholder={t('feiras.comum.moedaZero')} /></Field>
+        <Field label={t('feiras.lead.anotacao')} className="fe-full"><textarea value={f.nota} onChange={set('nota')} placeholder={t('feiras.lead.anotacaoEx')} /></Field>
       </div>
     </Drawer>
   );

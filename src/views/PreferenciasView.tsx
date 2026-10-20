@@ -3,7 +3,7 @@ import { useLibrarias } from '../context/LibrariasContext';
 import { useI18n } from '../context/I18nContext';
 import type { CustoCategoria, Filamento, Impressora, Moeda } from '../types';
 import { fmtMoeda, moedaSimbolo } from '../lib/format';
-import { impostoDasPrefs, moedaDasPrefs } from '../lib/versoes';
+import { impostoDasPrefs, moedaDasPrefs, MOSTRAR_PIX } from '../lib/versoes';
 import InfoDot from '../components/InfoDot';
 import {
   getMarcadores, getHistMarcadores, removerMarcador, contarUsos,
@@ -64,9 +64,13 @@ export default function PreferenciasView() {
 
   function salvar() {
     const impostoNum = parseFloat(imposto) || 0;
+    // Cada idioma guarda a própria moeda e o próprio imposto, sem mexer nos das outras versões.
+    const outros = { moeda: prefs.moeda, imposto: prefs.imposto, moedaEs: prefs.moedaEs, impostoEs: prefs.impostoEs, moedaEn: prefs.moedaEn, impostoEn: prefs.impostoEn };
     const porIdioma = idioma === 'es'
-      ? { moeda: prefs.moeda, imposto: prefs.imposto, moedaEs: moeda, impostoEs: impostoNum }
-      : { moeda, imposto: impostoNum, moedaEs: prefs.moedaEs, impostoEs: prefs.impostoEs };
+      ? { ...outros, moedaEs: moeda, impostoEs: impostoNum }
+      : idioma === 'en'
+        ? { ...outros, moedaEn: moeda, impostoEn: impostoNum }
+        : { ...outros, moeda, imposto: impostoNum };
     setPrefs({
       ...porIdioma, kwh: parseFloat(kwh) || 0, impressora: impressoraSel, filamento: filamentoSel,
       margem: parseFloat(margem) || 0,
@@ -282,6 +286,7 @@ export default function PreferenciasView() {
                 <div className="suffix-wrap"><input type="number" step="0.01" value={taxaCredito} onChange={(e) => setTaxaCredito(e.target.value)} /><span className="sfx">%</span></div>
               </div>
             </div>
+            {MOSTRAR_PIX[idioma] && (
             <div className="row2">
               <div className="field">
                 <label>{t('calc.taxaPixPadrao')}</label>
@@ -292,6 +297,7 @@ export default function PreferenciasView() {
                 <div className="suffix-wrap"><input type="number" value={descontoPix} onChange={(e) => setDescontoPix(e.target.value)} /><span className="sfx">%</span></div>
               </div>
             </div>
+            )}
           </div>
         </div>
       )}

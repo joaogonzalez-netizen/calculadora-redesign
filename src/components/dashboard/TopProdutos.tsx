@@ -1,8 +1,9 @@
-import { TOP_PRODUTOS } from '../../lib/dashboardMock';
+import { dashboardDoIdioma } from '../../lib/dashboardMock';
 import { useI18n } from '../../context/I18nContext';
 
 export default function TopProdutos() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const TOP_PRODUTOS = dashboardDoIdioma(idioma).topProdutos;
   return (
     <div className="card list-card">
       <div className="card-body list-body">

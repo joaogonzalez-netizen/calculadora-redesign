@@ -15,12 +15,13 @@ import NegocioDrawer from './components/drawers/NegocioDrawer';
 import ClienteDrawer from './components/drawers/ClienteDrawer';
 import PedidoDrawer from './components/drawers/PedidoDrawer';
 import ProdutoCalculadoraDrawer from './components/drawers/ProdutoCalculadoraDrawer';
+import { useFeirasT } from './lib/i18n';
 
 export type { View as FeirasView } from './lib/ui';
 
 interface Props { view: View; onNavigate: (v: View) => void; onIrParaCalculadora: () => void }
 
-/** Módulo de vendas físicas (feiras, eventos e lojas) dentro do STLSeller. Só PT por enquanto; dados em localStorage (mesma camada do resto do protótipo). */
+/** Módulo de vendas físicas (feiras, eventos e lojas) dentro do STLSeller. PT e EN (ES usa PT); dados em localStorage (mesma camada do resto do protótipo). */
 export default function FeirasModule({ view, onNavigate, onIrParaCalculadora }: Props) {
   const nav = useCallback((v: View) => onNavigate(v), [onNavigate]);
   return (
@@ -35,14 +36,15 @@ export default function FeirasModule({ view, onNavigate, onIrParaCalculadora }: 
 function Conteudo() {
   const { feiraAtiva } = useStore();
   const { view, ir, drawer, abrir, toast } = useUi();
+  const { t } = useFeirasT();
   return (
     <div className="fe">
       <div className="fe-bar">
-        <button type="button" className={'fe-pill' + (feiraAtiva ? ' fe-on' : '')} onClick={() => ir('eventos')} title="Trocar ponto de venda ativo">
+        <button type="button" className={'fe-pill' + (feiraAtiva ? ' fe-on' : '')} onClick={() => ir('eventos')} title={t('feiras.modulo.trocarPonto')}>
           <span className="fe-dot" />
-          <span className="fe-t">{feiraAtiva ? feiraAtiva.nome : 'Nenhum ponto de venda ativo'}</span>
+          <span className="fe-t">{feiraAtiva ? feiraAtiva.nome : t('feiras.modulo.nenhumAtivo')}</span>
         </button>
-        <button className="fe-btn fe-btn-primary" onClick={() => abrir('lead')}><Icon name="plus" /> Contato rápido</button>
+        <button className="fe-btn fe-btn-primary" onClick={() => abrir('lead')}><Icon name="plus" /> {t('feiras.modulo.contatoRapido')}</button>
       </div>
 
       {view === 'painel' && <PainelView />}

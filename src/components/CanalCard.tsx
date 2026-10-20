@@ -5,7 +5,7 @@ import { useI18n } from '../context/I18nContext';
 import { useMoeda } from '../context/MoedaContext';
 import type { Canal, PgtoId } from '../types';
 import { brl, fmtMoeda, moedaSimbolo } from '../lib/format';
-import { CALC_CANAIS_VISIVEIS } from '../lib/versoes';
+import { CALC_CANAIS_VISIVEIS, MOSTRAR_PIX } from '../lib/versoes';
 import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
 import { CANAIS, CANAL_LABEL_KEYS } from '../lib/canal';
 import Card from './Card';
@@ -146,23 +146,25 @@ export default function CanalCard() {
         <>
           <div className="field">
             <label>{t('calc.formaPagamento')}</label>
-            <div className="toggle-cards cols-4">
+            <div className={'toggle-cards ' + (MOSTRAR_PIX[idioma] ? 'cols-4' : 'cols-3')}>
               <div className={'toggle-card' + (state.pgtoSelecionado === 'debito' ? ' active' : '')} onClick={() => selectPgto('debito', taxaDebitoPadrao)}>
                 <b>{t('calc.debito')}</b><span>{taxaDebitoPadrao.toString().replace('.', ',')}%</span>
               </div>
               <div className={'toggle-card' + (state.pgtoSelecionado === 'credito' ? ' active' : '')} onClick={() => selectPgto('credito', taxaCreditoPadrao)}>
                 <b>{t('calc.credito')}</b><span>{taxaCreditoPadrao.toString().replace('.', ',')}%</span>
               </div>
-              <div className={'toggle-card' + (state.pgtoSelecionado === 'pix' ? ' active' : '')} onClick={() => selectPgto('pix', 0)}>
-                <b>{t('calc.pix')}</b><span>{t('calc.taxaEditavel')}</span>
-              </div>
+              {MOSTRAR_PIX[idioma] && (
+                <div className={'toggle-card' + (state.pgtoSelecionado === 'pix' ? ' active' : '')} onClick={() => selectPgto('pix', 0)}>
+                  <b>{t('calc.pix')}</b><span>{t('calc.taxaEditavel')}</span>
+                </div>
+              )}
               <div className={'toggle-card' + (state.pgtoSelecionado === 'custom' ? ' active' : '')} onClick={() => selectPgto('custom', 0)}>
                 <b>{t('calc.outraFormaPagamento')}</b><span>{t('calc.digitar')}</span>
               </div>
             </div>
           </div>
 
-          {state.pgtoSelecionado === 'pix' && (
+          {MOSTRAR_PIX[idioma] && state.pgtoSelecionado === 'pix' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div className="row2">
                 <div className="field">

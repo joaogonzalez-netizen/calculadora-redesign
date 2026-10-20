@@ -1,6 +1,7 @@
 import { getHistorico } from '../../lib/storage';
 import type { HistoricoEntry } from '../../types';
 import type { Produto } from './types';
+import { idiomaDoFormato } from '../../lib/format';
 
 // Produtos de venda do módulo Vendas físicas = os cálculos de VENDA DIRETA
 // salvos na Calculadora de preços (Histórico), de qualquer tela. Cálculos de marketplace não
@@ -22,7 +23,7 @@ export function produtosDaCalculadora(): Produto[] {
     if (!atual || h.id > atual.id) maisRecentePorNome.set(chave, h);
   }
   return [...maisRecentePorNome.values()]
-    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, idiomaDoFormato() === 'en' ? 'en-US' : 'pt-BR', { sensitivity: 'base' }))
     .map((h) => ({
       id: 'calc-' + h.id,
       calcId: h.id,

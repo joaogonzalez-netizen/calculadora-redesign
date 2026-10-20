@@ -6,7 +6,7 @@ import LucroChart from './LucroChart';
 import TopProdutos from './TopProdutos';
 import PedidosRecentes from './PedidosRecentes';
 import DreCard from './DreCard';
-import { INSIGHTS, KPIS } from '../../lib/dashboardMock';
+import { dashboardDoIdioma } from '../../lib/dashboardMock';
 
 function semAcao() { /* preview borrado, nada é clicável aqui */ }
 
@@ -17,21 +17,22 @@ function semAcao() { /* preview borrado, nada é clicável aqui */ }
 // ficam inteiros e visíveis (sem o popup por cima), o popup fica só sobre a
 // seção de insights, logo abaixo, com fundo sólido pra se destacar do blur.
 export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrParaConfiguracoes: () => void }) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const { kpis, insights } = dashboardDoIdioma(idioma);
   return (
     <div className="onb-preview-section">
       <div className="onb-preview-label">{t('dashboard.vejaComoFicaDepois')}</div>
 
       <div className="onb-preview-blur">
         <div className="kpi-grid">
-          {KPIS.map((k) => <KpiCard key={k.id} kpi={k} />)}
+          {kpis.map((k) => <KpiCard key={k.id} kpi={k} />)}
         </div>
       </div>
 
       <div className="onb-preview-chart-anchor">
         <div className="onb-preview-blur">
           <div className="insight-grid">
-            {INSIGHTS.map((i) => <InsightCard key={i.id} insight={i} />)}
+            {insights.map((i) => <InsightCard key={i.id} insight={i} />)}
           </div>
         </div>
         <div className="onb-preview-popup">

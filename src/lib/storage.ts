@@ -12,6 +12,9 @@ export const PREF_FIL_KEY = 'stlseller_biblioteca_filamentos';
 export const PREF_CUSTO_KEY = 'stlseller_custos_padrao';
 export const PRODUTO_VINCULOS_KEY = 'stlseller_produto_vinculos';
 export const BUSCADOR_FAVORITOS_KEY = 'stlseller_buscador_favoritos';
+// Quem marcou "Não mostrar novamente" no aviso de que o vídeo não é publicado junto com o anúncio.
+// Guardado por marketplace ({ ml: true, shopee: true }): dispensar num não esconde no outro.
+export const AVISO_VIDEO_PUBLICACAO_KEY = 'stlseller_aviso_video_publicacao_v2';
 
 /** Vínculo de custo/lucro de um Produto (tela Produtos), ou aponta pra um cálculo
  * salvo da Calculadora, ou guarda custos digitados manualmente. Sem backend: fica

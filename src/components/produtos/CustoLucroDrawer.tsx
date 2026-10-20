@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { Produto } from '../../lib/produtosMock';
+import { precoProdutoNumero, type Produto } from '../../lib/produtosMock';
+import type { Idioma } from '../../lib/i18n';
 import type { Canal, HistoricoEntry } from '../../types';
 import type { ProdutoVinculo } from '../../lib/storage';
 import { getHistorico } from '../../lib/storage';
@@ -8,21 +9,27 @@ import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import InfoDot from '../InfoDot';
 
-const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Shopee'];
+// Canais do filtro de cálculos por idioma: EN (mercado americano) usa Etsy e TikTok Shop.
+const CANAIS_POR_IDIOMA: Record<Idioma, Canal[]> = {
+  pt: ['Venda direta', 'Mercado Livre', 'Shopee'],
+  es: ['Venda direta', 'Mercado Livre', 'Shopee'],
+  en: ['Venda direta', 'Etsy', 'TikTok Shop'],
+};
 // Estimativa simples só pra pré-visualizar a taxa no modo manual, a fórmula real
 // e completa por canal já existe em lib/calc.ts e é usada dentro da Calculadora.
-const TAXA_ESTIMADA: Record<Produto['marketplace'], number> = { 'Mercado Livre': 0.14, Shopee: 0.14 };
+const TAXA_ESTIMADA: Record<Produto['marketplace'], number> = { 'Mercado Livre': 0.14, Shopee: 0.14, Etsy: 0.095, 'TikTok Shop': 0.08 };
 
 function numFromBrl(s: string) {
-  return parseFloat(s.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+  return precoProdutoNumero(s) || 0;
 }
-function fmtData(id: number) {
+function fmtData(id: number, en: boolean) {
+  if (en) return new Date(id).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   return new Date(id).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '');
 }
-function resumoCalculo(h: HistoricoEntry) {
-  const material = h.filamentoItems?.[0]?.nome || 'Filamento';
+function resumoCalculo(h: HistoricoEntry, en: boolean) {
+  const material = h.filamentoItems?.[0]?.nome || (en ? 'Filament' : 'Filamento');
   const peso = h.peso ? Math.round(h.peso) + 'g' : '';
-  return `Calculado em ${fmtData(h.id)} · ${material}${peso ? ', ' + peso : ''}`;
+  return `${en ? 'Calculated on' : 'Calculado em'} ${fmtData(h.id, en)} · ${material}${peso ? ', ' + peso : ''}`;
 }
 
 interface Props {
@@ -33,7 +40,10 @@ interface Props {
 }
 
 export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const en = idioma === 'en';
+  const CANAIS = CANAIS_POR_IDIOMA[idioma];
+  const moeda = en ? '$' : 'R$';
   const jaVinculado = vinculo?.tipo === 'calculo';
   const [tab, setTab] = useState<'vincular' | 'manual'>(vinculo?.tipo === 'manual' ? 'manual' : 'vincular');
   const [canal, setCanal] = useState<Canal>('Venda direta');
@@ -92,9 +102,15 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
 
         {tab === 'vincular' && (
           <div className="cl-body">
-            <div className="cl-note cl-note-info">
-              Só o <b>custo de produção</b> do cálculo (material, mão de obra e energia) é usado aqui. A taxa de marketplace desse produto já vem da integração real com {produto.marketplace}, não da taxa simulada dentro da calculadora, pra não contar o custo de canal duas vezes.
-            </div>
+            {en ? (
+              <div className="cl-note cl-note-info">
+                Only the <b>production cost</b> from the calculation (material, labor and energy) is used here. This product's marketplace fee already comes from the real {produto.marketplace} integration, not from the fee simulated in the calculator, so the channel cost isn't counted twice.
+              </div>
+            ) : (
+              <div className="cl-note cl-note-info">
+                Só o <b>custo de produção</b> do cálculo (material, mão de obra e energia) é usado aqui. A taxa de marketplace desse produto já vem da integração real com {produto.marketplace}, não da taxa simulada dentro da calculadora, pra não contar o custo de canal duas vezes.
+              </div>
+            )}
 
             <div className="field">
               <div className="cl-search"><Icon name="search" size={15} /><input type="text" placeholder={t('produtos.buscarProdutoPlaceholder')} value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
@@ -108,10 +124,17 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
             </div>
 
             {filtrados.length === 0 && (
-              <div className="cl-empty">
-                Nenhum cálculo salvo encontrado. Você ainda não tem nenhum cálculo pronto pra esse produto.
-                Crie um na calculadora de preços ou use "Adicionar manualmente".
-              </div>
+              en ? (
+                <div className="cl-empty">
+                  No saved calculations found. You don't have a calculation for this product yet.
+                  Create one in the pricing calculator or use "{t('produtos.adicionarManualmente')}".
+                </div>
+              ) : (
+                <div className="cl-empty">
+                  Nenhum cálculo salvo encontrado. Você ainda não tem nenhum cálculo pronto pra esse produto.
+                  Crie um na calculadora de preços ou use "Adicionar manualmente".
+                </div>
+              )
             )}
 
             {filtrados.map((h) => (
@@ -122,8 +145,8 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
               >
                 <span className="cl-radio" />
                 <div className="cl-calc-main">
-                  <div className="cl-calc-nome">{h.nome || 'Sem nome'}</div>
-                  <div className="cl-calc-meta">{resumoCalculo(h)}</div>
+                  <div className="cl-calc-nome">{h.nome || (en ? 'Untitled' : 'Sem nome')}</div>
+                  <div className="cl-calc-meta">{resumoCalculo(h, en)}</div>
                 </div>
                 <div className="cl-calc-preco">
                   <b>{brl(h.custoUnit)}</b>
@@ -133,9 +156,13 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
             ))}
 
             {jaVinculado ? (
-              <div className="cl-note">Este produto já tem um cálculo vinculado. Cada produto aceita apenas um vínculo ativo, selecionar outro cálculo substitui o atual.</div>
+              <div className="cl-note">{en
+                ? 'This product already has a linked calculation. Each product accepts only one active link; selecting another calculation replaces the current one.'
+                : 'Este produto já tem um cálculo vinculado. Cada produto aceita apenas um vínculo ativo, selecionar outro cálculo substitui o atual.'}</div>
             ) : filtrados.length > 0 && (
-              <div className="cl-note">Mostrando os {filtrados.length} cálculos mais recentes. Use a busca acima pra encontrar outros cálculos.</div>
+              <div className="cl-note">{en
+                ? `Showing the ${filtrados.length} most recent calculations. Use the search above to find others.`
+                : `Mostrando os ${filtrados.length} cálculos mais recentes. Use a busca acima pra encontrar outros cálculos.`}</div>
             )}
 
             <div className="cl-footer">
@@ -149,15 +176,15 @@ export default function CustoLucroDrawer({ produto, vinculo, onClose, onSave }: 
 
         {tab === 'manual' && (
           <div className="cl-body">
-            {erro && <div className="cl-error">Não foi possível salvar os custos. Verifique sua conexão e tente novamente.</div>}
+            {erro && <div className="cl-error">{en ? "Couldn't save the costs. Check your connection and try again." : 'Não foi possível salvar os custos. Verifique sua conexão e tente novamente.'}</div>}
 
             <div className="field">
               <label>{t('produtos.custoDeProducao')}</label>
-              <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={custoProducao} onChange={(e) => setCustoProducao(e.target.value)} /></div>
+              <div className="prefix-wrap"><span className="pfx">{moeda}</span><input type="number" step="0.01" value={custoProducao} onChange={(e) => setCustoProducao(e.target.value)} /></div>
             </div>
             <div className="field">
-              <label>{t('produtos.custoDeAnuncioETaxas')} <InfoDot text="Frete, embalagem ou qualquer outro custo fixo por unidade que não veio de um cálculo salvo." /></label>
-              <div className="prefix-wrap"><span className="pfx">R$</span><input type="number" step="0.01" value={custoAnuncio} onChange={(e) => setCustoAnuncio(e.target.value)} /></div>
+              <label>{t('produtos.custoDeAnuncioETaxas')} <InfoDot text={en ? 'Shipping, packaging or any other fixed per-unit cost that did not come from a saved calculation.' : 'Frete, embalagem ou qualquer outro custo fixo por unidade que não veio de um cálculo salvo.'} /></label>
+              <div className="prefix-wrap"><span className="pfx">{moeda}</span><input type="number" step="0.01" value={custoAnuncio} onChange={(e) => setCustoAnuncio(e.target.value)} /></div>
             </div>
 
             <div className="cl-result">

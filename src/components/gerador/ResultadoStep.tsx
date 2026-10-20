@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import PublicarAnuncioModal from './PublicarAnuncioModal';
+import { baixarVideoAnuncio } from '../../lib/baixarVideo';
 
 // Réplica do passo final "Resultado" do Gerador de anúncios em produção
 // (print de João, 08/09/2026), resumo de tudo que foi gerado (textos,
@@ -59,9 +60,6 @@ function regerarSecao(secao: string, creditos: number) {
 }
 function baixarImagens() {
   alert('Em breve: baixar todas as imagens geradas.');
-}
-function baixarVideo() {
-  alert('Em breve: baixar o vídeo narrado gerado.');
 }
 
 interface SecaoHeadProps {
@@ -178,7 +176,7 @@ export default function ResultadoStep({ onVoltar, onIrParaConfiguracoes }: Props
                 <Icon name="chevron" size={11} style={{ transform: 'rotate(180deg)' }} /> 0:00 <span className="trilha" />
               </div>
             </div>
-            <button type="button" className="ger-video-baixar" onClick={baixarVideo}>
+            <button type="button" className="ger-video-baixar" onClick={baixarVideoAnuncio}>
               <Icon name="upload" size={13} style={{ transform: 'rotate(180deg)' }} /> {t('gerador.baixarVideo')}
             </button>
           </div>

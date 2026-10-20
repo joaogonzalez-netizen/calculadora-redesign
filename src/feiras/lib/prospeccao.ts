@@ -1,3 +1,6 @@
+import { idiomaDoFormato } from '../../lib/format';
+import { tf } from './i18n';
+
 export interface Lugar {
   placeId: string;
   nome: string;
@@ -21,7 +24,9 @@ const mapsUrl = (id: string) => `https://www.google.com/maps/place/?q=place_id:$
 
 /** Dados fictícios (nomes, telefones e endereços inventados) para validar a tela sem chave do Google. */
 
-const BASE: { id: string; nome: string; rua: string; bairro: string; tel: string; site: string; nota: number; n: number; aberto: boolean | null; tipo: string }[] = [
+type Base = { id: string; nome: string; rua: string; bairro: string; tel: string; site: string; nota: number; n: number; aberto: boolean | null; tipo: string };
+
+const BASE: Base[] = [
   { id: 'mock-01', nome: 'Casa dos Presentes Aurora', rua: 'Rua do Príncipe, 412', bairro: 'Centro', tel: '(47) 3422-1180', site: 'casadospresentesaurora.com.br', nota: 4.7, n: 312, aberto: true, tipo: 'Loja de presentes' },
   { id: 'mock-02', nome: 'Floricultura Jardim das Cores', rua: 'Av. Getúlio Vargas, 1150', bairro: 'Anita Garibaldi', tel: '(47) 99182-4410', site: '', nota: 4.8, n: 540, aberto: true, tipo: 'Floricultura' },
   { id: 'mock-03', nome: 'Empório Presente Certo', rua: 'Rua Visconde de Taunay, 88', bairro: 'América', tel: '(47) 3433-7721', site: 'emporiopresentecerto.com.br', nota: 4.5, n: 127, aberto: true, tipo: 'Loja de presentes' },
@@ -38,20 +43,39 @@ const BASE: { id: string; nome: string; rua: string; bairro: string; tel: string
   { id: 'mock-14', nome: 'Canto da Rosa Floricultura', rua: 'Rua Ottokar Doerffel, 902', bairro: 'Atiradores', tel: '(47) 99256-1043', site: '', nota: 3.9, n: 22, aberto: false, tipo: 'Floricultura' },
 ];
 
+/** Versão EUA do conjunto fictício (mesmos ids, para casar com os prospectos do exemplo em inglês). */
+const BASE_EN: Base[] = [
+  { id: 'mock-01', nome: 'Aurora Gift House', rua: '412 Congress Ave', bairro: 'Downtown', tel: '(512) 555-0180', site: 'auroragifthouse.com', nota: 4.7, n: 312, aberto: true, tipo: 'Gift shop' },
+  { id: 'mock-02', nome: 'Garden Bloom Florist', rua: '1150 Congress Ave', bairro: 'Downtown', tel: '(512) 555-0174', site: '', nota: 4.8, n: 540, aberto: true, tipo: 'Florist' },
+  { id: 'mock-03', nome: 'The Right Gift Emporium', rua: '88 South 1st St', bairro: 'South Congress', tel: '(512) 555-0121', site: 'rightgiftemporium.com', nota: 4.5, n: 127, aberto: true, tipo: 'Gift shop' },
+  { id: 'mock-04', nome: 'Bouquet & Co Flower Boutique', rua: '2300 Guadalupe St', bairro: 'West Campus', tel: '(512) 555-0155', site: 'bouquetandco.com', nota: 4.9, n: 218, aberto: false, tipo: 'Florist' },
+  { id: 'mock-05', nome: 'Treats & More Gifts', rua: '650 Lamar Blvd', bairro: 'Clarksville', tel: '(512) 555-0190', site: '', nota: 4.3, n: 96, aberto: true, tipo: 'Gift shop' },
+  { id: 'mock-06', nome: 'Fleur Atelier', rua: '305 West 6th St', bairro: 'Downtown', tel: '(512) 555-0134', site: 'fleuratelier.com', nota: 4.9, n: 74, aberto: true, tipo: 'Florist and decor' },
+  { id: 'mock-07', nome: 'Full Basket Gifts', rua: '3010 Burnet Rd', bairro: 'Allandale', tel: '(512) 555-0166', site: 'fullbasketgifts.com', nota: 4.4, n: 189, aberto: true, tipo: 'Gift baskets' },
+  { id: 'mock-08', nome: 'Roots Flower Shop', rua: '1180 East Cesar Chavez St', bairro: 'East Austin', tel: '(512) 555-0147', site: '', nota: 4.6, n: 161, aberto: true, tipo: 'Florist' },
+  { id: 'mock-09', nome: 'Gift Store Austin', rua: '75 Rainey St', bairro: 'Rainey Street', tel: '(512) 555-0129', site: 'giftstoreaustin.com', nota: 4.1, n: 58, aberto: true, tipo: 'Gift shop' },
+  { id: 'mock-10', nome: 'Lumen Paper & Gifts', rua: '920 West 12th St', bairro: 'Hyde Park', tel: '(512) 555-0108', site: 'lumenpaper.com', nota: 4.6, n: 233, aberto: true, tipo: 'Stationery and gifts' },
+  { id: 'mock-11', nome: 'Sea Salt Decor & Gifts', rua: '640 Barton Springs Rd', bairro: 'Zilker', tel: '(512) 555-0119', site: '', nota: 4.7, n: 41, aberto: null, tipo: 'Home decor and gifts' },
+  { id: 'mock-12', nome: 'Sweet Gesture Baskets', rua: '210 East 7th St', bairro: 'Downtown', tel: '', site: 'sweetgesturebaskets.com', nota: 4.2, n: 33, aberto: true, tipo: 'Gift baskets' },
+  { id: 'mock-13', nome: 'Geek Universe Gifts', rua: '1450 South Lamar Blvd', bairro: 'Zilker', tel: '(512) 555-0103', site: 'geekuniversegifts.com', nota: 4.8, n: 402, aberto: true, tipo: 'Creative gifts' },
+  { id: 'mock-14', nome: 'Rosewood Flower Shop', rua: '902 East 11th St', bairro: 'East Austin', tel: '(512) 555-0156', site: '', nota: 3.9, n: 22, aberto: false, tipo: 'Florist' },
+];
+
 const semAcento = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Busca de lugares. Com VITE_GOOGLE_PLACES_KEY usa a Places API (New); sem ela, devolve os dados fictícios. */
 export async function buscarLugares({ termo, local }: Busca): Promise<Lugar[]> {
-  if (CHAVE) return buscarGoogle(`${termo} em ${local}`);
+  const en = idiomaDoFormato() === 'en';
+  if (CHAVE) return buscarGoogle(en ? `${termo} in ${local}` : `${termo} em ${local}`);
   await new Promise((r) => setTimeout(r, 700));
-  const cidade = local.split(',')[0].trim() || 'Joinville';
-  const uf = (local.split(',')[1] ?? ' SC').trim().toUpperCase();
+  const cidade = local.split(',')[0].trim() || (en ? 'Austin' : 'Joinville');
+  const uf = (local.split(',')[1] ?? (en ? ' TX' : ' SC')).trim().toUpperCase();
   const t = semAcento(termo);
   const quer = (tipo: string) => !t || t.split(/\s+/).some((w) => w.length > 3 && semAcento(tipo).includes(w.replace(/s$/, '')));
   // "flores" e "presentes" cobrem quase todo o conjunto; termos sem relação não trazem nada.
-  const lista = BASE.filter((b) => quer(b.tipo) || quer(b.nome) || /presente|flor|cesta|decor/.test(t));
+  const lista = (en ? BASE_EN : BASE).filter((b) => quer(b.tipo) || quer(b.nome) || (en ? /gift|flower|florist|decor|basket/ : /presente|flor|cesta|decor/).test(t));
   return lista.map((b) => ({
-    placeId: b.id, nome: b.nome, endereco: `${b.rua} - ${b.bairro}, ${cidade} - ${uf}`, bairro: b.bairro, telefone: b.tel, site: b.site ? 'https://' + b.site : '',
+    placeId: b.id, nome: b.nome, endereco: en ? `${b.rua}, ${b.bairro}, ${cidade}, ${uf}` : `${b.rua} - ${b.bairro}, ${cidade} - ${uf}`, bairro: b.bairro, telefone: b.tel, site: b.site ? 'https://' + b.site : '',
     nota: b.nota, avaliacoes: b.n, aberto: b.aberto, tipo: b.tipo, mapsUrl: mapsUrl(b.id),
   }));
 }
@@ -78,9 +102,9 @@ async function buscarGoogle(consulta: string): Promise<Lugar[]> {
     const r = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': CHAVE!, 'X-Goog-FieldMask': campos },
-      body: JSON.stringify({ textQuery: consulta, languageCode: 'pt-BR', regionCode: 'BR', pageSize: 20, ...(token ? { pageToken: token } : {}) }),
+      body: JSON.stringify({ textQuery: consulta, languageCode: idiomaDoFormato() === 'en' ? 'en-US' : 'pt-BR', regionCode: idiomaDoFormato() === 'en' ? 'US' : 'BR', pageSize: 20, ...(token ? { pageToken: token } : {}) }),
     });
-    if (!r.ok) throw new Error(`Google Places respondeu ${r.status}`);
+    if (!r.ok) throw new Error(tf('feiras.prosp.googleStatus', { n: r.status }));
     const j = (await r.json()) as { places?: PlaceApi[]; nextPageToken?: string };
     for (const p of j.places ?? []) {
       const end = p.formattedAddress ?? '';

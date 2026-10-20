@@ -6,6 +6,8 @@ import { getHistorico, saveHistoricoArr } from '../../../lib/storage';
 import { useLibrarias } from '../../../context/LibrariasContext';
 import type { HistoricoEntry } from '../../../types';
 import { Drawer, Field, Seg } from '../ui';
+import { useFeirasT, decimalLocal } from '../../lib/i18n';
+import { idiomaDoFormato } from '../../../lib/format';
 
 type Pgto = 'debito' | 'credito' | 'pix' | 'outra';
 
@@ -16,6 +18,8 @@ type Pgto = 'debito' | 'credito' | 'pix' | 'outra';
 // calculadora como um cálculo de Venda direta, é ele que aparece no catálogo.
 export default function ProdutoCalculadoraDrawer() {
   const { fechar, avisar } = useUi();
+  const { t } = useFeirasT();
+  const nomeCanal = (m: string) => (m === 'Venda direta' ? t('feiras.pc.vendaDireta') : m);
   const { recarregarProdutos, db } = useStore();
   const { prefs } = useLibrarias();
 
@@ -29,7 +33,7 @@ export default function ProdutoCalculadoraDrawer() {
       const atual = porNome.get(k);
       if (!atual || h.id > atual.id) porNome.set(k, h);
     }
-    return [...porNome.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
+    return [...porNome.values()].sort((a, b) => a.nome.localeCompare(b.nome, idiomaDoFormato() === 'en' ? 'en-US' : 'pt-BR', { sensitivity: 'base' }));
   }, []);
   const jaNoCatalogo = new Set(db.produtos.map((p) => p.nome.toLowerCase()));
 
@@ -75,8 +79,8 @@ export default function ProdutoCalculadoraDrawer() {
   }, [base, numFrete, numMargem, numImposto, taxaPct]);
 
   function salvar() {
-    if (!base) return setErro('Escolha um produto da calculadora.');
-    if (!calc) return setErro('Taxas e margem somam 100% ou mais: reduza a margem ou as taxas.');
+    if (!base) return setErro(t('feiras.pc.erroEscolher'));
+    if (!calc) return setErro(t('feiras.pc.erroTaxas'));
     const razaoPot = base.precoConsumidor > 0 ? base.potMensal / base.precoConsumidor : 0;
     const entry: HistoricoEntry = {
       ...JSON.parse(JSON.stringify(base)),
@@ -100,49 +104,49 @@ export default function ProdutoCalculadoraDrawer() {
     hist.unshift(entry);
     saveHistoricoArr(hist);
     recarregarProdutos();
-    avisar('Produto cadastrado com as taxas de venda direta');
+    avisar(t('feiras.pc.cadastrado'));
     fechar();
   }
 
   return (
-    <Drawer aberto titulo="Produto da calculadora" subtitulo="Escolha um produto já calculado e informe as taxas da venda direta." onClose={fechar}
-      rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>Cadastrar no catálogo</button>}>
+    <Drawer aberto titulo={t('feiras.pc.titulo')} subtitulo={t('feiras.pc.sub')} onClose={fechar}
+      rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>{t('feiras.pc.cadastrar')}</button>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
 
-      <Field label="Produto calculado" hint={opcoes.length === 0 ? 'Nenhum cálculo salvo ainda: calcule um produto na calculadora primeiro.' : undefined}>
+      <Field label={t('feiras.pc.produtoCalculado')} hint={opcoes.length === 0 ? t('feiras.pc.nenhumCalculo') : undefined}>
         <select value={id} onChange={(e) => escolher(e.target.value)}>
-          <option value="">Selecione…</option>
+          <option value="">{t('feiras.pc.selecione')}</option>
           {opcoes.map((h) => (
-            <option key={h.id} value={h.id}>{h.nome}, {h.marketplace}{jaNoCatalogo.has(h.nome.toLowerCase()) ? ' (já no catálogo)' : ''}</option>
+            <option key={h.id} value={h.id}>{h.nome}, {nomeCanal(h.marketplace)}{jaNoCatalogo.has(h.nome.toLowerCase()) ? t('feiras.pc.jaNoCatalogo') : ''}</option>
           ))}
         </select>
       </Field>
 
       {base && (
         <>
-          <div className="fe-totals"><div><small>Custo por unidade</small><br /><b>{brl(base.custoUnit)}</b></div><small style={{ maxWidth: 210, textAlign: 'right' }}>Preço no {base.marketplace}: {brl(base.precoConsumidor)} (com taxas do canal)</small></div>
+          <div className="fe-totals"><div><small>{t('feiras.pc.custoUnidade')}</small><br /><b>{brl(base.custoUnit)}</b></div><small style={{ maxWidth: 210, textAlign: 'right' }}>{t('feiras.pc.precoNoCanal', { canal: nomeCanal(base.marketplace), v: brl(base.precoConsumidor) })}</small></div>
 
           <div>
-            <div className="fe-sec-title">Taxas da venda direta</div>
-            <Field label="Forma de pagamento">
+            <div className="fe-sec-title">{t('feiras.pc.taxasTitulo')}</div>
+            <Field label={t('feiras.pc.formaPgto')}>
               <Seg<Pgto> valor={pgto} onChange={setPgto} opcoes={[
-                { id: 'debito', label: `Débito ${String(taxaDebito).replace('.', ',')}%` },
-                { id: 'credito', label: `Crédito ${String(taxaCredito).replace('.', ',')}%` },
-                { id: 'pix', label: 'Pix' },
-                { id: 'outra', label: 'Outra' },
+                { id: 'debito', label: t('feiras.pc.debito', { p: decimalLocal(taxaDebito) }) },
+                { id: 'credito', label: t('feiras.pc.credito', { p: decimalLocal(taxaCredito) }) },
+                { id: 'pix', label: t('feiras.pc.pix') },
+                { id: 'outra', label: t('feiras.pc.outra') },
               ]} />
             </Field>
             <div className="fe-form-grid" style={{ marginTop: 12 }}>
-              {pgto === 'outra' && <Field label="Taxa da operação (%)"><input type="number" inputMode="decimal" step="0.01" min={0} value={taxaOutra} onChange={(e) => setTaxaOutra(e.target.value)} /></Field>}
-              <Field label="Imposto (%)"><input type="number" inputMode="decimal" step="0.1" min={0} value={imposto} onChange={(e) => setImposto(e.target.value)} /></Field>
-              <Field label="Frete / embalagem de entrega (R$)" hint="Custo que você paga por unidade"><input type="number" inputMode="decimal" step="0.01" min={0} value={frete} onChange={(e) => setFrete(e.target.value)} placeholder="0,00" /></Field>
-              <Field label="Margem desejada (%)"><input type="number" inputMode="decimal" step="0.1" min={0} value={margem} onChange={(e) => setMargem(e.target.value)} /></Field>
+              {pgto === 'outra' && <Field label={t('feiras.pc.taxaOperacao')}><input type="number" inputMode="decimal" step="0.01" min={0} value={taxaOutra} onChange={(e) => setTaxaOutra(e.target.value)} /></Field>}
+              <Field label={t('feiras.pc.imposto')}><input type="number" inputMode="decimal" step="0.1" min={0} value={imposto} onChange={(e) => setImposto(e.target.value)} /></Field>
+              <Field label={t('feiras.pc.frete')} hint={t('feiras.pc.freteHint')}><input type="number" inputMode="decimal" step="0.01" min={0} value={frete} onChange={(e) => setFrete(e.target.value)} placeholder={t('feiras.comum.zero')} /></Field>
+              <Field label={t('feiras.pc.margem')}><input type="number" inputMode="decimal" step="0.1" min={0} value={margem} onChange={(e) => setMargem(e.target.value)} /></Field>
             </div>
           </div>
 
           <div className="fe-totals">
-            <div><small>Preço de venda direta</small><br /><b>{calc ? brl(calc.preco) : 'N/D'}</b></div>
-            <small style={{ maxWidth: 210, textAlign: 'right' }}>{calc ? `Taxa de pagamento ${brl(calc.taxaValor)} · lucro líquido ${brl(calc.lucroLiquido)} (${calc.margem.toFixed(1).replace('.', ',')}%)` : 'Ajuste a margem ou as taxas'}</small>
+            <div><small>{t('feiras.pc.precoVendaDireta')}</small><br /><b>{calc ? brl(calc.preco) : t('feiras.comum.nd')}</b></div>
+            <small style={{ maxWidth: 210, textAlign: 'right' }}>{calc ? t('feiras.pc.resumo', { t: brl(calc.taxaValor), l: brl(calc.lucroLiquido), m: decimalLocal(calc.margem.toFixed(1)) }) : t('feiras.pc.ajuste')}</small>
           </div>
         </>
       )}

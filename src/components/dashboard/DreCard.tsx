@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { DRE_LINHAS, DRE_MARGEM_LIQUIDA } from '../../lib/dashboardMock';
+import { dashboardDoIdioma, type DreLinha } from '../../lib/dashboardMock';
+import { brl } from '../../lib/format';
+import type { Idioma } from '../../lib/i18n';
 import { contarProdutosSemVinculo } from '../../lib/produtosMock';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
@@ -23,19 +25,32 @@ function gerarOpcoesMes(t: (chave: string) => string) {
   return opcoes;
 }
 
+// brl() segue o idioma ativo: "R$ 1.234,56" em PT/ES, "$1,234.56" em EN.
 function fmt(v: number) {
   const sinal = v < 0 ? '− ' : '';
-  return sinal + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return sinal + brl(Math.abs(v));
 }
 
-function baixarRelatorioCompleto(mesLabel: string) {
-  const linhas = ['Linha;Valor (R$)'];
-  DRE_LINHAS.forEach((l) => {
-    linhas.push(`${l.label};${l.valor.toFixed(2).replace('.', ',')}`);
-    l.subitens?.forEach((s) => linhas.push(`  ${s.label};${s.valor.toFixed(2).replace('.', ',')}`));
-  });
-  linhas.push('');
-  linhas.push(`Margem líquida;${DRE_MARGEM_LIQUIDA}`);
+function baixarRelatorioCompleto(mesLabel: string, DRE_LINHAS: DreLinha[], DRE_MARGEM_LIQUIDA: string, idioma: Idioma) {
+  const linhas: string[] = [];
+  if (idioma === 'en') {
+    // CSV americano: vírgula separa colunas e ponto separa decimais.
+    linhas.push('Line,Amount ($)');
+    DRE_LINHAS.forEach((l) => {
+      linhas.push(`${l.label},${l.valor.toFixed(2)}`);
+      l.subitens?.forEach((s) => linhas.push(`  ${s.label},${s.valor.toFixed(2)}`));
+    });
+    linhas.push('');
+    linhas.push(`Net margin,${DRE_MARGEM_LIQUIDA}`);
+  } else {
+    linhas.push('Linha;Valor (R$)');
+    DRE_LINHAS.forEach((l) => {
+      linhas.push(`${l.label};${l.valor.toFixed(2).replace('.', ',')}`);
+      l.subitens?.forEach((s) => linhas.push(`  ${s.label};${s.valor.toFixed(2).replace('.', ',')}`));
+    });
+    linhas.push('');
+    linhas.push(`Margem líquida;${DRE_MARGEM_LIQUIDA}`);
+  }
   const csv = '﻿' + linhas.join('\n'); // BOM pra acentuação abrir certo no Excel
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -49,7 +64,8 @@ function baixarRelatorioCompleto(mesLabel: string) {
 }
 
 export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCusto: () => void }) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const { dreLinhas: DRE_LINHAS, dreMargemLiquida: DRE_MARGEM_LIQUIDA } = dashboardDoIdioma(idioma);
   const { semVinculo, total } = contarProdutosSemVinculo();
   const opcoesMes = useMemo(() => gerarOpcoesMes(t), [t]);
   const [mes, setMes] = useState(opcoesMes[0].valor);
@@ -73,7 +89,7 @@ export default function DreCard({ onVerProdutosSemCusto }: { onVerProdutosSemCus
               </select>
             </div>
           </div>
-          <button type="button" className="btn-outline" onClick={() => baixarRelatorioCompleto(mesLabel)}>
+          <button type="button" className="btn-outline" onClick={() => baixarRelatorioCompleto(mesLabel, DRE_LINHAS, DRE_MARGEM_LIQUIDA, idioma)}>
             <Icon name="upload" size={14} style={{ transform: 'rotate(180deg)' }} /> {t('dashboard.baixarRelatorioCompleto')}
           </button>
         </div>

@@ -132,7 +132,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
         <div className="avatar">{USUARIO.iniciais}</div>
         <div className="sidebar-user">
           <div className="name">{USUARIO.nome}</div>
-          <div className="plan">{USUARIO.plano}</div>
+          <div className="plan">{t('nav.planoStarter')}</div>
         </div>
       </div>
     </div>

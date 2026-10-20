@@ -1,5 +1,6 @@
 import { useState, type MouseEvent } from 'react';
-import { MAX_Y, SERIE_LUCRO, TICKS_Y, type PontoSerie } from '../../lib/dashboardMock';
+import { dashboardDoIdioma, type PontoSerie } from '../../lib/dashboardMock';
+import type { Idioma } from '../../lib/i18n';
 import { useI18n } from '../../context/I18nContext';
 
 type Serie = 'receita' | 'pedidos' | 'lucro';
@@ -10,27 +11,22 @@ const SERIES = [
   { key: 'lucro' as const, chaveLabel: 'dashboard.lucro', cor: 'var(--accent)' },
 ];
 
-const pontos = SERIE_LUCRO;
-const n = pontos.length;
+type Campo = keyof Pick<PontoSerie, 'faturamento' | 'custos' | 'lucro'>;
 
-/** Coordenadas em % do viewBox 0 a 100, pra o SVG poder esticar junto com o card. */
-const px = (i: number) => (i / (n - 1)) * 100;
-const py = (v: number) => (1 - v / MAX_Y) * 100;
-
-function linha(campo: keyof Pick<PontoSerie, 'faturamento' | 'custos' | 'lucro'>) {
-  return pontos.map((p, i) => `${px(i)},${py(p[campo])}`).join(' ');
-}
-
-const areaFaturamento =
-  `M0,${py(pontos[0].faturamento)} ` +
-  pontos.map((p, i) => `L${px(i)},${py(p.faturamento)}`).join(' ') +
-  ' L100,100 L0,100 Z';
-
-function fmt(v: number) {
+function fmt(v: number, idioma: Idioma) {
+  // EN mostra a série em dólar; PT e ES mantêm o formato original em reais.
+  if (idioma === 'en') return '$' + v.toLocaleString('en-US');
   return 'R$ ' + v.toLocaleString('pt-BR');
 }
 
-function fmtTick(v: number) {
+function fmtTick(v: number, idioma: Idioma) {
+  if (idioma === 'en') {
+    if (v >= 1000) {
+      const k = v / 1000;
+      return '$' + (Number.isInteger(k) ? k : k.toFixed(1)) + 'k';
+    }
+    return '$' + v;
+  }
   if (v === 0) return 'R$ 0';
   if (v >= 1000) {
     const k = v / 1000;
@@ -40,7 +36,23 @@ function fmtTick(v: number) {
 }
 
 export default function LucroChart() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const { serieLucro: pontos, ticksY: TICKS_Y, maxY: MAX_Y } = dashboardDoIdioma(idioma);
+  const n = pontos.length;
+
+  /** Coordenadas em % do viewBox 0 a 100, pra o SVG poder esticar junto com o card. */
+  const px = (i: number) => (i / (n - 1)) * 100;
+  const py = (v: number) => (1 - v / MAX_Y) * 100;
+
+  function linha(campo: Campo) {
+    return pontos.map((p, i) => `${px(i)},${py(p[campo])}`).join(' ');
+  }
+
+  const areaFaturamento =
+    `M0,${py(pontos[0].faturamento)} ` +
+    pontos.map((p, i) => `L${px(i)},${py(p.faturamento)}`).join(' ') +
+    ' L100,100 L0,100 Z';
+
   const [serie, setSerie] = useState<Serie>('lucro');
   const [hover, setHover] = useState<number | null>(null);
 
@@ -82,7 +94,7 @@ export default function LucroChart() {
       <div className="chart-grid">
         <div className="chart-yaxis">
           {TICKS_Y.map((t) => (
-            <span key={t} style={{ top: py(t) + '%' }}>{fmtTick(t)}</span>
+            <span key={t} style={{ top: py(t) + '%' }}>{fmtTick(t, idioma)}</span>
           ))}
         </div>
 
@@ -121,7 +133,7 @@ export default function LucroChart() {
                 {SERIES.map((s) => (
                   <div className="tt-row" key={s.key}>
                     <span className="tt-key"><i style={{ background: s.cor }} />{t(s.chaveLabel)}</span>
-                    <b style={{ color: s.cor }}>{fmt(ativo[s.key])}</b>
+                    <b style={{ color: s.cor }}>{fmt(ativo[s.key], idioma)}</b>
                   </div>
                 ))}
               </div>

@@ -1,8 +1,9 @@
-import { PEDIDOS_RECENTES } from '../../lib/dashboardMock';
+import { dashboardDoIdioma } from '../../lib/dashboardMock';
 import { useI18n } from '../../context/I18nContext';
 
 export default function PedidosRecentes() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const PEDIDOS_RECENTES = dashboardDoIdioma(idioma).pedidosRecentes;
   return (
     <div className="card list-card">
       <div className="card-body list-body">

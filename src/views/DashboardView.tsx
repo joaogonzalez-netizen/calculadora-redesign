@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { INSIGHTS, KPIS } from '../lib/dashboardMock';
+import { dashboardDoIdioma } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
 import SyncBar from '../components/dashboard/SyncBar';
 import MarketplaceFilter from '../components/dashboard/MarketplaceFilter';
@@ -28,7 +28,8 @@ interface Props {
 }
 
 export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculadora, onIrParaConfiguracoes }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const { kpis, insights } = dashboardDoIdioma(idioma);
   const [modo, setModo] = useState<ModoPainel>(() => {
     const salvo = localStorage.getItem(PAINEL_MODO_KEY) as ModoPainel | null;
     return salvo && MODOS.some((m) => m.key === salvo) ? salvo : 'populado';
@@ -60,11 +61,11 @@ export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculado
           </div>
 
           <div className="kpi-grid">
-            {KPIS.map((k) => <KpiCard key={k.id} kpi={k} />)}
+            {kpis.map((k) => <KpiCard key={k.id} kpi={k} />)}
           </div>
 
           <div className="insight-grid">
-            {INSIGHTS.map((i) => <InsightCard key={i.id} insight={i} />)}
+            {insights.map((i) => <InsightCard key={i.id} insight={i} />)}
           </div>
 
           <LucroChart />

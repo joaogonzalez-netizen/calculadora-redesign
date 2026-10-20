@@ -37,7 +37,7 @@ interface Props {
 }
 
 export default function Topbar({ view, onNovaConversa }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
   return (
     <div className="topbar">
       <div className="topbar-titulo">
@@ -52,7 +52,7 @@ export default function Topbar({ view, onNovaConversa }: Props) {
         <IdiomaSwitcher />
         <div className="credits-pill">
           <Icon name="creditos" size={15} />
-          <b>{CREDITOS}</b> <span>{t('topbar.creditos')}</span>
+          <b>{idioma === 'en' ? CREDITOS.replace('.', ',') : CREDITOS}</b> <span>{t('topbar.creditos')}</span>
         </div>
         <button type="button" className="bell" aria-label={t('topbar.notificacoes')}>
           <Icon name="sino" size={17} />

@@ -4,8 +4,10 @@ import { useStore } from '../lib/store';
 import { brl } from '../lib/format';
 import Icon from './Icon';
 import { Seg } from './ui';
+import { useFeirasT } from '../lib/i18n';
 
-export default function ItensEditor({ itens, onChange, rotuloTotal = 'Total do pedido' }: { itens: ItemPedido[]; onChange: (i: ItemPedido[]) => void; rotuloTotal?: string }) {
+export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: ItemPedido[]; onChange: (i: ItemPedido[]) => void; rotuloTotal?: string }) {
+  const { t } = useFeirasT();
   const { db, itemDoProduto } = useStore();
   const [tipo, setTipo] = useState<'atacado' | 'varejo'>('varejo');
   const avulso = (it: ItemPedido) => !it.produtoId && (!!it.avulso || !!it.nome.trim());
@@ -30,31 +32,31 @@ export default function ItensEditor({ itens, onChange, rotuloTotal = 'Total do p
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
-        <div className="fe-sec-title">Tabela de preço</div>
-        <Seg valor={tipo} onChange={repricing} opcoes={[{ id: 'varejo', label: 'Cliente final' }, { id: 'atacado', label: 'Loja' }]} />
+        <div className="fe-sec-title">{t('feiras.itens.tabela')}</div>
+        <Seg valor={tipo} onChange={repricing} opcoes={[{ id: 'varejo', label: t('feiras.itens.clienteFinal') }, { id: 'atacado', label: t('feiras.itens.loja') }]} />
       </div>
       {itens.map((it, idx) => (
         <div key={idx} className="fe-item-row">
           <label className="fe-field">
-            <span className="fe-lbl">{idx === 0 ? 'Produto' : <span style={{ visibility: 'hidden' }}>.</span>}</span>
+            <span className="fe-lbl">{idx === 0 ? t('feiras.itens.produto') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
             {db.produtos.length > 0 && (
               <select value={it.produtoId ?? (avulso(it) ? '__avulso' : '')} onChange={(e) => trocarProduto(idx, e.target.value)}>
-                <option value="">Escolher da calculadora…</option>
+                <option value="">{t('feiras.itens.escolher')}</option>
                 {db.produtos.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
-                <option value="__avulso">Item avulso (digitar)</option>
+                <option value="__avulso">{t('feiras.itens.avulsoOpt')}</option>
               </select>
             )}
-            {(db.produtos.length === 0 || avulso(it)) && !it.produtoId && <input value={it.nome} onChange={(e) => alterar(idx, { nome: e.target.value, avulso: true })} placeholder="Descrição do item" />}
+            {(db.produtos.length === 0 || avulso(it)) && !it.produtoId && <input value={it.nome} onChange={(e) => alterar(idx, { nome: e.target.value, avulso: true })} placeholder={t('feiras.itens.descricao')} />}
           </label>
-          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? 'Qtd' : <span style={{ visibility: 'hidden' }}>.</span>}</span>
+          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.qtd') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
             <input type="number" inputMode="numeric" min={1} value={it.qtd} onChange={(e) => alterar(idx, { qtd: Math.max(1, Number(e.target.value) || 1) })} /></label>
-          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? 'Valor un.' : <span style={{ visibility: 'hidden' }}>.</span>}</span>
+          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.valorUn') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
             <input type="number" inputMode="decimal" min={0} step="0.01" value={it.unit} onChange={(e) => alterar(idx, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
-          <button type="button" className="fe-icon-btn" aria-label="Remover item" onClick={() => onChange(itens.filter((_, i) => i !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
+          <button type="button" className="fe-icon-btn" aria-label={t('feiras.itens.remover')} onClick={() => onChange(itens.filter((_, i) => i !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
         </div>
       ))}
-      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> Adicionar item da calculadora</button></div>
-      <div className="fe-totals"><div><small>{rotuloTotal}</small><br /><b>{brl(total)}</b></div>{custo > 0 && <div style={{ textAlign: 'right' }}><small>Lucro estimado</small><br /><b>{brl(total - custo)}</b></div>}</div>
+      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> {t('feiras.itens.adicionar')}</button></div>
+      <div className="fe-totals"><div><small>{rotuloTotal ?? t('feiras.itens.totalPedido')}</small><br /><b>{brl(total)}</b></div>{custo > 0 && <div style={{ textAlign: 'right' }}><small>{t('feiras.itens.lucro')}</small><br /><b>{brl(total - custo)}</b></div>}</div>
     </div>
   );
 }

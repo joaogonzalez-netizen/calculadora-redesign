@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
-import { PEDIDOS, PEDIDOS_KPIS, type Pedido } from '../lib/pedidosMock';
-import { brl } from '../lib/format';
+import { useEffect, useMemo, useState } from 'react';
+import { pedidosDoIdioma, pedidosKpisDoIdioma, type Pedido } from '../lib/pedidosMock';
+import { brl, localeNumeros } from '../lib/format';
+import type { Idioma } from '../lib/i18n';
 import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
@@ -8,7 +9,12 @@ import PopoverList from '../components/produtos/PopoverList';
 import PedidoDrawer from '../components/pedidos/PedidoDrawer';
 
 const PERIODOS = ['Maio 2026', 'Abril 2026', 'Março 2026'];
-const CONTAS = ['Todas', 'Mercado Livre', 'Shopee'];
+// Contas por idioma: EN (mercado americano) só tem Etsy e TikTok Shop.
+const CONTAS_POR_IDIOMA: Record<Idioma, string[]> = {
+  pt: ['Todas', 'Mercado Livre', 'Shopee'],
+  es: ['Todas', 'Mercado Livre', 'Shopee'],
+  en: ['Todas', 'Etsy', 'TikTok Shop'],
+};
 const STATUS_OPTS = ['Todos', 'Pago', 'Enviado', 'Pendente', 'Cancelado', 'Entregue'];
 
 const STATUS_CLASSE: Record<Pedido['status'], string> = {
@@ -27,12 +33,31 @@ const PAGAMENTO_CLASSE: Record<Pedido['pagamento'], string> = {
 function alertaEmBreve(acao: string) {
   alert(`Em breve: ${acao}.`);
 }
+// Mesmo aviso na versão EN, com o texto já em inglês.
+const ACOES_EN: Record<string, string> = {
+  'exportar pedidos em CSV': 'export orders to CSV',
+  'sincronização de pedidos': 'order sync',
+  'filtros avançados': 'advanced filters',
+};
 
 export default function PedidosView() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const en = idioma === 'en';
+  const CONTAS = CONTAS_POR_IDIOMA[idioma];
+  const PEDIDOS = pedidosDoIdioma(idioma);
+  const PEDIDOS_KPIS = pedidosKpisDoIdioma(idioma);
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState(PERIODOS[0]);
   const [conta, setConta] = useState(CONTAS[1]);
+  // Trocar de idioma com a tela aberta: a conta escolhida pode não existir no
+  // novo idioma (ex.: Mercado Livre em EN), então volta pra conta padrão.
+  useEffect(() => {
+    setConta((atual) => (CONTAS.includes(atual) ? atual : CONTAS[1]));
+  }, [CONTAS]);
+  function emBreve(acao: string) {
+    if (en) alert(`Coming soon: ${ACOES_EN[acao] ?? acao}.`);
+    else alertaEmBreve(acao);
+  }
   const [status, setStatus] = useState(STATUS_OPTS[0]);
   const [selecionado, setSelecionado] = useState<Pedido | null>(null);
 
@@ -45,7 +70,7 @@ export default function PedidosView() {
     if (conta !== 'Todas') lista = lista.filter((p) => p.marketplace === conta);
     if (status !== 'Todos') lista = lista.filter((p) => p.status === status);
     return lista;
-  }, [busca, conta, status]);
+  }, [PEDIDOS, busca, conta, status]);
 
   const exibidos = pedidos.slice(0, 10);
 
@@ -68,6 +93,13 @@ export default function PedidosView() {
     return v;
   }
 
+  function traduzirPagamento(v: string) {
+    if (v === 'Aprovado') return t('pedidos.pagamentoAprovado');
+    if (v === 'Pendente') return t('pedidos.statusPendente');
+    if (v === 'Reembolsado') return t('pedidos.pagamentoReembolsado');
+    return v;
+  }
+
   return (
     <div>
       <div className="hero">
@@ -76,8 +108,8 @@ export default function PedidosView() {
       </div>
 
       <div className="prod-actions-row">
-        <button type="button" className="btn-outline" onClick={() => alertaEmBreve('exportar pedidos em CSV')}>{t('pedidos.exportarCsv')}</button>
-        <button type="button" className="btn-dark" onClick={() => alertaEmBreve('sincronização de pedidos')}>{t('pedidos.sincronizarPedidos')}</button>
+        <button type="button" className="btn-outline" onClick={() => emBreve('exportar pedidos em CSV')}>{t('pedidos.exportarCsv')}</button>
+        <button type="button" className="btn-dark" onClick={() => emBreve('sincronização de pedidos')}>{t('pedidos.sincronizarPedidos')}</button>
       </div>
 
       <div className="kpi-grid">
@@ -87,15 +119,15 @@ export default function PedidosView() {
         </div>
         <div className="kpi-card">
           <div className="kpi-head"><span>{t('pedidos.kpiFaturamento')}</span></div>
-          <div className="kpi-value"><span className="kpi-dec">R$</span><span className="kpi-int">{PEDIDOS_KPIS.faturamento.toLocaleString('pt-BR')}</span><span className="kpi-dec">,00</span></div>
+          <div className="kpi-value"><span className="kpi-dec">{en ? '$' : 'R$'}</span><span className="kpi-int">{PEDIDOS_KPIS.faturamento.toLocaleString(localeNumeros())}</span><span className="kpi-dec">{en ? '.00' : ',00'}</span></div>
         </div>
         <div className="kpi-card">
           <div className="kpi-head"><span>{t('pedidos.kpiAguardandoEnvio')}</span></div>
-          <div className="kpi-value"><span className="kpi-int">{PEDIDOS_KPIS.aguardandoEnvio}</span><span className="kpi-dec">pedidos</span></div>
+          <div className="kpi-value"><span className="kpi-int">{PEDIDOS_KPIS.aguardandoEnvio}</span><span className="kpi-dec">{en ? 'orders' : 'pedidos'}</span></div>
         </div>
         <div className="kpi-card">
           <div className="kpi-head"><span>{t('pedidos.kpiTaxasEstimadas')}</span></div>
-          <div className="kpi-value"><span className="kpi-dec">R$</span><span className="kpi-int">{PEDIDOS_KPIS.taxasEstimadas.toLocaleString('pt-BR')}</span><span className="kpi-dec">,00</span></div>
+          <div className="kpi-value"><span className="kpi-dec">{en ? '$' : 'R$'}</span><span className="kpi-int">{PEDIDOS_KPIS.taxasEstimadas.toLocaleString(localeNumeros())}</span><span className="kpi-dec">{en ? '.00' : ',00'}</span></div>
         </div>
       </div>
 
@@ -104,7 +136,7 @@ export default function PedidosView() {
         <PopoverList label={t('pedidos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} getLabel={traduzirPeriodo} />
         <PopoverList label={t('pedidos.filtroConta')} options={CONTAS} value={conta} onChange={setConta} getLabel={traduzirConta} />
         <PopoverList label={t('pedidos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={setStatus} getLabel={traduzirStatus} />
-        <button type="button" className="ctl-btn" onClick={() => alertaEmBreve('filtros avançados')}>▽ {t('pedidos.botaoFiltros')}</button>
+        <button type="button" className="ctl-btn" onClick={() => emBreve('filtros avançados')}>▽ {t('pedidos.botaoFiltros')}</button>
       </div>
 
       <div className="card">
@@ -121,15 +153,15 @@ export default function PedidosView() {
                 <tr key={p.id}>
                   <td>
                     <div className="prod-name">{p.produto}</div>
-                    <div className="prod-sku">#{p.codigoMlb} · {p.qtd} un. · {p.data}</div>
+                    <div className="prod-sku">#{p.codigoMlb} · {p.qtd} {en ? 'units' : 'un.'} · {p.data}</div>
                   </td>
                   <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                   <td>
                     <div className="prod-name">{p.comprador}</div>
                     <div className="prod-sku">{p.compradorHandle}</div>
                   </td>
-                  <td><span className={'ped-status ' + STATUS_CLASSE[p.status]}>{p.status}</span></td>
-                  <td><span className={'ped-status ' + PAGAMENTO_CLASSE[p.pagamento]}>{p.pagamento}</span></td>
+                  <td><span className={'ped-status ' + STATUS_CLASSE[p.status]}>{en ? traduzirStatus(p.status) : p.status}</span></td>
+                  <td><span className={'ped-status ' + PAGAMENTO_CLASSE[p.pagamento]}>{en ? traduzirPagamento(p.pagamento) : p.pagamento}</span></td>
                   <td>
                     <b>{brl(p.valorTotal)}</b>
                     <div className="ped-taxa-inline">{t('pedidos.taxaLabel')}: {brl(p.valorTotal * p.taxaPct)}</div>
@@ -146,7 +178,7 @@ export default function PedidosView() {
           </div>
           {!exibidos.length && <div className="hint" style={{ textAlign: 'center', padding: 24 }}>{t('pedidos.nenhumPedidoEncontrado')}</div>}
           <div className="prod-pagination">
-            <span>{t('pedidos.exibindo')} 1 a {exibidos.length} {t('pedidos.deLabel')} {PEDIDOS_KPIS.total} {t('pedidos.pedidosPlural')}</span>
+            <span>{t('pedidos.exibindo')} 1 {en ? 'to' : 'a'} {exibidos.length} {t('pedidos.deLabel')} {PEDIDOS_KPIS.total} {t('pedidos.pedidosPlural')}</span>
             <div className="prod-pages">
               <button type="button" className="page-btn">‹</button>
               <button type="button" className="page-btn active">1</button>

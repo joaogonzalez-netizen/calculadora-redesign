@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ORDENS, PERIODOS, PRODUTOS, PRODUTOS_KPIS, type Produto, type ProdutoStatus } from '../lib/produtosMock';
+import { ORDENS, ORDENS_LABEL_EN, PERIODOS, PERIODOS_LABEL_EN, precoProdutoNumero, produtosDoIdioma, produtosKpisDoIdioma, type Produto, type ProdutoStatus } from '../lib/produtosMock';
+import { brl } from '../lib/format';
+import type { Idioma } from '../lib/i18n';
 import { PRODUTO_VINCULOS_KEY, readJson, writeJson, type ProdutoVinculos } from '../lib/storage';
 import { classeTagMarketplace } from '../lib/marketplaceTag';
 import { useI18n } from '../context/I18nContext';
@@ -11,12 +13,22 @@ import FiltrosAvancadosDrawer, { type FaixaFiltro } from '../components/produtos
 import PausarAnuncioModal from '../components/produtos/PausarAnuncioModal';
 import OtimizarAnuncioDrawer from '../components/produtos/OtimizarAnuncioDrawer';
 import LevarAnuncioModal from '../components/produtos/LevarAnuncioModal';
+import PublicarAnuncioModal from '../components/gerador/PublicarAnuncioModal';
 import { destinoDaCopia } from '../lib/copiarAnuncio';
 
 const STATUS_OPTS: (ProdutoStatus | 'Todos')[] = ['Todos', 'Ativo', 'Pausado', 'Esgotado'];
-const CANAL_OPTS = ['Todos', 'Mercado Livre', 'Shopee'];
+// Canais do filtro por idioma: EN (mercado americano) só tem Etsy e TikTok Shop.
+const CANAL_OPTS: Record<Idioma, string[]> = {
+  pt: ['Todos', 'Mercado Livre', 'Shopee'],
+  es: ['Todos', 'Mercado Livre', 'Shopee'],
+  en: ['Todos', 'Etsy', 'TikTok Shop'],
+};
 // Coluna "Otimizar" escondida por enquanto; é só voltar para true.
 const MOSTRAR_OTIMIZAR = false;
+// Coluna "Duplicar" (LevarAnuncioModal/PublicarAnuncioModal) só funciona entre
+// Mercado Livre e Shopee; o wizard de publicação não suporta Etsy/TikTok Shop,
+// então fica escondida na versão EN.
+const MOSTRAR_DUPLICAR: Record<Idioma, boolean> = { pt: true, es: true, en: false };
 
 interface Props {
   filtroSemCustoInicial?: boolean;
@@ -26,10 +38,21 @@ interface Props {
 }
 
 export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoConsumido, onIrParaConfiguracoes, onReescreverAnuncio }: Props) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const en = idioma === 'en';
+  const canalOpts = CANAL_OPTS[idioma];
+  const mostrarDuplicar = MOSTRAR_DUPLICAR[idioma];
+  const PRODUTOS = produtosDoIdioma(idioma);
+  const PRODUTOS_KPIS = produtosKpisDoIdioma(idioma);
+  const unidade = en ? 'units' : 'un.';
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState('Maio 2026');
-  const [canal, setCanal] = useState('Mercado Livre');
+  const [canal, setCanal] = useState(canalOpts[1]);
+  // Trocar de idioma com a tela aberta: o canal escolhido pode não existir no
+  // novo idioma (ex.: Mercado Livre em EN), então volta pro canal padrão.
+  useEffect(() => {
+    setCanal((atual) => (canalOpts.includes(atual) ? atual : canalOpts[1]));
+  }, [canalOpts]);
   const [status, setStatus] = useState<ProdutoStatus | 'Todos'>('Todos');
   const [ordem, setOrdem] = useState(ORDENS[0]);
   const [faixaFiltro, setFaixaFiltro] = useState<{ valor: FaixaFiltro; estoque: FaixaFiltro } | null>(null);
@@ -52,6 +75,8 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
   const [pausarProduto, setPausarProduto] = useState<Produto | null>(null);
   const [otimizarProduto, setOtimizarProduto] = useState<Produto | null>(null);
   const [levarProduto, setLevarProduto] = useState<Produto | null>(null);
+  // "Duplicar → Copiar o anúncio": abre a publicação do Gerador no marketplace de destino.
+  const [publicarProduto, setPublicarProduto] = useState<Produto | null>(null);
   const [statusOverride, setStatusOverride] = useState<Record<string, ProdutoStatus>>({});
 
   const [vinculos, setVinculos] = useState<ProdutoVinculos>(() => readJson(PRODUTO_VINCULOS_KEY, {}));
@@ -74,7 +99,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
       const min = parseFloat(valor.min), max = parseFloat(valor.max);
       const eMin = parseFloat(estoque.min), eMax = parseFloat(estoque.max);
       lista = lista.filter((p) => {
-        const precoNum = parseFloat(p.preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+        const precoNum = precoProdutoNumero(p.preco);
         if (!isNaN(min) && precoNum < min) return false;
         if (!isNaN(max) && precoNum > max) return false;
         if (!isNaN(eMin) && p.estoque < eMin) return false;
@@ -86,7 +111,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
     if (ordem === 'Título A-Z') lista = [...lista].sort((a, b) => a.nome.localeCompare(b.nome));
     if (ordem === 'Título Z-A') lista = [...lista].sort((a, b) => b.nome.localeCompare(a.nome));
     return lista;
-  }, [busca, canal, status, ordem, faixaFiltro, statusOverride, somenteSemCusto, vinculos]);
+  }, [PRODUTOS, busca, canal, status, ordem, faixaFiltro, statusOverride, somenteSemCusto, vinculos]);
 
   function traduzirStatus(s: string) {
     if (s === 'Todos') return t('produtos.statusTodos');
@@ -119,18 +144,18 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
 
       <div className="kpi-grid prod-kpi-grid">
         <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiVendasAcumuladas')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.vendasAcumuladas}</span></div><div className="kpi-foot"><span className="kpi-comp">{t('produtos.kpiNoTotal')}</span></div></div>
-        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiProdutosAtivos')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.produtosAtivos.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.produtosAtivos.sub}</span></div></div>
-        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiEmEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.emEstoque.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.emEstoque.sub}</span></div></div>
-        <div className="kpi-card kpi-warn"><div className="kpi-head"><span>{t('produtos.kpiEstoqueBaixo')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.estoqueBaixo.valor}</span><span className="kpi-dec">un.</span></div><div className="kpi-foot"><span className="kpi-comp warn">{PRODUTOS_KPIS.estoqueBaixo.sub}</span></div></div>
-        <div className="kpi-card kpi-danger"><div className="kpi-head"><span>{t('produtos.kpiSemEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.semEstoque.valor}</span><span className="kpi-dec">pedidos</span></div><div className="kpi-foot"><span className="kpi-comp danger">{PRODUTOS_KPIS.semEstoque.sub}</span></div></div>
+        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiProdutosAtivos')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.produtosAtivos.valor}</span><span className="kpi-dec">{unidade}</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.produtosAtivos.sub}</span></div></div>
+        <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiEmEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.emEstoque.valor}</span><span className="kpi-dec">{unidade}</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.emEstoque.sub}</span></div></div>
+        <div className="kpi-card kpi-warn"><div className="kpi-head"><span>{t('produtos.kpiEstoqueBaixo')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.estoqueBaixo.valor}</span><span className="kpi-dec">{unidade}</span></div><div className="kpi-foot"><span className="kpi-comp warn">{PRODUTOS_KPIS.estoqueBaixo.sub}</span></div></div>
+        <div className="kpi-card kpi-danger"><div className="kpi-head"><span>{t('produtos.kpiSemEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.semEstoque.valor}</span><span className="kpi-dec">{en ? 'units' : 'pedidos'}</span></div><div className="kpi-foot"><span className="kpi-comp danger">{PRODUTOS_KPIS.semEstoque.sub}</span></div></div>
       </div>
 
       <div className="prod-filters-row">
         <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder={t('produtos.buscarPlaceholder')} value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
-        <PopoverList label={t('produtos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} />
-        <PopoverList label={t('produtos.filtroCanal')} options={CANAL_OPTS} value={canal} onChange={setCanal} getLabel={traduzirCanal} />
+        <PopoverList label={t('produtos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} getLabel={en ? (v) => PERIODOS_LABEL_EN[v] ?? v : undefined} />
+        <PopoverList label={t('produtos.filtroCanal')} options={canalOpts} value={canal} onChange={setCanal} getLabel={traduzirCanal} />
         <PopoverList label={t('produtos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={(v) => setStatus(v as ProdutoStatus | 'Todos')} getLabel={traduzirStatus} />
-        <PopoverList label="" options={ORDENS} value={ordem} onChange={setOrdem} />
+        <PopoverList label="" options={ORDENS} value={ordem} onChange={setOrdem} getLabel={en ? (v) => ORDENS_LABEL_EN[v] ?? v : undefined} />
         <button type="button" className="ctl-btn" onClick={() => setFiltrosOpen(true)}>▽ {t('produtos.botaoFiltros')}</button>
       </div>
 
@@ -146,7 +171,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           <table className="prod-table">
             <thead>
               <tr>
-                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th><th>{t('produtos.colunaLevar')}</th>{MOSTRAR_OTIMIZAR && <th>{t('produtos.colunaOtimizar')}</th>}<th>{t('produtos.colunaAcoes')}</th>
+                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th>{mostrarDuplicar && <th>{t('produtos.colunaLevar')}</th>}{MOSTRAR_OTIMIZAR && <th>{t('produtos.colunaOtimizar')}</th>}<th>{t('produtos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -156,29 +181,31 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                   <tr key={p.id}>
                     <td>
                       <div className="prod-name">{p.nome}</div>
-                      <div className="prod-sku">{p.sku} · {p.variacoes.length} var. · dd/mm/aaaa</div>
+                      <div className="prod-sku">{p.sku} · {p.variacoes.length} var. · {en ? 'mm/dd/yyyy' : 'dd/mm/aaaa'}</div>
                     </td>
                     <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                     <td><span className={'status-tag status-' + p.status.toLowerCase()}>{traduzirStatus(p.status)}</span></td>
                     <td>
-                      <div>{p.estoque} un.</div>
+                      <div>{p.estoque} {unidade}</div>
                       <small className={'estoque-sit sit-' + p.estoqueSituacao.replace(/\s/g, '-').toLowerCase()}>{traduzirEstoqueSituacao(p.estoqueSituacao)}</small>
                     </td>
-                    <td>{p.vendidos} un.</td>
+                    <td>{p.vendidos} {unidade}</td>
                     <td>{p.preco}</td>
                     <td>
                       {vinculo ? (
                         <div className="custo-vinculado" onClick={() => setCustoProduto(p)}>
-                          <b>{brl2(vinculo.custoProducao)}</b>
+                          <b>{vinculo.custoProducao === undefined ? '-' : brl(vinculo.custoProducao)}</b>
                           <small>{vinculo.tipo === 'calculo' ? t('produtos.viaCalculoSalvo') : t('produtos.informadoManualmente')}</small>
                         </div>
                       ) : (
                         <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setCustoProduto(p)}>{t('produtos.vincularCusto')}</button>
                       )}
                     </td>
-                    <td>
-                      <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setLevarProduto(p)}>{t('produtos.levarBtn' + destinoDaCopia(p).sufixo)}</button>
-                    </td>
+                    {mostrarDuplicar && (
+                      <td>
+                        <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setLevarProduto(p)}>{t('produtos.levarBtn' + destinoDaCopia(p).sufixo)}</button>
+                      </td>
+                    )}
                     {MOSTRAR_OTIMIZAR && (
                       <td>
                         <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
@@ -210,7 +237,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
             </tbody>
           </table>
           <div className="prod-pagination">
-            <span>{t('produtos.exibindo')} 1 a {produtos.length} {t('produtos.deLabel')} {PRODUTOS_KPIS.produtosAtivos.valor} {t('produtos.produtosPlural')}</span>
+            <span>{t('produtos.exibindo')} 1 {en ? 'to' : 'a'} {produtos.length} {t('produtos.deLabel')} {PRODUTOS_KPIS.produtosAtivos.valor} {t('produtos.produtosPlural')}</span>
             <div className="prod-pages">
               <button type="button" className="page-btn">‹</button>
               <button type="button" className="page-btn active">1</button>
@@ -239,12 +266,20 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           onSave={(v) => salvarVinculo(custoProduto.id, v)}
         />
       )}
-      {levarProduto && (
+      {mostrarDuplicar && levarProduto && (
         <LevarAnuncioModal
           produto={levarProduto}
           onClose={() => setLevarProduto(null)}
           onIrParaConfiguracoes={onIrParaConfiguracoes ? () => { setLevarProduto(null); onIrParaConfiguracoes(); } : undefined}
+          onCopiar={() => { setPublicarProduto(levarProduto); setLevarProduto(null); }}
           onReescrever={onReescreverAnuncio ? () => { const p = levarProduto; setLevarProduto(null); onReescreverAnuncio(p); } : undefined}
+        />
+      )}
+      {mostrarDuplicar && publicarProduto && (
+        <PublicarAnuncioModal
+          marketplaceInicial={destinoDaCopia(publicarProduto).id}
+          onFechar={() => setPublicarProduto(null)}
+          onIrParaConfiguracoes={() => { setPublicarProduto(null); onIrParaConfiguracoes?.(); }}
         />
       )}
       {otimizarProduto && <OtimizarAnuncioDrawer produto={otimizarProduto} onClose={() => setOtimizarProduto(null)} />}
@@ -260,9 +295,4 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
       )}
     </div>
   );
-}
-
-function brl2(v?: number) {
-  if (v === undefined) return '-';
-  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

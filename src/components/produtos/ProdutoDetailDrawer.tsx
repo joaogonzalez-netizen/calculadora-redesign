@@ -11,7 +11,10 @@ function traduzirStatusProduto(t: (chave: string) => string, s: string) {
 }
 
 export default function ProdutoDetailDrawer({ produto, onClose }: { produto: Produto; onClose: () => void }) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  // Versão EN (Etsy/TikTok Shop): preço em dólar e sem as linhas exclusivas do Mercado Livre.
+  const en = idioma === 'en';
+  const unidade = en ? 'units' : 'un.';
   return (
     <>
       <div className="drawer-overlay" onClick={onClose} />
@@ -36,7 +39,7 @@ export default function ProdutoDetailDrawer({ produto, onClose }: { produto: Pro
 
         <div className="pd-section-title">{t('produtos.informacoesPrincipais')}</div>
         <div className="pd-info-grid">
-          <div className="pd-info-cell"><span>{t('produtos.colunaPreco')}</span><b>{produto.preco}</b><small>BRL</small></div>
+          <div className="pd-info-cell"><span>{t('produtos.colunaPreco')}</span><b>{produto.preco}</b><small>{en ? 'USD' : 'BRL'}</small></div>
           <div className="pd-info-cell"><span>{t('produtos.estoqueTotal')}</span><b>{produto.estoque} {t('produtos.unidades')}</b><small>{t('produtos.comVariacoes')}</small></div>
           <div className="pd-info-cell"><span>{t('produtos.colunaVendidos')}</span><b>{produto.vendidos} {t('produtos.unidades')}</b><small>{t('produtos.historicoDoAnuncio')}</small></div>
           <div className="pd-info-cell"><span>{t('produtos.categoria')}</span><b>{produto.categoria}</b><small>{produto.categoriaSub}</small></div>
@@ -44,8 +47,8 @@ export default function ProdutoDetailDrawer({ produto, onClose }: { produto: Pro
 
         <div className="pd-section-title">{t('produtos.configuracoesDoAnuncio')}</div>
         <div className="pd-config-list">
-          <div><span>{t('produtos.controladoPeloCatalogoMl')}</span><b>{produto.controladoCatalogoMl ? t('produtos.sim') : t('produtos.nao')}</b></div>
-          <div><span>{t('produtos.inventarioMercadoLivre')}</span><b>{produto.inventarioMl ? t('produtos.sim') : t('produtos.nao')}</b></div>
+          {!en && <div><span>{t('produtos.controladoPeloCatalogoMl')}</span><b>{produto.controladoCatalogoMl ? t('produtos.sim') : t('produtos.nao')}</b></div>}
+          {!en && <div><span>{t('produtos.inventarioMercadoLivre')}</span><b>{produto.inventarioMl ? t('produtos.sim') : t('produtos.nao')}</b></div>}
           <div><span>{t('produtos.possuiVariacoes')}</span><b>{produto.variacoes.length > 0 ? t('produtos.sim') : t('produtos.nao')}</b></div>
           <div><span>{t('produtos.linkPublico')}</span><b>{produto.linkPublico ? t('produtos.disponivel') : t('produtos.indisponivel')}</b></div>
         </div>
@@ -58,7 +61,7 @@ export default function ProdutoDetailDrawer({ produto, onClose }: { produto: Pro
               <div className="pd-var-main"><b>{v.nome}</b><small>{v.sku}</small></div>
               <b className="pd-var-preco">{v.preco}</b>
             </div>
-            <div className="pd-var-nums"><span>{t('produtos.colunaEstoque')}<br /><b>{v.estoque} un.</b></span><span>{t('produtos.colunaVendidos')}<br /><b>{v.vendidos} un.</b></span></div>
+            <div className="pd-var-nums"><span>{t('produtos.colunaEstoque')}<br /><b>{v.estoque} {unidade}</b></span><span>{t('produtos.colunaVendidos')}<br /><b>{v.vendidos} {unidade}</b></span></div>
             <div className="bar-bg"><div className="bar-fill bar-green" style={{ width: v.participacaoPct + '%' }} /></div>
             <div className="pd-var-pct">{t('produtos.participacaoNasVendas')} <b>{v.participacaoPct}%</b></div>
           </div>

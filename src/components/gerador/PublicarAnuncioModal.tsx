@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Icon from '../Icon';
-import { readJson } from '../../lib/storage';
+import { baixarVideoAnuncio } from '../../lib/baixarVideo';
+import { AVISO_VIDEO_PUBLICACAO_KEY, readJson, writeJson } from '../../lib/storage';
 import { MARKETPLACES_CONECTADOS_KEY } from '../../lib/onboarding';
 import { useI18n } from '../../context/I18nContext';
 
@@ -14,22 +15,26 @@ import { useI18n } from '../../context/I18nContext';
 // regras (o que falta, o que bloqueia) são calculadas de verdade a partir
 // do estado, nada hardcoded pra um único caminho "feliz".
 type Marketplace = 'ml' | 'shopee';
-type PassoPub = 'marketplace' | 'imagens' | 'titulo' | 'categoria' | 'ficha' | 'frete' | 'confirmar';
+type PassoPub = 'marketplace' | 'imagens' | 'capa' | 'titulo' | 'categoria' | 'ficha' | 'frete' | 'confirmar';
 
-const PASSOS_PUB: { id: PassoPub; numero: number }[] = [
-  { id: 'marketplace', numero: 1 },
-  { id: 'imagens', numero: 2 },
-  { id: 'titulo', numero: 3 },
-  { id: 'categoria', numero: 4 },
-  { id: 'ficha', numero: 5 },
-  { id: 'frete', numero: 6 },
-  { id: 'confirmar', numero: 7 },
+// "capa" só existe na Shopee: etapa explícita pra escolher a foto de capa entre
+// as imagens selecionadas (o Mercado Livre usa a primeira como principal).
+const PASSOS_PUB: { id: PassoPub }[] = [
+  { id: 'marketplace' },
+  { id: 'imagens' },
+  { id: 'capa' },
+  { id: 'titulo' },
+  { id: 'categoria' },
+  { id: 'ficha' },
+  { id: 'frete' },
+  { id: 'confirmar' },
 ];
 
 function labelPasso(id: PassoPub, mp: Marketplace, t: (chave: string) => string): string {
   switch (id) {
     case 'marketplace': return t('publicar.marketplace');
     case 'imagens': return t('publicar.imagens');
+    case 'capa': return t('publicar.capa');
     case 'titulo': return t('publicar.tituloEDescricao');
     case 'categoria': return mp === 'shopee' ? t('publicar.categoriaEDados') : t('publicar.categoria');
     case 'ficha': return mp === 'shopee' ? t('publicar.variacoesEAtacado') : t('publicar.fichaTecnica');
@@ -101,12 +106,14 @@ interface FaixaAtacado { id: string; qtd: string; preco: string; }
 interface PubForm {
   marketplace: Marketplace;
   imagensSelecionadas: string[];
+  // Shopee: id da foto de capa, sem padrão de propósito: o vendedor precisa escolher.
+  capaId: string;
   tituloId: string;
   descricao: string;
   // Mercado Livre
   categoriaManual: string;
   condicao: 'novo' | 'usado';
-  tipoAnuncio: 'gratis' | 'classico' | 'premium';
+  tipoAnuncio: 'classico' | 'premium';
   acabamento: string;
   quantidade: string;
   tipoProduto: string;
@@ -146,6 +153,7 @@ interface PubForm {
 const FORM_INICIAL: PubForm = {
   marketplace: 'ml',
   imagensSelecionadas: ['frente', 'lateral', 'detalhe', 'escala'],
+  capaId: '',
   tituloId: 't1',
   descricao: DESCRICAO_PADRAO,
   categoriaManual: CATEGORIAS_MANUAIS_ML[0],
@@ -187,7 +195,6 @@ const FORM_INICIAL: PubForm = {
 
 function montarInfoTipoAnuncio(t: (chave: string) => string): Record<PubForm['tipoAnuncio'], { pct: string; titulo: string; desc: string }> {
   return {
-    gratis: { pct: '0%', titulo: t('publicar.infoGratisTitulo'), desc: t('publicar.infoGratisDesc') },
     classico: { pct: '12%', titulo: t('publicar.infoClassicoTitulo'), desc: t('publicar.infoClassicoDesc') },
     premium: { pct: '18%', titulo: t('publicar.infoPremiumTitulo'), desc: t('publicar.infoPremiumDesc') },
   };
@@ -196,15 +203,20 @@ function montarInfoTipoAnuncio(t: (chave: string) => string): Record<PubForm['ti
 interface Props {
   onFechar: () => void;
   onIrParaConfiguracoes: () => void;
+  // Marketplace já selecionado ao abrir (ex.: "Duplicar" em Produtos leva ao outro canal).
+  marketplaceInicial?: Marketplace;
 }
 
-export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }: Props) {
+export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes, marketplaceInicial }: Props) {
   const { t } = useI18n();
   const INFO_TIPO_ANUNCIO = montarInfoTipoAnuncio(t);
   const [passo, setPasso] = useState<PassoPub>('marketplace');
-  const [form, setForm] = useState<PubForm>(FORM_INICIAL);
+  const [form, setForm] = useState<PubForm>(() => ({ ...FORM_INICIAL, marketplace: marketplaceInicial ?? FORM_INICIAL.marketplace }));
   const [fase, setFase] = useState<'wizard' | 'publicando' | 'sucesso'>('wizard');
   const [confirmarDescarte, setConfirmarDescarte] = useState(false);
+  // Aviso final: o vídeo não vai junto na publicação (nem ML nem Shopee permitem).
+  const [avisoVideoAberto, setAvisoVideoAberto] = useState(false);
+  const [naoMostrarAvisoVideo, setNaoMostrarAvisoVideo] = useState(false);
   const [categoriaCarregando, setCategoriaCarregando] = useState(true);
   const [lojaShopeeHabilitada] = useState(() => readJson<Record<string, boolean>>(MARKETPLACES_CONECTADOS_KEY, {}).shopee === true);
 
@@ -227,13 +239,14 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
     setForm((prev) => ({ ...prev, [campo]: valor }));
   }
 
-  const idxAtual = PASSOS_PUB.findIndex((p) => p.id === passo);
+  const passos = mp === 'shopee' ? PASSOS_PUB : PASSOS_PUB.filter((p) => p.id !== 'capa');
+  const idxAtual = passos.findIndex((p) => p.id === passo);
 
   function avancar() {
-    if (idxAtual < PASSOS_PUB.length - 1) setPasso(PASSOS_PUB[idxAtual + 1].id);
+    if (idxAtual < passos.length - 1) setPasso(passos[idxAtual + 1].id);
   }
   function voltar() {
-    if (idxAtual > 0) setPasso(PASSOS_PUB[idxAtual - 1].id);
+    if (idxAtual > 0) setPasso(passos[idxAtual - 1].id);
   }
 
   function tentarFechar() {
@@ -244,7 +257,9 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
   function toggleImagem(id: string) {
     setForm((prev) => {
       const ja = prev.imagensSelecionadas.includes(id);
-      return { ...prev, imagensSelecionadas: ja ? prev.imagensSelecionadas.filter((i) => i !== id) : [...prev.imagensSelecionadas, id] };
+      const imagensSelecionadas = ja ? prev.imagensSelecionadas.filter((i) => i !== id) : [...prev.imagensSelecionadas, id];
+      // Tirou a foto que era a capa: a escolha da capa volta a ficar pendente.
+      return { ...prev, imagensSelecionadas, capaId: prev.capaId === id && ja ? '' : prev.capaId };
     });
   }
 
@@ -292,6 +307,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
 
   const faltando: string[] = [];
   if (form.imagensSelecionadas.length === 0) faltando.push('imagens');
+  if (mp === 'shopee' && !form.capaId) faltando.push('foto de capa');
   if (!categoriaAtual) faltando.push('categoria');
   if (mp === 'ml') {
     if (!form.material.trim()) faltando.push('material');
@@ -327,6 +343,21 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
     if (!prontoParaPublicar) return;
     setFase('publicando');
     setTimeout(() => setFase('sucesso'), 1400);
+  }
+
+  // Antes de publicar, avisa uma vez (ou sempre, até marcar "Não mostrar novamente")
+  // que o vídeo não é postado automaticamente.
+  function pedirPublicar() {
+    if (!prontoParaPublicar) return;
+    if (readJson<Record<string, boolean>>(AVISO_VIDEO_PUBLICACAO_KEY, {})[mp]) { publicar(); return; }
+    setAvisoVideoAberto(true);
+  }
+  // "Li e entendi" já baixa o vídeo (ele não vai junto na publicação) e publica.
+  function lerAvisoEPublicar() {
+    if (naoMostrarAvisoVideo) writeJson(AVISO_VIDEO_PUBLICACAO_KEY, { ...readJson<Record<string, boolean>>(AVISO_VIDEO_PUBLICACAO_KEY, {}), [mp]: true });
+    setAvisoVideoAberto(false);
+    baixarVideoAnuncio();
+    publicar();
   }
 
   const nomeMarketplace = mp === 'ml' ? 'Mercado Livre' : 'Shopee';
@@ -375,10 +406,10 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
         </div>
 
         <div className="pub-progresso">
-          {PASSOS_PUB.map((p, i) => <span key={p.id} className={i <= idxAtual ? 'feito' : ''} />)}
+          {passos.map((p, i) => <span key={p.id} className={i <= idxAtual ? 'feito' : ''} />)}
         </div>
         <div className="pub-passo-info">
-          <span>{t('publicar.passo')} {idxAtual + 1} {t('publicar.de')} 7</span>
+          <span>{t('publicar.passo')} {idxAtual + 1} {t('publicar.de')} {passos.length}</span>
           <b>{labelPasso(passo, mp, t)}</b>
         </div>
 
@@ -444,13 +475,45 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                     </div>
                     <div className="pub-img-label">
                       <span>{t(CHAVES_LABEL_IMAGEM[img.id] ?? '') || img.label}</span>
-                      {ordem === 0 && <span className="pub-img-principal">{t('publicar.principal')}</span>}
+                      {ordem === 0 && mp === 'ml' && <span className="pub-img-principal">{t('publicar.principal')}</span>}
                     </div>
                   </button>
                 );
               })}
             </div>
             <div className="pub-img-conta">{t('publicar.selecionadas')} <b>{form.imagensSelecionadas.length} {t('publicar.de')} {IMAGENS_PUB.length}</b></div>
+          </>
+        )}
+
+        {passo === 'capa' && mp === 'shopee' && (
+          <>
+            <div className="pub-secao-titulo">{t('publicar.capaTitulo')}</div>
+            <div className="pub-secao-desc">{t('publicar.capaDesc')}</div>
+            <div className="pub-aviso pub-aviso-info">
+              <Icon name="tag" size={14} />
+              {t('publicar.capaAviso')}
+            </div>
+            {form.imagensSelecionadas.length === 0 ? (
+              <div className="pub-aviso pub-aviso-warn"><Icon name="alert" size={14} /> {t('publicar.capaSemImagens')}</div>
+            ) : (
+              <div className="pub-img-grid pub-capa-grid" role="radiogroup" aria-label={t('publicar.capaTitulo')}>
+                {form.imagensSelecionadas.map((id) => {
+                  const img = IMAGENS_PUB.find((i) => i.id === id);
+                  if (!img) return null;
+                  const ehCapa = form.capaId === id;
+                  return (
+                    <button type="button" role="radio" aria-checked={ehCapa} key={id} className={'pub-img-card pub-capa-card' + (ehCapa ? ' selecionada' : '')} onClick={() => set('capaId', id)}>
+                      <div className="pub-img-media" style={{ background: 'repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px' }}>
+                        {ehCapa && <span className="pub-capa-selo">{t('publicar.capaSelo')}</span>}
+                        <span className="pub-img-check"><Icon name="check" size={12} /></span>
+                      </div>
+                      <div className="pub-img-label"><span>{t(CHAVES_LABEL_IMAGEM[id] ?? '') || img.label}</span></div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {!form.capaId && form.imagensSelecionadas.length > 0 && <div className="hint" style={{ color: 'var(--red)', marginTop: 4 }}>{t('publicar.capaObrigatoria')}</div>}
           </>
         )}
 
@@ -539,9 +602,9 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
             <div className="field">
               <label>{t('publicar.tipoAnuncio')} *</label>
               <div className="pub-toggle-row">
-                {(['gratis', 'classico', 'premium'] as const).map((ta) => (
+                {(['classico', 'premium'] as const).map((ta) => (
                   <button type="button" key={ta} className={'pub-toggle-pill' + (form.tipoAnuncio === ta ? ' ativo' : '')} onClick={() => set('tipoAnuncio', ta)}>
-                    {ta === 'gratis' ? t('publicar.gratis') : ta === 'classico' ? t('publicar.classico') : t('publicar.premium')}
+                    {ta === 'classico' ? t('publicar.classico') : t('publicar.premium')}
                   </button>
                 ))}
               </div>
@@ -839,6 +902,12 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
                 <div className="pub-resumo-label"><Icon name="upload" size={12} /> {t('publicar.imagens')}</div>
                 <div className="pub-resumo-valor">{form.imagensSelecionadas.length ? `${form.imagensSelecionadas.length} ${t('publicar.fotos')}` : 'N/D'}</div>
               </div>
+              {mp === 'shopee' && (
+                <div className="pub-resumo-cel">
+                  <div className="pub-resumo-label"><Icon name="upload" size={12} /> {t('publicar.capa')}</div>
+                  <div className="pub-resumo-valor">{form.capaId ? (t(CHAVES_LABEL_IMAGEM[form.capaId] ?? '') || form.capaId) : 'N/D'}</div>
+                </div>
+              )}
               <div className="pub-resumo-cel full">
                 <div className="pub-resumo-label"><Icon name="folder" size={12} /> {t('publicar.categoria')}</div>
                 <div className="pub-resumo-valor">{categoriaAtual || 'N/D'}</div>
@@ -915,12 +984,31 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes }
         <div className="pub-footer">
           {idxAtual > 0 ? <button type="button" className="btn-outline pill ger-btn" onClick={voltar}>{t('publicar.voltar')}</button> : <span />}
           {passo === 'confirmar' ? (
-            <button type="button" className="btn-dark pill ger-btn" disabled={!prontoParaPublicar} onClick={publicar}>{t('publicar.publicarAnuncio')}</button>
+            <button type="button" className="btn-dark pill ger-btn" disabled={!prontoParaPublicar} onClick={pedirPublicar}>{t('publicar.publicarAnuncio')}</button>
           ) : (
-            <button type="button" className="btn-dark pill ger-btn" onClick={avancar}>{t('publicar.continuar')}</button>
+            <button type="button" className="btn-dark pill ger-btn" disabled={passo === 'capa' && !form.capaId} onClick={avancar}>{t('publicar.continuar')}</button>
           )}
         </div>
       </div>
+
+      {avisoVideoAberto && (
+        <div className="pub-descartar-overlay" onClick={() => setAvisoVideoAberto(false)}>
+          <div className="pub-descartar-card pub-aviso-video" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <div className="pub-status-icone"><Icon name="play" size={24} /></div>
+            <h3>{t('publicar.avisoVideoTitulo')}</h3>
+            <p>{t('publicar.avisoVideoTexto')}</p>
+            <p>{t('publicar.avisoVideoComoFazer')}</p>
+            <label className="pub-aviso-video-check">
+              <input type="checkbox" checked={naoMostrarAvisoVideo} onChange={(e) => setNaoMostrarAvisoVideo(e.target.checked)} />
+              <span>{t('publicar.avisoVideoNaoMostrar')}</span>
+            </label>
+            <div className="pub-descartar-acoes">
+              <button type="button" className="btn-outline pill ger-btn" onClick={() => setAvisoVideoAberto(false)}>{t('publicar.voltar')}</button>
+              <button type="button" className="btn-dark pill ger-btn" onClick={lerAvisoEPublicar}>{t('publicar.avisoVideoLi')}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {confirmarDescarte && (
         <div className="pub-descartar-overlay" onClick={() => setConfirmarDescarte(false)}>

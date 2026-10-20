@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { MARKETPLACES } from '../../lib/dashboardMock';
+import { dashboardDoIdioma } from '../../lib/dashboardMock';
 import { useI18n } from '../../context/I18nContext';
 
 // Filtro visual: os dados do dashboard são mock, então trocar aqui ainda não
 // refiltra nada. Fica pronto pra ligar quando existir API.
 export default function MarketplaceFilter() {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const MARKETPLACES = dashboardDoIdioma(idioma).marketplaces;
   const [valor, setValor] = useState('todos');
   return (
     <div className="mp-filter">
@@ -25,4 +26,6 @@ const NOMES: Record<string, string> = {
   amazon: 'Amazon',
   shopee: 'Shopee',
   magalu: 'Magalu',
+  etsy: 'Etsy',
+  tiktok: 'TikTok Shop',
 };

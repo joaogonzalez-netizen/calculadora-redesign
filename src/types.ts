@@ -55,6 +55,8 @@ export interface Preferencias {
   taxaPix: number;
   impostoEs?: number; // só versão ES, ausente = IVA 21%
   moedaEs?: Moeda; // só versão ES, ausente = ARS
+  impostoEn?: number; // só versão EN, ausente = 0% (sem imposto padrão)
+  moedaEn?: Moeda; // só versão EN, ausente = USD
 }
 
 export interface HistoricoEntry {

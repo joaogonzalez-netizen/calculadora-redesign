@@ -1,9 +1,11 @@
 import { useEffect, type ReactNode } from 'react';
 import Icon from './Icon';
+import { useFeirasT } from '../lib/i18n';
 
 export function Drawer({ aberto, titulo, subtitulo, onClose, children, rodape, largo }: {
   aberto: boolean; titulo: string; subtitulo?: string; onClose: () => void; children: ReactNode; rodape?: ReactNode; largo?: boolean;
 }) {
+  const { t } = useFeirasT();
   useEffect(() => {
     if (!aberto) return;
     const fn = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -21,7 +23,7 @@ export function Drawer({ aberto, titulo, subtitulo, onClose, children, rodape, l
             <h3>{titulo}</h3>
             {subtitulo && <p>{subtitulo}</p>}
           </div>
-          <button type="button" className="fe-icon-btn" onClick={onClose} aria-label="Fechar"><Icon name="close" /></button>
+          <button type="button" className="fe-icon-btn" onClick={onClose} aria-label={t('feiras.comum.fechar')}><Icon name="close" /></button>
         </header>
         <div className="fe-drawer-body">{children}</div>
         {rodape && <footer className="fe-drawer-foot">{rodape}</footer>}

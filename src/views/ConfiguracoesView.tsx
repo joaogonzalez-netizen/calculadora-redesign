@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { Idioma } from '../lib/i18n';
 import { readJson, writeJson } from '../lib/storage';
 import { MARKETPLACES_CONECTADOS_KEY, marcarOnboardingManual } from '../lib/onboarding';
 import { useI18n } from '../context/I18nContext';
@@ -25,15 +26,27 @@ const MARKETPLACES_CONFIG: MarketplaceConfig[] = [
   { id: 'amazon', nome: 'Amazon', cor: '#0d6efd', formato: 'quadrado', conectadoInicial: true, idInicial: 'ATR1N390SVWFY' },
 ];
 
+// Versão EN (mercado americano): só Etsy (conectado por padrão) e TikTok Shop
+// (não conectado). Ids próprios, então o estado salvo de ML/Shopee/Amazon do
+// PT/ES não é afetado.
+const MARKETPLACES_CONFIG_EN: MarketplaceConfig[] = [
+  { id: 'etsy', nome: 'Etsy', cor: '#f1641e', formato: 'circulo', conectadoInicial: true, idInicial: '48213957' },
+  { id: 'tiktok', nome: 'TikTok Shop', cor: '#111111', formato: 'quadrado', conectadoInicial: false },
+];
+
+function marketplacesDoIdioma(idioma: Idioma): MarketplaceConfig[] {
+  return idioma === 'en' ? MARKETPLACES_CONFIG_EN : MARKETPLACES_CONFIG;
+}
+
 interface EstadoMp {
   conectado: boolean;
   id: string;
 }
 
-function estadoInicial(): Record<string, EstadoMp> {
+function estadoInicial(lista: MarketplaceConfig[]): Record<string, EstadoMp> {
   const conexoesSalvas = readJson<Record<string, boolean>>(MARKETPLACES_CONECTADOS_KEY, {});
   return Object.fromEntries(
-    MARKETPLACES_CONFIG.map((m) => {
+    lista.map((m) => {
       const conectado = conexoesSalvas[m.id] ?? m.conectadoInicial;
       return [m.id, { conectado, id: conectado ? (m.idInicial || '') : '' }];
     }),
@@ -42,7 +55,10 @@ function estadoInicial(): Record<string, EstadoMp> {
 
 function salvarConexoes(estado: Record<string, EstadoMp>) {
   const conexoes = Object.fromEntries(Object.entries(estado).map(([id, st]) => [id, st.conectado]));
-  writeJson(MARKETPLACES_CONECTADOS_KEY, conexoes);
+  // Mescla com o que já estava salvo: a lista EN (Etsy/TikTok) e a PT/ES
+  // (ML/Shopee/Amazon) dividem a mesma chave e uma não pode apagar a outra.
+  const salvas = readJson<Record<string, boolean>>(MARKETPLACES_CONECTADOS_KEY, {});
+  writeJson(MARKETPLACES_CONECTADOS_KEY, { ...salvas, ...conexoes });
 }
 
 interface ContaModal {
@@ -83,8 +99,14 @@ interface ConfiguracoesProps {
 }
 
 export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: ConfiguracoesProps) {
-  const { t } = useI18n();
-  const [estado, setEstado] = useState<Record<string, EstadoMp>>(estadoInicial);
+  const { t, idioma } = useI18n();
+  const en = idioma === 'en';
+  const MARKETPLACES_CONFIG = marketplacesDoIdioma(idioma);
+  const [estado, setEstado] = useState<Record<string, EstadoMp>>(() => estadoInicial(MARKETPLACES_CONFIG));
+  // Trocar de idioma com a tela aberta troca a lista de marketplaces: recarrega o estado dela.
+  useEffect(() => {
+    setEstado(estadoInicial(MARKETPLACES_CONFIG));
+  }, [MARKETPLACES_CONFIG]);
   const [contaModal, setContaModal] = useState<ContaModal | null>(null);
   const [cadastro, setCadastro] = useState<CadastroForm>(CADASTRO_INICIAL);
   const [aba, setAba] = useState<AbaConfig>('marketplaces');
@@ -107,7 +129,9 @@ export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: Co
   // Conectar de fato só acontece depois que o usuário confirma que já tem
   // conta (ou termina o cadastro mockado), ver abrirConectar() abaixo.
   function finalizarConexao(id: string) {
-    const idFake = 'ML' + Math.floor(100000000 + Math.random() * 900000000);
+    const idFake = en
+      ? String(Math.floor(10000000 + Math.random() * 90000000))
+      : 'ML' + Math.floor(100000000 + Math.random() * 900000000);
     atualizar({ ...estado, [id]: { conectado: true, id: idFake } });
     marcarOnboardingManual('marketplace');
     onChange?.();
@@ -141,7 +165,7 @@ export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: Co
     atualizar({ ...estado, [id]: { conectado: false, id: '' } });
   }
   function sincronizar(nome: string) {
-    alert(`Sincronizando produtos e pedidos de ${nome}...`);
+    alert(en ? `Syncing products and orders from ${nome}...` : `Sincronizando produtos e pedidos de ${nome}...`);
   }
 
   return (
@@ -165,7 +189,7 @@ export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: Co
           <p className="cfg-aba-desc">{t('config.subtitulo')}</p>
           <div className="config-mp-grid">
             {MARKETPLACES_CONFIG.map((m) => {
-              const st = estado[m.id];
+              const st = estado[m.id] ?? { conectado: m.conectadoInicial, id: m.conectadoInicial ? (m.idInicial || '') : '' };
               return (
                 <div className={'config-mp-card' + (st.conectado ? ' conectado' : '')} key={m.id}>
                   <div className="config-mp-head">

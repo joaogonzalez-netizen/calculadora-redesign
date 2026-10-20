@@ -24,7 +24,8 @@ function traduzirPagamento(t: (chave: string) => string, s: string) {
 }
 
 export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onClose: () => void }) {
-  const { t } = useI18n();
+  const { t, idioma } = useI18n();
+  const en = idioma === 'en';
   const taxaValor = pedido.valorTotal * pedido.taxaPct;
   const margemLiquida = pedido.valorTotal + pedido.frete - taxaValor;
 
@@ -79,7 +80,7 @@ export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onCl
               <div className="ped-item-row" key={idx}>
                 <div>
                   <b>{item.nome}</b>
-                  <div className="ped-info-meta">{item.qtd} un. × {brl(item.precoUnit)}{item.cor ? ' · ' + t('pedidos.corLabel') + ': ' + item.cor : ''}</div>
+                  <div className="ped-info-meta">{item.qtd} {en ? '×' : 'un. ×'} {brl(item.precoUnit)}{item.cor ? ' · ' + t('pedidos.corLabel') + ': ' + item.cor : ''}</div>
                 </div>
                 <b>{brl(item.precoUnit * item.qtd)}</b>
               </div>
@@ -111,8 +112,8 @@ export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onCl
         </div>
 
         <div className="ped-drawer-footer">
-          <button type="button" className="btn-outline" onClick={() => alertaEmBreve('copiar código de rastreio')}>{t('pedidos.copiarRastreio')}</button>
-          <button type="button" className="btn-dark" onClick={() => alertaEmBreve('abrir pedido no marketplace')}>{t('pedidos.abrirNoMarketplace')}</button>
+          <button type="button" className="btn-outline" onClick={() => (en ? alert('Coming soon: copy tracking number.') : alertaEmBreve('copiar código de rastreio'))}>{t('pedidos.copiarRastreio')}</button>
+          <button type="button" className="btn-dark" onClick={() => (en ? alert('Coming soon: open order on the marketplace.') : alertaEmBreve('abrir pedido no marketplace'))}>{t('pedidos.abrirNoMarketplace')}</button>
         </div>
       </div>
     </>

@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Cliente, Contato, Db, Etapa, Feira, ItemPedido, Negocio, Pedido, Produto, Prospecto, StatusPedido, Temperatura, TipoContato } from './types';
 import { addDias, hoje, uid } from './format';
+import { tf } from './i18n';
+import { idiomaDoFormato } from '../../lib/format';
 import { dbExemplo, dbVazio } from './seed';
 import { precoAtacado, precoVarejo, custoProduto } from './pricing';
 import { produtosDaCalculadora } from './produtosCalculadora';
@@ -56,6 +58,14 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 const KEY = 'stlseller.feiras.v1';
+
+// "Rua X, 10 - Bairro, Cidade - UF" (PT) ou "10 Main St, Cidade, ST" (EN).
+function cidadeDoEndereco(endereco: string): string {
+  const partes = endereco.split(',').map((p) => p.trim());
+  const ultima = partes[partes.length - 1] ?? '';
+  if (/^[A-Z]{2}$/.test(ultima) && partes.length > 1) return partes[partes.length - 2];
+  return ultima.replace(/\s*-\s*[A-Z]{2}$/, '').trim();
+}
 
 function carregar(): Db {
   try {
@@ -117,12 +127,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const ja = tel ? d.clientes.find((c) => c.telefone.replace(/\D/g, '') === tel) : undefined;
           existente = !!ja;
           clienteId = ja?.id ?? uid();
-          const contato: Contato = { id: uid(), data: hoje(), tipo: 'presencial', nota: l.nota || (l.interesse ? `Interesse: ${l.interesse}` : 'Visitou o ponto de venda.') };
+          const contato: Contato = { id: uid(), data: hoje(), tipo: 'presencial', nota: l.nota || (l.interesse ? tf('feiras.lead.notaInteresse', { interesse: l.interesse }) : tf('feiras.lead.notaPadrao')) };
           const clientes = ja
             ? d.clientes.map((c) => (c.id === ja.id ? { ...c, contatos: [contato, ...c.contatos] } : c))
             : [{ id: clienteId, nome: l.nome, empresa: '', categoria: '', telefone: l.telefone, email: '', cidade: '', obs: '', feiraId: d.feiraAtivaId, criadoEm: hoje(), contatos: [contato] }, ...d.clientes];
           const n: Negocio = {
-            id: negocioId, clienteId, titulo: l.interesse || 'Interesse a definir', valor: l.valor, etapa: 'novo', temperatura: l.temperatura,
+            id: negocioId, clienteId, titulo: l.interesse || tf('feiras.lead.interesseADefinir'), valor: l.valor, etapa: 'novo', temperatura: l.temperatura,
             feiraId: d.feiraAtivaId, proximoContato: l.proximoContato, motivoPerda: '', criadoEm: hoje(), atualizadoEm: hoje(), pedidoId: null,
           };
           return { ...d, clientes, negocios: [n, ...d.negocios] };
@@ -245,13 +255,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const ja = tel ? d.clientes.find((c) => c.telefone.replace(/\D/g, '') === tel) : undefined;
           existente = !!ja;
           clienteId = ja?.id ?? uid();
-          const contato: Contato = { id: uid(), data: hoje(), tipo: 'prospeccao', nota: `Encontrado na busca do Google (${l.tipo || 'loja'}). ${l.endereco}` };
+          const contato: Contato = { id: uid(), data: hoje(), tipo: 'prospeccao', nota: tf('feiras.store.encontradoGoogle', { tipo: l.tipo || tf('feiras.store.lojaPadrao'), endereco: l.endereco }) };
           const clientes = ja ? d.clientes.map((c) => (c.id === ja.id ? { ...c, contatos: [contato, ...c.contatos] } : c)) : [{
-            id: clienteId, nome: l.nome, empresa: l.nome, categoria: l.tipo, telefone: l.telefone, email: '', cidade: l.endereco.split(',').slice(-1)[0]?.replace(/\s*-\s*[A-Z]{2}$/, '').trim() ?? '',
-            obs: l.site ? `Site: ${l.site}` : '', feiraId: null, criadoEm: hoje(), contatos: [contato],
+            id: clienteId, nome: l.nome, empresa: l.nome, categoria: l.tipo, telefone: l.telefone, email: '', cidade: cidadeDoEndereco(l.endereco),
+            obs: l.site ? tf('feiras.store.site', { site: l.site }) : '', feiraId: null, criadoEm: hoje(), contatos: [contato],
           } as Cliente, ...d.clientes];
           const neg: Negocio = {
-            id: uid(), clienteId, titulo: `Prospecção: ${l.nome}`, valor: 0, etapa: 'novo', temperatura: 'frio', feiraId: null,
+            id: uid(), clienteId, titulo: tf('feiras.store.prospeccao', { nome: l.nome }), valor: 0, etapa: 'novo', temperatura: 'frio', feiraId: null,
             proximoContato: addDias(1), motivoPerda: '', criadoEm: hoje(), atualizadoEm: hoje(), pedidoId: null,
           };
           const pr: Prospecto = { id: uid(), placeId: l.placeId, nome: l.nome, status: 'lead', clienteId, atualizadoEm: hoje() };
@@ -264,7 +274,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       })),
       restaurarProspecto: (placeId) => up((d) => ({ ...d, prospectos: (d.prospectos ?? []).filter((x) => x.placeId !== placeId) })),
 
-      carregarExemplo: () => setDb(dbExemplo()),
+      carregarExemplo: () => setDb(dbExemplo(idiomaDoFormato())),
       limpar: () => setDb(dbVazio()),
     };
   }, [db, produtosCalc, up, pronto, erroSync]);
