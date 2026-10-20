@@ -70,9 +70,12 @@ function cidadeDoEndereco(endereco: string): string {
 function carregar(): Db {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { ...dbVazio(), ...JSON.parse(raw) };
+    const salvo = raw ? { ...dbVazio(), ...JSON.parse(raw) } : null;
+    // No dev, um banco salvo mas vazio também recebe o exemplo.
+    if (salvo && !(import.meta.env.DEV && !salvo.clientes.length && !salvo.negocios.length && !salvo.pedidos.length)) return salvo;
   } catch { /* cai no vazio */ }
-  return dbVazio();
+  // Só no `npm run dev`: abre já com os dados de exemplo pra ver as telas preenchidas.
+  return import.meta.env.DEV ? dbExemplo(idiomaDoFormato()) : dbVazio();
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
@@ -177,6 +180,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             proximoContato: n.proximoContato !== undefined ? n.proximoContato : ex?.proximoContato ?? null, motivoPerda: n.motivoPerda ?? ex?.motivoPerda ?? '',
             criadoEm: ex?.criadoEm ?? hoje(), atualizadoEm: hoje(), pedidoId: ex?.pedidoId ?? null,
             itens: n.itens !== undefined ? n.itens : ex?.itens,
+            combinado: n.combinado !== undefined ? n.combinado : ex?.combinado,
           };
           return { ...d, negocios: ex ? d.negocios.map((x) => (x.id === id ? novo : x)) : [novo, ...d.negocios] };
         });

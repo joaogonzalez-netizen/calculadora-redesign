@@ -39,6 +39,8 @@ export interface Negocio {
   pedidoId: string | null;
   // Produtos do catálogo (e itens avulsos) que o cliente quer, viram o pedido ao fechar.
   itens?: ItemPedido[];
+  // O que foi combinado com o cliente (pagamento, prazo, entrega…), vai no resumo do WhatsApp.
+  combinado?: string;
 }
 
 export interface Produto {
@@ -85,6 +87,8 @@ export interface Pedido {
 export interface ProdutoDaFeira {
   produtoId: string;
   qtd: number;
+  // Valor unitário combinado (começa no preço da tabela escolhida).
+  unit?: number;
 }
 
 export interface Feira {

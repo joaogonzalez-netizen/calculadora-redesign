@@ -1,4 +1,4 @@
-// Origem da Calculadora quando aberta a partir do catálogo de Vendas físicas:
+// Origem da Calculadora quando aberta a partir do catálogo de Venda direta:
 // mostra um aviso (taxas de venda direta) e o atalho "Voltar ao catálogo".
 const KEY = 'stlseller_calc_origem_catalogo';
 

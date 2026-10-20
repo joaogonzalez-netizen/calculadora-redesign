@@ -3,7 +3,7 @@ import { useStore } from '../../lib/store';
 import { useUi } from '../../lib/ui';
 import { addDias, brl, dataLonga, hoje, mascaraTel, relativo, waLink } from '../../lib/format';
 import { ETAPAS, TIPOS_CONTATO, type Etapa, type ItemPedido, type Temperatura, type TipoContato } from '../../lib/types';
-import { Drawer, Field } from '../ui';
+import { Drawer, Field, Mais, Secao } from '../ui';
 import Icon from '../Icon';
 import ItensEditor from '../ItensEditor';
 import { useFeirasT } from '../../lib/i18n';
@@ -16,7 +16,7 @@ export default function NegocioDrawer() {
   const existente = db.negocios.find((n) => n.id === drawer?.id);
   const novo = !existente;
 
-  const [clienteId, setClienteId] = useState(existente?.clienteId ?? drawer?.ctx ?? db.clientes[0]?.id ?? '');
+  const [clienteId, setClienteId] = useState(existente?.clienteId ?? drawer?.ctx ?? '');
   const [temp, setTemp] = useState<Temperatura>(existente?.temperatura ?? 'morno');
   const [prox, setProx] = useState(existente?.proximoContato ?? '');
   const [tipo, setTipo] = useState<TipoContato>('whatsapp');
@@ -29,6 +29,9 @@ export default function NegocioDrawer() {
   const resumoItens = itensValidos.map((i) => (itensValidos.length > 1 || i.qtd > 1 ? `${i.qtd}x ${i.nome}` : i.nome)).join(', ');
   const totalItens = itensValidos.reduce((sum, i) => sum + i.qtd * i.unit, 0);
   const [entrega, setEntrega] = useState(addDias(10));
+  const [combinado, setCombinado] = useState(existente?.combinado ?? '');
+  // Mensagem de resumo: gerada dos itens + combinado, mas editável (editada à mão deixa de ser regerada).
+  const [msgEditada, setMsgEditada] = useState<string | null>(null);
   const [erro, setErro] = useState('');
   // Cadastro rápido de cliente dentro da própria negociação.
   const [novoCliente, setNovoCliente] = useState(false);
@@ -51,7 +54,7 @@ export default function NegocioDrawer() {
   function salvar() {
     if (!clienteId) return setErro(t('feiras.neg.erroEscolherCliente'));
     if (!resumoItens) return setErro(t('feiras.neg.erroItens'));
-    const id = s.salvarNegocio({ id: existente?.id, clienteId, titulo: resumoItens, valor: Math.round(totalItens * 100) / 100, temperatura: temp, proximoContato: prox || null, itens: itensValidos });
+    const id = s.salvarNegocio({ id: existente?.id, clienteId, titulo: resumoItens, valor: Math.round(totalItens * 100) / 100, temperatura: temp, proximoContato: prox || null, itens: itensValidos, combinado: combinado.trim() });
     avisar(t('feiras.neg.salva'));
     if (novo) abrir('negocio', id); else fechar();
   }
@@ -80,6 +83,14 @@ export default function NegocioDrawer() {
     avisar(t('feiras.neg.fechado'), { label: t('feiras.neg.verFila'), fn: () => ir('fila') });
   }
 
+  const msgResumo = cliente && itensValidos.length ? t('feiras.neg.resumoMsg', {
+    nome: cliente.nome.split(' ')[0],
+    itens: itensValidos.map((i) => `• ${i.qtd}x ${i.nome} — ${brl(i.qtd * i.unit)}`).join('\n'),
+    total: brl(totalItens),
+    combinado: combinado.trim() ? t('feiras.neg.resumoCombinado', { texto: combinado.trim() }) : '',
+  }) : '';
+  const msgFinal = msgEditada ?? msgResumo;
+
   const salvarBar = modo === 'ver' ? (
     <>
       {existente && <button className="fe-btn fe-btn-danger" onClick={() => { if (confirm(t('feiras.neg.confirmarExcluir'))) { s.excluirNegocio(existente.id); fechar(); } }}><Icon name="trash" size={16} /></button>}
@@ -102,7 +113,7 @@ export default function NegocioDrawer() {
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
 
       {existente && (
-        <div>
+        <Secao titulo={t('feiras.secao.etapa')}>
           <div className="fe-stepper" role="group" aria-label={t('feiras.neg.etapa')}>
             {ETAPAS.filter((e) => e.id !== 'perdido').map((e, i) => (
               <button key={e.id} type="button" className={i < idxEtapa && existente.etapa !== 'perdido' ? 'fe-past' : e.id === existente.etapa ? 'fe-cur' : ''} onClick={() => mover(e.id)}>{t('feiras.etapa.' + e.id)}</button>
@@ -110,27 +121,38 @@ export default function NegocioDrawer() {
           </div>
           {existente.etapa === 'perdido' && <div className="fe-notice" style={{ marginTop: 10 }}><b>{t('feiras.neg.perdido')}</b> {existente.motivoPerda} <button className="fe-btn fe-btn-sm fe-btn-outline" style={{ marginLeft: 8 }} onClick={() => s.moverNegocio(existente.id, 'negociando')}>{t('feiras.neg.reabrir')}</button></div>}
           {existente.etapa === 'fechado' && existente.pedidoId && <div className="fe-notice" style={{ marginTop: 10, background: 'var(--primary-tint)', color: 'var(--primary-dark)' }}>{t('feiras.neg.fechadoComPedido')} <button className="fe-btn fe-btn-sm fe-btn-outline" style={{ marginLeft: 8 }} onClick={() => abrir('pedido', existente.pedidoId)}>{t('feiras.neg.verPedido')}</button></div>}
-        </div>
+        </Secao>
       )}
 
       {modo === 'fechar' && (
-        <>
+        <Secao titulo={t('feiras.secao.fechar')}>
           <div className="fe-notice" style={{ background: 'var(--primary-tint)', color: 'var(--primary-dark)' }}>{t('feiras.neg.confirmeCombinado')}</div>
           <ItensEditor itens={itens} onChange={setItens} />
           <Field label={t('feiras.neg.prazoEntrega')}><input type="date" value={entrega} min={hoje()} onChange={(e) => setEntrega(e.target.value)} /></Field>
-        </>
+        </Secao>
       )}
 
       {modo === 'perder' && (
-        <Field label={t('feiras.neg.porQueNao')} hint={t('feiras.neg.porQueHint')}><textarea autoFocus value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder={t('feiras.neg.porQueEx')} /></Field>
+        <Secao titulo={t('feiras.secao.perder')}><Field label={t('feiras.neg.porQueNao')} hint={t('feiras.neg.porQueHint')}><textarea autoFocus value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder={t('feiras.neg.porQueEx')} /></Field></Secao>
       )}
 
       {modo === 'ver' && (
         <>
+          {existente && aberto && (
+            <Secao titulo={t('feiras.secao.acoes')}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {cliente?.telefone && <a className="fe-btn fe-btn-wa" href={waLink(cliente.telefone, msgWa)} target="_blank" rel="noreferrer"><Icon name="whatsapp" size={16} /> {t('feiras.neg.chamarWa')}</a>}
+              <button className="fe-btn fe-btn-primary" onClick={() => setModo('fechar')}><Icon name="check" size={16} /> {t('feiras.neg.fecharNegocio')}</button>
+              <button className="fe-btn fe-btn-outline" onClick={() => setModo('perder')}>{t('feiras.neg.marcarPerdido')}</button>
+            </div>
+            </Secao>
+          )}
+
+          <Secao titulo={t('feiras.secao.cliente')}>
           <div className="fe-form-grid">
             <Field label={t('feiras.neg.cliente')} className="fe-full">
               <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} disabled={!novo}>
-                {db.clientes.length === 0 && <option value="">{t('feiras.neg.nenhumCliente')}</option>}
+                <option value="">{db.clientes.length === 0 ? t('feiras.neg.nenhumCliente') : t('feiras.neg.selecioneCliente')}</option>
                 {db.clientes.map((c) => <option key={c.id} value={c.id}>{c.nome}{c.empresa ? ` · ${c.empresa}` : ''}</option>)}
               </select>
               {novo && !novoCliente && (
@@ -153,27 +175,32 @@ export default function NegocioDrawer() {
                 </div>
               </div>
             )}
-            <Field label={t('feiras.neg.proximoContato')} className="fe-full">
-              <input type="date" value={prox} onChange={(e) => setProx(e.target.value)} />
-              {prox && existente && aberto && <span className="fe-hint">{relativo(prox)}</span>}
-            </Field>
           </div>
-          <div>
-            <div className="fe-sec-title">{t('feiras.neg.temperatura')}</div>
-            <div className="fe-seg">{(['frio', 'morno', 'quente'] as const).map((id) => <button key={id} type="button" data-t={id} className={temp === id ? 'fe-on' : ''} onClick={() => setTemp(id)}>{t('feiras.tempCap.' + id)}</button>)}</div>
-          </div>
-
-          {existente && aberto && (
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {cliente?.telefone && <a className="fe-btn fe-btn-wa" href={waLink(cliente.telefone, msgWa)} target="_blank" rel="noreferrer"><Icon name="whatsapp" size={16} /> {t('feiras.neg.chamarWa')}</a>}
-              <button className="fe-btn fe-btn-primary" onClick={() => setModo('fechar')}><Icon name="check" size={16} /> {t('feiras.neg.fecharNegocio')}</button>
-              <button className="fe-btn fe-btn-outline" onClick={() => setModo('perder')}>{t('feiras.neg.marcarPerdido')}</button>
-            </div>
+          </Secao>
+          {(!existente || aberto) && (
+            <Secao titulo={t('feiras.secao.produtos')} desc={t('feiras.neg.oQueQuer')}>
+              <ItensEditor itens={itens} onChange={setItens} rotuloTotal={t('feiras.neg.valorEstimado')} />
+              {db.produtos.length === 0 && <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--text-3)' }}>{t('feiras.neg.semProdutos')}</p>}
+            </Secao>
           )}
-
+          {(!existente || aberto) && (
+            <Secao titulo={t('feiras.secao.combinado')}>
+              <Field label={t('feiras.neg.combinado')}>
+                <textarea value={combinado} onChange={(e) => { setCombinado(e.target.value); setMsgEditada(null); }} placeholder={t('feiras.neg.combinadoEx')} rows={2} />
+              </Field>
+              {msgFinal ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+                  <textarea className="fe-input fe-msg" value={msgFinal} onChange={(e) => setMsgEditada(e.target.value)} rows={9} aria-label={t('feiras.neg.resumoTitulo')} />
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    <button type="button" className="fe-btn fe-btn-outline" onClick={() => { navigator.clipboard?.writeText(msgFinal); avisar(t('feiras.neg.resumoCopiado')); }}>{t('feiras.neg.resumoCopiar')}</button>
+                    {cliente?.telefone && <a className="fe-btn fe-btn-wa" href={waLink(cliente.telefone, msgFinal)} target="_blank" rel="noreferrer"><Icon name="whatsapp" size={16} /> {t('feiras.neg.resumoEnviar')}</a>}
+                  </div>
+                </div>
+              ) : <p className="fe-hint" style={{ marginTop: 8 }}>{t('feiras.neg.resumoSemItens')}</p>}
+            </Secao>
+          )}
           {cliente && existente && (
-            <div>
-              <div className="fe-sec-title">{t('feiras.neg.historicoCom', { nome: cliente.nome.split(' ')[0] })}</div>
+            <Secao titulo={t('feiras.secao.historico')}>
               <div className="fe-inline-add" style={{ marginBottom: 14 }}>
                 <div className="fe-seg">{TIPOS_CONTATO.map((tc) => <button key={tc.id} type="button" className={tipo === tc.id ? 'fe-on' : ''} onClick={() => setTipo(tc.id)}>{t('feiras.contato.' + tc.id)}</button>)}</div>
                 <input className="fe-input" value={nota} onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addContato()} placeholder={t('feiras.cliente.oQueConversado')} />
@@ -188,16 +215,18 @@ export default function NegocioDrawer() {
                 ))}
               </div>
               <button className="fe-btn fe-btn-ghost fe-btn-sm" onClick={() => abrir('cliente', cliente.id)}>{t('feiras.neg.abrirCadastro')}</button>
-            </div>
+            </Secao>
           )}
-          {(!existente || aberto) && (
+          <Mais rotulo={t('feiras.comum.maisOpcoes')} aberto={!!existente}>
+            <Field label={t('feiras.neg.proximoContato')}>
+              <input type="date" value={prox} onChange={(e) => setProx(e.target.value)} />
+              {prox && existente && aberto && <span className="fe-hint">{relativo(prox)}</span>}
+            </Field>
             <div>
-              <div className="fe-sec-title">{t('feiras.neg.oQueQuer')}</div>
-              <ItensEditor itens={itens} onChange={setItens} rotuloTotal={t('feiras.neg.valorEstimado')} />
-              {db.produtos.length === 0 && <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--text-3)' }}>{t('feiras.neg.semProdutos')}</p>}
+              <div className="fe-sec-title">{t('feiras.neg.temperatura')}</div>
+              <div className="fe-seg">{(['frio', 'morno', 'quente'] as const).map((id) => <button key={id} type="button" data-t={id} className={temp === id ? 'fe-on' : ''} onClick={() => setTemp(id)}>{t('feiras.tempCap.' + id)}</button>)}</div>
             </div>
-          )}
-          {existente && <p style={{ fontSize: 12.5, color: 'var(--text-3)' }}>{t('feiras.neg.valorAtual', { v: brl(existente.valor), d: dataLonga(existente.criadoEm) })}</p>}
+          </Mais>
         </>
       )}
     </Drawer>

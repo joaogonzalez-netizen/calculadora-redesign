@@ -42,6 +42,29 @@ export function Field({ label, hint, children, className = '' }: { label: string
   );
 }
 
+/** Bloco do drawer com título e borda própria: separa visualmente cada grupo de ações. */
+export function Secao({ titulo, desc, acao, children }: { titulo: string; desc?: string; acao?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="fe-secao">
+      <header className="fe-secao-head">
+        <div><h4>{titulo}</h4>{desc && <p>{desc}</p>}</div>
+        {acao}
+      </header>
+      <div className="fe-secao-corpo">{children}</div>
+    </section>
+  );
+}
+
+/** Campos opcionais recolhidos, pra o formulário abrir só com o essencial. */
+export function Mais({ rotulo, aberto, children }: { rotulo: string; aberto?: boolean; children: ReactNode }) {
+  return (
+    <details className="fe-mais" open={aberto}>
+      <summary>{rotulo}</summary>
+      <div className="fe-mais-corpo">{children}</div>
+    </details>
+  );
+}
+
 export function Seg<T extends string>({ valor, opcoes, onChange }: { valor: T; opcoes: { id: T; label: string }[]; onChange: (v: T) => void }) {
   return (
     <div className="fe-seg" role="radiogroup">

@@ -9,7 +9,7 @@ import { Pagina, Vazio } from '../components/ui';
 import Icon from '../components/Icon';
 import { useFeirasT } from '../lib/i18n';
 
-// Catálogo de vendas físicas: os produtos vêm da Calculadora de preços
+// Catálogo de venda direta: os produtos vêm da Calculadora de preços
 // (cálculos salvos no Histórico), custo e preços são os do cálculo, então
 // mudar o preço é recalcular na Calculadora e salvar de novo.
 export default function CatalogoView() {

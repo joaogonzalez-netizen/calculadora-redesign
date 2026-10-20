@@ -4,7 +4,7 @@ import { useUi } from '../../lib/ui';
 import { addDias, dataLonga, hoje } from '../../lib/format';
 import { useFeirasT, CHAVE_STATUS } from '../../lib/i18n';
 import { STATUS_PEDIDO, type ItemPedido, type StatusPedido } from '../../lib/types';
-import { Drawer, Field } from '../ui';
+import { Drawer, Field, Secao } from '../ui';
 import Icon from '../Icon';
 import ClienteBusca from '../ClienteBusca';
 import ItensEditor from '../ItensEditor';
@@ -38,6 +38,7 @@ export default function PedidoDrawer() {
         {ex && <button className="fe-btn fe-btn-danger" onClick={() => { if (confirm(t('feiras.pedido.confirmarExcluir'))) { s.excluirPedido(ex.id); fechar(); } }}><Icon name="trash" size={16} /></button>}
         <button className="fe-btn fe-btn-primary fe-grow" onClick={salvar}>{t('feiras.pedido.salvar')}</button></>}>
       {erro && <div className="fe-notice" role="alert">{erro}</div>}
+      <Secao titulo={t('feiras.secao.datas')}>
       <div className="fe-form-grid">
         <div className="fe-field fe-full">
           <span className="fe-lbl">{t('feiras.pedido.cliente')}</span>
@@ -46,13 +47,15 @@ export default function PedidoDrawer() {
         <Field label={t('feiras.pedido.data')}><input type="date" value={data} onChange={(e) => setData(e.target.value)} /></Field>
         <Field label={t('feiras.pedido.entrega')}><input type="date" value={entrega} onChange={(e) => setEntrega(e.target.value)} /></Field>
       </div>
-      <div>
-        <div className="fe-sec-title">{t('feiras.pedido.andamento')}</div>
+      </Secao>
+      <Secao titulo={t('feiras.pedido.andamento')}>
         <div className="fe-chips">{STATUS_PEDIDO.map((st) => <button key={st} type="button" className={'fe-chip' + (status === st ? ' fe-on' : '')} onClick={() => setStatus(st)}>{t(CHAVE_STATUS[st])}</button>)}</div>
-      </div>
-      <ItensEditor itens={itens} onChange={setItens} />
-      <Field label={t('feiras.pedido.obs')}><textarea value={obs} onChange={(e) => setObs(e.target.value)} placeholder={t('feiras.pedido.obsPlaceholder')} /></Field>
-      {ex?.negocioId && <button className="fe-btn fe-btn-ghost fe-btn-sm" onClick={() => abrir('negocio', ex.negocioId)}>{t('feiras.pedido.verNegociacao')}</button>}
+      </Secao>
+      <Secao titulo={t('feiras.secao.produtos')}><ItensEditor itens={itens} onChange={setItens} /></Secao>
+      <Secao titulo={t('feiras.secao.obs')}>
+        <Field label={t('feiras.pedido.obs')}><textarea value={obs} onChange={(e) => setObs(e.target.value)} placeholder={t('feiras.pedido.obsPlaceholder')} /></Field>
+        {ex?.negocioId && <div><button className="fe-btn fe-btn-ghost fe-btn-sm" onClick={() => abrir('negocio', ex.negocioId)}>{t('feiras.pedido.verNegociacao')}</button></div>}
+      </Secao>
     </Drawer>
   );
 }

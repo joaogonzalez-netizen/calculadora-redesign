@@ -10,12 +10,12 @@ import { Pagina } from '../components/ui';
 import Icon from '../components/Icon';
 
 type Etapa = 'fila' | 'imprimindo' | 'preparacao' | 'pronto' | 'concluido';
-type Origem = PedidoMarketplace['marketplace'] | 'Venda física';
+type Origem = PedidoMarketplace['marketplace'] | 'Venda direta';
 
 // Rótulos e dicas de cada etapa vêm do dicionário (feiras.fila.etapa.<id> e feiras.fila.hint.<id>).
 const ETAPAS: { id: Etapa }[] = [{ id: 'fila' }, { id: 'imprimindo' }, { id: 'preparacao' }, { id: 'pronto' }, { id: 'concluido' }];
 
-// Venda física: etapa da fila <-> status do pedido da feira.
+// Venda direta: etapa da fila <-> status do pedido da feira.
 const STATUS_DA_ETAPA: Record<Etapa, StatusPedido> = { fila: 'Na fila', imprimindo: 'Imprimindo', preparacao: 'Em preparação para envio', pronto: 'Pronto', concluido: 'Entregue' };
 const ETAPA_DO_STATUS: Partial<Record<StatusPedido, Etapa>> = { 'Na fila': 'fila', Imprimindo: 'imprimindo', 'Em preparação para envio': 'preparacao', Pronto: 'pronto', Entregue: 'concluido', Pago: 'concluido' };
 
@@ -47,8 +47,8 @@ interface Cartao {
   pagamentoPendente?: boolean;
 }
 
-const COR_ORIGEM: Record<Origem, string> = { 'Mercado Livre': 'fe-amber', Shopee: 'fe-red', Etsy: 'fe-amber', 'TikTok Shop': 'fe-red', 'Venda física': 'fe-green' };
-type FiltroOrigem = 'todas' | 'marketplace' | 'fisica';
+const COR_ORIGEM: Record<Origem, string> = { 'Mercado Livre': 'fe-amber', Shopee: 'fe-red', Etsy: 'fe-amber', 'TikTok Shop': 'fe-red', 'Venda direta': 'fe-green' };
+type FiltroOrigem = 'todas' | 'marketplace' | 'direta';
 
 export default function FilaView() {
   const { db, statusPedido } = useStore();
@@ -65,11 +65,11 @@ export default function FilaView() {
   const [aberto, setAberto] = useState<PedidoMarketplace | null>(null);
 
   const cartoes = useMemo<Cartao[]>(() => {
-    const fisicos = db.pedidos.flatMap((p): Cartao[] => {
+    const diretos = db.pedidos.flatMap((p): Cartao[] => {
       const etapa = ETAPA_DO_STATUS[p.status];
       if (!etapa) return [];
       return [{
-        chave: 'f:' + p.id, id: p.id, origem: 'Venda física', cliente: db.clientes.find((c) => c.id === p.clienteId)?.nome ?? t('feiras.comum.nd'),
+        chave: 'f:' + p.id, id: p.id, origem: 'Venda direta', cliente: db.clientes.find((c) => c.id === p.clienteId)?.nome ?? t('feiras.comum.nd'),
         resumo: p.itens.map((i) => `${i.qtd}× ${i.nome}`).join(', '), pecas: p.itens.reduce((s, i) => s + i.qtd, 0), horas: horasPedido(p),
         prazo: p.entrega, valor: totalPedido(p), etapa,
       }];
@@ -82,18 +82,15 @@ export default function FilaView() {
         prazo: somaDias(isoDaData(p.data, idioma === 'en'), 2), valor: p.valorTotal, etapa, pagamentoPendente: p.status === 'Pendente',
       }];
     });
-    return [...fisicos, ...mkt].sort((a, b) => a.prazo.localeCompare(b.prazo));
+    return [...diretos, ...mkt].sort((a, b) => a.prazo.localeCompare(b.prazo));
   }, [db.pedidos, db.clientes, etapas, t, PEDIDOS, idioma]);
 
-  const visiveis = cartoes.filter((c) => filtro === 'todas' || (filtro === 'fisica') === (c.origem === 'Venda física'));
+  const visiveis = cartoes.filter((c) => filtro === 'todas' || (filtro === 'direta') === (c.origem === 'Venda direta'));
   const colunas = verConcluidos ? ETAPAS : ETAPAS.filter((e) => e.id !== 'concluido');
-  const ativos = visiveis.filter((c) => c.etapa !== 'concluido');
-  const atrasados = ativos.filter((c) => c.prazo < hoje()).length;
-  const horasFila = visiveis.filter((c) => c.etapa === 'fila' || c.etapa === 'imprimindo').reduce((s, c) => s + (c.horas ?? 0), 0);
 
   function mover(c: Cartao, etapa: Etapa) {
     if (c.etapa === etapa) return;
-    if (c.origem === 'Venda física') statusPedido(c.id, STATUS_DA_ETAPA[etapa]);
+    if (c.origem === 'Venda direta') statusPedido(c.id, STATUS_DA_ETAPA[etapa]);
     else {
       const novo = { ...etapas, [c.id]: etapa };
       setEtapas(novo);
@@ -107,23 +104,16 @@ export default function FilaView() {
     if (c) mover(c, etapa);
   };
   const abrirCartao = (c: Cartao) => {
-    if (c.origem === 'Venda física') abrir('pedido', c.id);
+    if (c.origem === 'Venda direta') abrir('pedido', c.id);
     else setAberto(PEDIDOS.find((p) => p.id === c.id) ?? null);
   };
 
   return (
     <Pagina titulo={t('feiras.fila.titulo')} sub={t('feiras.fila.sub')}
       acoes={<button className="fe-btn fe-btn-primary" onClick={() => abrir('pedido')}><Icon name="plus" /> {t('feiras.fila.novoPedido')}</button>}>
-      <div className="fe-grid-kpi">
-        <div className="fe-card fe-kpi fe-hi"><div className="fe-l">{t('feiras.fila.naFilaAgora')}</div><div className="fe-v">{visiveis.filter((c) => c.etapa === 'fila').length}</div><div className="fe-s">{t('feiras.fila.naFilaDesc')}</div></div>
-        <div className="fe-card fe-kpi"><div className="fe-l">{t('feiras.fila.horas')}</div><div className="fe-v">{numero(horasFila)} h</div><div className="fe-s">{t('feiras.fila.horasDesc')}</div></div>
-        <div className="fe-card fe-kpi"><div className="fe-l">{t('feiras.fila.atrasados')}</div><div className="fe-v" style={{ color: atrasados ? 'var(--red)' : undefined }}>{atrasados}</div><div className="fe-s">{t('feiras.fila.atrasadosDesc')}</div></div>
-        <div className="fe-card fe-kpi"><div className="fe-l">{t('feiras.fila.prontos')}</div><div className="fe-v">{visiveis.filter((c) => c.etapa === 'pronto').length}</div><div className="fe-s">{t('feiras.fila.prontosDesc')}</div></div>
-      </div>
-
       <div className="fe-toolbar">
         <div className="fe-chips">
-          {([['todas', t('feiras.fila.todosCanais')], ['marketplace', t('feiras.fila.marketplaces')], ['fisica', t('feiras.fila.fisicas')]] as const).map(([id, l]) => (
+          {([['todas', t('feiras.fila.todosCanais')], ['marketplace', t('feiras.fila.marketplaces')], ['direta', t('feiras.fila.diretas')]] as const).map(([id, l]) => (
             <button key={id} className={'fe-chip' + (filtro === id ? ' fe-on' : '')} onClick={() => setFiltro(id)}>{l}</button>
           ))}
           <button className={'fe-chip' + (verConcluidos ? ' fe-on' : '')} onClick={() => setVerConcluidos(!verConcluidos)}>{t('feiras.fila.mostrarConcluidos')}</button>
@@ -148,7 +138,7 @@ export default function FilaView() {
                 return (
                   <div key={c.chave} className={'fe-deal' + (arrastando === c.chave ? ' fe-dragging' : '')} draggable onDragStart={() => setArrastando(c.chave)} onDragEnd={() => setArrastando(null)}
                     role="button" tabIndex={0} onClick={() => abrirCartao(c)} onKeyDown={(ev) => ev.key === 'Enter' && abrirCartao(c)} style={{ cursor: 'pointer' }}>
-                    <div className="fe-row"><span className="fe-who">{c.cliente}</span><span className={'fe-badge ' + COR_ORIGEM[c.origem]}>{c.origem === 'Venda física' ? t('feiras.fila.origem.fisica') : c.origem}</span></div>
+                    <div className="fe-row"><span className="fe-who">{c.cliente}</span><span className={'fe-badge ' + COR_ORIGEM[c.origem]}>{c.origem === 'Venda direta' ? t('feiras.fila.origem.direta') : c.origem}</span></div>
                     <div className="fe-what">{c.resumo}</div>
                     <div className="fe-row"><span className="fe-val">{brl(c.valor)}</span><span className="fe-sub" style={{ color: 'var(--text-3)', fontSize: 12 }}>{c.pagamentoPendente ? t('feiras.fila.pagPendente') : ''}{c.pecas} {c.pecas === 1 ? t('feiras.fila.peca') : t('feiras.fila.pecas')}{c.horas ? ` · ${numero(c.horas)} h` : ''}</span></div>
                     {c.etapa !== 'concluido' && <div className={'fe-follow' + (atraso ? ' fe-late' : '')}><Icon name={atraso ? 'alert' : 'clock'} size={13} />{t('feiras.fila.prazo', { d: dataCurta(c.prazo) })}</div>}

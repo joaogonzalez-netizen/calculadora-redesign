@@ -3,7 +3,7 @@ import type { HistoricoEntry } from '../../types';
 import type { Produto } from './types';
 import { idiomaDoFormato } from '../../lib/format';
 
-// Produtos de venda do módulo Vendas físicas = os cálculos de VENDA DIRETA
+// Produtos de venda do módulo Venda direta = os cálculos de VENDA DIRETA
 // salvos na Calculadora de preços (Histórico), de qualquer tela. Cálculos de marketplace não
 // entram: as taxas deles (comissão, frete) não valem no balcão. Custo e preços
 // vêm do cálculo, não de uma tabela própria:

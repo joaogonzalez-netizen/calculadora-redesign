@@ -34,7 +34,7 @@ export default function CalculadoraView({ onSaved, onVoltarCatalogo }: { onSaved
     setLayout(prox);
     try { localStorage.setItem(LAYOUT_KEY, prox); } catch { /* sem storage */ }
   }
-  // Veio do catálogo de Vendas físicas? Mostra o aviso e o atalho de volta.
+  // Veio do catálogo de Venda direta? Mostra o aviso e o atalho de volta.
   const [doCatalogo, setDoCatalogo] = useState(veioDoCatalogo);
   // Saiu da calculadora: o que for salvo depois não vai para o catálogo.
   // (re-marca ao montar, porque o StrictMode monta/desmonta/monta em desenvolvimento)
