@@ -6,7 +6,7 @@ import { useFeirasT } from '../lib/i18n';
 import type { StatusPedido } from '../lib/types';
 import { pedidosDoIdioma, type Pedido as PedidoMarketplace } from '../../lib/pedidosMock';
 import PedidoMarketplaceDrawer from '../../components/pedidos/PedidoDrawer';
-import { Pagina, Drawer, Secao } from '../components/ui';
+import { Pagina, Drawer, Secao, QtdStep } from '../components/ui';
 import { precoAtacado } from '../lib/pricing';
 import { proximaOcorrencia, levarDoDia } from '../lib/agenda';
 import Icon from '../components/Icon';
@@ -31,10 +31,12 @@ const etapaMarketplace = (p: PedidoMarketplace, manual?: Etapa): Etapa | null =>
   if (p.status === 'Enviado' || p.status === 'Entregue') return 'concluido';
   return manual ?? 'fila';
 };
-// "Pronto" por item: chave = cartão + produto. Fica salvo aqui e aparece nas duas visões da fila.
+// Quantos modelos já foram feitos, por item: chave = cartão + produto. Fica salvo aqui e aparece nas duas visões da fila
+// (valor antigo `true` = tudo feito).
 const KEY_FEITOS = 'stlseller.fila.feitos.v1';
-const lerFeitos = (): Record<string, true> => { try { return JSON.parse(localStorage.getItem(KEY_FEITOS) || '{}'); } catch { return {}; } };
+const lerFeitos = (): Record<string, number | true> => { try { return JSON.parse(localStorage.getItem(KEY_FEITOS) || '{}'); } catch { return {}; } };
 const chaveFeito = (chave: string, nome: string) => chave + '::' + nome.trim().toLowerCase();
+const feitoQtd = (v: number | true | undefined, qtd: number) => (v === true ? qtd : Math.min(Math.max(0, v ?? 0), qtd));
 
 // Data do pedido: dd/mm/aaaa em pt/es, mm/dd/yyyy em en.
 const isoDaData = (d: string, en: boolean) => { const [a, b, aa] = d.split('/'); return en ? `${aa}-${a}-${b}` : `${aa}-${b}-${a}`; };
@@ -114,25 +116,26 @@ export default function FilaView() {
 
   // Visão por produto: quanto falta produzir (na fila + imprimindo) de cada produto, e de qual venda vem cada parte.
   const porProduto = useMemo(() => {
-    const m = new Map<string, { key: string; nome: string; total: number; feitas: number; linhas: { c: Cartao; qtd: number; feito: boolean }[] }>();
+    const m = new Map<string, { key: string; nome: string; total: number; feitas: number; linhas: { c: Cartao; qtd: number; feito: number }[] }>();
     visiveis.filter((c) => c.etapa === 'fila' || c.etapa === 'imprimindo').forEach((c) => c.itens.forEach((i) => {
       const k = i.nome.trim().toLowerCase();
       const g = m.get(k) ?? { key: k, nome: i.nome, total: 0, feitas: 0, linhas: [] };
-      const feito = !!feitos[chaveFeito(c.chave, i.nome)];
-      g.total += i.qtd; if (feito) g.feitas += i.qtd; g.linhas.push({ c, qtd: i.qtd, feito }); m.set(k, g);
+      const feito = feitoQtd(feitos[chaveFeito(c.chave, i.nome)], i.qtd);
+      g.total += i.qtd; g.feitas += feito; g.linhas.push({ c, qtd: i.qtd, feito }); m.set(k, g);
     }));
     return [...m.values()].sort((a, b) => b.total - a.total);
   }, [visiveis, feitos]);
 
-  function alternarFeito(c: Cartao, nome: string) {
+  function definirFeito(c: Cartao, nome: string, qtd: number, valor: number) {
     const k = chaveFeito(c.chave, nome);
     const novo = { ...feitos };
-    if (novo[k]) delete novo[k]; else novo[k] = true;
+    const v = Math.min(Math.max(0, Math.floor(valor) || 0), qtd);
+    if (v > 0) novo[k] = v; else delete novo[k];
     setFeitos(novo);
     try { localStorage.setItem(KEY_FEITOS, JSON.stringify(novo)); } catch { /* sem storage */ }
   }
   // Quanto do cartão já foi produzido (soma das unidades dos itens marcados como prontos).
-  const progresso = (c: Cartao) => ({ feitas: c.itens.reduce((s, i) => s + (feitos[chaveFeito(c.chave, i.nome)] ? i.qtd : 0), 0), total: c.itens.reduce((s, i) => s + i.qtd, 0) });
+  const progresso = (c: Cartao) => ({ feitas: c.itens.reduce((s, i) => s + feitoQtd(feitos[chaveFeito(c.chave, i.nome)], i.qtd), 0), total: c.itens.reduce((s, i) => s + i.qtd, 0) });
   const produtoDoDrawer = porProduto.find((g) => g.key === produtoAberto) ?? null;
 
   function mover(c: Cartao, etapa: Etapa) {
@@ -240,16 +243,18 @@ export default function FilaView() {
             const linhas = produtoDoDrawer.linhas.filter((l) => grupoDe(l.c.origem) === grupo);
             if (!linhas.length) return null;
             const total = linhas.reduce((x, l) => x + l.qtd, 0);
-            const feitas = linhas.reduce((x, l) => x + (l.feito ? l.qtd : 0), 0);
+            const feitas = linhas.reduce((x, l) => x + l.feito, 0);
             return (
               <Secao key={grupo} titulo={t('feiras.fila.grupo.' + grupo)} desc={t('feiras.fila.produzidas', { a: feitas, b: total })}>
                 <div className="fe-check-lista">
                   {linhas.map((l) => (
-                    <label key={l.c.chave} className={'fe-check-linha' + (l.feito ? ' fe-ok' : '')}>
-                      <input type="checkbox" checked={l.feito} onChange={() => alternarFeito(l.c, produtoDoDrawer.nome)} />
-                      <span className="fe-grow"><span className="fe-nm">{l.c.cliente}</span><span className="fe-sub">{grupo === 'marketplace' ? l.c.origem : t('feiras.fila.prazo', { d: dataCurta(l.c.prazo) })}</span></span>
-                      <b>{numero(l.qtd)} {t('feiras.fila.un')}</b>
-                    </label>
+                    <div key={l.c.chave} className={'fe-check-linha' + (l.feito >= l.qtd ? ' fe-ok' : '')}>
+                      <span className="fe-grow"><span className="fe-nm">{l.c.cliente}</span><span className="fe-sub">{grupo === 'marketplace' ? l.c.origem : t('feiras.fila.prazo', { d: dataCurta(l.c.prazo) })} · {t('feiras.fila.pedidoQtd', { n: numero(l.qtd) })}</span></span>
+                      <div className="fe-feito">
+                        <QtdStep valor={l.feito} min={0} max={l.qtd} rotulo={t('feiras.fila.feitos')} onChange={(n) => definirFeito(l.c, produtoDoDrawer.nome, l.qtd, n)} />
+                        <button type="button" className="fe-btn fe-btn-ghost fe-btn-sm" onClick={() => definirFeito(l.c, produtoDoDrawer.nome, l.qtd, l.feito >= l.qtd ? 0 : l.qtd)}>{l.feito >= l.qtd ? t('feiras.fila.limpar') : t('feiras.fila.tudo')}</button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </Secao>
