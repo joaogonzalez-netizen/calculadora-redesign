@@ -178,6 +178,8 @@ const D: Record<string, [string, string]> = {
   'feiras.fila.hint.preparacao': ['Acabamento, embalagem e etiqueta', 'Finishing, packing and label'],
   'feiras.fila.hint.pronto': ['Impresso, falta despachar ou entregar', 'Printed, still to ship or hand over'],
   'feiras.fila.hint.concluido': ['Enviados ou entregues', 'Shipped or delivered'],
+  'feiras.fila.pontosChip': ['Pontos de venda', 'Points of sale'],
+  'feiras.fila.origem.ponto': ['Ponto de venda', 'Point of sale'],
   'feiras.fila.origem.direta': ['Venda direta', 'Direct sale'],
 
   // Catálogo
@@ -333,6 +335,7 @@ const D: Record<string, [string, string]> = {
   'feiras.itens.avulsoTag': ['Avulso', 'Custom'],
   'feiras.itens.subtotal': ['Subtotal', 'Subtotal'],
   'feiras.itens.nenhumResultado': ['Nenhum produto encontrado.', 'No products found.'],
+  'feiras.itens.tipoCliente': ['Tipo de cliente', 'Customer type'],
   'feiras.itens.tabela': ['Tabela de preço', 'Price table'],
   'feiras.itens.clienteFinal': ['Cliente final', 'End customer'],
   'feiras.itens.loja': ['Loja', 'Store'],
@@ -507,6 +510,7 @@ const D: Record<string, [string, string]> = {
     'Hi {nome}, how are you? Here is a summary of your order:\n\n{itens}\n\n*Total: {total}*{combinado}\n\nLet me know if you want to change anything!',
   ],
   'feiras.neg.resumoCombinado': ['\n\n*Combinado:* {texto}', '\n\n*Agreed:* {texto}'],
+  'feiras.neg.resumoSemTel': ['Este cliente não tem WhatsApp cadastrado: você escolhe o contato ao abrir o WhatsApp.', 'This customer has no WhatsApp saved: you pick the contact when WhatsApp opens.'],
   'feiras.neg.resumoCopiar': ['Copiar mensagem', 'Copy message'],
   'feiras.neg.resumoCopiado': ['Mensagem copiada', 'Message copied'],
   'feiras.neg.resumoEnviar': ['Enviar no WhatsApp', 'Send on WhatsApp'],

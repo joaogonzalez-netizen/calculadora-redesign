@@ -7,10 +7,11 @@ import type { StatusPedido } from '../lib/types';
 import { pedidosDoIdioma, type Pedido as PedidoMarketplace } from '../../lib/pedidosMock';
 import PedidoMarketplaceDrawer from '../../components/pedidos/PedidoDrawer';
 import { Pagina } from '../components/ui';
+import { precoAtacado } from '../lib/pricing';
 import Icon from '../components/Icon';
 
 type Etapa = 'fila' | 'imprimindo' | 'preparacao' | 'pronto' | 'concluido';
-type Origem = PedidoMarketplace['marketplace'] | 'Venda direta';
+type Origem = PedidoMarketplace['marketplace'] | 'Venda direta' | 'Ponto de venda';
 
 // Rótulos e dicas de cada etapa vêm do dicionário (feiras.fila.etapa.<id> e feiras.fila.hint.<id>).
 const ETAPAS: { id: Etapa }[] = [{ id: 'fila' }, { id: 'imprimindo' }, { id: 'preparacao' }, { id: 'pronto' }, { id: 'concluido' }];
@@ -47,12 +48,13 @@ interface Cartao {
   pagamentoPendente?: boolean;
 }
 
-const COR_ORIGEM: Record<Origem, string> = { 'Mercado Livre': 'fe-amber', Shopee: 'fe-red', Etsy: 'fe-amber', 'TikTok Shop': 'fe-red', 'Venda direta': 'fe-green' };
-type FiltroOrigem = 'todas' | 'marketplace' | 'direta';
+const COR_ORIGEM: Record<Origem, string> = { 'Mercado Livre': 'fe-amber', Shopee: 'fe-red', Etsy: 'fe-amber', 'TikTok Shop': 'fe-red', 'Venda direta': 'fe-green', 'Ponto de venda': 'fe-green' };
+type FiltroOrigem = 'todas' | 'marketplace' | 'direta' | 'ponto';
+const grupoDe = (o: Origem): FiltroOrigem => (o === 'Venda direta' ? 'direta' : o === 'Ponto de venda' ? 'ponto' : 'marketplace');
 
 export default function FilaView() {
   const { db, statusPedido } = useStore();
-  const { abrir, avisar } = useUi();
+  const { abrir, avisar, ir } = useUi();
   const { t, idioma } = useFeirasT();
   // Pedidos de marketplace do idioma ativo (EN: Etsy/TikTok Shop, em dólar).
   const PEDIDOS = useMemo(() => pedidosDoIdioma(idioma), [idioma]);
@@ -82,17 +84,27 @@ export default function FilaView() {
         prazo: somaDias(isoDaData(p.data, idioma === 'en'), 2), valor: p.valorTotal, etapa, pagamentoPendente: p.status === 'Pendente',
       }];
     });
-    return [...diretos, ...mkt].sort((a, b) => a.prazo.localeCompare(b.prazo));
-  }, [db.pedidos, db.clientes, etapas, t, PEDIDOS, idioma]);
+    // Pontos de venda abertos (ainda não terminaram): o que você vai levar entra na fila de produção.
+    const pontos = db.feiras.flatMap((f): Cartao[] => {
+      const itens = (f.produtos ?? []).flatMap((x) => { const p = db.produtos.find((y) => y.id === x.produtoId); return p ? [{ p, qtd: x.qtd, unit: x.unit ?? precoAtacado(p, db.config) }] : []; });
+      if (!itens.length || f.fim < hoje()) return [];
+      return [{
+        chave: 'p:' + f.id, id: f.id, origem: 'Ponto de venda', cliente: f.nome, resumo: itens.map((i) => `${i.qtd}× ${i.p.nome}`).join(', '),
+        pecas: itens.reduce((s, i) => s + i.qtd, 0), horas: itens.reduce((s, i) => s + i.qtd * i.p.tempoH, 0), prazo: f.inicio,
+        valor: itens.reduce((s, i) => s + i.qtd * i.unit, 0), etapa: etapas['p:' + f.id] ?? 'fila',
+      }];
+    });
+    return [...diretos, ...pontos, ...mkt].sort((a, b) => a.prazo.localeCompare(b.prazo));
+  }, [db.pedidos, db.clientes, db.feiras, db.produtos, db.config, etapas, t, PEDIDOS, idioma]);
 
-  const visiveis = cartoes.filter((c) => filtro === 'todas' || (filtro === 'direta') === (c.origem === 'Venda direta'));
+  const visiveis = cartoes.filter((c) => filtro === 'todas' || grupoDe(c.origem) === filtro);
   const colunas = verConcluidos ? ETAPAS : ETAPAS.filter((e) => e.id !== 'concluido');
 
   function mover(c: Cartao, etapa: Etapa) {
     if (c.etapa === etapa) return;
     if (c.origem === 'Venda direta') statusPedido(c.id, STATUS_DA_ETAPA[etapa]);
     else {
-      const novo = { ...etapas, [c.id]: etapa };
+      const novo = { ...etapas, [c.origem === 'Ponto de venda' ? c.chave : c.id]: etapa };
       setEtapas(novo);
       try { localStorage.setItem(KEY_ETAPAS, JSON.stringify(novo)); } catch { /* sem storage */ }
     }
@@ -105,6 +117,7 @@ export default function FilaView() {
   };
   const abrirCartao = (c: Cartao) => {
     if (c.origem === 'Venda direta') abrir('pedido', c.id);
+    else if (c.origem === 'Ponto de venda') ir('eventos');
     else setAberto(PEDIDOS.find((p) => p.id === c.id) ?? null);
   };
 
@@ -113,7 +126,7 @@ export default function FilaView() {
       acoes={<button className="fe-btn fe-btn-primary" onClick={() => abrir('pedido')}><Icon name="plus" /> {t('feiras.fila.novoPedido')}</button>}>
       <div className="fe-toolbar">
         <div className="fe-chips">
-          {([['todas', t('feiras.fila.todosCanais')], ['marketplace', t('feiras.fila.marketplaces')], ['direta', t('feiras.fila.diretas')]] as const).map(([id, l]) => (
+          {([['todas', t('feiras.fila.todosCanais')], ['marketplace', t('feiras.fila.marketplaces')], ['direta', t('feiras.fila.diretas')], ['ponto', t('feiras.fila.pontosChip')]] as const).map(([id, l]) => (
             <button key={id} className={'fe-chip' + (filtro === id ? ' fe-on' : '')} onClick={() => setFiltro(id)}>{l}</button>
           ))}
           <button className={'fe-chip' + (verConcluidos ? ' fe-on' : '')} onClick={() => setVerConcluidos(!verConcluidos)}>{t('feiras.fila.mostrarConcluidos')}</button>
@@ -138,7 +151,7 @@ export default function FilaView() {
                 return (
                   <div key={c.chave} className={'fe-deal' + (arrastando === c.chave ? ' fe-dragging' : '')} draggable onDragStart={() => setArrastando(c.chave)} onDragEnd={() => setArrastando(null)}
                     role="button" tabIndex={0} onClick={() => abrirCartao(c)} onKeyDown={(ev) => ev.key === 'Enter' && abrirCartao(c)} style={{ cursor: 'pointer' }}>
-                    <div className="fe-row"><span className="fe-who">{c.cliente}</span><span className={'fe-badge ' + COR_ORIGEM[c.origem]}>{c.origem === 'Venda direta' ? t('feiras.fila.origem.direta') : c.origem}</span></div>
+                    <div className="fe-row"><span className="fe-who">{c.cliente}</span><span className={'fe-badge ' + COR_ORIGEM[c.origem]}>{c.origem === 'Venda direta' ? t('feiras.fila.origem.direta') : c.origem === 'Ponto de venda' ? t('feiras.fila.origem.ponto') : c.origem}</span></div>
                     <div className="fe-what">{c.resumo}</div>
                     <div className="fe-row"><span className="fe-val">{brl(c.valor)}</span><span className="fe-sub" style={{ color: 'var(--text-3)', fontSize: 12 }}>{c.pagamentoPendente ? t('feiras.fila.pagPendente') : ''}{c.pecas} {c.pecas === 1 ? t('feiras.fila.peca') : t('feiras.fila.pecas')}{c.horas ? ` · ${numero(c.horas)} h` : ''}</span></div>
                     {c.etapa !== 'concluido' && <div className={'fe-follow' + (atraso ? ' fe-late' : '')}><Icon name={atraso ? 'alert' : 'clock'} size={13} />{t('feiras.fila.prazo', { d: dataCurta(c.prazo) })}</div>}
