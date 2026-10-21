@@ -8,11 +8,11 @@ import Icon from './Icon';
 import { Seg, QtdStep } from './ui';
 import { useFeirasT } from '../lib/i18n';
 
-export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: ItemPedido[]; onChange: (i: ItemPedido[]) => void; rotuloTotal?: string }) {
+export default function ItensEditor({ itens, onChange, rotuloTotal, tipoInicial = 'loja', semLucro }: { itens: ItemPedido[]; onChange: (i: ItemPedido[]) => void; rotuloTotal?: string; tipoInicial?: 'loja' | 'final' | 'feira'; semLucro?: boolean }) {
   const { t } = useFeirasT();
   const { db, itemDoProduto } = useStore();
   const { irParaCalculadora } = useUi();
-  const [tipo, setTipo] = useState<'atacado' | 'varejo'>('atacado');
+  const [tipo, setTipo] = useState<'loja' | 'final' | 'feira'>(tipoInicial);
   const avulso = (it: ItemPedido) => !it.produtoId && (!!it.avulso || !!it.nome.trim());
   const total = itens.reduce((s, i) => s + i.qtd * i.unit, 0);
   const custo = itens.reduce((s, i) => s + i.qtd * i.custoUnit, 0);
@@ -29,7 +29,7 @@ export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: I
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
         <div className="fe-sec-title">{t('feiras.itens.tipoCliente')}</div>
-        <Seg valor={tipo} onChange={setTipo} opcoes={[{ id: 'atacado', label: t('feiras.itens.loja') }, { id: 'varejo', label: t('feiras.itens.clienteFinal') }]} />
+        <Seg valor={tipo} onChange={setTipo} opcoes={[{ id: 'loja', label: t('feiras.itens.loja') }, { id: 'final', label: t('feiras.itens.clienteFinal') }, { id: 'feira', label: t('feiras.itens.feira') }]} />
       </div>
       {itens.map((it, idx) => (
         <div key={idx} className="fe-item-row">
@@ -51,7 +51,7 @@ export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: I
       ))}
       <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> {t('feiras.itens.adicionar')}</button>
         <button type="button" className="fe-btn fe-btn-outline fe-btn-sm" style={{ marginLeft: 8 }} onClick={() => { marcarOrigemCatalogo(); irParaCalculadora(); }}><Icon name="plus" size={14} /> {t('feiras.itens.novoProduto')}</button></div>
-      <div className="fe-totals"><div><small>{rotuloTotal ?? t('feiras.itens.totalPedido')}</small><br /><b>{brl(total)}</b></div>{custo > 0 && <div style={{ textAlign: 'right' }}><small>{t('feiras.itens.lucro')}</small><br /><b>{brl(total - custo)}</b></div>}</div>
+      <div className="fe-totals"><div><small>{rotuloTotal ?? t('feiras.itens.totalPedido')}</small><br /><b>{brl(total)}</b></div>{custo > 0 && !semLucro && <div style={{ textAlign: 'right' }}><small>{t('feiras.itens.lucro')}</small><br /><b>{brl(total - custo)}</b></div>}</div>
     </div>
   );
 }
