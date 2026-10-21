@@ -51,7 +51,6 @@ interface Cartao {
   prazo: string;
   valor: number;
   etapa: Etapa;
-  pagamentoPendente?: boolean;
 }
 
 const COR_ORIGEM: Record<Origem, string> = { 'Mercado Livre': 'fe-amber', Shopee: 'fe-red', Etsy: 'fe-amber', 'TikTok Shop': 'fe-red', 'Venda direta': 'fe-green', 'Ponto de venda': 'fe-green' };
@@ -90,7 +89,7 @@ export default function FilaView() {
       if (!etapa) return [];
       return [{
         chave: 'm:' + p.id, id: p.id, origem: p.marketplace, cliente: p.comprador, resumo: `${p.qtd}× ${p.produto}`, pecas: p.qtd, itens: [{ nome: p.produto, qtd: p.qtd }], horas: null,
-        prazo: somaDias(isoDaData(p.data, idioma === 'en'), 2), valor: p.valorTotal, etapa, pagamentoPendente: p.status === 'Pendente',
+        prazo: somaDias(isoDaData(p.data, idioma === 'en'), 2), valor: p.valorTotal, etapa,
       }];
     });
     // Pontos de venda abertos (ainda não terminaram): o que você vai levar entra na fila de produção.
@@ -219,8 +218,8 @@ export default function FilaView() {
                         </div>
                       );
                     })()}
-                    <div className="fe-row"><span className="fe-val">{brl(c.valor)}</span><span className="fe-sub" style={{ color: 'var(--text-3)', fontSize: 12 }}>{c.pagamentoPendente ? t('feiras.fila.pagPendente') : ''}{c.pecas} {c.pecas === 1 ? t('feiras.fila.peca') : t('feiras.fila.pecas')}{c.horas ? ` · ${numero(c.horas)} h` : ''}</span></div>
-                    {c.etapa !== 'concluido' && <div className={'fe-follow' + (atraso ? ' fe-late' : '')}><Icon name={atraso ? 'alert' : 'clock'} size={13} />{t('feiras.fila.prazo', { d: dataCurta(c.prazo) })}</div>}
+                    <div className="fe-row"><span className="fe-val">{brl(c.valor)}</span><span className="fe-sub" style={{ color: 'var(--text-3)', fontSize: 12 }}>{c.pecas} {c.pecas === 1 ? t('feiras.fila.peca') : t('feiras.fila.pecas')}{c.horas ? ` · ${numero(c.horas)} h` : ''}</span></div>
+                    {c.etapa !== 'concluido' && grupoDe(c.origem) !== 'marketplace' && <div className={'fe-follow' + (atraso ? ' fe-late' : '')}><Icon name={atraso ? 'alert' : 'clock'} size={13} />{t('feiras.fila.prazo', { d: dataCurta(c.prazo) })}</div>}
                   </div>
                 );
               })}
@@ -244,7 +243,7 @@ export default function FilaView() {
                   {linhas.map((l) => (
                     <label key={l.c.chave} className={'fe-check-linha' + (l.feito ? ' fe-ok' : '')}>
                       <input type="checkbox" checked={l.feito} onChange={() => alternarFeito(l.c, produtoDoDrawer.nome)} />
-                      <span className="fe-grow"><span className="fe-nm">{l.c.cliente}</span><span className="fe-sub">{grupo === 'marketplace' ? l.c.origem + ' · ' : ''}{t('feiras.fila.prazo', { d: dataCurta(l.c.prazo) })}</span></span>
+                      <span className="fe-grow"><span className="fe-nm">{l.c.cliente}</span><span className="fe-sub">{grupo === 'marketplace' ? l.c.origem : t('feiras.fila.prazo', { d: dataCurta(l.c.prazo) })}</span></span>
                       <b>{numero(l.qtd)} {t('feiras.fila.un')}</b>
                     </label>
                   ))}
