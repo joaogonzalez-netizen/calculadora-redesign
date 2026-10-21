@@ -6,7 +6,7 @@ import { useMoeda } from '../context/MoedaContext';
 import type { Canal, PgtoId } from '../types';
 import { brl, fmtMoeda, moedaSimbolo } from '../lib/format';
 import { CALC_CANAIS_VISIVEIS, MOSTRAR_PIX } from '../lib/versoes';
-import { getTiktokFaixa, getTiktokTaxaServicoFrete } from '../lib/calc';
+import { getTiktokFaixa, getTiktokTaxaServicoFrete, precoParaLojaEfetivo } from '../lib/calc';
 import { CANAIS, CANAL_LABEL_KEYS } from '../lib/canal';
 import Card from './Card';
 import Icon from './Icon';
@@ -197,12 +197,30 @@ export default function CanalCard() {
             <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" placeholder={t('calc.placeholderCustoEnvio')} value={state.freteDiretoCusto} onChange={(e) => set('freteDiretoCusto', parseFloat(e.target.value) || 0)} /></div>
           </div>
 
+
           <div className="switch-row">
             <label>{t('calc.incluirImpostoTaxaPagamento')}</label>
             <label className="switch">
               <input type="checkbox" checked={state.embutirTaxas} onChange={(e) => set('embutirTaxas', e.target.checked)} />
               <span className="track" />
             </label>
+          </div>
+
+          <div className="divider-label">{t('calc.revendaLoja')}</div>
+          <div className="row2">
+            <div className="field">
+              <label>{t('calc.precoParaLoja')}</label>
+              <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" min={0} value={precoParaLojaEfetivo(state, resultado) || ''} onChange={(e) => set('precoParaLoja', parseFloat(e.target.value) || 0)} /></div>
+              <div className="hint">
+                {t('calc.precoParaLojaHint')}
+                {state.precoParaLoja > 0 && <>{' '}<button type="button" className="link-btn" onClick={() => set('precoParaLoja', 0)}>{t('calc.restaurarAutomatico')}</button></>}
+              </div>
+            </div>
+            <div className="field">
+              <label>{t('calc.precoVendaLoja')}</label>
+              <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" min={0} value={state.precoVendaLoja || ''} onChange={(e) => set('precoVendaLoja', parseFloat(e.target.value) || 0)} /></div>
+              <div className="hint">{t('calc.precoVendaLojaHint')}</div>
+            </div>
           </div>
         </>
       )}

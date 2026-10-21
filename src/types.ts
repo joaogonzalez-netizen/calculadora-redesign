@@ -88,6 +88,8 @@ export interface HistoricoEntry {
   anuncioLink: string;
   comPromo: boolean;
   descontoPromo: number;
+  precoParaLoja?: number;
+  precoVendaLoja?: number;
   // Cálculo cadastrado pelo catálogo de Venda direta (só estes entram no catálogo).
   origemCatalogo?: boolean;
   // formato antigo, mantido só pra leitura de exemplos semeados
@@ -140,6 +142,8 @@ export interface CalculoState {
   pgtoCustom: number;
   freteDiretoCusto: number;
   embutirTaxas: boolean;
+  precoParaLoja: number; // quanto a loja parceira paga por peça (0 = não informado)
+  precoVendaLoja: number; // quanto a loja vende ao consumidor final (0 = não informado)
 
   // Mercado Livre
   mlTipo: MlTipo;
