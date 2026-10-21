@@ -14,13 +14,13 @@ export const dbVazio = (idioma: Idioma = idiomaDoFormato()): Db => ({
 /** Os ids do exemplo ganham um sufixo único: no Supabase a chave primária é global. */
 export function dbExemplo(idioma: Idioma = idiomaDoFormato()): Db {
   const suf = '-' + uid().slice(0, 6);
-  return JSON.parse(JSON.stringify(idioma === 'en' ? exemploEn() : exemplo()).replace(/"(f-geek|f-maker|f-expo|(?:[pcno]|pr)\d+|c\d+c\d)"/g, (_, id) => `"${id}${suf}"`));
+  return JSON.parse(JSON.stringify(idioma === 'en' ? exemploEn() : exemplo()).replace(/"(f-geek|f-maker|f-expo|f-natal|f-casa|(?:[pcno]|pr)\d+|c\d+c\d)"/g, (_, id) => `"${id}${suf}"`));
 }
 
 type Neg = Db['negocios'][number];
 
 function exemplo(): Db {
-  const f1 = 'f-geek', f2 = 'f-maker', f3 = 'f-expo';
+  const f1 = 'f-geek', f2 = 'f-maker', f3 = 'f-expo', f4 = 'f-natal', f5 = 'f-casa';
   const cfg = { ...CONFIG_PADRAO };
   const prod = (id: string, nome: string, sku: string, categoria: string, material: string, tempoH: number, pesoG: number, acessorio = 0) => ({
     id, nome, sku, categoria, material, tempoH, pesoG, acessorio, atacadoManual: null, varejoManual: null,
@@ -53,6 +53,7 @@ function exemplo(): Db {
     id, clienteId, negocioId, feiraId, status, dataPedido: addDias(dataDias), entrega: addDias(entregaDias), obs, itens,
   });
   const total = (itens: ReturnType<typeof item>[]) => Math.round(itens.reduce((s, i) => s + i.qtd * i.unit, 0));
+  const unitDe = (id: string) => item(id, 1).unit;
 
   const pedidos = [
     ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Pagamento via Pix.'),
@@ -67,9 +68,11 @@ function exemplo(): Db {
     config: cfg,
     feiraAtivaId: f1,
     feiras: [
-      { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1) },
+      { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }] },
       { id: f2, nome: 'Maker Fair Floripa', local: 'Centrosul · Florianópolis/SC', inicio: addDias(-40), fim: addDias(-38) },
       { id: f3, nome: 'Expo Presentes Curitiba', local: 'Expo Barigui · Curitiba/PR', inicio: addDias(-12), fim: addDias(-10) },
+      { id: f4, nome: 'Feira de Natal Blumenau', local: 'Parque Vila Germânica · Blumenau/SC', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }] },
+      { id: f5, nome: 'Mostra Casa & Decor Joinville', local: 'Centreventos Cau Hansen · Joinville/SC', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }] },
     ],
     produtos,
     clientes: [
@@ -104,6 +107,9 @@ function exemplo(): Db {
       neg('n13', 'c5', '12 suportes de cardápio (2ª proposta)', 520, 'fechado', 'frio', f2, null, 37, { pedidoId: 'o6' }),
       neg('n14', 'c12', '15 figuras para vitrine', 780, 'orcamento', 'morno', f3, 2, 8),
       neg('n15', 'c14', '120 lembrancinhas de casamento', 2400, 'negociando', 'quente', f3, 0, 9),
+      neg('n17', 'c13', '15 chaveiros para festa infantil', 120, 'conversa', 'morno', f4, 2, 1),
+      neg('n18', 'c14', 'Kit lembrancinhas (cachepô + chaveiro)', 1350, 'orcamento', 'quente', f4, 1, 3),
+      neg('n19', 'c8', 'Reposição de vasos mini (30 un.)', 540, 'novo', 'quente', f5, 3, 0),
       neg('n16', 'c3', 'Camisetas + chaveiros para equipe', 900, 'perdido', 'frio', f1, null, 20, { motivoPerda: 'Preferiu fornecedor local de camisetas' }),
     ],
     pedidos,
@@ -116,7 +122,7 @@ function exemplo(): Db {
 
 /** Versão em inglês (EUA): nomes, cidades, eventos e valores em dólar. */
 function exemploEn(): Db {
-  const f1 = 'f-geek', f2 = 'f-maker', f3 = 'f-expo';
+  const f1 = 'f-geek', f2 = 'f-maker', f3 = 'f-expo', f4 = 'f-natal', f5 = 'f-casa';
   const cfg = { ...CONFIG_EN };
   const prod = (id: string, nome: string, sku: string, categoria: string, material: string, tempoH: number, pesoG: number, acessorio = 0) => ({
     id, nome, sku, categoria, material, tempoH, pesoG, acessorio, atacadoManual: null, varejoManual: null,
@@ -149,6 +155,7 @@ function exemploEn(): Db {
     id, clienteId, negocioId, feiraId, status, dataPedido: addDias(dataDias), entrega: addDias(entregaDias), obs, itens,
   });
   const total = (itens: ReturnType<typeof item>[]) => Math.round(itens.reduce((s, i) => s + i.qtd * i.unit, 0));
+  const unitDe = (id: string) => item(id, 1).unit;
 
   const pedidos = [
     ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Paid by bank transfer.'),
@@ -163,9 +170,11 @@ function exemploEn(): Db {
     config: cfg,
     feiraAtivaId: f1,
     feiras: [
-      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1) },
+      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }] },
       { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), fim: addDias(-38) },
       { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), fim: addDias(-10) },
+      { id: f4, nome: 'Holiday Market Round Rock', local: 'Dell Diamond Plaza · Round Rock, TX', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }] },
+      { id: f5, nome: 'Home & Decor Showcase Austin', local: 'Palmer Events Center · Austin, TX', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }] },
     ],
     produtos,
     clientes: [
@@ -200,6 +209,9 @@ function exemploEn(): Db {
       neg('n13', 'c5', '12 menu holders (2nd proposal)', 104, 'fechado', 'frio', f2, null, 37, { pedidoId: 'o6' }),
       neg('n14', 'c12', '15 figurines for the display window', 156, 'orcamento', 'morno', f3, 2, 8),
       neg('n15', 'c14', '120 wedding favors', 480, 'negociando', 'quente', f3, 0, 9),
+      neg('n17', 'c13', '15 keychains for a kids party', 30, 'conversa', 'morno', f4, 2, 1),
+      neg('n18', 'c14', 'Favor kit (planter + keychain)', 270, 'orcamento', 'quente', f4, 1, 3),
+      neg('n19', 'c8', 'Mini planter restock (30 pcs)', 110, 'novo', 'quente', f5, 3, 0),
       neg('n16', 'c3', 'T-shirts + keychains for the team', 180, 'perdido', 'frio', f1, null, 20, { motivoPerda: 'Went with a local t-shirt supplier' }),
     ],
     pedidos,
