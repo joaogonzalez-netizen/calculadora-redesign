@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import './feiras.css';
-import { StoreProvider, useStore } from './lib/store';
+import { StoreProvider } from './lib/store';
 import { UiProvider, useUi, type View } from './lib/ui';
 import PainelView from './views/PainelView';
 import NegociosView from './views/NegociosView';
@@ -14,7 +14,6 @@ import NegocioDrawer from './components/drawers/NegocioDrawer';
 import ClienteDrawer from './components/drawers/ClienteDrawer';
 import PedidoDrawer from './components/drawers/PedidoDrawer';
 import ProdutoCalculadoraDrawer from './components/drawers/ProdutoCalculadoraDrawer';
-import { useFeirasT } from './lib/i18n';
 
 export type { View as FeirasView } from './lib/ui';
 
@@ -33,18 +32,9 @@ export default function FeirasModule({ view, onNavigate, onIrParaCalculadora }: 
 }
 
 function Conteudo() {
-  const { feiraAtiva } = useStore();
-  const { view, ir, drawer, toast } = useUi();
-  const { t } = useFeirasT();
+  const { view, drawer, toast } = useUi();
   return (
     <div className="fe">
-      <div className="fe-bar">
-        <button type="button" className={'fe-pill' + (feiraAtiva ? ' fe-on' : '')} onClick={() => ir('eventos')} title={t('feiras.modulo.trocarPonto')}>
-          <span className="fe-dot" />
-          <span className="fe-t">{feiraAtiva ? feiraAtiva.nome : t('feiras.modulo.nenhumAtivo')}</span>
-        </button>
-      </div>
-
       {view === 'painel' && <PainelView />}
       {view === 'negocios' && <NegociosView />}
       {view === 'clientes' && <ClientesView />}

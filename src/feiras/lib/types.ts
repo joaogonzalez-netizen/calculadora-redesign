@@ -91,6 +91,17 @@ export interface ProdutoDaFeira {
   unit?: number;
 }
 
+// Lançamento de um dia de feira, por produto: o que levou, o que vendeu, o que quebrou e o que foi cortesia.
+export interface RegistroItem {
+  produtoId: string;
+  levou: number;
+  vendeu: number;
+  quebra: number;
+  cortesia: number;
+  unit: number;
+}
+export interface RegistroDia { itens: RegistroItem[] }
+
 export interface RegraRepete {
   freq: 'dia' | 'semana' | 'mes' | 'ano';
   cada: number;
@@ -111,6 +122,8 @@ export interface Feira {
   regra?: RegraRepete;
   // Ausente em feiras antigas (conta como lista vazia).
   produtos?: ProdutoDaFeira[];
+  // Lançamentos por dia de feira (chave = data AAAA-MM-DD).
+  registros?: Record<string, RegistroDia>;
 }
 
 export interface Config {

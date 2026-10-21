@@ -19,6 +19,7 @@ export default function NegocioDrawer() {
   const [clienteId, setClienteId] = useState(existente?.clienteId ?? drawer?.ctx ?? '');
   const [temp, setTemp] = useState<Temperatura>(existente?.temperatura ?? 'morno');
   const [prox, setProx] = useState(existente?.proximoContato ?? '');
+  const [pontoId, setPontoId] = useState(existente?.feiraId ?? '');
   const [tipo, setTipo] = useState<TipoContato>('whatsapp');
   const [nota, setNota] = useState('');
   const [modo, setModo] = useState<'ver' | 'fechar' | 'perder'>('ver');
@@ -54,7 +55,7 @@ export default function NegocioDrawer() {
   function salvar() {
     if (!clienteId) return setErro(t('feiras.neg.erroEscolherCliente'));
     if (!resumoItens) return setErro(t('feiras.neg.erroItens'));
-    const id = s.salvarNegocio({ id: existente?.id, clienteId, titulo: resumoItens, valor: Math.round(totalItens * 100) / 100, temperatura: temp, proximoContato: prox || null, itens: itensValidos, combinado: combinado.trim() });
+    const id = s.salvarNegocio({ id: existente?.id, clienteId, titulo: resumoItens, valor: Math.round(totalItens * 100) / 100, temperatura: temp, proximoContato: prox || null, itens: itensValidos, combinado: combinado.trim(), feiraId: pontoId || null });
     avisar(t('feiras.neg.salva'));
     if (novo) abrir('negocio', id); else fechar();
   }
@@ -219,6 +220,12 @@ export default function NegocioDrawer() {
             </Secao>
           )}
           <Mais rotulo={t('feiras.comum.maisOpcoes')} aberto={!!existente}>
+            <Field label={t('feiras.neg.pontoVenda')}>
+              <select value={pontoId} onChange={(e) => setPontoId(e.target.value)}>
+                <option value="">{t('feiras.neg.pontoNenhum')}</option>
+                {db.feiras.map((f) => <option key={f.id} value={f.id}>{f.nome}</option>)}
+              </select>
+            </Field>
             <Field label={t('feiras.neg.proximoContato')}>
               <input type="date" value={prox} onChange={(e) => setProx(e.target.value)} />
               {prox && existente && aberto && <span className="fe-hint">{relativo(prox)}</span>}
