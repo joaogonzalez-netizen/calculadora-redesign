@@ -23,10 +23,10 @@ export default function FeirasView() {
   const mudarDias = (dias: string[]) => setEdit((e) => (e ? { ...e, dias, inicio: dias[0], regra: preset === 'custom' ? e.regra : regraDoPreset(preset, dias[0]) } : e));
   const mudarPreset = (p: Preset) => { setPreset(p); setEdit((e) => (e ? { ...e, regra: p === 'custom' ? (e.regra ?? { freq: 'semana', cada: 1, diasSemana: [new Date((e.inicio ?? hoje()) + 'T12:00:00').getDay()] }) : regraDoPreset(p, e.inicio ?? hoje()) } : e)); };
   // Feira aberta no painel de produtos (clicar no card) e estado do seletor de produtos.
-  const [detalheAberto, setDetalheAberto] = useState<{ id: string; data?: string } | null>(null);
+  const [detalheAberto, setDetalheAberto] = useState<{ id: string; data?: string; modo: 'lancar' | 'produtos' } | null>(null);
   const detalhe = db.feiras.find((f) => f.id === detalheAberto?.id) ?? null;
 
-  function abrirDetalhe(id: string, data?: string) { setDetalheAberto({ id, data }); }
+  function abrirDetalhe(id: string, data?: string, modo: 'lancar' | 'produtos' = 'lancar') { setDetalheAberto({ id, data, modo }); }
   function fecharDetalhe() { setDetalheAberto(null); }
 
 
@@ -54,6 +54,7 @@ export default function FeirasView() {
                 <div className="fe-metrics"><div><b>{numero(m.levou)}</b><span>{t('feiras.pontos.levados')}</span></div><div><b>{brl(m.valorInvestido)}</b><span>{t('feiras.pontos.valorInvestido')}</span></div><div><b>{numero(m.vendeu)}</b><span>{t('feiras.pontos.vendidas')}</span></div><div><b>{brl(m.receita)}</b><span>{t('feiras.pontos.receita')}</span></div></div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button className="fe-btn fe-btn-primary" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); abrirDetalhe(f.id); }}>{t('feiras.pontos.lancar')}</button>
+                  <button className="fe-btn fe-btn-outline" onClick={(e) => { e.stopPropagation(); abrirDetalhe(f.id, undefined, 'produtos'); }}>{t('feiras.pontos.produtosBtn')}</button>
                   <button className="fe-btn fe-btn-outline" onClick={(e) => { e.stopPropagation(); abrir(f); }} aria-label={t('feiras.pontos.editar')}><Icon name="pencil" size={16} /></button>
                 </div>
               </article>
@@ -62,7 +63,7 @@ export default function FeirasView() {
         </div>
       )}
 
-      {detalhe && <DetalheDoPonto key={detalhe.id + (detalheAberto?.data ?? '')} feira={detalhe} dataInicial={detalheAberto?.data} onClose={fecharDetalhe} />}
+      {detalhe && <DetalheDoPonto key={detalhe.id + (detalheAberto?.data ?? '') + detalheAberto?.modo} feira={detalhe} modo={detalheAberto?.modo ?? 'lancar'} dataInicial={detalheAberto?.data} onClose={fecharDetalhe} />}
 
       {edit && (
         <Drawer aberto titulo={edit.id ? t('feiras.pontos.editarTitulo') : t('feiras.pontos.novoTitulo')} onClose={() => setEdit(null)}
@@ -348,15 +349,19 @@ function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Fe
 }
 
 /** Drawer do ponto de venda: lançamento do dia (numa data escolhida) + o modelo "costumo levar". */
-export function DetalheDoPonto({ feira, dataInicial, onClose }: { feira: Feira; dataInicial?: string; onClose: () => void }) {
+export function DetalheDoPonto({ feira, modo, dataInicial, onClose }: { feira: Feira; modo: 'lancar' | 'produtos'; dataInicial?: string; onClose: () => void }) {
   const { salvarFeira } = useStore();
   const { irParaCalculadora } = useUi();
   const { t } = useFeirasT();
+  const lancar = modo === 'lancar';
   return (
-    <Drawer aberto largo titulo={feira.nome} subtitulo={(feira.local || t('feiras.pontos.localNaoInformado')) + ' · ' + (regraEfetiva(feira) ? resumoRegra(feira) : diasDaFeira(feira).map(dataCurta).join(', '))} onClose={onClose}
+    <Drawer aberto largo titulo={lancar ? feira.nome : t('feiras.pontos.produtosTitulo')}
+      subtitulo={lancar ? (feira.local || t('feiras.pontos.localNaoInformado')) + ' · ' + (regraEfetiva(feira) ? resumoRegra(feira) : diasDaFeira(feira).map(dataCurta).join(', ')) : feira.nome}
+      onClose={onClose}
       rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={onClose}>{t('feiras.pontos.concluir')}</button>}>
-      <DiaDeFeira feira={feira} dataInicial={dataInicial} onSalvar={(registros) => salvarFeira({ ...feira, registros })} onCalculadora={irParaCalculadora} />
-      <ProdutosDoPonto feira={feira} onSalvar={(produtos) => salvarFeira({ ...feira, produtos })} onCalculadora={irParaCalculadora} />
+      {lancar
+        ? <DiaDeFeira feira={feira} dataInicial={dataInicial} onSalvar={(registros) => salvarFeira({ ...feira, registros })} onCalculadora={irParaCalculadora} />
+        : <ProdutosDoPonto feira={feira} onSalvar={(produtos) => salvarFeira({ ...feira, produtos })} onCalculadora={irParaCalculadora} />}
     </Drawer>
   );
 }
