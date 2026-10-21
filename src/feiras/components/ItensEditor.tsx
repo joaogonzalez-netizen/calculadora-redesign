@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { ItemPedido } from '../lib/types';
 import { useStore } from '../lib/store';
+import { useUi } from '../lib/ui';
+import { marcarOrigemCatalogo } from '../../lib/origemCalculadora';
 import { brl } from '../lib/format';
 import Icon from './Icon';
 import { Seg } from './ui';
@@ -9,6 +11,7 @@ import { useFeirasT } from '../lib/i18n';
 export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: ItemPedido[]; onChange: (i: ItemPedido[]) => void; rotuloTotal?: string }) {
   const { t } = useFeirasT();
   const { db, itemDoProduto } = useStore();
+  const { irParaCalculadora } = useUi();
   const [tipo, setTipo] = useState<'atacado' | 'varejo'>('atacado');
   const avulso = (it: ItemPedido) => !it.produtoId && (!!it.avulso || !!it.nome.trim());
   const total = itens.reduce((s, i) => s + i.qtd * i.unit, 0);
@@ -47,7 +50,8 @@ export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: I
           <button type="button" className="fe-icon-btn" aria-label={t('feiras.itens.remover')} onClick={() => onChange(itens.filter((_, i) => i !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
         </div>
       ))}
-      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> {t('feiras.itens.adicionar')}</button></div>
+      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => onChange([...itens, { produtoId: null, nome: '', qtd: 1, unit: 0, custoUnit: 0, tempoH: 0 }])}><Icon name="plus" size={14} /> {t('feiras.itens.adicionar')}</button>
+        <button type="button" className="fe-btn fe-btn-outline fe-btn-sm" style={{ marginLeft: 8 }} onClick={() => { marcarOrigemCatalogo(); irParaCalculadora(); }}><Icon name="plus" size={14} /> {t('feiras.itens.novoProduto')}</button></div>
       <div className="fe-totals"><div><small>{rotuloTotal ?? t('feiras.itens.totalPedido')}</small><br /><b>{brl(total)}</b></div>{custo > 0 && <div style={{ textAlign: 'right' }}><small>{t('feiras.itens.lucro')}</small><br /><b>{brl(total - custo)}</b></div>}</div>
     </div>
   );
