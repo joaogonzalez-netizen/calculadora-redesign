@@ -101,7 +101,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const store = useMemo<Store>(() => {
     const touch = (n: Negocio): Negocio => ({ ...n, atualizadoEm: hoje() });
-    const dbView: Db = { ...db, produtos: produtosCalc };
+    // Catálogo = produtos da Calculadora + os do exemplo que ela não tem (por nome). Pontos de venda que apontam
+    // pra um produto do exemplo repetido na Calculadora passam a apontar pro da Calculadora.
+    const nomeCalc = new Map(produtosCalc.map((p) => [p.nome.trim().toLowerCase(), p.id]));
+    const remap = new Map<string, string>();
+    const extras = db.produtos.filter((p) => { const igual = nomeCalc.get(p.nome.trim().toLowerCase()); if (igual && igual !== p.id) remap.set(p.id, igual); return !igual && !produtosCalc.some((c) => c.id === p.id); });
+    const dbView: Db = {
+      ...db,
+      produtos: [...produtosCalc, ...extras],
+      feiras: remap.size ? db.feiras.map((f) => (f.produtos ? { ...f, produtos: f.produtos.map((x) => ({ ...x, produtoId: remap.get(x.produtoId) ?? x.produtoId })) } : f)) : db.feiras,
+    };
     return {
       db: dbView, pronto, erroSync,
       recarregarProdutos: () => setProdutosCalc(produtosDaCalculadora()),
