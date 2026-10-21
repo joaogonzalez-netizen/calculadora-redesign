@@ -456,6 +456,7 @@ const D: Record<string, [string, string]> = {
   'feiras.itens.tipoCliente': ['Tipo de cliente', 'Customer type'],
   'feiras.itens.tabela': ['Tabela de preço', 'Price table'],
   'feiras.itens.clienteFinal': ['Cliente final', 'End customer'],
+  'feiras.itens.feira': ['Feira', 'Fair'],
   'feiras.itens.loja': ['Loja', 'Store'],
   'feiras.itens.produto': ['Produto', 'Product'],
   'feiras.itens.escolher': ['Escolher da calculadora…', 'Choose from the calculator…'],

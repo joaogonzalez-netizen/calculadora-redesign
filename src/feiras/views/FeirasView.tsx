@@ -6,7 +6,8 @@ import { Pagina, Vazio, Drawer, Field, Secao, Seg, QtdStep } from '../components
 import { diasDaFeira, diasParaLancar, totaisDaFeira, ocorrencias, proximaOcorrencia, regraEfetiva, regraDoPreset, presetDe, rotuloPreset, resumoRegra, nomeDiaSemana, PRESETS, type Preset } from '../lib/agenda';
 import { precoAtacado, custoProduto } from '../lib/pricing';
 import Icon from '../components/Icon';
-import type { Feira, ProdutoDaFeira, RegistroItem, RegraRepete } from '../lib/types';
+import type { Feira, ItemPedido, ProdutoDaFeira, RegistroItem, RegraRepete } from '../lib/types';
+import ItensEditor from '../components/ItensEditor';
 import { numero } from '../lib/format';
 import { marcarOrigemCatalogo } from '../../lib/origemCalculadora';
 import { useFeirasT } from '../lib/i18n';
@@ -46,7 +47,7 @@ export default function FeirasView() {
           {db.feiras.map((f) => {
             const m = totaisDaFeira(f, undefined, custoDe);
             return (
-              <article key={f.id} className="fe-card fe-feira-card fe-clicavel" role="button" tabIndex={0} aria-label={t('feiras.pontos.abrirProdutos')} onClick={() => abrirDetalhe(f.id)} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrirDetalhe(f.id); } }}>
+              <article key={f.id} className="fe-card fe-feira-card">
                 <div>
                   <h3>{f.nome}</h3>
                   <div className="fe-loc"><Icon name="pin" size={14} />{f.local || t('feiras.pontos.localNaoInformado')} · {quando(f)}</div>
@@ -86,46 +87,19 @@ export default function FeirasView() {
   );
 }
 
-/** Produtos que serão vendidos no ponto: mesma experiência dos itens da negociação (produto, qtd, valor un.). */
-function ProdutosDoPonto({ feira, onSalvar, onCalculadora }: { feira: Feira; onSalvar: (p: ProdutoDaFeira[]) => void; onCalculadora: () => void }) {
+/** Produtos que serão vendidos no ponto: o mesmo componente de produtos da negociação (produto, qtd, valor un.). */
+function ProdutosDoPonto({ feira, onSalvar }: { feira: Feira; onSalvar: (p: ProdutoDaFeira[]) => void; onCalculadora?: () => void }) {
   const { db } = useStore();
   const { t } = useFeirasT();
   // Linhas em edição (inclui a linha nova ainda sem produto); só as com produto são gravadas.
-  const [linhas, setLinhas] = useState<{ produtoId: string; qtd: number; unit: number }[]>(() => (feira.produtos ?? []).map((p) => {
+  const [itens, setItens] = useState<ItemPedido[]>(() => (feira.produtos ?? []).map((p) => {
     const prod = db.produtos.find((x) => x.id === p.produtoId);
-    return { produtoId: p.produtoId, qtd: p.qtd, unit: p.unit ?? (prod ? precoAtacado(prod, db.config) : 0) };
+    return { produtoId: p.produtoId, nome: prod?.nome ?? '', qtd: p.qtd, unit: p.unit ?? (prod ? precoAtacado(prod, db.config) : 0), custoUnit: 0, tempoH: prod?.tempoH ?? 0 };
   }));
-  const preco = (id: string) => { const p = db.produtos.find((x) => x.id === id); return p ? Math.round(precoAtacado(p, db.config) * 100) / 100 : 0; };
-  const gravar = (novas: typeof linhas) => { setLinhas(novas); onSalvar(novas.filter((l) => l.produtoId).map((l) => ({ produtoId: l.produtoId, qtd: l.qtd, unit: l.unit }))); };
-  const alterar = (i: number, p: Partial<(typeof linhas)[number]>) => gravar(linhas.map((l, k) => (k === i ? { ...l, ...p } : l)));
-  const total = linhas.reduce((s, l) => s + l.qtd * l.unit, 0);
-
-  if (db.produtos.length === 0) {
-    return (
-      <Secao titulo={t('feiras.pontos.prodTitulo')} desc={t('feiras.pontos.prodDesc')}>
-        <Vazio titulo={t('feiras.pontos.prodCatalogoVazioTitulo')} texto={t('feiras.pontos.prodCatalogoVazioTexto')} acao={<button className="fe-btn fe-btn-primary" onClick={onCalculadora}>{t('feiras.pontos.prodIrCalculadora')}</button>} />
-      </Secao>
-    );
-  }
+  const mudar = (novos: ItemPedido[]) => { setItens(novos); onSalvar(novos.filter((i) => i.produtoId).map((i) => ({ produtoId: i.produtoId!, qtd: i.qtd, unit: i.unit }))); };
   return (
     <Secao titulo={t('feiras.pontos.prodTitulo')} desc={t('feiras.pontos.prodDesc')}>
-      {linhas.map((l, idx) => (
-        <div key={idx} className="fe-item-row">
-          <label className="fe-field">
-            <span className="fe-lbl">{idx === 0 ? t('feiras.itens.produto') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
-            <select value={l.produtoId} onChange={(e) => alterar(idx, { produtoId: e.target.value, unit: preco(e.target.value) })}>
-              <option value="">{t('feiras.itens.escolher')}</option>
-              {db.produtos.filter((p) => p.id === l.produtoId || !linhas.some((x) => x.produtoId === p.id)).map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
-            </select>
-          </label>
-          <QtdStep valor={l.qtd} min={1} rotulo={t('feiras.itens.qtd')} semTitulo={idx !== 0} onChange={(n) => alterar(idx, { qtd: n })} />
-          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.valorUn') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
-            <input type="number" inputMode="decimal" min={0} step="0.01" value={l.unit} onChange={(e) => alterar(idx, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
-          <button type="button" className="fe-icon-btn" aria-label={t('feiras.pontos.prodRemover')} onClick={() => gravar(linhas.filter((_, k) => k !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
-        </div>
-      ))}
-      <div><button type="button" className="fe-btn fe-btn-outline fe-btn-sm" disabled={linhas.length >= db.produtos.length} onClick={() => setLinhas([...linhas, { produtoId: '', qtd: 1, unit: 0 }])}><Icon name="plus" size={14} /> {t('feiras.pontos.prodAdicionar')}</button></div>
-      <div className="fe-totals"><div><small>{t('feiras.pontos.prodTotal')}</small><br /><b>{brl(total)}</b></div><div style={{ textAlign: 'right' }}><small>{t('feiras.pontos.prodUnidades')}</small><br /><b>{linhas.filter((l) => l.produtoId).reduce((s, l) => s + l.qtd, 0)}</b></div></div>
+      <ItensEditor itens={itens} onChange={mudar} tipoInicial="feira" semLucro rotuloTotal={t('feiras.pontos.prodTotal')} />
     </Secao>
   );
 }
