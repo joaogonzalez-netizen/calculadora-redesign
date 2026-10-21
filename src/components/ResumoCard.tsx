@@ -3,6 +3,7 @@ import { useCalculadora } from '../context/CalculadoraContext';
 import { useMoeda } from '../context/MoedaContext';
 import { useI18n } from '../context/I18nContext';
 import { fmtMoeda } from '../lib/format';
+import { precoParaLojaEfetivo } from '../lib/calc';
 import { CANAL_LABEL_KEYS } from '../lib/canal';
 import type { CustoCategoria } from '../types';
 import Icon from './Icon';
@@ -124,6 +125,7 @@ export default function ResumoCard({ onSalvar }: Props) {
 
   const r = resultado;
   const pct = (v: number) => v.toFixed(1).replace('.', ',');
+  const precoLoja = precoParaLojaEfetivo(state, r);
   const markup = r.custoUnit > 0 ? r.precoConsumidor / r.custoUnit : 0;
   const margemClasse = r.margem < 25 ? 'm-red' : r.margem <= 35 ? 'm-gold' : 'm-green';
 
@@ -176,6 +178,24 @@ export default function ResumoCard({ onSalvar }: Props) {
             <b className="resumo-tile-valor">{markup.toFixed(2).replace('.', ',')}×</b>
           </div>
         </div>
+
+        {state.canalAtivo === 'Venda direta' && precoLoja > 0 && (
+          <div className="resumo-metricas" style={{ marginTop: 12 }}>
+            <div className="resumo-tile">
+              <span className="resumo-rotulo">{t('calc.composicaoDoCusto')}</span>
+              <b className="resumo-tile-valor">{fmt(r.custoUnit)}</b>
+            </div>
+            <div className="resumo-tile">
+              <span className="resumo-rotulo">{t('calc.lucroNaVendaParaLoja')}</span>
+              <b className="resumo-tile-valor">{fmt(precoLoja * (1 - state.imposto / 100) - r.custoUnit)}</b>
+            </div>
+            <div className="resumo-tile">
+              <span className="resumo-rotulo">{t('calc.markupDaLoja')}</span>
+              <b className="resumo-tile-valor">{state.precoVendaLoja > 0 ? (state.precoVendaLoja / precoLoja).toFixed(2).replace('.', ',') + '×' : '—'}</b>
+              {state.precoVendaLoja > 0 && <span className="resumo-sub">{fmt(state.precoVendaLoja - precoLoja)} · {((state.precoVendaLoja / precoLoja - 1) * 100).toFixed(0)}%</span>}
+            </div>
+          </div>
+        )}
 
         <h4 className="resumo-subtitulo">{t('calc.composicaoDoCusto')}</h4>
 

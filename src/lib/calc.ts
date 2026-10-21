@@ -9,6 +9,14 @@ import type {
   MlFreteInfo,
 } from '../types';
 
+// Preço que a loja paga por peça: o valor digitado, ou (em branco) o preço calculado
+// pela margem, para a pessoa não precisar redigitar.
+export function precoParaLojaEfetivo(state: CalculoState, r: CalculoResultado | null): number {
+  if (state.precoParaLoja > 0) return state.precoParaLoja;
+  if (state.canalAtivo !== 'Venda direta' || !r) return 0;
+  return Math.round(r.precoConsumidor * 100) / 100;
+}
+
 export function getMlFreteEstimado(pesoKg: number, preco: number): MlFreteInfo {
   const bandasPeso = [0.3, 0.5, 1, 2, 3, 5, 9, 13, 17, 25];
   const labelsPeso = [

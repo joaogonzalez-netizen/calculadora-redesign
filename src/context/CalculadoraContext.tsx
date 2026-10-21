@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AccItem, CalculoResultado, CalculoState, FilamentoItem, HistoricoEntry } from '../types';
-import { calcular, validar, type ValidacaoFaltando } from '../lib/calc';
+import { calcular, precoParaLojaEfetivo, validar, type ValidacaoFaltando } from '../lib/calc';
 import { getHistorico, saveHistoricoArr } from '../lib/storage';
 import { veioDoCatalogo } from '../lib/origemCalculadora';
 import { useLibrarias } from './LibrariasContext';
@@ -28,7 +28,7 @@ function estadoInicial(): CalculoState {
     canalAtivo: 'Venda direta',
     pgtoSelecionado: 'debito', taxaCartaoPct: 1.99,
     pgtoPixTaxa: 0, pgtoPixDesconto: 0, outraParcelas: 1, pgtoCustom: 0,
-    freteDiretoCusto: 0, embutirTaxas: true,
+    freteDiretoCusto: 0, embutirTaxas: true, precoParaLoja: 0, precoVendaLoja: 0,
     mlTipo: 'classico', mlCategoria: '', mlComissaoManual: false, mlComissao: 0,
     mlPesoEmbalagem: 0.3, mlImposto: 0, mlAds: 0, mlExtras: 0,
     mlArCategoria: '', mlArTipo: 'classico', mlArComissaoManual: false,
@@ -172,6 +172,8 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       anuncioLink: state.anuncioLink,
       comPromo: state.comPromo,
       descontoPromo: state.descontoPromo,
+      ...(state.canalAtivo === 'Venda direta' && state.precoVendaLoja > 0
+        ? { precoParaLoja: precoParaLojaEfetivo(state, resultado), precoVendaLoja: state.precoVendaLoja } : {}),
       ...(veioDoCatalogo() ? { origemCatalogo: true } : {}),
     };
     // Gap conhecido e documentado (PRD seção 9): reabrir + editar + salvar de novo
@@ -201,6 +203,8 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       canalAtivo: h.marketplace || prev.canalAtivo,
       comPromo: !!h.comPromo,
       descontoPromo: h.descontoPromo ?? prev.descontoPromo,
+      precoParaLoja: h.precoParaLoja ?? 0,
+      precoVendaLoja: h.precoVendaLoja ?? 0,
       stlLink: h.stlLink || '',
       concorrenteLink: h.concorrenteLink || '',
       anuncioLink: h.anuncioLink || '',
