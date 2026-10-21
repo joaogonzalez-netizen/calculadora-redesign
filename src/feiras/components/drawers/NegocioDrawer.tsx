@@ -193,8 +193,9 @@ export default function NegocioDrawer() {
                   <textarea className="fe-input fe-msg" value={msgFinal} onChange={(e) => setMsgEditada(e.target.value)} rows={9} aria-label={t('feiras.neg.resumoTitulo')} />
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <button type="button" className="fe-btn fe-btn-outline" onClick={() => { navigator.clipboard?.writeText(msgFinal); avisar(t('feiras.neg.resumoCopiado')); }}>{t('feiras.neg.resumoCopiar')}</button>
-                    {cliente?.telefone && <a className="fe-btn fe-btn-wa" href={waLink(cliente.telefone, msgFinal)} target="_blank" rel="noreferrer"><Icon name="whatsapp" size={16} /> {t('feiras.neg.resumoEnviar')}</a>}
+                    <a className="fe-btn fe-btn-wa" href={(cliente?.telefone && waLink(cliente.telefone, msgFinal)) || `https://wa.me/?text=${encodeURIComponent(msgFinal)}`} target="_blank" rel="noreferrer"><Icon name="whatsapp" size={16} /> {t('feiras.neg.resumoEnviar')}</a>
                   </div>
+                  {!cliente?.telefone && <p className="fe-hint" style={{ margin: 0 }}>{t('feiras.neg.resumoSemTel')}</p>}
                 </div>
               ) : <p className="fe-hint" style={{ marginTop: 8 }}>{t('feiras.neg.resumoSemItens')}</p>}
             </Secao>

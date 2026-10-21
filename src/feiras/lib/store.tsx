@@ -67,15 +67,19 @@ function cidadeDoEndereco(endereco: string): string {
   return ultima.replace(/\s*-\s*[A-Z]{2}$/, '').trim();
 }
 
+// Primeira abertura (sem nada salvo e sem nunca ter carregado o exemplo): já vem com dados de exemplo
+// pra ver as telas preenchidas. Depois de "limpar", o banco vazio é respeitado.
+const KEY_SEMENTE = 'stlseller.feiras.exemplo.v1';
+
 function carregar(): Db {
   try {
     const raw = localStorage.getItem(KEY);
     const salvo = raw ? { ...dbVazio(), ...JSON.parse(raw) } : null;
-    // No dev, um banco salvo mas vazio também recebe o exemplo.
-    if (salvo && !(import.meta.env.DEV && !salvo.clientes.length && !salvo.negocios.length && !salvo.pedidos.length)) return salvo;
-  } catch { /* cai no vazio */ }
-  // Só no `npm run dev`: abre já com os dados de exemplo pra ver as telas preenchidas.
-  return import.meta.env.DEV ? dbExemplo(idiomaDoFormato()) : dbVazio();
+    const vazio = !salvo || (!salvo.clientes.length && !salvo.negocios.length && !salvo.pedidos.length && !salvo.feiras.length);
+    if (!vazio) return salvo;
+    if (!localStorage.getItem(KEY_SEMENTE)) { localStorage.setItem(KEY_SEMENTE, '1'); return dbExemplo(idiomaDoFormato()); }
+    return salvo ?? dbVazio();
+  } catch { return dbVazio(); }
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {

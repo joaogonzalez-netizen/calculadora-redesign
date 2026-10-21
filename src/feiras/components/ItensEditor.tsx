@@ -19,21 +19,13 @@ export default function ItensEditor({ itens, onChange, rotuloTotal }: { itens: I
     if (id === '__avulso') return alterar(idx, { produtoId: null, avulso: true });
     const prod = db.produtos.find((p) => p.id === id);
     if (!prod) return alterar(idx, { produtoId: null, avulso: false, nome: '', unit: 0, custoUnit: 0, tempoH: 0 });
-    onChange(itens.map((it, i) => (i === idx ? { ...itemDoProduto(prod, tipo, it.qtd || 1) } : it)));
+    onChange(itens.map((it, i) => (i === idx ? { ...itemDoProduto(prod, 'atacado', it.qtd || 1) } : it)));
   };
-  const repricing = (t: 'atacado' | 'varejo') => {
-    setTipo(t);
-    onChange(itens.map((it) => {
-      const prod = db.produtos.find((p) => p.id === it.produtoId);
-      return prod ? { ...it, unit: itemDoProduto(prod, t, it.qtd).unit } : it;
-    }));
-  };
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
-        <div className="fe-sec-title">{t('feiras.itens.tabela')}</div>
-        <Seg valor={tipo} onChange={repricing} opcoes={[{ id: 'atacado', label: t('feiras.itens.loja') }, { id: 'varejo', label: t('feiras.itens.clienteFinal') }]} />
+        <div className="fe-sec-title">{t('feiras.itens.tipoCliente')}</div>
+        <Seg valor={tipo} onChange={setTipo} opcoes={[{ id: 'atacado', label: t('feiras.itens.loja') }, { id: 'varejo', label: t('feiras.itens.clienteFinal') }]} />
       </div>
       {itens.map((it, idx) => (
         <div key={idx} className="fe-item-row">
