@@ -34,6 +34,10 @@ function exemplo(): Db {
     prod('p6', 'Porta-Lápis Hexagonal', 'ORG-002', 'Organização', 'PLA', 1.8, 55),
     prod('p7', 'Vaso Suculenta Mini', 'DEC-003', 'Decoração', 'PLA', 1.2, 30),
     prod('p8', 'Cachepô Geométrico', 'DEC-004', 'Decoração', 'PETG', 4.5, 110),
+    prod('p9', 'Vaso geométrico facetado', 'DEC-005', 'Decoração', 'PLA', 3, 70),
+    prod('p10', 'Organizador de mesa modular', 'ORG-003', 'Organização', 'PLA', 4, 95),
+    prod('p11', 'Dragão articulado 20cm', 'FIG-002', 'Figuras', 'PLA', 9, 140),
+    prod('p12', 'Letreiro decorativo resina 12cm', 'DEC-006', 'Decoração', 'Resina', 2.5, 45),
   ];
   const custo = (id: string) => { const p = produtos.find((x) => x.id === id)!; return (p.pesoG / 1000) * cfg.custoKg + p.tempoH * cfg.custoHora + p.acessorio; };
   const item = (id: string, qtd: number, tipo: 'atacado' | 'varejo' = 'atacado') => {
@@ -57,8 +61,8 @@ function exemplo(): Db {
 
   const pedidos = [
     ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Pagamento via Pix.'),
-    ped('o2', 'c7', 'n9', f1, 'Imprimindo', -1, 6, [item('p2', 40), item('p5', 40)], 'Chaveiros com a logo da loja.'),
-    ped('o3', 'c8', 'n10', f1, 'Na fila', 0, 9, [item('p7', 30), item('p8', 12)]),
+    ped('o2', 'c7', 'n9', f1, 'Imprimindo', -1, 6, [item('p2', 40), item('p5', 40), item('p12', 18)], 'Chaveiros com a logo da loja.'),
+    ped('o3', 'c8', 'n10', f1, 'Na fila', 0, 9, [item('p7', 30), item('p8', 12), item('p9', 16), item('p10', 10)]),
     ped('o4', 'c9', 'n11', f2, 'Em preparação para envio', -3, 1, [item('p6', 24)], 'Falta embalar e colar a etiqueta.'),
     ped('o5', 'c10', 'n12', f3, 'Pronto', -6, 2, [item('p4', 4, 'varejo'), item('p1', 6, 'varejo')], 'Retirada no estande.'),
     ped('o6', 'c5', 'n13', f2, 'Cancelado', -37, -30, [item('p3', 12)], 'Cliente desistiu após o orçamento.'),
@@ -68,11 +72,11 @@ function exemplo(): Db {
     config: cfg,
     feiraAtivaId: f1,
     feiras: [
-      { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }] },
+      { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }] },
       { id: f2, nome: 'Maker Fair Floripa', local: 'Centrosul · Florianópolis/SC', inicio: addDias(-40), fim: addDias(-38) },
       { id: f3, nome: 'Expo Presentes Curitiba', local: 'Expo Barigui · Curitiba/PR', inicio: addDias(-12), fim: addDias(-10) },
-      { id: f4, nome: 'Feira de Natal Blumenau', local: 'Parque Vila Germânica · Blumenau/SC', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }] },
-      { id: f5, nome: 'Mostra Casa & Decor Joinville', local: 'Centreventos Cau Hansen · Joinville/SC', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }] },
+      { id: f4, nome: 'Feira de Natal Blumenau', local: 'Parque Vila Germânica · Blumenau/SC', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }, { produtoId: 'p11', qtd: 12, unit: unitDe('p11') }, { produtoId: 'p12', qtd: 30, unit: unitDe('p12') }] },
+      { id: f5, nome: 'Mostra Casa & Decor Joinville', local: 'Centreventos Cau Hansen · Joinville/SC', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }, { produtoId: 'p9', qtd: 20, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 18, unit: unitDe('p10') }] },
     ],
     produtos,
     clientes: [
@@ -136,6 +140,10 @@ function exemploEn(): Db {
     prod('p6', 'Hexagon Pencil Holder', 'ORG-002', 'Organization', 'PLA', 1.8, 55),
     prod('p7', 'Mini Succulent Planter', 'DEC-003', 'Decor', 'PLA', 1.2, 30),
     prod('p8', 'Geometric Planter', 'DEC-004', 'Decor', 'PETG', 4.5, 110),
+    prod('p9', 'Geometric faceted planter', 'DEC-005', 'Decor', 'PLA', 3, 70),
+    prod('p10', 'Modular desk organizer', 'ORG-003', 'Organization', 'PLA', 4, 95),
+    prod('p11', 'Articulated dragon 8"', 'FIG-002', 'Figurines', 'PLA', 9, 140),
+    prod('p12', 'Resin decorative sign 5"', 'DEC-006', 'Decor', 'Resin', 2.5, 45),
   ];
   const custo = (id: string) => { const p = produtos.find((x) => x.id === id)!; return (p.pesoG / 1000) * cfg.custoKg + p.tempoH * cfg.custoHora + p.acessorio; };
   const item = (id: string, qtd: number, tipo: 'atacado' | 'varejo' = 'atacado') => {
@@ -159,8 +167,8 @@ function exemploEn(): Db {
 
   const pedidos = [
     ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Paid by bank transfer.'),
-    ped('o2', 'c7', 'n9', f1, 'Imprimindo', -1, 6, [item('p2', 40), item('p5', 40)], 'Keychains with the store logo.'),
-    ped('o3', 'c8', 'n10', f1, 'Na fila', 0, 9, [item('p7', 30), item('p8', 12)]),
+    ped('o2', 'c7', 'n9', f1, 'Imprimindo', -1, 6, [item('p2', 40), item('p5', 40), item('p12', 18)], 'Keychains with the store logo.'),
+    ped('o3', 'c8', 'n10', f1, 'Na fila', 0, 9, [item('p7', 30), item('p8', 12), item('p9', 16), item('p10', 10)]),
     ped('o4', 'c9', 'n11', f2, 'Em preparação para envio', -3, 1, [item('p6', 24)], 'Still needs packing and the shipping label.'),
     ped('o5', 'c10', 'n12', f3, 'Pronto', -6, 2, [item('p4', 4, 'varejo'), item('p1', 6, 'varejo')], 'Pickup at the booth.'),
     ped('o6', 'c5', 'n13', f2, 'Cancelado', -37, -30, [item('p3', 12)], 'Customer backed out after the quote.'),
@@ -170,11 +178,11 @@ function exemploEn(): Db {
     config: cfg,
     feiraAtivaId: f1,
     feiras: [
-      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }] },
+      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }] },
       { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), fim: addDias(-38) },
       { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), fim: addDias(-10) },
-      { id: f4, nome: 'Holiday Market Round Rock', local: 'Dell Diamond Plaza · Round Rock, TX', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }] },
-      { id: f5, nome: 'Home & Decor Showcase Austin', local: 'Palmer Events Center · Austin, TX', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }] },
+      { id: f4, nome: 'Holiday Market Round Rock', local: 'Dell Diamond Plaza · Round Rock, TX', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }, { produtoId: 'p11', qtd: 12, unit: unitDe('p11') }, { produtoId: 'p12', qtd: 30, unit: unitDe('p12') }] },
+      { id: f5, nome: 'Home & Decor Showcase Austin', local: 'Palmer Events Center · Austin, TX', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }, { produtoId: 'p9', qtd: 20, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 18, unit: unitDe('p10') }] },
     ],
     produtos,
     clientes: [

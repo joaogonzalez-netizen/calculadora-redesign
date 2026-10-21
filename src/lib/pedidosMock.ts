@@ -76,7 +76,7 @@ const PRODUTOS_PEDIDO: { nome: string; preco: number }[] = [
   { nome: 'Dragão articulado 20cm', preco: 39.9 },
   { nome: 'Organizador de mesa modular', preco: 39.9 },
   { nome: 'Luminária geométrica de mesa', preco: 39.9 },
-  { nome: 'Porta-chaves parede minimalista', preco: 39.9 },
+  { nome: 'Chaveiro Personalizado', preco: 14.9 },
   { nome: 'Letreiro decorativo resina 12cm', preco: 39.9 },
 ];
 
@@ -184,7 +184,7 @@ const PRODUTOS_PEDIDO_EN: { nome: string; preco: number }[] = [
   { nome: 'Articulated dragon 8"', preco: 24.99 },
   { nome: 'Modular desk organizer', preco: 22.99 },
   { nome: 'Geometric desk lamp', preco: 34.99 },
-  { nome: 'Minimalist wall key holder', preco: 14.99 },
+  { nome: 'Custom Keychain', preco: 7.99 },
   { nome: 'Resin decorative sign 5"', preco: 19.99 },
 ];
 
