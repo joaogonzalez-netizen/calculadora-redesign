@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../lib/store';
 import { useUi } from '../lib/ui';
 import { addDias, brl, dataCurta, dataLonga, hoje } from '../lib/format';
-import { Pagina, Vazio, Drawer, Field, Secao, Seg } from '../components/ui';
+import { Pagina, Vazio, Drawer, Field, Secao, Seg, QtdStep } from '../components/ui';
 import { diasDaFeira, diasParaLancar, totaisDaFeira, ocorrencias, proximaOcorrencia, regraEfetiva, regraDoPreset, presetDe, rotuloPreset, resumoRegra, nomeDiaSemana, PRESETS, type Preset } from '../lib/agenda';
 import { precoAtacado, custoProduto } from '../lib/pricing';
 import Icon from '../components/Icon';
@@ -117,8 +117,7 @@ function ProdutosDoPonto({ feira, onSalvar, onCalculadora }: { feira: Feira; onS
               {db.produtos.filter((p) => p.id === l.produtoId || !linhas.some((x) => x.produtoId === p.id)).map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
             </select>
           </label>
-          <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.qtd') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
-            <input type="number" inputMode="numeric" min={1} value={l.qtd} onChange={(e) => alterar(idx, { qtd: Math.max(1, Number(e.target.value) || 1) })} /></label>
+          <QtdStep valor={l.qtd} min={1} rotulo={t('feiras.itens.qtd')} semTitulo={idx !== 0} onChange={(n) => alterar(idx, { qtd: n })} />
           <label className="fe-field"><span className="fe-lbl">{idx === 0 ? t('feiras.itens.valorUn') : <span style={{ visibility: 'hidden' }}>.</span>}</span>
             <input type="number" inputMode="decimal" min={0} step="0.01" value={l.unit} onChange={(e) => alterar(idx, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
           <button type="button" className="fe-icon-btn" aria-label={t('feiras.pontos.prodRemover')} onClick={() => gravar(linhas.filter((_, k) => k !== idx))} style={{ marginBottom: 3 }}><Icon name="trash" size={16} /></button>
@@ -184,7 +183,7 @@ function RepetePersonalizada({ regra, inicio, onChange }: { regra: RegraRepete; 
     <div className="fe-rep">
       <div className="fe-rep-linha">
         <span className="fe-lbl">{t('feiras.rep.cada')}</span>
-        <input type="number" min={1} inputMode="numeric" value={regra.cada} onChange={(e) => set({ cada: Math.max(1, Number(e.target.value) || 1) })} />
+        <QtdStep valor={regra.cada} min={1} semTitulo rotulo={t('feiras.rep.cada')} onChange={(n) => set({ cada: n })} />
         <select value={regra.freq} onChange={(e) => { const freq = e.target.value as RegraRepete['freq']; set({ freq, diasSemana: freq === 'semana' ? dias : undefined, mensal: freq === 'mes' ? (regra.mensal ?? 'dia') : undefined }); }}>
           {(['dia', 'semana', 'mes', 'ano'] as const).map((f) => <option key={f} value={f}>{un(f)}</option>)}
         </select>
@@ -213,7 +212,7 @@ function RepetePersonalizada({ regra, inicio, onChange }: { regra: RegraRepete; 
           <label><input type="radio" name="rep-fim" checked={fim === 'data'} onChange={() => mudarFim('data')} /> {t('feiras.rep.emData')}
             <input type="date" min={inicio} disabled={fim !== 'data'} value={regra.termina?.tipo === 'data' ? regra.termina.data : ''} onChange={(e) => e.target.value && set({ termina: { tipo: 'data', data: e.target.value } })} /></label>
           <label><input type="radio" name="rep-fim" checked={fim === 'vezes'} onChange={() => mudarFim('vezes')} /> {t('feiras.rep.apos')}
-            <input type="number" min={1} disabled={fim !== 'vezes'} value={regra.termina?.tipo === 'vezes' ? regra.termina.vezes : ''} onChange={(e) => set({ termina: { tipo: 'vezes', vezes: Math.max(1, Number(e.target.value) || 1) } })} /> {t('feiras.rep.ocorrencias')}</label>
+            <QtdStep valor={regra.termina?.tipo === 'vezes' ? regra.termina.vezes : 1} min={1} semTitulo desabilitado={fim !== 'vezes'} rotulo={t('feiras.rep.apos')} onChange={(n) => set({ termina: { tipo: 'vezes', vezes: n } })} /> {t('feiras.rep.ocorrencias')}</label>
         </div>
       </div>
           </div>
@@ -273,7 +272,6 @@ function SeletorDatas({ dias, onChange }: { dias: string[]; onChange: (d: string
   );
 }
 
-const num = (v: string) => Math.max(0, Math.floor(Number(v) || 0));
 
 /** Lançamento de um dia de feira: o que levou, vendeu, quebrou e deu de cortesia, por produto. */
 function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Feira; dataInicial?: string; onSalvar: (r: NonNullable<Feira['registros']>) => void; onCalculadora: () => void }) {
@@ -297,8 +295,7 @@ function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Fe
   const rotuloData = (d: string) => dataLonga(d) + (d === h ? ' · ' + t('feiras.dia.hoje') : d > h ? ' · ' + t('feiras.dia.futuro') : '');
 
   const campo = (i: number, k: 'vendeu', rot: string) => (
-    <label className="fe-dia-campo"><span>{rot}</span>
-      <input type="number" inputMode="numeric" min={0} value={itens[i][k]} onChange={(e) => alterar(i, { [k]: num(e.target.value) })} /></label>
+    <QtdStep valor={itens[i][k]} rotulo={rot} onChange={(n) => alterar(i, { [k]: n })} />
   );
 
   return (
@@ -321,7 +318,7 @@ function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Fe
               </div>
               <div className="fe-dia-rodape">
                 {campo(i, 'vendeu', t('feiras.dia.vendeu'))}
-                <label className="fe-dia-campo fe-un"><span>{t('feiras.itens.valorUn')}</span>
+                <label className="fe-field fe-un"><span className="fe-lbl">{t('feiras.itens.valorUn')}</span>
                   <input type="number" inputMode="decimal" min={0} step="0.01" value={it.unit} onChange={(e) => alterar(i, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
                 <div className="fe-dia-calc"><span>{t('feiras.pontos.receita')}</span><b>{brl(it.vendeu * it.unit)}</b></div>
               </div>

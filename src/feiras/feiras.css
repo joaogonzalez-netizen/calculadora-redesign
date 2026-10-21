@@ -310,7 +310,7 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-check-lista{display:flex;flex-direction:column;}
 .fe-check-linha{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--border);cursor:pointer;}
 .fe-check-linha:last-child{border-bottom:none;}
-.fe-check-linha input{width:20px;height:20px;accent-color:var(--primary);flex:none;}
+.fe-check-linha input[type=checkbox]{width:20px;height:20px;accent-color:var(--primary);flex:none;}
 .fe-check-linha .fe-grow{flex:1;min-width:0;display:flex;flex-direction:column;}
 .fe-check-linha .fe-nm{font-weight:700;font-size:14px;}
 .fe-check-linha .fe-sub{font-size:12.5px;color:var(--text-3);}
@@ -385,3 +385,22 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-feira-card .fe-metrics b{font-size:15px;}
 
 .fe-dia-totais.fe-quatro{grid-template-columns:repeat(2,1fr);}
+
+.fe-feito{display:flex;align-items:center;gap:6px;flex:none;}
+.fe-check-linha{cursor:default;}
+.fe-check-linha.fe-ok .fe-nm{color:var(--primary-dark);}
+.fe-check-linha.fe-ok .fe-nm,.fe-check-linha.fe-ok b{text-decoration:none;}
+
+.fe-feito{align-items:flex-end;}
+.fe-feito-campo{width:100px;}
+.fe-feito .fe-btn{margin-bottom:2px;min-height:44px;}
+.fe-dia-rodape .fe-field.fe-un{width:120px;}
+
+.fe-qcampo{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.fe-qcampo .fe-lbl{font-size:13px;font-weight:600;}
+.fe-item-row .fe-qcampo .fe-lbl,.fe-dia-rodape .fe-qcampo .fe-lbl{font-size:11.5px;font-weight:600;color:var(--text-3);}
+.fe-qtd-step button{width:40px;height:44px;}
+.fe-qtd-step input{width:54px;min-height:44px;height:44px;}
+.fe-item-row{grid-template-columns:1fr auto 96px 32px;}
+.fe-feito .fe-btn{margin-bottom:2px;}
+@media (max-width:720px){.fe-item-row{grid-template-columns:1fr 1fr 32px;}.fe-item-row>:first-child{grid-column:1/-1;}}

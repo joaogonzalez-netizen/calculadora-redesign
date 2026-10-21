@@ -42,6 +42,21 @@ export function Field({ label, hint, children, className = '' }: { label: string
   );
 }
 
+/** Quantidade horizontal (− n +), igual em todos os drawers. Com `rotulo`, vem com o título em cima. */
+export function QtdStep({ valor, onChange, min = 0, max, rotulo, semTitulo, desabilitado }: { valor: number; onChange: (n: number) => void; min?: number; max?: number; rotulo: string; semTitulo?: boolean; desabilitado?: boolean }) {
+  const ajustar = (n: number) => onChange(Math.min(max ?? 99999, Math.max(min, Math.floor(n) || min)));
+  return (
+    <div className="fe-qcampo">
+      {!semTitulo && <span className="fe-lbl">{rotulo}</span>}
+      <div className="fe-qtd-step" role="group" aria-label={rotulo}>
+        <button type="button" onClick={() => ajustar(valor - 1)} disabled={desabilitado || valor <= min} aria-label="-">−</button>
+        <input type="number" inputMode="numeric" min={min} max={max} value={valor} disabled={desabilitado} onChange={(e) => ajustar(Number(e.target.value))} aria-label={rotulo} />
+        <button type="button" onClick={() => ajustar(valor + 1)} disabled={desabilitado || (max !== undefined && valor >= max)} aria-label="+">+</button>
+      </div>
+    </div>
+  );
+}
+
 /** Bloco do drawer com título e borda própria: separa visualmente cada grupo de ações. */
 export function Secao({ titulo, desc, acao, children }: { titulo: string; desc?: string; acao?: ReactNode; children: ReactNode }) {
   return (
