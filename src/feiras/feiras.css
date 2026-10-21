@@ -281,3 +281,5 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-avulso-linha{display:flex;gap:8px;flex-wrap:wrap;}
 .fe-avulso-linha input:first-child{flex:1;min-width:180px;}
 .fe-avulso-linha .fe-un:nth-child(2){width:72px;}
+
+.fe-field select,.fe-select-sm{appearance:none;-webkit-appearance:none;padding-right:42px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%236b726e' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M1 1.5l5 5 5-5'/></svg>");background-repeat:no-repeat;background-position:right 16px center;text-overflow:ellipsis;}

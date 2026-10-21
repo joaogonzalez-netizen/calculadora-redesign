@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useStore } from '../lib/store';
 import { useUi } from '../lib/ui';
 import { brl, dataCurta, hoje } from '../lib/format';
-import { Pagina, Vazio, Drawer, Field, Secao, Seg } from '../components/ui';
-import { precoAtacado, precoVarejo } from '../lib/pricing';
+import { Pagina, Vazio, Drawer, Field, Secao } from '../components/ui';
+import { precoAtacado } from '../lib/pricing';
 import Icon from '../components/Icon';
 import type { Feira, ProdutoDaFeira } from '../lib/types';
 import { useFeirasT } from '../lib/i18n';
@@ -81,13 +81,12 @@ export default function FeirasView() {
 function ProdutosDoPonto({ feira, onSalvar, onCalculadora }: { feira: Feira; onSalvar: (p: ProdutoDaFeira[]) => void; onCalculadora: () => void }) {
   const { db } = useStore();
   const { t } = useFeirasT();
-  const [tipo, setTipo] = useState<'atacado' | 'varejo'>('atacado');
   // Linhas em edição (inclui a linha nova ainda sem produto); só as com produto são gravadas.
   const [linhas, setLinhas] = useState<{ produtoId: string; qtd: number; unit: number }[]>(() => (feira.produtos ?? []).map((p) => {
     const prod = db.produtos.find((x) => x.id === p.produtoId);
     return { produtoId: p.produtoId, qtd: p.qtd, unit: p.unit ?? (prod ? precoAtacado(prod, db.config) : 0) };
   }));
-  const preco = (id: string, tp = tipo) => { const p = db.produtos.find((x) => x.id === id); return p ? Math.round((tp === 'atacado' ? precoAtacado(p, db.config) : precoVarejo(p, db.config)) * 100) / 100 : 0; };
+  const preco = (id: string) => { const p = db.produtos.find((x) => x.id === id); return p ? Math.round(precoAtacado(p, db.config) * 100) / 100 : 0; };
   const gravar = (novas: typeof linhas) => { setLinhas(novas); onSalvar(novas.filter((l) => l.produtoId).map((l) => ({ produtoId: l.produtoId, qtd: l.qtd, unit: l.unit }))); };
   const alterar = (i: number, p: Partial<(typeof linhas)[number]>) => gravar(linhas.map((l, k) => (k === i ? { ...l, ...p } : l)));
   const total = linhas.reduce((s, l) => s + l.qtd * l.unit, 0);
@@ -101,10 +100,6 @@ function ProdutosDoPonto({ feira, onSalvar, onCalculadora }: { feira: Feira; onS
   }
   return (
     <Secao titulo={t('feiras.pontos.prodTitulo')} desc={t('feiras.pontos.prodDesc')}>
-      <div>
-        <div className="fe-sec-title">{t('feiras.itens.tabela')}</div>
-        <Seg valor={tipo} onChange={(novo) => { setTipo(novo); gravar(linhas.map((l) => (l.produtoId ? { ...l, unit: preco(l.produtoId, novo) } : l))); }} opcoes={[{ id: 'atacado', label: t('feiras.itens.loja') }, { id: 'varejo', label: t('feiras.itens.clienteFinal') }]} />
-      </div>
       {linhas.map((l, idx) => (
         <div key={idx} className="fe-item-row">
           <label className="fe-field">
