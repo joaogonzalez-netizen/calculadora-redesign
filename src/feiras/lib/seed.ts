@@ -58,6 +58,7 @@ function exemplo(): Db {
   });
   const total = (itens: ReturnType<typeof item>[]) => Math.round(itens.reduce((s, i) => s + i.qtd * i.unit, 0));
   const unitDe = (id: string) => item(id, 1).unit;
+  const reg = (itens: [string, number, number, number, number][]) => ({ itens: itens.map(([produtoId, levou, vendeu, quebra, cortesia]) => ({ produtoId, levou, vendeu, quebra, cortesia, unit: unitDe(produtoId) })) });
 
   const pedidos = [
     ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Pagamento via Pix.'),
@@ -72,9 +73,9 @@ function exemplo(): Db {
     config: cfg,
     feiraAtivaId: f1,
     feiras: [
-      { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }] },
-      { id: f2, nome: 'Maker Fair Floripa', local: 'Centrosul · Florianópolis/SC', inicio: addDias(-40), regra: { freq: 'mes', cada: 1, mensal: 'dia' } },
-      { id: f3, nome: 'Expo Presentes Curitiba', local: 'Expo Barigui · Curitiba/PR', inicio: addDias(-12), regra: { freq: 'semana', cada: 1, diasSemana: [new Date(addDias(-12) + 'T12:00:00').getDay()] } },
+      { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }], registros: { [addDias(-2)]: reg([['p1', 20, 14, 1, 2], ['p2', 30, 22, 0, 3], ['p5', 60, 48, 2, 4], ['p9', 24, 17, 1, 1]]), [addDias(-1)]: reg([['p1', 20, 11, 0, 1], ['p2', 30, 19, 1, 2], ['p5', 60, 41, 0, 5], ['p9', 24, 12, 2, 0]]) } },
+      { id: f2, nome: 'Maker Fair Floripa', local: 'Centrosul · Florianópolis/SC', inicio: addDias(-40), regra: { freq: 'mes', cada: 1, mensal: 'dia' }, produtos: [{ produtoId: 'p3', qtd: 15, unit: unitDe('p3') }, { produtoId: 'p4', qtd: 6, unit: unitDe('p4') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }], registros: { [addDias(-40)]: reg([['p3', 15, 11, 1, 0], ['p4', 6, 4, 0, 1], ['p6', 30, 21, 2, 2]]), [addDias(-10)]: reg([['p3', 15, 13, 0, 1], ['p4', 6, 5, 1, 0], ['p6', 30, 25, 1, 3]]) } },
+      { id: f3, nome: 'Expo Presentes Curitiba', local: 'Expo Barigui · Curitiba/PR', inicio: addDias(-12), regra: { freq: 'semana', cada: 1, diasSemana: [new Date(addDias(-12) + 'T12:00:00').getDay()] }, produtos: [{ produtoId: 'p1', qtd: 18, unit: unitDe('p1') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 12, unit: unitDe('p8') }], registros: { [addDias(-12)]: reg([['p1', 18, 9, 0, 1], ['p7', 40, 31, 3, 2], ['p8', 12, 8, 1, 0]]), [addDias(-5)]: reg([['p1', 18, 12, 1, 0], ['p7', 40, 35, 2, 3], ['p8', 12, 10, 0, 1]]) } },
       { id: f4, nome: 'Feira de Natal Blumenau', local: 'Parque Vila Germânica · Blumenau/SC', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }, { produtoId: 'p11', qtd: 12, unit: unitDe('p11') }, { produtoId: 'p12', qtd: 30, unit: unitDe('p12') }] },
       { id: f5, nome: 'Mostra Casa & Decor Joinville', local: 'Centreventos Cau Hansen · Joinville/SC', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }, { produtoId: 'p9', qtd: 20, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 18, unit: unitDe('p10') }] },
     ],
@@ -164,6 +165,7 @@ function exemploEn(): Db {
   });
   const total = (itens: ReturnType<typeof item>[]) => Math.round(itens.reduce((s, i) => s + i.qtd * i.unit, 0));
   const unitDe = (id: string) => item(id, 1).unit;
+  const reg = (itens: [string, number, number, number, number][]) => ({ itens: itens.map(([produtoId, levou, vendeu, quebra, cortesia]) => ({ produtoId, levou, vendeu, quebra, cortesia, unit: unitDe(produtoId) })) });
 
   const pedidos = [
     ped('o1', 'c4', 'n5', f2, 'Pago', -35, -28, [item('p1', 20)], 'Paid by bank transfer.'),
@@ -178,9 +180,9 @@ function exemploEn(): Db {
     config: cfg,
     feiraAtivaId: f1,
     feiras: [
-      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }] },
-      { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), regra: { freq: 'mes', cada: 1, mensal: 'dia' } },
-      { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), regra: { freq: 'semana', cada: 1, diasSemana: [new Date(addDias(-12) + 'T12:00:00').getDay()] } },
+      { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }], registros: { [addDias(-2)]: reg([['p1', 20, 14, 1, 2], ['p2', 30, 22, 0, 3], ['p5', 60, 48, 2, 4], ['p9', 24, 17, 1, 1]]), [addDias(-1)]: reg([['p1', 20, 11, 0, 1], ['p2', 30, 19, 1, 2], ['p5', 60, 41, 0, 5], ['p9', 24, 12, 2, 0]]) } },
+      { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), regra: { freq: 'mes', cada: 1, mensal: 'dia' }, produtos: [{ produtoId: 'p3', qtd: 15, unit: unitDe('p3') }, { produtoId: 'p4', qtd: 6, unit: unitDe('p4') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }], registros: { [addDias(-40)]: reg([['p3', 15, 11, 1, 0], ['p4', 6, 4, 0, 1], ['p6', 30, 21, 2, 2]]), [addDias(-10)]: reg([['p3', 15, 13, 0, 1], ['p4', 6, 5, 1, 0], ['p6', 30, 25, 1, 3]]) } },
+      { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), regra: { freq: 'semana', cada: 1, diasSemana: [new Date(addDias(-12) + 'T12:00:00').getDay()] }, produtos: [{ produtoId: 'p1', qtd: 18, unit: unitDe('p1') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 12, unit: unitDe('p8') }], registros: { [addDias(-12)]: reg([['p1', 18, 9, 0, 1], ['p7', 40, 31, 3, 2], ['p8', 12, 8, 1, 0]]), [addDias(-5)]: reg([['p1', 18, 12, 1, 0], ['p7', 40, 35, 2, 3], ['p8', 12, 10, 0, 1]]) } },
       { id: f4, nome: 'Holiday Market Round Rock', local: 'Dell Diamond Plaza · Round Rock, TX', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }, { produtoId: 'p11', qtd: 12, unit: unitDe('p11') }, { produtoId: 'p12', qtd: 30, unit: unitDe('p12') }] },
       { id: f5, nome: 'Home & Decor Showcase Austin', local: 'Palmer Events Center · Austin, TX', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }, { produtoId: 'p9', qtd: 20, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 18, unit: unitDe('p10') }] },
     ],

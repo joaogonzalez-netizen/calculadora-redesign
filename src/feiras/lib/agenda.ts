@@ -1,4 +1,4 @@
-import type { Feira, RegraRepete } from './types';
+import type { Feira, ProdutoDaFeira, RegraRepete } from './types';
 import { addDias, diasEntre, hoje } from './format';
 import { tf } from './i18n';
 
@@ -135,4 +135,34 @@ export function resumoRegra(f: Feira): string {
   }
   if (r.termina?.tipo === 'vezes') txt += ' · ' + tf('feiras.rep.vezes', { n: r.termina.vezes });
   return txt;
+}
+
+/** O que levar num dia de feira: o que foi lançado para aquela data, ou o modelo "costumo levar" do ponto. */
+export function levarDoDia(f: Feira, data: string): ProdutoDaFeira[] {
+  const r = f.registros?.[data];
+  const levados = r?.itens.filter((i) => i.levou > 0) ?? [];
+  if (levados.length) return levados.map((i) => ({ produtoId: i.produtoId, qtd: i.levou, unit: i.unit }));
+  return f.produtos ?? [];
+}
+
+/** Totais lançados em todos os dias de feira (ou só em um dia, se `data` vier).
+ *  levou/valorInvestido = o que foi para a feira (lançado no dia ou, sem lançamento, o modelo), a custo de produção; vendeu/receita = o que vendeu. */
+export function totaisDaFeira(f: Feira, data?: string, custoDe?: (produtoId: string) => number) {
+  const datas = data ? (f.registros?.[data] ? [data] : []) : Object.keys(f.registros ?? {});
+  const t = { receita: 0, levou: 0, valorInvestido: 0, vendeu: 0, quebra: 0, cortesia: 0, sobra: 0 };
+  datas.forEach((d) => {
+    f.registros![d].itens.forEach((i) => {
+      t.receita += i.vendeu * i.unit; t.vendeu += i.vendeu; t.quebra += i.quebra; t.cortesia += i.cortesia;
+      t.sobra += i.levou - i.vendeu - i.quebra - i.cortesia;
+    });
+    levarDoDia(f, d).forEach((p) => { t.levou += p.qtd; t.valorInvestido += p.qtd * (custoDe ? custoDe(p.produtoId) : (p.unit ?? 0)); });
+  });
+  return t;
+}
+
+/** Dias de feira para lançar: os últimos meses e as próximas semanas, mais os que já têm lançamento. */
+export function diasParaLancar(f: Feira): string[] {
+  const h = hoje();
+  const base = ocorrencias(f, addDias(-180, h), addDias(60, h)).map((o) => o.inicio);
+  return [...new Set([...base, ...Object.keys(f.registros ?? {})])].sort();
 }

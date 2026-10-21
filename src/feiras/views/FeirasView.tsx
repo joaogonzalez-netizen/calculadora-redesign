@@ -3,16 +3,18 @@ import { useStore } from '../lib/store';
 import { useUi } from '../lib/ui';
 import { addDias, brl, dataCurta, dataLonga, hoje } from '../lib/format';
 import { Pagina, Vazio, Drawer, Field, Secao, Seg } from '../components/ui';
-import { diasDaFeira, ocorrencias, proximaOcorrencia, regraEfetiva, regraDoPreset, presetDe, rotuloPreset, resumoRegra, nomeDiaSemana, PRESETS, type Preset } from '../lib/agenda';
-import { precoAtacado } from '../lib/pricing';
+import { diasDaFeira, diasParaLancar, totaisDaFeira, ocorrencias, proximaOcorrencia, regraEfetiva, regraDoPreset, presetDe, rotuloPreset, resumoRegra, nomeDiaSemana, PRESETS, type Preset } from '../lib/agenda';
+import { precoAtacado, custoProduto } from '../lib/pricing';
 import Icon from '../components/Icon';
-import type { Feira, ProdutoDaFeira, RegraRepete } from '../lib/types';
+import type { Feira, ProdutoDaFeira, RegistroItem, RegraRepete } from '../lib/types';
+import { numero } from '../lib/format';
+import { marcarOrigemCatalogo } from '../../lib/origemCalculadora';
 import { useFeirasT } from '../lib/i18n';
 import { localeNumeros } from '../../lib/format';
 
 export default function FeirasView() {
-  const { db, feiraAtiva, setFeiraAtiva, salvarFeira, excluirFeira } = useStore();
-  const { avisar, irParaCalculadora } = useUi();
+  const { db, salvarFeira, excluirFeira } = useStore();
+  const { avisar } = useUi();
   const { t } = useFeirasT();
   const [visao, setVisao] = useState<'lista' | 'calendario'>('lista');
   const [edit, setEdit] = useState<Partial<Feira> | null>(null);
@@ -21,19 +23,14 @@ export default function FeirasView() {
   const mudarDias = (dias: string[]) => setEdit((e) => (e ? { ...e, dias, inicio: dias[0], regra: preset === 'custom' ? e.regra : regraDoPreset(preset, dias[0]) } : e));
   const mudarPreset = (p: Preset) => { setPreset(p); setEdit((e) => (e ? { ...e, regra: p === 'custom' ? (e.regra ?? { freq: 'semana', cada: 1, diasSemana: [new Date((e.inicio ?? hoje()) + 'T12:00:00').getDay()] }) : regraDoPreset(p, e.inicio ?? hoje()) } : e)); };
   // Feira aberta no painel de produtos (clicar no card) e estado do seletor de produtos.
-  const [detalheId, setDetalheId] = useState<string | null>(null);
-  const detalhe = db.feiras.find((f) => f.id === detalheId) ?? null;
+  const [detalheAberto, setDetalheAberto] = useState<{ id: string; data?: string } | null>(null);
+  const detalhe = db.feiras.find((f) => f.id === detalheAberto?.id) ?? null;
 
-  function abrirDetalhe(id: string) { setDetalheId(id); }
-  function fecharDetalhe() { setDetalheId(null); }
-  function gravarProdutos(f: Feira, produtos: ProdutoDaFeira[]) { salvarFeira({ ...f, produtos }); }
+  function abrirDetalhe(id: string, data?: string) { setDetalheAberto({ id, data }); }
+  function fecharDetalhe() { setDetalheAberto(null); }
 
 
-  const metricas = (id: string) => {
-    const ns = db.negocios.filter((n) => n.feiraId === id);
-    const fe = ns.filter((n) => n.etapa === 'fechado');
-    return { leads: ns.length, fechados: fe.length, valor: fe.reduce((s, n) => s + n.valor, 0) };
-  };
+  const custoDe = (id: string) => { const p = db.produtos.find((x) => x.id === id); return p ? custoProduto(p, db.config) : 0; };
 
   const quando = (f: Feira) => {
     if (!regraEfetiva(f)) { const d = diasDaFeira(f); return d.length > 1 ? t('feiras.pontos.varios', { n: d.length, a: dataCurta(d[0]), b: dataCurta(d[d.length - 1]) }) : t('feiras.pontos.umaVez', { a: dataCurta(d[0]) }); }
@@ -47,17 +44,16 @@ export default function FeirasView() {
       {db.feiras.length > 0 && visao === 'calendario' ? <Calendario feiras={db.feiras} onAbrir={abrirDetalhe} /> : db.feiras.length === 0 ? <div className="fe-card"><Vazio titulo={t('feiras.pontos.vazioTitulo')} texto={t('feiras.pontos.vazioTexto')} acao={<button className="fe-btn fe-btn-primary" onClick={() => abrir({ nome: '', local: '', inicio: hoje(), dias: [hoje()] })}>{t('feiras.pontos.cadastrar')}</button>} /></div> : (
         <div className="fe-feira-cards">
           {db.feiras.map((f) => {
-            const m = metricas(f.id);
-            const ativa = feiraAtiva?.id === f.id;
+            const m = totaisDaFeira(f, undefined, custoDe);
             return (
-              <article key={f.id} className={'fe-card fe-feira-card fe-clicavel' + (ativa ? ' fe-ativa' : '')} role="button" tabIndex={0} aria-label={t('feiras.pontos.abrirProdutos')} onClick={() => abrirDetalhe(f.id)} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrirDetalhe(f.id); } }}>
+              <article key={f.id} className="fe-card fe-feira-card fe-clicavel" role="button" tabIndex={0} aria-label={t('feiras.pontos.abrirProdutos')} onClick={() => abrirDetalhe(f.id)} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrirDetalhe(f.id); } }}>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><h3>{f.nome}</h3>{ativa && <span className="fe-badge fe-green">{t('feiras.comum.ativa')}</span>}</div>
+                  <h3>{f.nome}</h3>
                   <div className="fe-loc"><Icon name="pin" size={14} />{f.local || t('feiras.pontos.localNaoInformado')} · {quando(f)}</div>
                 </div>
-                <div className="fe-metrics"><div><b>{(f.produtos ?? []).length}</b><span>{t('feiras.pontos.produtos')}</span></div><div><b>{m.leads}</b><span>{t('feiras.pontos.contatos')}</span></div><div><b>{m.fechados}</b><span>{t('feiras.pontos.fechados')}</span></div><div><b>{brl(m.valor)}</b><span>{t('feiras.pontos.vendido')}</span></div></div>
+                <div className="fe-metrics"><div><b>{numero(m.levou)}</b><span>{t('feiras.pontos.levados')}</span></div><div><b>{brl(m.valorInvestido)}</b><span>{t('feiras.pontos.valorInvestido')}</span></div><div><b>{numero(m.vendeu)}</b><span>{t('feiras.pontos.vendidas')}</span></div><div><b>{brl(m.receita)}</b><span>{t('feiras.pontos.receita')}</span></div></div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button className={'fe-btn ' + (ativa ? 'fe-btn-outline' : 'fe-btn-primary')} style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); setFeiraAtiva(ativa ? null : f.id); avisar(ativa ? t('feiras.pontos.desativado') : t('feiras.pontos.ativado', { nome: f.nome })); }}>{ativa ? t('feiras.pontos.desativar') : t('feiras.pontos.ativar')}</button>
+                  <button className="fe-btn fe-btn-primary" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); abrirDetalhe(f.id); }}>{t('feiras.pontos.lancar')}</button>
                   <button className="fe-btn fe-btn-outline" onClick={(e) => { e.stopPropagation(); abrir(f); }} aria-label={t('feiras.pontos.editar')}><Icon name="pencil" size={16} /></button>
                 </div>
               </article>
@@ -66,12 +62,7 @@ export default function FeirasView() {
         </div>
       )}
 
-      {detalhe && (
-        <Drawer aberto largo titulo={detalhe.nome} subtitulo={(detalhe.local || t('feiras.pontos.localNaoInformado')) + ' · ' + (regraEfetiva(detalhe) ? resumoRegra(detalhe) : diasDaFeira(detalhe).map(dataCurta).join(', '))} onClose={fecharDetalhe}
-          rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={fecharDetalhe}>{t('feiras.pontos.concluir')}</button>}>
-          <ProdutosDoPonto key={detalhe.id} feira={detalhe} onSalvar={(produtos) => gravarProdutos(detalhe, produtos)} onCalculadora={irParaCalculadora} />
-        </Drawer>
-      )}
+      {detalhe && <DetalheDoPonto key={detalhe.id + (detalheAberto?.data ?? '')} feira={detalhe} dataInicial={detalheAberto?.data} onClose={fecharDetalhe} />}
 
       {edit && (
         <Drawer aberto titulo={edit.id ? t('feiras.pontos.editarTitulo') : t('feiras.pontos.novoTitulo')} onClose={() => setEdit(null)}
@@ -140,7 +131,7 @@ function ProdutosDoPonto({ feira, onSalvar, onCalculadora }: { feira: Feira; onS
 }
 
 /** Grade do mês com as edições de cada feira (inclui as que se repetem). */
-function Calendario({ feiras, onAbrir }: { feiras: Feira[]; onAbrir: (id: string) => void }) {
+export function Calendario({ feiras, onAbrir }: { feiras: Feira[]; onAbrir: (id: string, data: string) => void }) {
   const { t } = useFeirasT();
   const [mes, setMes] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const loc = localeNumeros();
@@ -171,7 +162,7 @@ function Calendario({ feiras, onAbrir }: { feiras: Feira[]; onAbrir: (id: string
           return (
             <div key={k} className={'fe-cal-dia' + (d.getMonth() !== mes.getMonth() ? ' fe-fora' : '') + (k === h ? ' fe-hoje' : '')}>
               <span className="fe-cal-num">{d.getDate()}</span>
-              {doDia(k).map((e) => <button key={e.f.id + e.inicio} className="fe-cal-ev" title={e.f.nome} onClick={() => onAbrir(e.f.id)}>{e.f.nome}</button>)}
+              {doDia(k).map((e) => <button key={e.f.id + e.inicio} className="fe-cal-ev" title={e.f.nome} onClick={() => onAbrir(e.f.id, k)}>{e.f.registros?.[k] ? '✓ ' : ''}{e.f.nome}</button>)}
             </div>
           );
         })}
@@ -279,5 +270,96 @@ function SeletorDatas({ dias, onChange }: { dias: string[]; onChange: (d: string
         </div>
       )}
     </div>
+  );
+}
+
+const num = (v: string) => Math.max(0, Math.floor(Number(v) || 0));
+
+/** Lançamento de um dia de feira: o que levou, vendeu, quebrou e deu de cortesia, por produto. */
+function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Feira; dataInicial?: string; onSalvar: (r: NonNullable<Feira['registros']>) => void; onCalculadora: () => void }) {
+  const { db } = useStore();
+  const { t } = useFeirasT();
+  const h = hoje();
+  const datas = diasParaLancar(feira);
+  const inicial = dataInicial ?? (datas.includes(h) ? h : [...datas].reverse().find((d) => d <= h) ?? datas[0] ?? h);
+  const [data, setData] = useState(inicial);
+  const [adicionar, setAdicionar] = useState('');
+  const preco = (id: string) => { const p = db.produtos.find((x) => x.id === id); return p ? Math.round(precoAtacado(p, db.config) * 100) / 100 : 0; };
+  const nomeDe = (id: string) => db.produtos.find((p) => p.id === id)?.nome ?? '—';
+  // Sem lançamento nessa data: parte do modelo "costumo levar" (nada é gravado até você mexer).
+  const salvos = feira.registros?.[data]?.itens;
+  const itens: RegistroItem[] = salvos ?? (feira.produtos ?? []).map((p) => ({ produtoId: p.produtoId, levou: p.qtd, vendeu: 0, quebra: 0, cortesia: 0, unit: p.unit ?? preco(p.produtoId) }));
+  const gravar = (novos: RegistroItem[]) => onSalvar({ ...(feira.registros ?? {}), [data]: { itens: novos } });
+  const alterar = (i: number, p: Partial<RegistroItem>) => gravar(itens.map((it, k) => (k === i ? { ...it, ...p } : it)));
+  const custoDe = (id: string) => { const p = db.produtos.find((x) => x.id === id); return p ? custoProduto(p, db.config) : 0; };
+  const tot = totaisDaFeira({ ...feira, registros: { [data]: { itens } } }, data, custoDe);
+  const livres = db.produtos.filter((p) => !itens.some((i) => i.produtoId === p.id));
+  const rotuloData = (d: string) => dataLonga(d) + (d === h ? ' · ' + t('feiras.dia.hoje') : d > h ? ' · ' + t('feiras.dia.futuro') : '');
+
+  const campo = (i: number, k: 'vendeu', rot: string) => (
+    <label className="fe-dia-campo"><span>{rot}</span>
+      <input type="number" inputMode="numeric" min={0} value={itens[i][k]} onChange={(e) => alterar(i, { [k]: num(e.target.value) })} /></label>
+  );
+
+  return (
+    <Secao titulo={t('feiras.dia.titulo')} desc={t('feiras.dia.desc')}>
+      <Field label={t('feiras.dia.data')}>
+        <select value={data} onChange={(e) => setData(e.target.value)}>
+          {(datas.includes(data) ? datas : [...datas, data].sort()).map((d) => <option key={d} value={d}>{rotuloData(d)}</option>)}
+        </select>
+      </Field>
+      {datas.length === 0 && <p className="fe-hint">{t('feiras.dia.semDatas')}</p>}
+
+      {itens.length === 0 && <p className="fe-hint">{t('feiras.dia.vazio')}</p>}
+      <div className="fe-itens-lista">
+        {itens.map((it, i) => {
+          return (
+            <div key={it.produtoId} className="fe-item-card">
+              <div className="fe-item-topo">
+                <div className="fe-grow"><span className="fe-nm">{nomeDe(it.produtoId)}</span></div>
+                <button type="button" className="fe-icon-btn" aria-label={t('feiras.pontos.prodRemover')} onClick={() => gravar(itens.filter((_, k) => k !== i))}><Icon name="trash" size={16} /></button>
+              </div>
+              <div className="fe-dia-rodape">
+                {campo(i, 'vendeu', t('feiras.dia.vendeu'))}
+                <label className="fe-dia-campo fe-un"><span>{t('feiras.itens.valorUn')}</span>
+                  <input type="number" inputMode="decimal" min={0} step="0.01" value={it.unit} onChange={(e) => alterar(i, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
+                <div className="fe-dia-calc"><span>{t('feiras.pontos.receita')}</span><b>{brl(it.vendeu * it.unit)}</b></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="fe-dia-add">
+        {livres.length > 0 && (
+          <select className="fe-select-sm" value={adicionar} onChange={(e) => { const id = e.target.value; setAdicionar(''); if (id) gravar([...itens, { produtoId: id, levou: 0, vendeu: 0, quebra: 0, cortesia: 0, unit: preco(id) }]); }} aria-label={t('feiras.dia.addProduto')}>
+            <option value="">{t('feiras.dia.addProduto')}</option>
+            {livres.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
+          </select>
+        )}
+        <button type="button" className="fe-btn fe-btn-outline fe-btn-sm" onClick={() => { marcarOrigemCatalogo(); onCalculadora(); }}><Icon name="plus" size={14} /> {t('feiras.itens.novoProduto')}</button>
+      </div>
+
+      <div className="fe-dia-totais fe-quatro">
+        <div><small>{t('feiras.pontos.levados')}</small><b>{numero(tot.levou)}</b></div>
+        <div><small>{t('feiras.pontos.valorInvestido')}</small><b>{brl(tot.valorInvestido)}</b></div>
+        <div><small>{t('feiras.pontos.vendidas')}</small><b>{numero(tot.vendeu)}</b></div>
+        <div><small>{t('feiras.pontos.receita')}</small><b>{brl(tot.receita)}</b></div>
+      </div>
+    </Secao>
+  );
+}
+
+/** Drawer do ponto de venda: lançamento do dia (numa data escolhida) + o modelo "costumo levar". */
+export function DetalheDoPonto({ feira, dataInicial, onClose }: { feira: Feira; dataInicial?: string; onClose: () => void }) {
+  const { salvarFeira } = useStore();
+  const { irParaCalculadora } = useUi();
+  const { t } = useFeirasT();
+  return (
+    <Drawer aberto largo titulo={feira.nome} subtitulo={(feira.local || t('feiras.pontos.localNaoInformado')) + ' · ' + (regraEfetiva(feira) ? resumoRegra(feira) : diasDaFeira(feira).map(dataCurta).join(', '))} onClose={onClose}
+      rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={onClose}>{t('feiras.pontos.concluir')}</button>}>
+      <DiaDeFeira feira={feira} dataInicial={dataInicial} onSalvar={(registros) => salvarFeira({ ...feira, registros })} onCalculadora={irParaCalculadora} />
+      <ProdutosDoPonto feira={feira} onSalvar={(produtos) => salvarFeira({ ...feira, produtos })} onCalculadora={irParaCalculadora} />
+    </Drawer>
   );
 }

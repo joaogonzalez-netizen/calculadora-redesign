@@ -8,7 +8,7 @@ import { pedidosDoIdioma, type Pedido as PedidoMarketplace } from '../../lib/ped
 import PedidoMarketplaceDrawer from '../../components/pedidos/PedidoDrawer';
 import { Pagina, Drawer, Secao } from '../components/ui';
 import { precoAtacado } from '../lib/pricing';
-import { proximaOcorrencia } from '../lib/agenda';
+import { proximaOcorrencia, levarDoDia } from '../lib/agenda';
 import Icon from '../components/Icon';
 
 type Etapa = 'fila' | 'imprimindo' | 'preparacao' | 'pronto' | 'concluido';
@@ -95,13 +95,15 @@ export default function FilaView() {
     });
     // Pontos de venda abertos (ainda não terminaram): o que você vai levar entra na fila de produção.
     const pontos = db.feiras.flatMap((f): Cartao[] => {
-      const itens = (f.produtos ?? []).flatMap((x) => { const p = db.produtos.find((y) => y.id === x.produtoId); return p ? [{ p, qtd: x.qtd, unit: x.unit ?? precoAtacado(p, db.config) }] : []; });
       const prox = proximaOcorrencia(f);
-      if (!itens.length || !prox) return [];
+      if (!prox) return [];
+      const itens = levarDoDia(f, prox.inicio).flatMap((x) => { const p = db.produtos.find((y) => y.id === x.produtoId); return p ? [{ p, qtd: x.qtd, unit: x.unit ?? precoAtacado(p, db.config) }] : []; });
+      if (!itens.length) return [];
+      const chave = `p:${f.id}:${prox.inicio}`;
       return [{
-        chave: 'p:' + f.id, id: f.id, origem: 'Ponto de venda', cliente: f.nome, resumo: itens.map((i) => `${i.qtd}× ${i.p.nome}`).join(', '),
+        chave, id: f.id, origem: 'Ponto de venda', cliente: f.nome, resumo: itens.map((i) => `${i.qtd}× ${i.p.nome}`).join(', '),
         pecas: itens.reduce((s, i) => s + i.qtd, 0), itens: itens.map((i) => ({ nome: i.p.nome, qtd: i.qtd })), horas: itens.reduce((s, i) => s + i.qtd * i.p.tempoH, 0), prazo: prox.inicio,
-        valor: itens.reduce((s, i) => s + i.qtd * i.unit, 0), etapa: etapas['p:' + f.id] ?? 'fila',
+        valor: itens.reduce((s, i) => s + i.qtd * i.unit, 0), etapa: etapas[chave] ?? 'fila',
       }];
     });
     return [...diretos, ...pontos, ...mkt].sort((a, b) => a.prazo.localeCompare(b.prazo));
