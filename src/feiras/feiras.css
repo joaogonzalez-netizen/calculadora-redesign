@@ -315,3 +315,44 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-check-linha .fe-nm{font-weight:700;font-size:14px;}
 .fe-check-linha .fe-sub{font-size:12.5px;color:var(--text-3);}
 .fe-check-linha.fe-ok .fe-nm,.fe-check-linha.fe-ok b{text-decoration:line-through;color:var(--text-3);}
+
+/* Calendário de pontos de venda */
+.fe-cal{padding:16px;}
+.fe-cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.fe-cal-head h3{font-size:17px;font-weight:800;text-transform:capitalize;}
+.fe-cal-nav{display:flex;gap:6px;align-items:center;}
+.fe-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--border);border-left:1px solid var(--border);}
+.fe-cal-dow{padding:6px 4px;font-size:12px;font-weight:700;color:var(--text-3);text-align:center;text-transform:capitalize;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.fe-cal-dia{min-height:92px;padding:4px;display:flex;flex-direction:column;gap:3px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:0;}
+.fe-cal-dia.fe-fora{background:#f7f8f7;}
+.fe-cal-dia.fe-fora .fe-cal-num{color:var(--text-3);}
+.fe-cal-num{font-size:12px;font-weight:600;color:var(--text-2);align-self:flex-end;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;}
+.fe-cal-dia.fe-hoje .fe-cal-num{background:var(--primary);color:#fff;}
+.fe-cal-ev{border:none;background:rgba(0,149,90,.12);color:var(--text-1);font-size:11.5px;font-weight:600;text-align:left;padding:3px 6px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.fe-cal-ev:hover{background:rgba(0,149,90,.22);}
+.fe-cal-vazio{text-align:center;color:var(--text-3);font-size:13px;margin-top:12px;}
+@media (max-width:640px){.fe-cal-dia{min-height:64px;}.fe-cal-ev{font-size:10.5px;padding:2px 4px;}}
+
+/* Repete → Personalizar */
+.fe-rep{display:flex;flex-direction:column;gap:14px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-m);background:#fafbfa;}
+.fe-rep-linha{display:grid;grid-template-columns:1fr 84px 1fr;gap:8px;align-items:center;}
+.fe-rep input[type=number],.fe-rep input[type=date],.fe-rep select{border:1px solid var(--border-strong);background:var(--surface);border-radius:var(--radius-m);padding:9px 11px;font-size:15px;color:var(--text-1);min-height:40px;width:100%;}
+.fe-rep-dias{padding:3px;}
+.fe-rep-dias button{padding:8px 0;min-width:0;}
+.fe-rep-fim{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.fe-rep-fim label{display:flex;align-items:center;gap:8px;font-size:14px;min-height:40px;}
+.fe-rep-fim input[type=radio]{width:auto;min-height:0;}
+.fe-rep-fim input[type=date]{width:170px;}
+.fe-rep-fim input[type=number]{width:80px;}
+.fe-rep-dica{color:var(--text-3);font-size:12px;}
+
+/* Seletor de dias da feira */
+.fe-sel-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:1px solid var(--border-strong);background:var(--surface);border-radius:var(--radius-m);padding:11px 13px;font-size:15px;color:var(--text-1);min-height:44px;text-align:left;cursor:pointer;}
+.fe-sel{margin-top:8px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-m);background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:10px;}
+.fe-sel-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;justify-items:center;}
+.fe-sel-dow{font-size:12px;font-weight:700;color:var(--text-3);padding:4px 0;}
+.fe-sel-dia{width:100%;max-width:40px;aspect-ratio:1;border:none;background:none;border-radius:50%;font-size:14px;color:var(--text-1);cursor:pointer;}
+.fe-sel-dia:hover{background:#eef1ef;}
+.fe-sel-dia.fe-fora{color:var(--text-3);}
+.fe-sel-dia.fe-hoje{box-shadow:inset 0 0 0 1.5px var(--primary);}
+.fe-sel-dia.fe-on{background:var(--primary);color:#fff;font-weight:700;}

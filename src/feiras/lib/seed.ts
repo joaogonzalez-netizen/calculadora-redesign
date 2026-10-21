@@ -73,8 +73,8 @@ function exemplo(): Db {
     feiraAtivaId: f1,
     feiras: [
       { id: f1, nome: 'Feira Geek Joinville', local: 'Expoville · Joinville/SC', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }] },
-      { id: f2, nome: 'Maker Fair Floripa', local: 'Centrosul · Florianópolis/SC', inicio: addDias(-40), fim: addDias(-38) },
-      { id: f3, nome: 'Expo Presentes Curitiba', local: 'Expo Barigui · Curitiba/PR', inicio: addDias(-12), fim: addDias(-10) },
+      { id: f2, nome: 'Maker Fair Floripa', local: 'Centrosul · Florianópolis/SC', inicio: addDias(-40), regra: { freq: 'mes', cada: 1, mensal: 'dia' } },
+      { id: f3, nome: 'Expo Presentes Curitiba', local: 'Expo Barigui · Curitiba/PR', inicio: addDias(-12), regra: { freq: 'semana', cada: 1, diasSemana: [new Date(addDias(-12) + 'T12:00:00').getDay()] } },
       { id: f4, nome: 'Feira de Natal Blumenau', local: 'Parque Vila Germânica · Blumenau/SC', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }, { produtoId: 'p11', qtd: 12, unit: unitDe('p11') }, { produtoId: 'p12', qtd: 30, unit: unitDe('p12') }] },
       { id: f5, nome: 'Mostra Casa & Decor Joinville', local: 'Centreventos Cau Hansen · Joinville/SC', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }, { produtoId: 'p9', qtd: 20, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 18, unit: unitDe('p10') }] },
     ],
@@ -179,8 +179,8 @@ function exemploEn(): Db {
     feiraAtivaId: f1,
     feiras: [
       { id: f1, nome: 'Capital City Comic Con', local: 'Downtown Convention Hall · Austin, TX', inicio: addDias(-2), fim: addDias(1), produtos: [{ produtoId: 'p1', qtd: 20, unit: unitDe('p1') }, { produtoId: 'p2', qtd: 30, unit: unitDe('p2') }, { produtoId: 'p5', qtd: 60, unit: unitDe('p5') }, { produtoId: 'p9', qtd: 24, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 15, unit: unitDe('p10') }] },
-      { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), fim: addDias(-38) },
-      { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), fim: addDias(-10) },
+      { id: f2, nome: 'Hill Country Maker Fair', local: 'Riverside Expo Center · San Antonio, TX', inicio: addDias(-40), regra: { freq: 'mes', cada: 1, mensal: 'dia' } },
+      { id: f3, nome: 'Dallas Craft & Gift Fair', local: 'Fair Park Hall · Dallas, TX', inicio: addDias(-12), regra: { freq: 'semana', cada: 1, diasSemana: [new Date(addDias(-12) + 'T12:00:00').getDay()] } },
       { id: f4, nome: 'Holiday Market Round Rock', local: 'Dell Diamond Plaza · Round Rock, TX', inicio: addDias(6), fim: addDias(8), produtos: [{ produtoId: 'p4', qtd: 10, unit: unitDe('p4') }, { produtoId: 'p7', qtd: 40, unit: unitDe('p7') }, { produtoId: 'p8', qtd: 15, unit: unitDe('p8') }, { produtoId: 'p11', qtd: 12, unit: unitDe('p11') }, { produtoId: 'p12', qtd: 30, unit: unitDe('p12') }] },
       { id: f5, nome: 'Home & Decor Showcase Austin', local: 'Palmer Events Center · Austin, TX', inicio: addDias(20), fim: addDias(22), produtos: [{ produtoId: 'p1', qtd: 25, unit: unitDe('p1') }, { produtoId: 'p3', qtd: 12, unit: unitDe('p3') }, { produtoId: 'p6', qtd: 30, unit: unitDe('p6') }, { produtoId: 'p9', qtd: 20, unit: unitDe('p9') }, { produtoId: 'p10', qtd: 18, unit: unitDe('p10') }] },
     ],
