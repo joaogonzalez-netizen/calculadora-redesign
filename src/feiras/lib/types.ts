@@ -91,12 +91,24 @@ export interface ProdutoDaFeira {
   unit?: number;
 }
 
+export interface RegraRepete {
+  freq: 'dia' | 'semana' | 'mes' | 'ano';
+  cada: number;
+  diasSemana?: number[]; // 0 = domingo
+  mensal?: 'dia' | 'nesimo'; // mesmo dia do mês ou "3ª terça"
+  termina?: { tipo: 'data'; data: string } | { tipo: 'vezes'; vezes: number }; // ausente = nunca
+}
+
 export interface Feira {
   id: string;
   nome: string;
   local: string;
   inicio: string;
-  fim: string;
+  // Só para feiras antigas (início–fim); hoje a feira tem uma data e uma regra de repetição.
+  fim?: string;
+  // Todos os dias da primeira edição (inclui `inicio`); a repetição desloca esse conjunto inteiro.
+  dias?: string[];
+  regra?: RegraRepete;
   // Ausente em feiras antigas (conta como lista vazia).
   produtos?: ProdutoDaFeira[];
 }

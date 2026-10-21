@@ -120,7 +120,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const id = f.id ?? uid();
         up((d) => {
           const ex = d.feiras.find((x) => x.id === id);
-          const nova: Feira = { id, nome: f.nome, local: f.local ?? ex?.local ?? '', inicio: f.inicio ?? ex?.inicio ?? hoje(), fim: f.fim ?? ex?.fim ?? hoje(), produtos: f.produtos ?? ex?.produtos ?? [] };
+          const nova: Feira = { id, nome: f.nome, local: f.local ?? ex?.local ?? '', inicio: f.dias?.length ? [...f.dias].sort()[0] : f.inicio ?? ex?.inicio ?? hoje(), regra: 'regra' in f ? f.regra : ex?.regra, dias: f.dias ?? ex?.dias, fim: f.dias ? undefined : ex?.fim, produtos: f.produtos ?? ex?.produtos ?? [] };
           return { ...d, feiras: ex ? d.feiras.map((x) => (x.id === id ? nova : x)) : [nova, ...d.feiras], feiraAtivaId: ex ? d.feiraAtivaId : id };
         });
         return id;
