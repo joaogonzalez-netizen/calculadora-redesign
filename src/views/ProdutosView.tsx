@@ -69,7 +69,6 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
   }, [filtroSemCustoInicial]);
 
   const [filtrosOpen, setFiltrosOpen] = useState(false);
-  const [menuAbertoId, setMenuAbertoId] = useState<string | null>(null);
   const [detalheProduto, setDetalheProduto] = useState<Produto | null>(null);
   const [custoProduto, setCustoProduto] = useState<Produto | null>(null);
   const [pausarProduto, setPausarProduto] = useState<Produto | null>(null);
@@ -216,19 +215,6 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                     <td>
                       <div className="prod-acoes">
                         <button type="button" title={t('produtos.verDetalhes')} onClick={() => setDetalheProduto(p)}><Icon name="eye" size={16} /></button>
-                        <div className="prod-menu-wrap">
-                          <button type="button" title={t('produtos.maisAcoes')} onClick={() => setMenuAbertoId(menuAbertoId === p.id ? null : p.id)}><Icon name="dots" size={16} /></button>
-                          {menuAbertoId === p.id && (
-                            <>
-                              <div className="popover-scrim" onClick={() => setMenuAbertoId(null)} />
-                              <div className="popover-list prod-menu">
-                                <div className="popover-item" onClick={() => { setPausarProduto(p); setMenuAbertoId(null); }}>
-                                  {p.status === 'Pausado' ? t('produtos.reativarAnuncio') : t('produtos.pausarAnuncio')}
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </div>
                       </div>
                     </td>
                   </tr>
