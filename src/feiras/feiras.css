@@ -404,3 +404,10 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-item-row{grid-template-columns:1fr auto 96px 32px;}
 .fe-feito .fe-btn{margin-bottom:2px;}
 @media (max-width:720px){.fe-item-row{grid-template-columns:1fr 1fr 32px;}.fe-item-row>:first-child{grid-column:1/-1;}}
+
+/* Cliente: contatos adicionais e campos obrigatórios com erro */
+.fe-outros{display:flex;flex-direction:column;gap:12px;}
+.fe-outros-titulo{font-size:13px;font-weight:800;color:var(--text-1);margin:0;}
+.fe-outro{display:flex;gap:10px;align-items:flex-start;background:#f6f7f6;border-radius:var(--radius-m);padding:12px;}
+.fe-outro .fe-form-grid{flex:1;}
+.fe-field input[aria-invalid="true"],.fe-field select[aria-invalid="true"]{border-color:var(--red);}

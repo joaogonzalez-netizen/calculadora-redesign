@@ -28,7 +28,7 @@ function estadoInicial(): CalculoState {
     canalAtivo: 'Venda direta',
     pgtoSelecionado: 'debito', taxaCartaoPct: 1.99,
     pgtoPixTaxa: 0, pgtoPixDesconto: 0, outraParcelas: 1, pgtoCustom: 0,
-    freteDiretoCusto: 0, embutirTaxas: true, revendaAtiva: false, precoParaLoja: 0, precoVendaLoja: 0,
+    freteDiretoCusto: 0, revendaAtiva: false, precoParaLoja: 0, precoVendaLoja: 0,
     mlTipo: 'classico', mlCategoria: '', mlComissaoManual: false, mlComissao: 0,
     mlPesoEmbalagem: 0.3, mlImposto: 0, mlAds: 0, mlExtras: 0,
     mlArCategoria: '', mlArTipo: 'classico', mlArComissaoManual: false,

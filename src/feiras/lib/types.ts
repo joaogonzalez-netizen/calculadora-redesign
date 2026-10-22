@@ -10,12 +10,22 @@ export interface Contato {
   nota: string;
 }
 
+/** Outra pessoa de contato do cliente (ex.: compradora, financeiro). */
+export interface OutroContato {
+  id: string;
+  nome: string;
+  telefone: string;
+  obs: string; // cargo ou observação
+}
+
 export interface Cliente {
   id: string;
   nome: string;
   empresa: string;
   categoria: string;
   telefone: string;
+  telefoneAlt?: string; // fixo ou outro número, além do WhatsApp
+  outrosContatos?: OutroContato[];
   email: string;
   cidade: string;
   obs: string;

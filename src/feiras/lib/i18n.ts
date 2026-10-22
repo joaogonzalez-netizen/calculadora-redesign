@@ -542,7 +542,16 @@ const D: Record<string, [string, string]> = {
   'feiras.lead.interesseADefinir': ['Interesse a definir', 'Interest to be defined'],
 
   // Drawer de cliente
-  'feiras.cliente.erroNome': ['O nome é obrigatório.', 'Name is required.'],
+  'feiras.cliente.erroFaltam': ['Falta preencher: {campos}.', 'Missing: {campos}.'],
+  'feiras.cliente.erroOutroNome': ['Dê um nome a cada contato adicional.', 'Give every additional contact a name.'],
+  'feiras.cliente.telefone': ['Telefone', 'Phone'],
+  'feiras.cliente.telefoneHint': ['Fixo ou outro número.', 'Landline or another number.'],
+  'feiras.cliente.outrosContatos': ['Outros contatos', 'Other contacts'],
+  'feiras.cliente.addOutroContato': ['Adicionar outro contato', 'Add another contact'],
+  'feiras.cliente.addMaisUm': ['Adicionar mais um', 'Add one more'],
+  'feiras.cliente.obsContato': ['Cargo ou observação', 'Role or note'],
+  'feiras.cliente.obsContatoEx': ['Ex: compradora, financeiro', 'E.g. buyer, accounting'],
+  'feiras.cliente.removerContato': ['Remover contato', 'Remove contact'],
   'feiras.cliente.salvo': ['Cliente salvo', 'Customer saved'],
   'feiras.cliente.novo': ['Novo cliente', 'New customer'],
   'feiras.cliente.conheceuEm': ['conheceu em {nome}', 'met at {nome}'],
