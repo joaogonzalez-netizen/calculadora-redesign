@@ -17,7 +17,7 @@ export default function ClientesView() {
   const lista = useMemo(() => db.clientes.filter((c) => {
     if (feira !== 'todas' && c.feiraId !== (feira === 'sem' ? null : feira)) return false;
     const t = q.toLowerCase().trim();
-    return !t || [c.nome, c.empresa, c.cidade, c.categoria, c.telefone].some((x) => x.toLowerCase().includes(t));
+    return !t || [c.nome, c.empresa, c.cidade, c.categoria, c.telefone, c.telefoneAlt ?? '', ...(c.outrosContatos ?? []).map((o) => o.nome)].some((x) => x.toLowerCase().includes(t));
   }), [db.clientes, q, feira]);
 
   const info = (id: string) => {

@@ -161,6 +161,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const ex = d.clientes.find((x) => x.id === id);
           const novo: Cliente = {
             id, nome: c.nome, empresa: c.empresa ?? ex?.empresa ?? '', categoria: c.categoria ?? ex?.categoria ?? '', telefone: c.telefone ?? ex?.telefone ?? '',
+            telefoneAlt: c.telefoneAlt ?? ex?.telefoneAlt ?? '', outrosContatos: c.outrosContatos ?? ex?.outrosContatos ?? [],
             email: c.email ?? ex?.email ?? '', cidade: c.cidade ?? ex?.cidade ?? '', obs: c.obs ?? ex?.obs ?? '', feiraId: c.feiraId ?? ex?.feiraId ?? d.feiraAtivaId,
             criadoEm: ex?.criadoEm ?? hoje(), contatos: ex?.contatos ?? [],
           };
