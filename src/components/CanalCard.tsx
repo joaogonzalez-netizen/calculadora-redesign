@@ -438,11 +438,6 @@ export default function CanalCard() {
             {state.shopeeCupomProprio && (
               <div className="field"><label>{t('calc.valorCupomPorVenda')}</label><div className="prefix-wrap"><span className="pfx" data-fixed="true">R$</span><input type="number" step="0.01" value={state.shopeeCupomValor} onChange={(e) => set('shopeeCupomValor', parseFloat(e.target.value) || 0)} /></div></div>
             )}
-
-            <div className="switch-row">
-              <label>{t('calc.embutirImpostoTaxas')}</label>
-              <label className="switch"><input type="checkbox" checked={state.embutirTaxas} onChange={(e) => set('embutirTaxas', e.target.checked)} /><span className="track" /></label>
-            </div>
           </div>
         </div>
       )}
