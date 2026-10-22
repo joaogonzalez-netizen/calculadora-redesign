@@ -142,6 +142,7 @@ export interface CalculoState {
   pgtoCustom: number;
   freteDiretoCusto: number;
   embutirTaxas: boolean;
+  revendaAtiva: boolean; // habilita o bloco de revenda para loja
   precoParaLoja: number; // quanto a loja parceira paga por peça (0 = não informado)
   precoVendaLoja: number; // quanto a loja vende ao consumidor final (0 = não informado)
 

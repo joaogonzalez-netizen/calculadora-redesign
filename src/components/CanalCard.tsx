@@ -197,31 +197,31 @@ export default function CanalCard() {
             <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" placeholder={t('calc.placeholderCustoEnvio')} value={state.freteDiretoCusto} onChange={(e) => set('freteDiretoCusto', parseFloat(e.target.value) || 0)} /></div>
           </div>
 
-
           <div className="switch-row">
-            <label>{t('calc.incluirImpostoTaxaPagamento')}</label>
+            <label>{t('calc.habilitarRevendaLoja')}</label>
             <label className="switch">
-              <input type="checkbox" checked={state.embutirTaxas} onChange={(e) => set('embutirTaxas', e.target.checked)} />
+              <input type="checkbox" checked={state.revendaAtiva} onChange={(e) => set('revendaAtiva', e.target.checked)} />
               <span className="track" />
             </label>
           </div>
 
-          <div className="divider-label">{t('calc.revendaLoja')}</div>
-          <div className="row2">
-            <div className="field">
-              <label>{t('calc.precoParaLoja')}</label>
-              <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" min={0} value={precoParaLojaEfetivo(state, resultado) || ''} onChange={(e) => set('precoParaLoja', parseFloat(e.target.value) || 0)} /></div>
-              <div className="hint">
-                {t('calc.precoParaLojaHint')}
-                {state.precoParaLoja > 0 && <>{' '}<button type="button" className="link-btn" onClick={() => set('precoParaLoja', 0)}>{t('calc.restaurarAutomatico')}</button></>}
+          {state.revendaAtiva && (
+            <div className="row2">
+              <div className="field">
+                <label>{t('calc.precoParaLoja')}</label>
+                <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" min={0} value={precoParaLojaEfetivo(state, resultado) || ''} onChange={(e) => set('precoParaLoja', parseFloat(e.target.value) || 0)} /></div>
+                <div className="hint">
+                  {t('calc.precoParaLojaHint')}
+                  {state.precoParaLoja > 0 && <>{' '}<button type="button" className="link-btn" onClick={() => set('precoParaLoja', 0)}>{t('calc.restaurarAutomatico')}</button></>}
+                </div>
+              </div>
+              <div className="field">
+                <label>{t('calc.precoVendaLoja')}</label>
+                <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" min={0} value={state.precoVendaLoja || ''} onChange={(e) => set('precoVendaLoja', parseFloat(e.target.value) || 0)} /></div>
+                <div className="hint">{t('calc.precoVendaLojaHint')}</div>
               </div>
             </div>
-            <div className="field">
-              <label>{t('calc.precoVendaLoja')}</label>
-              <div className="prefix-wrap"><span className="pfx">{moedaSimbolo(moeda)}</span><input type="number" step="0.01" min={0} value={state.precoVendaLoja || ''} onChange={(e) => set('precoVendaLoja', parseFloat(e.target.value) || 0)} /></div>
-              <div className="hint">{t('calc.precoVendaLojaHint')}</div>
-            </div>
-          </div>
+          )}
         </>
       )}
 

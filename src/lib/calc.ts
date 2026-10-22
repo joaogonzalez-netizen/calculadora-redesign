@@ -12,8 +12,9 @@ import type {
 // Preço que a loja paga por peça: o valor digitado, ou (em branco) o preço calculado
 // pela margem, para a pessoa não precisar redigitar.
 export function precoParaLojaEfetivo(state: CalculoState, r: CalculoResultado | null): number {
+  if (state.canalAtivo !== 'Venda direta' || !state.revendaAtiva) return 0;
   if (state.precoParaLoja > 0) return state.precoParaLoja;
-  if (state.canalAtivo !== 'Venda direta' || !r) return 0;
+  if (!r) return 0;
   return Math.round(r.precoConsumidor * 100) / 100;
 }
 
