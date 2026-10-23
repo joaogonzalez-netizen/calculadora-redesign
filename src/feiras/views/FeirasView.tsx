@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import { useUi } from '../lib/ui';
 import { addDias, brl, dataCurta, dataLonga, hoje } from '../lib/format';
 import { Pagina, Vazio, Drawer, Field, Secao, Seg, QtdStep } from '../components/ui';
-import { diasDaFeira, diasParaLancar, totaisDaFeira, ocorrencias, proximaOcorrencia, regraEfetiva, regraDoPreset, presetDe, rotuloPreset, resumoRegra, nomeDiaSemana, PRESETS, type Preset } from '../lib/agenda';
+import { diasDaFeira, diasParaLancar, levarDoDia, totaisDaFeira, ocorrencias, proximaOcorrencia, regraEfetiva, regraDoPreset, presetDe, rotuloPreset, resumoRegra, nomeDiaSemana, PRESETS, type Preset } from '../lib/agenda';
 import { precoAtacado, custoProduto } from '../lib/pricing';
 import Icon from '../components/Icon';
 import type { Feira, ItemPedido, ProdutoDaFeira, RegistroItem, RegraRepete } from '../lib/types';
@@ -87,19 +87,44 @@ export default function FeirasView() {
   );
 }
 
-/** Produtos que serão vendidos no ponto: o mesmo componente de produtos da negociação (produto, qtd, valor un.). */
-function ProdutosDoPonto({ feira, onSalvar }: { feira: Feira; onSalvar: (p: ProdutoDaFeira[]) => void; onCalculadora?: () => void }) {
+/** Produtos que serão vendidos no ponto: o mesmo componente de produtos da negociação (produto, qtd, valor un.).
+ *  Sem data escolhida edita o modelo "costumo levar"; com uma data, edita só o que vai naquele dia de feira. */
+function ProdutosDoPonto({ feira, onSalvar, onSalvarRegistros }: { feira: Feira; onSalvar: (p: ProdutoDaFeira[]) => void; onSalvarRegistros: (r: NonNullable<Feira['registros']>) => void; onCalculadora?: () => void }) {
   const { db } = useStore();
   const { t } = useFeirasT();
-  // Linhas em edição (inclui a linha nova ainda sem produto); só as com produto são gravadas.
-  const [itens, setItens] = useState<ItemPedido[]>(() => (feira.produtos ?? []).map((p) => {
+  const h = hoje();
+  const datas = diasParaLancar(feira);
+  const [data, setData] = useState('');
+  const paraLinhas = (lista: ProdutoDaFeira[]): ItemPedido[] => lista.map((p) => {
     const prod = db.produtos.find((x) => x.id === p.produtoId);
     return { produtoId: p.produtoId, nome: prod?.nome ?? '', qtd: p.qtd, unit: p.unit ?? (prod ? precoAtacado(prod, db.config) : 0), custoUnit: 0, tempoH: prod?.tempoH ?? 0 };
-  }));
-  const mudar = (novos: ItemPedido[]) => { setItens(novos); onSalvar(novos.filter((i) => i.produtoId).map((i) => ({ produtoId: i.produtoId!, qtd: i.qtd, unit: i.unit }))); };
+  });
+  // Dia já lançado usa o que foi levado nele; sem lançamento, parte do modelo.
+  const listaDe = (d: string): ProdutoDaFeira[] => (d ? levarDoDia(feira, d) : feira.produtos ?? []);
+  // Linhas em edição (inclui a linha nova ainda sem produto); só as com produto são gravadas.
+  const [itens, setItens] = useState<ItemPedido[]>(() => paraLinhas(listaDe('')));
+  const trocarData = (d: string) => { setData(d); setItens(paraLinhas(listaDe(d))); };
+  const mudar = (novos: ItemPedido[]) => {
+    setItens(novos);
+    const validos = novos.filter((i) => i.produtoId);
+    if (!data) return onSalvar(validos.map((i) => ({ produtoId: i.produtoId!, qtd: i.qtd, unit: i.unit })));
+    const antes = feira.registros?.[data]?.itens ?? [];
+    const itensDia: RegistroItem[] = validos.map((i) => {
+      const ex = antes.find((r) => r.produtoId === i.produtoId);
+      return { produtoId: i.produtoId!, levou: i.qtd, vendeu: ex?.vendeu ?? 0, quebra: ex?.quebra ?? 0, cortesia: ex?.cortesia ?? 0, unit: i.unit };
+    });
+    onSalvarRegistros({ ...(feira.registros ?? {}), [data]: { itens: itensDia } });
+  };
+  const rotuloData = (d: string) => dataLonga(d) + (d === h ? ' · ' + t('feiras.dia.hoje') : d > h ? ' · ' + t('feiras.dia.futuro') : '');
   return (
-    <Secao titulo={t('feiras.pontos.prodTitulo')} desc={t('feiras.pontos.prodDesc')}>
-      <ItensEditor itens={itens} onChange={mudar} tipoInicial="feira" semLucro rotuloTotal={t('feiras.pontos.prodTotal')} />
+    <Secao titulo={t('feiras.pontos.prodTitulo')} desc={data ? t('feiras.pontos.prodDescData') : t('feiras.pontos.prodDesc')}>
+      <Field label={t('feiras.pontos.prodData')}>
+        <select value={data} onChange={(e) => trocarData(e.target.value)}>
+          <option value="">{t('feiras.pontos.prodDataPadrao')}</option>
+          {datas.map((d) => <option key={d} value={d}>{rotuloData(d)}</option>)}
+        </select>
+      </Field>
+      <ItensEditor key={data} itens={itens} onChange={mudar} tipoInicial="feira" semLucro rotuloTotal={t('feiras.pontos.prodTotal')} />
     </Secao>
   );
 }
@@ -269,7 +294,7 @@ function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Fe
   const livres = db.produtos.filter((p) => !itens.some((i) => i.produtoId === p.id));
   const rotuloData = (d: string) => dataLonga(d) + (d === h ? ' · ' + t('feiras.dia.hoje') : d > h ? ' · ' + t('feiras.dia.futuro') : '');
 
-  const campo = (i: number, k: 'vendeu', rot: string) => (
+  const campo = (i: number, k: 'levou' | 'vendeu', rot: string) => (
     <QtdStep valor={itens[i][k]} rotulo={rot} onChange={(n) => alterar(i, { [k]: n })} />
   );
 
@@ -292,6 +317,7 @@ function DiaDeFeira({ feira, dataInicial, onSalvar, onCalculadora }: { feira: Fe
                 <button type="button" className="fe-icon-btn" aria-label={t('feiras.pontos.prodRemover')} onClick={() => gravar(itens.filter((_, k) => k !== i))}><Icon name="trash" size={16} /></button>
               </div>
               <div className="fe-dia-rodape">
+                {campo(i, 'levou', t('feiras.dia.levou'))}
                 {campo(i, 'vendeu', t('feiras.dia.vendeu'))}
                 <label className="fe-field fe-un"><span className="fe-lbl">{t('feiras.itens.valorUn')}</span>
                   <input type="number" inputMode="decimal" min={0} step="0.01" value={it.unit} onChange={(e) => alterar(i, { unit: Math.max(0, Number(e.target.value) || 0) })} /></label>
@@ -335,7 +361,7 @@ export function DetalheDoPonto({ feira, modo, dataInicial, onClose }: { feira: F
       rodape={<button className="fe-btn fe-btn-primary fe-grow" onClick={onClose}>{t('feiras.pontos.concluir')}</button>}>
       {lancar
         ? <DiaDeFeira feira={feira} dataInicial={dataInicial} onSalvar={(registros) => salvarFeira({ ...feira, registros })} onCalculadora={irParaCalculadora} />
-        : <ProdutosDoPonto feira={feira} onSalvar={(produtos) => salvarFeira({ ...feira, produtos })} onCalculadora={irParaCalculadora} />}
+        : <ProdutosDoPonto feira={feira} onSalvar={(produtos) => salvarFeira({ ...feira, produtos })} onSalvarRegistros={(registros) => salvarFeira({ ...feira, registros })} onCalculadora={irParaCalculadora} />}
     </Drawer>
   );
 }
