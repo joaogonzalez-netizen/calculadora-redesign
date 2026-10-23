@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
+import EtsyTagsSelector, { ETSY_TAGS_INICIAIS, ETSY_TAGS_LIMITE, type EtsyTag } from './EtsyTagsSelector';
 
 // Réplica do passo "Textos" do Gerador de anúncios em produção (print de
 // João, 08/09/2026), revisão dos textos que a IA gerou a partir das
@@ -18,7 +19,6 @@ interface TextosMock {
 // medidas) que alimentam os filtros de busca do comprador, mockado no
 // mesmo padrão do resto do passo, por idioma do anúncio.
 interface EtsyMock {
-  tags: string[];
   material: string;
   cor: string;
   largura: string;
@@ -29,11 +29,6 @@ interface EtsyMock {
 // Etsy só tem versão em inglês: é o idioma em que o comprador busca, então a
 // etapa não tem abas de idioma (print de produção, 20/10/2026).
 const ETSY_MOCK: EtsyMock = {
-  tags: [
-    '3d printed decor', 'fantasy figurine', 'desk sculpture', 'articulated dragon',
-    'hand painted statue', 'tabletop rpg figure', 'gift for gamer', 'collectible statue',
-    'dinosaur fidget toy', 'dino desk toy', 'office stress relief', 'dinosaur decor',
-  ],
   material: 'PLA',
   cor: 'Bone Beige',
   largura: '4 cm · 1.6 in',
@@ -63,7 +58,13 @@ Avoid sun and intense heat, do not leave inside a car.
 Add a fun touch to your desk!`,
 };
 
-const ETSY_TAGS_LIMITE = 13;
+// Títulos que o EverBee devolve a partir de uma palavra-chave (mock): ainda
+// não chama a API, só troca o prefixo pela palavra digitada.
+const ETSY_TITULOS_EVERBEE = [
+  'Dinosaur Fidget Toy, Articulated T-Rex 3D Printed, Desk Decor Stress Relief, Gift for Dino Fans',
+  'Articulated Dinosaur Desk Toy, PLA Bone Beige Figurine, Office Stress Relief, Collectible Gift',
+  '3D Printed T-Rex Fidget, Dinosaur Desk Decor, Anxiety Relief Toy, Gift for Gamers and Kids',
+];
 
 const MOCK: Record<'pt' | 'en', TextosMock> = {
   pt: {
@@ -149,10 +150,15 @@ interface Props {
 export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props) {
   const { t } = useI18n();
   const [idioma, setIdioma] = useState<'pt' | 'en'>('pt');
+  const [etsyTags, setEtsyTags] = useState<EtsyTag[]>(ETSY_TAGS_INICIAIS);
+  const [palavraEverbee, setPalavraEverbee] = useState('dinosaur fidget');
+  const [titulosEverbee, setTitulosEverbee] = useState<string[]>([]);
+  const [tituloEtsy, setTituloEtsy] = useState<string | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
   const isEtsy = marketplace === 'etsy';
-  const textos = isEtsy ? ETSY_TEXTOS : MOCK[idioma];
+  const textos = isEtsy ? { ...ETSY_TEXTOS, titulo: tituloEtsy ?? ETSY_TEXTOS.titulo } : MOCK[idioma];
   const etsyAttrs = ETSY_MOCK;
+  const tagsFechadas = !isEtsy || etsyTags.length === ETSY_TAGS_LIMITE;
 
   function copiar(chave: string, texto: string) {
     navigator.clipboard?.writeText(texto);
@@ -208,6 +214,31 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
         </button>
       </div>
 
+      {isEtsy && (
+        <div className="ger-txt-card">
+          <div className="ger-txt-label"><span className="ger-eb-badge">EverBee</span></div>
+          <div className="hint" style={{ margin: '8px 0 12px' }}>{t('gerador.etsyTituloEverbeeDesc')}</div>
+          <form className="ger-tag-busca" style={{ margin: 0 }} onSubmit={(e) => { e.preventDefault(); if (palavraEverbee.trim()) setTitulosEverbee(ETSY_TITULOS_EVERBEE); }}>
+            <input value={palavraEverbee} onChange={(e) => setPalavraEverbee(e.target.value)} placeholder={t('gerador.etsyTagsBuscaPlaceholder')} aria-label={t('gerador.etsyTituloPalavra')} />
+            <button type="submit" className="btn-dark pill ger-btn" disabled={!palavraEverbee.trim()}>{t('gerador.etsyTituloGerar')}</button>
+          </form>
+          {titulosEverbee.length > 0 && (
+            <div className="ger-txt-variacoes" style={{ marginTop: 14 }}>
+              {titulosEverbee.map((v, idx) => (
+                <div className="ger-txt-variacao" key={idx}>
+                  <span>{v}</span>
+                  <button type="button" className="btn-outline pill ger-btn" onClick={() => setTituloEtsy(v)} disabled={tituloEtsy === v}>
+                    {tituloEtsy === v ? t('gerador.etsyTituloEmUso') : t('gerador.etsyTituloUsar')}
+                  </button>
+                  {botaoCopiar('eb-titulo-' + idx, v)}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="hint" style={{ marginTop: 10 }}>{t('gerador.etsyTituloAviso')}</div>
+        </div>
+      )}
+
       <div className="ger-txt-card ger-txt-com-chat">
         <div className="ger-txt-card-head">
           <div className="ger-txt-label">{t('gerador.descricaoParaMarketplace')}</div>
@@ -221,20 +252,7 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
 
       {isEtsy && (
         <>
-          <div className="ger-txt-card">
-            <div className="ger-txt-card-head">
-              <div className="ger-txt-label">{t('gerador.etsyTags')}</div>
-              <span className="ger-txt-tags-contagem">{ETSY_MOCK.tags.length}/{ETSY_TAGS_LIMITE}</span>
-            </div>
-            <div className="ger-txt-tags-lista">
-              {ETSY_MOCK.tags.map((tag) => (
-                <div className="ger-txt-tag" key={tag}>
-                  <span>{tag}</span>
-                  {botaoCopiar('tag-' + tag, tag)}
-                </div>
-              ))}
-            </div>
-          </div>
+          <EtsyTagsSelector tags={etsyTags} onChange={setEtsyTags} />
 
           <div className="ger-txt-card">
             <div className="ger-txt-label" style={{ marginBottom: 4 }}>{t('gerador.etsyAtributos')}</div>
@@ -267,7 +285,7 @@ export default function TextosStep({ marketplace, onVoltar, onContinuar }: Props
           <button type="button" className="btn-outline pill ger-btn" onClick={() => pedirAjuste('todos os textos (re-gerar)')}>
             <Icon name="sync" size={13} /> {t('gerador.regerar')} · 1 {t('gerador.credito')}
           </button>
-          <button type="button" className="btn-dark pill ger-btn" onClick={onContinuar}>
+          <button type="button" className="btn-dark pill ger-btn" onClick={onContinuar} disabled={!tagsFechadas} title={tagsFechadas ? undefined : t('gerador.etsyTagsFalta')}>
             <Icon name="thumbUp" size={14} /> {t('gerador.aprovarEContinuar')}
           </button>
         </div>
