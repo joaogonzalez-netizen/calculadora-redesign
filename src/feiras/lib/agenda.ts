@@ -140,18 +140,20 @@ export function resumoRegra(f: Feira): string {
 /** O que levar num dia de feira: o que foi lançado para aquela data, ou o modelo "costumo levar" do ponto. */
 export function levarDoDia(f: Feira, data: string): ProdutoDaFeira[] {
   const r = f.registros?.[data];
-  const levados = r?.itens.filter((i) => i.levou > 0) ?? [];
-  if (levados.length) return levados.map((i) => ({ produtoId: i.produtoId, qtd: i.levou, unit: i.unit }));
+  // Dia já lançado: vale o que foi levado naquele dia (pode diferir do modelo e até ser zero).
+  if (r) return r.itens.filter((i) => i.levou > 0).map((i) => ({ produtoId: i.produtoId, qtd: i.levou, unit: i.unit }));
   return f.produtos ?? [];
 }
 
 /** Totais lançados em todos os dias de feira (ou só em um dia, se `data` vier).
- *  levou/valorInvestido = o que foi para a feira (lançado no dia ou, sem lançamento, o modelo), a custo de produção; vendeu/receita = o que vendeu. */
+ *  levou/valorInvestido = o que foi para a feira (lançado no dia ou, sem lançamento, o modelo da próxima edição), a custo de produção; vendeu/receita = o que vendeu. */
 export function totaisDaFeira(f: Feira, data?: string, custoDe?: (produtoId: string) => number) {
-  const datas = data ? (f.registros?.[data] ? [data] : []) : Object.keys(f.registros ?? {});
+  let datas = data ? (f.registros?.[data] ? [data] : []) : Object.keys(f.registros ?? {});
+  // Sem nenhum lançamento, o card já mostra o planejado (produtos cadastrados) para a próxima edição.
+  if (!data && !datas.length && f.produtos?.length) datas = [proximaOcorrencia(f)?.inicio ?? f.inicio];
   const t = { receita: 0, levou: 0, valorInvestido: 0, vendeu: 0, quebra: 0, cortesia: 0, sobra: 0 };
   datas.forEach((d) => {
-    f.registros![d].itens.forEach((i) => {
+    f.registros?.[d]?.itens.forEach((i) => {
       t.receita += i.vendeu * i.unit; t.vendeu += i.vendeu; t.quebra += i.quebra; t.cortesia += i.cortesia;
       t.sobra += i.levou - i.vendeu - i.quebra - i.cortesia;
     });
