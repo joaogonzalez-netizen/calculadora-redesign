@@ -11,13 +11,16 @@ interface Props {
 /** Tela "Buscador de Produtos" (Product Finder). Grid de produtos 3D em alta
  *, dados mockados, sem backend. Busca e favoritos são funcionais de verdade
  * (favoritos persistem em localStorage); as demais faixas de filtro do
- * cabeçalho (preço, material, ordenação, tabs de marketplace) são só visuais
+ * cabeçalho (preço, material, ordenação, tabs de marketplace) são só visuais,
+ * exceto a idade do anúncio, que filtra de verdade
  * nesta versão, igual combinado no escopo da feature. */
 export default function BuscadorView({ onFavoritar }: Props) {
   const { t } = useI18n();
   const [busca, setBusca] = useState('');
   const [favoritos, setFavoritos] = useState<string[]>(() => readJson(BUSCADOR_FAVORITOS_KEY, []));
   const [somenteFavoritos, setSomenteFavoritos] = useState(false);
+  // Idade máxima do anúncio em dias ('' = qualquer).
+  const [idade, setIdade] = useState('');
 
   function alternarFavorito(id: string) {
     setFavoritos((prev) => {
@@ -34,9 +37,10 @@ export default function BuscadorView({ onFavoritar }: Props) {
       const termo = busca.trim().toLowerCase();
       lista = lista.filter((p) => p.nome.toLowerCase().includes(termo));
     }
+    if (idade) lista = lista.filter((p) => p.diasNoAr <= Number(idade));
     if (somenteFavoritos) lista = lista.filter((p) => favoritos.includes(p.id));
     return lista;
-  }, [busca, somenteFavoritos, favoritos]);
+  }, [busca, idade, somenteFavoritos, favoritos]);
 
   return (
     <div>
@@ -83,6 +87,13 @@ export default function BuscadorView({ onFavoritar }: Props) {
           <option value="pla">PLA</option>
           <option value="petg">PETG</option>
           <option value="resina">Resina</option>
+        </select>
+        <select className="busc-select" value={idade} onChange={(e) => setIdade(e.target.value)} aria-label={t('buscador.idadeAnuncio')}>
+          <option value="">{t('buscador.idadeAnuncio')}</option>
+          <option value="7">{t('buscador.idade7')}</option>
+          <option value="30">{t('buscador.idade30')}</option>
+          <option value="90">{t('buscador.idade90')}</option>
+          <option value="365">{t('buscador.idade365')}</option>
         </select>
         <select className="busc-select" defaultValue="mais-vendidos">
           <option value="mais-vendidos">{t('buscador.maisVendidos')}</option>
