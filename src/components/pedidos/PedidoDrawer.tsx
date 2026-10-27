@@ -2,7 +2,8 @@ import type { Pedido } from '../../lib/pedidosMock';
 import { brl } from '../../lib/format';
 import { classeTagMarketplace } from '../../lib/marketplaceTag';
 import { useI18n } from '../../context/I18nContext';
-import Icon from '../Icon';
+import { Drawer, Secao } from '../../feiras/components/ui';
+import '../../feiras/feiras.css';
 
 function alertaEmBreve(acao: string) {
   alert(`Em breve: ${acao}.`);
@@ -28,94 +29,74 @@ export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onCl
   const en = idioma === 'en';
   const taxaValor = pedido.valorTotal * pedido.taxaPct;
   const margemLiquida = pedido.valorTotal + pedido.frete - taxaValor;
+  const info = [
+    { label: t('pedidos.colunaComprador'), valor: pedido.comprador, meta: `${pedido.compradorHandle} · ${pedido.compradorCompras} ${t('pedidos.comprasPlural')}` },
+    { label: t('pedidos.colunaPagamento'), valor: traduzirPagamento(t, pedido.pagamento), meta: pedido.pagamentoData },
+    { label: t('pedidos.envioLabel'), valor: pedido.envioMetodo, meta: pedido.envioCodigo },
+    { label: t('pedidos.destinoLabel'), valor: pedido.destinoCidade, meta: `${t('pedidos.cepLabel')} ${pedido.destinoCep}` },
+  ];
 
+  // Mesmo Drawer do Clientes › Novo cliente (módulo Feiras); o wrapper .fe traz as variáveis de cor dele.
   return (
-    <>
-      <div className="drawer-overlay" onClick={onClose} />
-      <div className="drawer ped-drawer">
-        <div className="cl-head">
-          <div>
-            <h4>{t('pedidos.pedidoLabel')} #{pedido.id}</h4>
-            <div className="cl-sub">#{pedido.codigoMlb}</div>
+    <div className="fe">
+      <Drawer aberto largo titulo={`${t('pedidos.pedidoLabel')} #${pedido.id}`} subtitulo={`#${pedido.codigoMlb}`} onClose={onClose}
+        rodape={<>
+          <button type="button" className="fe-btn fe-btn-outline" onClick={() => (en ? alert('Coming soon: copy tracking number.') : alertaEmBreve('copiar código de rastreio'))}>{t('pedidos.copiarRastreio')}</button>
+          <button type="button" className="fe-btn fe-btn-primary fe-grow" onClick={() => (en ? alert('Coming soon: open order on the marketplace.') : alertaEmBreve('abrir pedido no marketplace'))}>{t('pedidos.abrirNoMarketplace')}</button></>}>
+        <Secao titulo={t('pedidos.informacoesPrincipais')}>
+          <div className="fe-chips">
+            <span className={'mp-tag ' + classeTagMarketplace(pedido.marketplace)}>{pedido.marketplace}</span>
+            <span className="fe-badge fe-green">{traduzirStatusPedido(t, pedido.status)}</span>
+            <span className="fe-badge fe-green">{traduzirPagamento(t, pedido.pagamento)}</span>
           </div>
-          <button type="button" className="cl-close" onClick={onClose}><Icon name="close" size={15} /></button>
-        </div>
-
-        <div className="ped-drawer-badges">
-          <span className={'mp-tag ' + classeTagMarketplace(pedido.marketplace)}>{pedido.marketplace}</span>
-          <span className="status-tag status-ativo">{traduzirStatusPedido(t, pedido.status)}</span>
-          <span className="status-tag status-ativo">{traduzirPagamento(t, pedido.pagamento)}</span>
-        </div>
-
-        <div className="cl-body">
-          <div className="ped-section">
-            <div className="divider-label">{t('pedidos.informacoesPrincipais')}</div>
-            <div className="ped-info-grid">
-              <div className="ped-info-cell">
-                <span className="ped-info-label">{t('pedidos.colunaComprador')}</span>
-                <b>{pedido.comprador}</b>
-                <span className="ped-info-meta">{pedido.compradorHandle} · {pedido.compradorCompras} {t('pedidos.comprasPlural')}</span>
+          <div className="fe-form-grid">
+            {info.map((c) => (
+              <div className="fe-field" key={c.label}>
+                <span className="fe-lbl">{c.label}</span>
+                <b>{c.valor}</b>
+                <span className="fe-hint">{c.meta}</span>
               </div>
-              <div className="ped-info-cell">
-                <span className="ped-info-label">{t('pedidos.colunaPagamento')}</span>
-                <b>{traduzirPagamento(t, pedido.pagamento)}</b>
-                <span className="ped-info-meta">{pedido.pagamentoData}</span>
-              </div>
-              <div className="ped-info-cell">
-                <span className="ped-info-label">{t('pedidos.envioLabel')}</span>
-                <b>{pedido.envioMetodo}</b>
-                <span className="ped-info-meta">{pedido.envioCodigo}</span>
-              </div>
-              <div className="ped-info-cell">
-                <span className="ped-info-label">{t('pedidos.destinoLabel')}</span>
-                <b>{pedido.destinoCidade}</b>
-                <span className="ped-info-meta">{t('pedidos.cepLabel')} {pedido.destinoCep}</span>
-              </div>
-            </div>
+            ))}
           </div>
+        </Secao>
 
-          <div className="ped-section">
-            <div className="divider-label">{t('pedidos.itensDoPedido')}</div>
+        <Secao titulo={t('pedidos.itensDoPedido')}>
+          <div className="fe-list">
             {pedido.itens.map((item, idx) => (
-              <div className="ped-item-row" key={idx}>
-                <div>
-                  <b>{item.nome}</b>
-                  <div className="ped-info-meta">{item.qtd} {en ? '×' : 'un. ×'} {brl(item.precoUnit)}{item.cor ? ' · ' + t('pedidos.corLabel') + ': ' + item.cor : ''}</div>
+              <div className="fe-list-item" key={idx}>
+                <div className="fe-grow">
+                  <div className="fe-t">{item.nome}</div>
+                  <div className="fe-s">{item.qtd} {en ? '×' : 'un. ×'} {brl(item.precoUnit)}{item.cor ? ' · ' + t('pedidos.corLabel') + ': ' + item.cor : ''}</div>
                 </div>
                 <b>{brl(item.precoUnit * item.qtd)}</b>
               </div>
             ))}
           </div>
+        </Secao>
 
-          <div className="ped-section">
-            <div className="divider-label">{t('pedidos.resumoFinanceiro')}</div>
-            <div className="ped-resumo-row"><span>{t('pedidos.subtotal')}</span><b>{brl(pedido.valorTotal)}</b></div>
-            <div className="ped-resumo-row"><span>{t('pedidos.frete')}</span><b>{brl(pedido.frete)}</b></div>
-            <div className="ped-resumo-row ped-resumo-taxa"><span>{t('pedidos.taxaDoMarketplace')} ({(pedido.taxaPct * 100).toFixed(0)}%)</span><b>− {brl(taxaValor)}</b></div>
-            <div className="ped-resumo-row ped-resumo-total"><span>{t('pedidos.margemLiquida')}</span><b>{brl(margemLiquida)}</b></div>
+        <Secao titulo={t('pedidos.resumoFinanceiro')}>
+          <div className="fe-list">
+            <div className="fe-list-item"><span className="fe-grow">{t('pedidos.subtotal')}</span><b>{brl(pedido.valorTotal)}</b></div>
+            <div className="fe-list-item"><span className="fe-grow">{t('pedidos.frete')}</span><b>{brl(pedido.frete)}</b></div>
+            <div className="fe-list-item"><span className="fe-grow">{t('pedidos.taxaDoMarketplace')} ({(pedido.taxaPct * 100).toFixed(0)}%)</span><b style={{ color: 'var(--red)' }}>− {brl(taxaValor)}</b></div>
+            <div className="fe-list-item"><span className="fe-grow fe-t">{t('pedidos.margemLiquida')}</span><b style={{ color: 'var(--primary-dark)' }}>{brl(margemLiquida)}</b></div>
           </div>
+        </Secao>
 
-          <div className="ped-section">
-            <div className="divider-label">{t('pedidos.linhaDoTempo')}</div>
-            <div className="ped-timeline">
-              {pedido.timeline.map((etapa, idx) => (
-                <div className={'ped-timeline-item' + (etapa.feito ? ' feito' : '')} key={idx}>
-                  <span className="ped-timeline-marca">{etapa.feito && <Icon name="check" size={11} />}</span>
-                  <div>
-                    <b>{etapa.label}</b>
-                    <div className="ped-info-meta">{etapa.data}{etapa.detalhe ? ' · ' + etapa.detalhe : ''}</div>
-                  </div>
+        <Secao titulo={t('pedidos.linhaDoTempo')}>
+          <div className="fe-timeline">
+            {pedido.timeline.map((etapa, idx) => (
+              <div className={'fe-tl' + (etapa.feito ? '' : ' fe-pend')} key={idx}>
+                <span className="fe-pt" />
+                <div style={{ flex: 1 }}>
+                  <div className="fe-n"><b>{etapa.label}</b></div>
+                  <div className="fe-h">{etapa.data}{etapa.detalhe ? ' · ' + etapa.detalhe : ''}</div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </div>
-
-        <div className="ped-drawer-footer">
-          <button type="button" className="btn-outline" onClick={() => (en ? alert('Coming soon: copy tracking number.') : alertaEmBreve('copiar código de rastreio'))}>{t('pedidos.copiarRastreio')}</button>
-          <button type="button" className="btn-dark" onClick={() => (en ? alert('Coming soon: open order on the marketplace.') : alertaEmBreve('abrir pedido no marketplace'))}>{t('pedidos.abrirNoMarketplace')}</button>
-        </div>
-      </div>
-    </>
+        </Secao>
+      </Drawer>
+    </div>
   );
 }
