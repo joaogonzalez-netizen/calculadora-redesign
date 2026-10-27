@@ -1,0 +1,89 @@
+/* Design tokens — STLSeller (extraídos de calculadora-redesign/src/index.css).
+   App LIGHT-first, verde Sales (#00955a → #06b2a1). Fontes: Plus Jakarta Sans (títulos) + Inter Tight (corpo). */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter+Tight:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Marca */
+  --primary: #00955a;
+  --primary-dark: #00713f;
+  --primary-tint: #eafaf1;
+  --primary-tint-strong: #d6f3e3;
+  --secondary: #06b2a1;
+  --accent: #c58a00;               /* âmbar: atenção, estoque baixo */
+  --gradient-brand: linear-gradient(90deg, var(--primary), var(--secondary)); /* só CTA principal (.btn--calc) */
+
+  /* Superfícies e bordas */
+  --page-bg: #f7f8f7;
+  --surface: #ffffff;
+  --surface-muted: #f4f5f4;        /* hover, trilho de seg/chip-row */
+  --surface-sunken: #fafbfa;       /* cabeçalho de tabela leve, dropzone, readonly */
+  --border: #e7e9e8;
+  --border-strong: #d7dad8;        /* borda de input/botão outline */
+
+  /* Texto */
+  --ink: #14181a;                  /* botão escuro, tooltip */
+  --text-1: #14181a;
+  --text-2: #6b7270;
+  --text-3: #6c736e;
+
+  /* Semântica */
+  --red: #d43b3b;
+  --red-tint: #fdecec;
+  --red-border: #f6cccc;
+  --warn-bg: #fff7e6;
+  --warn-border: #f3e2b3;
+  --warn-text: #8a6100;
+
+  /* Marketplaces (fundo / texto) */
+  --mp-ml-bg: #fff2d9;     --mp-ml-fg: #8a5a00;
+  --mp-shopee-bg: #fde2e1; --mp-shopee-fg: #b42318;
+  --mp-etsy-bg: #ffe4cc;   --mp-etsy-fg: #9a4b12;
+  --mp-tiktok-bg: #dbe9ff; --mp-tiktok-fg: #1d4ed8;
+  --mp-default-bg: #f1f2f1;
+
+  /* Gráficos */
+  --chart-custos: #ef6d8c;
+  --chart-grid: #eef0ef;
+
+  /* Tipografia */
+  --font-h: 'Plus Jakarta Sans', sans-serif;
+  --font-b: 'Inter Tight', sans-serif;
+
+  /* Raio (botão/input = m, card/modal = l, pill = full) */
+  --radius-s: 9px;
+  --radius-m: 12px;
+  --radius-l: 18px;
+  --radius-full: 999px;
+
+  /* Sombra e foco */
+  --shadow-card: 0 1px 2px rgba(20,24,26,.04), 0 8px 20px rgba(20,24,26,.03);
+  --shadow-pop: 0 10px 28px rgba(20,24,26,.12);
+  --shadow-modal: 0 20px 60px rgba(20,24,26,.25);
+  --shadow-cta: 0 8px 20px rgba(0,149,90,.22);
+  --ring: 0 0 0 3px rgba(0,149,90,.12);
+  --ring-error: 0 0 0 3px rgba(212,59,59,.12);
+  --overlay: rgba(20,24,26,.4);
+
+  /* Layout */
+  --sidebar-w: 260px;
+}
+.app.sidebar-collapsed { --sidebar-w: 76px; }
+
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--page-bg);color:var(--text-1);font-family:var(--font-b);
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-h);letter-spacing:-.01em;margin:0;}
+button{font-family:var(--font-b);cursor:pointer;}
+input,select,textarea{font-family:var(--font-b);}
+
+/* Texto */
+.t-h1{font-family:var(--font-h);font-size:32px;font-weight:800;}
+.t-h2{font-family:var(--font-h);font-size:20px;font-weight:700;}
+.t-h3{font-family:var(--font-h);font-size:17px;font-weight:700;}
+.t-body{font-size:14px;color:var(--text-1);}
+.t-body-2{font-size:13.5px;color:var(--text-2);line-height:1.6;}
+.t-small{font-size:12px;color:var(--text-3);}
+.t-eyebrow{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);}
+.t-number{font-family:var(--font-h);font-weight:800;letter-spacing:-.025em;}

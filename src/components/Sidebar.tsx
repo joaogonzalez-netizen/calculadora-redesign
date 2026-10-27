@@ -125,6 +125,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
           <NavItem icon="config" label={t('nav.configuracoes')} active={view === 'configuracoes'} collapsed={collapsed} onClick={() => onNavigate('configuracoes')} />
         )}
         <NavItem icon="integracoes" label={t('nav.integracoes')} collapsed={collapsed} />
+        <NavItem icon="list" label={t('nav.designSystem')} collapsed={collapsed} onClick={() => window.open(import.meta.env.BASE_URL + 'design-system/', '_blank', 'noopener')} />
       </div>
 
 
