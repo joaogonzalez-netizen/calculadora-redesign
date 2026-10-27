@@ -74,6 +74,7 @@ const pt: Dicionario = {
   'nav.sistema': 'Sistema',
   'nav.configuracoes': 'Configurações',
   'nav.integracoes': 'Integrações',
+  'nav.designSystem': 'Design system',
   'nav.expandirMenu': 'Expandir menu',
   'nav.recolherMenu': 'Recolher menu',
 
@@ -2941,6 +2942,7 @@ const en: Dicionario = {
   'nav.sistema': 'System',
   'nav.configuracoes': 'Settings',
   'nav.integracoes': 'Integrations',
+  'nav.designSystem': 'Design system',
   'nav.expandirMenu': 'Expand menu',
   'nav.recolherMenu': 'Collapse menu',
 
@@ -3300,6 +3302,7 @@ const es: Dicionario = {
   'nav.sistema': 'Sistema',
   'nav.configuracoes': 'Configuración',
   'nav.integracoes': 'Integraciones',
+  'nav.designSystem': 'Design system',
   'nav.expandirMenu': 'Expandir menú',
   'nav.recolherMenu': 'Contraer menú',
 
