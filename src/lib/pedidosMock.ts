@@ -26,6 +26,24 @@ export interface EtapaTimeline {
 export type MarketplacePedidoBr = 'Mercado Livre' | 'Shopee';
 export type MarketplacePedidoUs = 'Etsy' | 'TikTok Shop';
 
+export interface ContaMarketplace {
+  nome: string;
+  marketplace: MarketplacePedidoBr | MarketplacePedidoUs;
+}
+
+// Contas conectadas do vendedor de exemplo. Mercado Livre tem duas, pra mostrar que
+// o filtro de conta não pode assumir uma conta por marketplace.
+export const CONTAS_PEDIDOS_BR: ContaMarketplace[] = [
+  { nome: 'Gonzalez 3D', marketplace: 'Mercado Livre' },
+  { nome: 'Gonzalez Prints', marketplace: 'Mercado Livre' },
+  { nome: 'gonzalez.3d', marketplace: 'Shopee' },
+];
+export const CONTAS_PEDIDOS_US: ContaMarketplace[] = [
+  { nome: 'GonzalezPrintsShop', marketplace: 'Etsy' },
+  { nome: 'NorthStarMakers', marketplace: 'Etsy' },
+  { nome: 'gonzalez.3d.us', marketplace: 'TikTok Shop' },
+];
+
 export interface Pedido<M extends string = MarketplacePedidoBr | MarketplacePedidoUs> {
   id: string;
   codigoMlb: string;
@@ -33,6 +51,8 @@ export interface Pedido<M extends string = MarketplacePedidoBr | MarketplacePedi
   qtd: number;
   data: string;
   marketplace: M;
+  /** Conta/loja do vendedor no marketplace (um vendedor pode ter mais de uma por canal). */
+  conta: string;
   comprador: string;
   compradorHandle: string;
   compradorCompras: number;
@@ -130,6 +150,7 @@ export function gerarPedidos(qtd: number): Pedido<MarketplacePedidoBr>[] {
       qtd: qtdItem,
       data: new Date(dataBase).toLocaleDateString('pt-BR'),
       marketplace,
+      conta: marketplace === 'Shopee' ? 'gonzalez.3d' : i % 2 === 0 ? 'Gonzalez 3D' : 'Gonzalez Prints',
       comprador: comprador.nome,
       compradorHandle: comprador.handle,
       compradorCompras: comprador.compras,
@@ -235,6 +256,7 @@ export function gerarPedidosEn(qtd: number): Pedido<MarketplacePedidoUs>[] {
       qtd: qtdItem,
       data: new Date(dataBase).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
       marketplace,
+      conta: marketplace === 'TikTok Shop' ? 'gonzalez.3d.us' : i % 2 === 0 ? 'GonzalezPrintsShop' : 'NorthStarMakers',
       comprador: comprador.nome,
       compradorHandle: comprador.handle,
       compradorCompras: comprador.compras,

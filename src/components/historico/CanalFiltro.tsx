@@ -20,7 +20,7 @@ export default function CanalFiltro({ contagem, selecionados, onAlternar, onLimp
   const temFiltro = selecionados.size > 0;
 
   return (
-    <div className="popover-wrap">
+    <div className="popover-wrap marcador-filtro-dropdown">
       <button type="button" className={'ctl-btn' + (temFiltro ? ' ativo' : '')} onClick={() => setOpen((o) => !o)}>
         <Icon name="box" size={13} /> {t('calc.thCanal')}
         {temFiltro && <span className="marcador-filtro-badge">{selecionados.size}</span>}

@@ -4,7 +4,6 @@ import { useI18n } from '../context/I18nContext';
 import SyncBar from '../components/dashboard/SyncBar';
 import MarketplaceFilter from '../components/dashboard/MarketplaceFilter';
 import KpiCard from '../components/dashboard/KpiCard';
-import InsightCard from '../components/dashboard/InsightCard';
 import LucroChart from '../components/dashboard/LucroChart';
 import TopProdutos from '../components/dashboard/TopProdutos';
 import PedidosRecentes from '../components/dashboard/PedidosRecentes';
@@ -29,7 +28,7 @@ interface Props {
 
 export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculadora, onIrParaConfiguracoes }: Props) {
   const { t, idioma } = useI18n();
-  const { kpis, insights } = dashboardDoIdioma(idioma);
+  const { kpis } = dashboardDoIdioma(idioma);
   const [modo, setModo] = useState<ModoPainel>(() => {
     const salvo = localStorage.getItem(PAINEL_MODO_KEY) as ModoPainel | null;
     return salvo && MODOS.some((m) => m.key === salvo) ? salvo : 'populado';
@@ -62,10 +61,6 @@ export default function DashboardView({ onVerProdutosSemCusto, onIrParaCalculado
 
           <div className="kpi-grid">
             {kpis.map((k) => <KpiCard key={k.id} kpi={k} />)}
-          </div>
-
-          <div className="insight-grid">
-            {insights.map((i) => <InsightCard key={i.id} insight={i} />)}
           </div>
 
           <LucroChart />
