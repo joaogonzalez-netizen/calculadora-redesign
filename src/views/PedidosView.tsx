@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { pedidosDoIdioma, pedidosKpisDoIdioma, type Pedido } from '../lib/pedidosMock';
+import { CONTAS_PEDIDOS_BR, CONTAS_PEDIDOS_US, pedidosDoIdioma, pedidosKpisDoIdioma, type ContaMarketplace, type Pedido } from '../lib/pedidosMock';
 import { brl, localeNumeros } from '../lib/format';
 import type { Idioma } from '../lib/i18n';
 import { classeTagMarketplace } from '../lib/marketplaceTag';
@@ -9,12 +9,15 @@ import PopoverList from '../components/produtos/PopoverList';
 import PedidoDrawer from '../components/pedidos/PedidoDrawer';
 
 const PERIODOS = ['Maio 2026', 'Abril 2026', 'Março 2026'];
-// Contas por idioma: EN (mercado americano) só tem Etsy e TikTok Shop.
-const CONTAS_POR_IDIOMA: Record<Idioma, string[]> = {
-  pt: ['Todas', 'Mercado Livre', 'Shopee'],
-  es: ['Todas', 'Mercado Livre', 'Shopee'],
-  en: ['Todas', 'Etsy', 'TikTok Shop'],
+// Contas conectadas por idioma: EN (mercado americano) só tem Etsy e TikTok Shop.
+// Um marketplace pode ter mais de uma conta, então o filtro lista contas (com o
+// canal num selo ao lado do nome), nunca só o marketplace.
+const CONTAS_POR_IDIOMA: Record<Idioma, ContaMarketplace[]> = {
+  pt: CONTAS_PEDIDOS_BR,
+  es: CONTAS_PEDIDOS_BR,
+  en: CONTAS_PEDIDOS_US,
 };
+const TODAS = 'Todas';
 const STATUS_OPTS = ['Todos', 'Pago', 'Enviado', 'Pendente', 'Cancelado', 'Entregue'];
 
 const STATUS_CLASSE: Record<Pedido['status'], string> = {
@@ -37,20 +40,20 @@ function alertaEmBreve(acao: string) {
 const ACOES_EN: Record<string, string> = {
   'exportar pedidos em CSV': 'export orders to CSV',
   'sincronização de pedidos': 'order sync',
-  'filtros avançados': 'advanced filters',
 };
 
 export default function PedidosView() {
   const { t, idioma } = useI18n();
   const en = idioma === 'en';
-  const CONTAS = CONTAS_POR_IDIOMA[idioma];
+  const CONTAS_DO_IDIOMA = CONTAS_POR_IDIOMA[idioma];
+  const CONTAS = useMemo(() => [TODAS, ...CONTAS_DO_IDIOMA.map((c) => c.nome)], [CONTAS_DO_IDIOMA]);
   const PEDIDOS = pedidosDoIdioma(idioma);
   const PEDIDOS_KPIS = pedidosKpisDoIdioma(idioma);
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState(PERIODOS[0]);
   const [conta, setConta] = useState(CONTAS[1]);
   // Trocar de idioma com a tela aberta: a conta escolhida pode não existir no
-  // novo idioma (ex.: Mercado Livre em EN), então volta pra conta padrão.
+  // novo idioma (ex.: uma conta do Mercado Livre em EN), então volta pra conta padrão.
   useEffect(() => {
     setConta((atual) => (CONTAS.includes(atual) ? atual : CONTAS[1]));
   }, [CONTAS]);
@@ -67,7 +70,7 @@ export default function PedidosView() {
       const termo = busca.trim().toLowerCase();
       lista = lista.filter((p) => p.produto.toLowerCase().includes(termo) || p.comprador.toLowerCase().includes(termo) || p.codigoMlb.toLowerCase().includes(termo));
     }
-    if (conta !== 'Todas') lista = lista.filter((p) => p.marketplace === conta);
+    if (conta !== TODAS) lista = lista.filter((p) => p.conta === conta);
     if (status !== 'Todos') lista = lista.filter((p) => p.status === status);
     return lista;
   }, [PEDIDOS, busca, conta, status]);
@@ -80,8 +83,15 @@ export default function PedidosView() {
     if (v === 'Março 2026') return t('pedidos.periodoMarco2026');
     return v;
   }
-  function traduzirConta(v: string) {
-    return v === 'Todas' ? t('pedidos.contaTodas') : v;
+  function renderConta(v: string) {
+    if (v === TODAS) return t('pedidos.contaTodas');
+    const c = CONTAS_DO_IDIOMA.find((x) => x.nome === v);
+    return (
+      <span className="conta-opt">
+        {v}
+        {c && <span className={'mp-tag ' + classeTagMarketplace(c.marketplace)}>{c.marketplace}</span>}
+      </span>
+    );
   }
   function traduzirStatus(v: string) {
     if (v === 'Todos') return t('pedidos.statusTodos');
@@ -134,9 +144,8 @@ export default function PedidosView() {
       <div className="prod-filters-row">
         <div className="cl-search prod-search"><Icon name="search" size={15} /><input type="text" placeholder={t('pedidos.buscarPlaceholder')} value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
         <PopoverList label={t('pedidos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} getLabel={traduzirPeriodo} />
-        <PopoverList label={t('pedidos.filtroConta')} options={CONTAS} value={conta} onChange={setConta} getLabel={traduzirConta} />
+        <PopoverList label={t('pedidos.filtroConta')} options={CONTAS} value={conta} onChange={setConta} renderItem={renderConta} />
         <PopoverList label={t('pedidos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={setStatus} getLabel={traduzirStatus} />
-        <button type="button" className="ctl-btn" onClick={() => emBreve('filtros avançados')}>▽ {t('pedidos.botaoFiltros')}</button>
       </div>
 
       <div className="card">
