@@ -1,7 +1,6 @@
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import KpiCard from './KpiCard';
-import InsightCard from './InsightCard';
 import LucroChart from './LucroChart';
 import TopProdutos from './TopProdutos';
 import PedidosRecentes from './PedidosRecentes';
@@ -13,12 +12,12 @@ function semAcao() { /* preview borrado, nada é clicável aqui */ }
 // Variante B do empty state, teste pra validar a hipótese do funil de adoção
 // (Gerador de anúncios e Calculadora têm muito mais uso do que a conexão de
 // marketplace). Preview do painel completo, na mesma ordem de seções do "Com
-// dados" (KPIs → insights → gráfico → top produtos/pedidos → DRE). Os KPIs
-// ficam inteiros e visíveis (sem o popup por cima), o popup fica só sobre a
-// seção de insights, logo abaixo, com fundo sólido pra se destacar do blur.
+// dados" (KPIs → gráfico → top produtos/pedidos → DRE). Os KPIs
+// ficam inteiros e visíveis (sem o popup por cima), o popup fica só sobre o
+// gráfico, logo abaixo, com fundo sólido pra se destacar do blur.
 export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrParaConfiguracoes: () => void }) {
   const { t, idioma } = useI18n();
-  const { kpis, insights } = dashboardDoIdioma(idioma);
+  const { kpis } = dashboardDoIdioma(idioma);
   return (
     <div className="onb-preview-section">
       <div className="onb-preview-label">{t('dashboard.vejaComoFicaDepois')}</div>
@@ -31,9 +30,7 @@ export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrP
 
       <div className="onb-preview-chart-anchor">
         <div className="onb-preview-blur">
-          <div className="insight-grid">
-            {insights.map((i) => <InsightCard key={i.id} insight={i} />)}
-          </div>
+          <LucroChart />
         </div>
         <div className="onb-preview-popup">
           <Icon name="lock" size={20} />
@@ -43,8 +40,6 @@ export default function EmptyStateFerramentas({ onIrParaConfiguracoes }: { onIrP
       </div>
 
       <div className="onb-preview-blur">
-        <LucroChart />
-
         <div className="dash-bottom">
           <TopProdutos />
           <PedidosRecentes />
