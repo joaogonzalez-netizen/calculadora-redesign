@@ -746,7 +746,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .ctl-btn.ativo{border-color:var(--primary);color:var(--primary-dark);background:var(--primary-tint);}
 .ctl-caret{color:var(--text-3);font-size:9px;}
 .marcador-filtro-badge{background:var(--primary);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 6px;line-height:1.4;}
-.marcador-filtro-panel{min-width:240px;max-height:min(70vh,420px);overflow-y:auto;}
+.marcador-filtro-dropdown{min-width:200px;}
+.marcador-filtro-panel{max-height:min(70vh,420px);overflow-y:auto;}
 .marcador-filtro-item{display:flex;align-items:center;gap:8px;cursor:pointer;}
 .marcador-filtro-item input[type="checkbox"]{margin:0;flex-shrink:0;}
 .marcador-filtro-item-nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -902,12 +903,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .cl-search input:focus{box-shadow:none;}
 .popover-label{color:var(--text-3);font-weight:500;margin-right:2px;}
 .popover-wrap{position:relative;}
+.popover-wrap > .ctl-btn{width:100%;box-sizing:border-box;}
+.popover-wrap > .ctl-btn .ctl-caret{margin-left:auto;}
+.popover-sizer{display:flex;flex-direction:column;align-items:flex-start;height:0;overflow:hidden;visibility:hidden;pointer-events:none;}
+/* Reserva a largura do item ativo (negrito, 13px), o mais largo da lista. */
+.popover-sizer .ctl-btn{width:auto;font-size:13px;font-weight:700;}
 .popover-scrim{position:fixed;inset:0;z-index:40;}
 .popover-list{
-  position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-m);box-shadow:0 10px 28px rgba(20,24,26,.12);padding:6px;min-width:180px;z-index:41;
+  position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-m);box-shadow:0 10px 28px rgba(20,24,26,.12);padding:6px;z-index:41;box-sizing:border-box;
 }
-.popover-item{padding:9px 12px;border-radius:8px;font-size:13px;color:var(--text-2);cursor:pointer;white-space:nowrap;}
+.popover-item{padding:9px 12px;border-radius:8px;font-size:13px;color:var(--text-2);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .popover-item:hover{background:#f4f5f4;color:var(--text-1);}
 .popover-item.active{background:var(--primary-tint);color:var(--primary-dark);font-weight:700;}
 .conta-opt{display:inline-flex;align-items:center;gap:8px;}

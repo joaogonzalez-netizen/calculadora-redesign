@@ -23,6 +23,15 @@ export default function PopoverList({ label, options, value, onChange, getLabel,
       <button type="button" className="ctl-btn" onClick={() => setOpen((o) => !o)}>
         {label ? <span className="popover-label">{label}:</span> : null} {exibirValor} <span className="ctl-caret">▾</span>
       </button>
+      {/* O filtro tem sempre a largura da maior opção (e a lista abre com a mesma largura do
+          filtro), então ele não muda de tamanho ao trocar o valor e nenhuma opção fica cortada. */}
+      <div className="popover-sizer" aria-hidden="true">
+        {options.map((o) => (
+          <div key={o} className="ctl-btn">
+            {label ? <span className="popover-label">{label}:</span> : null} {renderItem ? renderItem(o) : getLabel ? getLabel(o) : o} <span className="ctl-caret">▾</span>
+          </div>
+        ))}
+      </div>
       {open && (
         <>
           <div className="popover-scrim" onClick={() => setOpen(false)} />
