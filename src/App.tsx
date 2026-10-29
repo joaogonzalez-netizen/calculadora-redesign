@@ -24,11 +24,11 @@ import { LibrariasProvider } from './context/LibrariasContext';
 import { MoedaProvider } from './context/MoedaContext';
 import { CalculadoraProvider } from './context/CalculadoraContext';
 import { I18nProvider, useI18n } from './context/I18nContext';
-import { MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS, MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_PASSO_MARKETPLACE } from './lib/versoes';
+import { MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS, MOSTRAR_MENUS_PRINCIPAIS } from './lib/versoes';
 import { seedHistoricoExemplo, getHistorico } from './lib/storage';
 import { PARAM_ABRIR, type RascunhoShopee } from './lib/rascunhosShopee';
 import { rascunhoDoProduto } from './lib/copiarAnuncio';
-import { getOnboardingManual, marcarOnboardingManual } from './lib/onboarding';
+import { getOnboardingManual, marcarOnboardingManual, marcarOnboardingConcluido, onboardingConcluido } from './lib/onboarding';
 
 export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-catalogo' | 'feiras-eventos' | 'feiras-prospeccao' | 'fila-pedidos';
 
@@ -72,10 +72,21 @@ function AppShell() {
     refreshHistCount();
   };
 
-  // Passo "Buscador" só conta quando o usuário favorita um produto de verdade
-  // na tela, mesmo padrão do passo "Calculadora" acima.
-  const aoFavoritarBuscador = () => {
-    marcarOnboardingManual('buscador');
+  // Passo "Buscador" é lido dos favoritos (ao menos 1), então basta re-renderizar.
+  const aoFavoritarBuscador = () => refreshOnboarding();
+
+  // Passo "Gerador" conta quando o usuário salva ou publica um anúncio de verdade.
+  const aoSalvarRascunho = () => {
+    marcarOnboardingManual('gerador');
+    refreshOnboarding();
+    setView('gerador-meus');
+  };
+
+  // Concluir é gravado uma vez, ao abrir a tela com tudo feito, e o menu não volta
+  // mais (como na produção); desmarcar o vídeo depois não reabre o checklist.
+  const concluirOnboarding = () => {
+    if (onboardingConcluido()) return;
+    marcarOnboardingConcluido();
     refreshOnboarding();
   };
 
@@ -90,13 +101,7 @@ function AppShell() {
     marketplace: onboardingManual.marketplace,
     video: onboardingManual.video,
   };
-  // Nas versões ES/EN o passo "marketplace" nem aparece no checklist (não há
-  // conexão de marketplace pra fazer), então ele não deve travar o "tudo
-  // completo", do contrário "Primeiros passos" nunca sumiria da sidebar.
-  const passosConsiderados = MOSTRAR_PASSO_MARKETPLACE[idioma]
-    ? passosCompletos
-    : { ...passosCompletos, marketplace: true };
-  const todosPassosCompletos = Object.values(passosConsiderados).every(Boolean);
+  const onboardingEncerrado = onboardingConcluido();
 
   // Telas cujo menu some na versão do idioma (Painel/Pedidos/Produtos e
   // Configurações só existem em PT), abrir o app ou trocar de idioma nelas
@@ -106,8 +111,8 @@ function AppShell() {
     (!MOSTRAR_CONFIGURACOES[idioma] && view === 'configuracoes') ||
     (!MOSTRAR_FEIRAS[idioma] && (view.startsWith('feiras-') || view === 'fila-pedidos'));
   useEffect(() => {
-    if (viewOculta) setView(todosPassosCompletos ? 'calculadora' : 'primeirospassos');
-  }, [viewOculta, todosPassosCompletos]);
+    if (viewOculta) setView(onboardingEncerrado ? 'calculadora' : 'primeirospassos');
+  }, [viewOculta, onboardingEncerrado]);
 
   return (
     <div className={'app' + (collapsed ? ' sidebar-collapsed' : '')}>
@@ -117,7 +122,7 @@ function AppShell() {
         histCount={histCount}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((c) => !c)}
-        mostrarPrimeirosPassos={!todosPassosCompletos}
+        mostrarPrimeirosPassos={!onboardingEncerrado}
       />
       <div className="main">
         <Topbar view={view} onNovaConversa={view === 'assistente' && conversaAtiva ? novaConversa : undefined} />
@@ -126,6 +131,8 @@ function AppShell() {
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
+              onConcluir={concluirOnboarding}
+              onIrParaGerador={() => setView('gerador-criar')}
               onIrParaCalculadora={() => setView('calculadora')}
               onIrParaConfiguracoes={() => setView('configuracoes')}
               onIrParaBuscador={() => setView('buscador')}
@@ -152,7 +159,7 @@ function AppShell() {
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} onIrParaMeusAnuncios={() => setView('gerador-meus')} />}
-          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? rascunhoInicial?.id ?? 'novo'} rascunhoId={rascunhoId} rascunhoInicial={rascunhoInicial} onSalvarRascunho={() => setView('gerador-meus')} onIrParaConfiguracoes={() => setView('configuracoes')} />}
+          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? rascunhoInicial?.id ?? 'novo'} rascunhoId={rascunhoId} rascunhoInicial={rascunhoInicial} onSalvarRascunho={aoSalvarRascunho} onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={(id) => { setRascunhoId(id ?? null); setView('gerador-criar'); }} />}
           {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
           {view === 'assistente' && <AssistenteView key={assistenteKey} onNavegar={setView} onConversaAtiva={aoMudarConversa} />}

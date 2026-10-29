@@ -205,6 +205,7 @@ export const DRE_MARGEM_LIQUIDA = '27,1%';
 export const CREDITOS = '1.250';
 
 export const USUARIO = {
+  id: 'joao-gonzalez',
   nome: 'João Gonzalez',
   iniciais: 'JG',
   plano: 'Plano Starter',

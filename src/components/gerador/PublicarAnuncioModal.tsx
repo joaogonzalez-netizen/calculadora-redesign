@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Icon from '../Icon';
 import { baixarVideoAnuncio } from '../../lib/baixarVideo';
 import { AVISO_VIDEO_PUBLICACAO_KEY, readJson, writeJson } from '../../lib/storage';
-import { MARKETPLACES_CONECTADOS_KEY } from '../../lib/onboarding';
+import { MARKETPLACES_CONECTADOS_KEY, marcarOnboardingManual } from '../../lib/onboarding';
 import { useI18n } from '../../context/I18nContext';
 
 // Réplica do fluxo "Publicar anúncio" do Figma (STLSELLER, node 22260-24646,
@@ -342,7 +342,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes, 
   function publicar() {
     if (!prontoParaPublicar) return;
     setFase('publicando');
-    setTimeout(() => setFase('sucesso'), 1400);
+    setTimeout(() => { marcarOnboardingManual('gerador'); setFase('sucesso'); }, 1400);
   }
 
   // Antes de publicar, avisa uma vez (ou sempre, até marcar "Não mostrar novamente")
