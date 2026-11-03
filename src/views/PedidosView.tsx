@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CONTAS_PEDIDOS_BR, CONTAS_PEDIDOS_US, pedidosDoIdioma, pedidosKpisDoIdioma, type ContaMarketplace, type Pedido } from '../lib/pedidosMock';
 import { brl, localeNumeros } from '../lib/format';
 import type { Idioma } from '../lib/i18n';
@@ -7,6 +7,14 @@ import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
 import PedidoDrawer from '../components/pedidos/PedidoDrawer';
+import EtiquetaModal from '../components/pedidos/EtiquetaModal';
+import {
+  gravarImpressas,
+  lerImpressas,
+  motivoInelegivel,
+  podeImprimirEtiqueta,
+  statusEtiqueta,
+} from '../lib/etiquetasShopee';
 
 const PERIODOS = ['Maio 2026', 'Abril 2026', 'Março 2026'];
 // Contas conectadas por idioma: EN (mercado americano) só tem Etsy e TikTok Shop.
@@ -19,6 +27,9 @@ const CONTAS_POR_IDIOMA: Record<Idioma, ContaMarketplace[]> = {
 };
 const TODAS = 'Todas';
 const STATUS_OPTS = ['Todos', 'Pago', 'Enviado', 'Pendente', 'Cancelado', 'Entregue'];
+// Filtro de etiqueta Shopee: 'todas' ou um StatusEtiqueta.
+const ETQ_TODAS = 'todas';
+const ETQ_OPTS = [ETQ_TODAS, 'a-emitir', 'emitida', 'indisponivel'];
 
 const STATUS_CLASSE: Record<Pedido['status'], string> = {
   Pago: 'ped-status-pago',
@@ -51,18 +62,24 @@ export default function PedidosView() {
   const PEDIDOS_KPIS = pedidosKpisDoIdioma(idioma);
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState(PERIODOS[0]);
-  const [conta, setConta] = useState(CONTAS[1]);
+  const [conta, setConta] = useState(TODAS);
   // Trocar de idioma com a tela aberta: a conta escolhida pode não existir no
-  // novo idioma (ex.: uma conta do Mercado Livre em EN), então volta pra conta padrão.
+  // novo idioma (ex.: uma conta do Mercado Livre em EN), então volta pra "Todas".
   useEffect(() => {
-    setConta((atual) => (CONTAS.includes(atual) ? atual : CONTAS[1]));
+    setConta((atual) => (CONTAS.includes(atual) ? atual : TODAS));
   }, [CONTAS]);
   function emBreve(acao: string) {
     if (en) alert(`Coming soon: ${ACOES_EN[acao] ?? acao}.`);
     else alertaEmBreve(acao);
   }
   const [status, setStatus] = useState(STATUS_OPTS[0]);
+  const [filtroEtiqueta, setFiltroEtiqueta] = useState(ETQ_TODAS);
   const [selecionado, setSelecionado] = useState<Pedido | null>(null);
+  // Etiquetas Shopee: seleção em lote, pedidos no modal e histórico de impressão.
+  const [marcados, setMarcados] = useState<Set<string>>(new Set());
+  const [paraImprimir, setParaImprimir] = useState<Pedido[] | null>(null);
+  const [impressas, setImpressas] = useState<Record<string, string>>(lerImpressas);
+  const marcarTodosRef = useRef<HTMLInputElement>(null);
 
   const pedidos = useMemo(() => {
     let lista = [...PEDIDOS];
@@ -72,10 +89,60 @@ export default function PedidosView() {
     }
     if (conta !== TODAS) lista = lista.filter((p) => p.conta === conta);
     if (status !== 'Todos') lista = lista.filter((p) => p.status === status);
+    if (filtroEtiqueta !== ETQ_TODAS) lista = lista.filter((p) => statusEtiqueta(p, impressas) === filtroEtiqueta);
     return lista;
-  }, [PEDIDOS, busca, conta, status]);
+  }, [PEDIDOS, busca, conta, status, filtroEtiqueta, impressas]);
 
   const exibidos = pedidos.slice(0, 10);
+
+  // Só entra na seleção o que ainda está na tela: filtro ou idioma novo descartam o resto.
+  const marcadosVisiveis = exibidos.filter((p) => marcados.has(p.id) && podeImprimirEtiqueta(p));
+  const elegiveisNaPagina = exibidos.filter(podeImprimirEtiqueta);
+  const todosMarcados = elegiveisNaPagina.length > 0 && marcadosVisiveis.length === elegiveisNaPagina.length;
+  const algunsMarcados = marcadosVisiveis.length > 0 && !todosMarcados;
+  // Shopee só existe nos mercados PT/ES; a coluna fica fixa mesmo que o filtro mostre só outros canais.
+  const colEtiq = !en;
+
+  useEffect(() => {
+    if (marcarTodosRef.current) marcarTodosRef.current.indeterminate = algunsMarcados;
+  }, [algunsMarcados]);
+
+  useEffect(() => {
+    setMarcados(new Set());
+  }, [busca, conta, status, filtroEtiqueta, idioma]);
+
+  function alternarMarcado(id: string) {
+    setMarcados((atual) => {
+      const novo = new Set(atual);
+      if (novo.has(id)) novo.delete(id);
+      else novo.add(id);
+      return novo;
+    });
+  }
+  function alternarTodos() {
+    setMarcados(todosMarcados ? new Set() : new Set(elegiveisNaPagina.map((p) => p.id)));
+  }
+  function registrarImpressao(ids: string[]) {
+    const agora = new Date().toISOString();
+    setImpressas((atual) => {
+      const novo = { ...atual };
+      for (const id of ids) novo[id] = agora;
+      gravarImpressas(novo);
+      return novo;
+    });
+    setMarcados((atual) => {
+      const novo = new Set(atual);
+      for (const id of ids) novo.delete(id);
+      return novo;
+    });
+  }
+  function dataImpressao(iso: string) {
+    return new Date(iso).toLocaleDateString(localeNumeros(), { day: '2-digit', month: '2-digit' });
+  }
+  function motivoTexto(p: Pedido) {
+    const m = motivoInelegivel(p);
+    return m ? t('pedidos.etiqueta.motivo.' + m) : '';
+  }
 
   function traduzirPeriodo(v: string) {
     if (v === 'Maio 2026') return t('pedidos.periodoMaio2026');
@@ -146,7 +213,28 @@ export default function PedidosView() {
         <PopoverList label={t('pedidos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} getLabel={traduzirPeriodo} />
         <PopoverList label={t('pedidos.filtroConta')} options={CONTAS} value={conta} onChange={setConta} renderItem={renderConta} />
         <PopoverList label={t('pedidos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={setStatus} getLabel={traduzirStatus} />
+        {colEtiq && (
+          <PopoverList
+            label={t('pedidos.etiqueta.filtro')}
+            options={ETQ_OPTS}
+            value={filtroEtiqueta}
+            onChange={setFiltroEtiqueta}
+            getLabel={(v) => (v === ETQ_TODAS ? t('pedidos.etiqueta.filtroTodas') : t('pedidos.etiqueta.status.' + v))}
+          />
+        )}
       </div>
+
+      {marcadosVisiveis.length > 0 && (
+        <div className="ped-bulk" role="region" aria-label={t('pedidos.etiqueta.titulo')}>
+          <span aria-live="polite"><b>{marcadosVisiveis.length === 1 ? t('pedidos.etiqueta.selecionadosUma') : t('pedidos.etiqueta.selecionados').replace('{n}', String(marcadosVisiveis.length))}</b></span>
+          <div className="ped-bulk-acoes">
+            <button type="button" className="btn-outline" onClick={() => setMarcados(new Set())}>{t('pedidos.etiqueta.limpar')}</button>
+            <button type="button" className="btn-dark" onClick={() => setParaImprimir(marcadosVisiveis)}>
+              <Icon name="printer" size={16} /> {t('pedidos.etiqueta.imprimirEtiquetas')}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <div className="card-body" style={{ padding: 0 }}>
@@ -154,12 +242,52 @@ export default function PedidosView() {
           <table className="prod-table">
             <thead>
               <tr>
+                {colEtiq && (
+                  <th className="col-etiq">
+                    <div className="etq-cel">
+                      <input
+                        ref={marcarTodosRef}
+                        type="checkbox"
+                        checked={todosMarcados}
+                        disabled={elegiveisNaPagina.length === 0}
+                        onChange={alternarTodos}
+                        aria-label={t('pedidos.etiqueta.selecionarTodos')}
+                      />
+                      <span>{t('pedidos.etiqueta.coluna')}</span>
+                    </div>
+                  </th>
+                )}
                 <th>{t('pedidos.colunaPedido')}</th><th>{t('pedidos.colunaMarketplace')}</th><th>{t('pedidos.colunaComprador')}</th><th>{t('pedidos.colunaStatus')}</th><th>{t('pedidos.colunaPagamento')}</th><th>{t('pedidos.colunaValorTotal')}</th><th className="col-acoes-sticky">{t('pedidos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
               {exibidos.map((p) => (
                 <tr key={p.id}>
+                  {colEtiq && (
+                    <td className="col-etiq">
+                      {(() => {
+                        const st = statusEtiqueta(p, impressas);
+                        if (!st) return <span className="etq-sem" aria-label={t('pedidos.etiqueta.semEtiqueta')}>—</span>;
+                        return (
+                          <div className="etq-cel">
+                            <input
+                              type="checkbox"
+                              checked={marcados.has(p.id)}
+                              disabled={!podeImprimirEtiqueta(p)}
+                              onChange={() => alternarMarcado(p.id)}
+                              aria-label={`${t('pedidos.etiqueta.selecionarPedido')} ${p.id}`}
+                              aria-describedby={'etq-st-' + p.id}
+                            />
+                            <div className="etq-st" id={'etq-st-' + p.id}>
+                              <span className={'etq-tag etq-tag-' + st}>{t('pedidos.etiqueta.status.' + st)}</span>
+                              {st === 'emitida' && <small>{t('pedidos.etiqueta.emitidaEm').replace('{data}', dataImpressao(impressas[p.id]))}</small>}
+                              {st === 'indisponivel' && <small>{motivoTexto(p)}</small>}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </td>
+                  )}
                   <td>
                     <div className="prod-name">{p.produto}</div>
                     <div className="prod-sku">#{p.codigoMlb} · {p.qtd} {en ? 'units' : 'un.'} · {p.data}</div>
@@ -177,6 +305,9 @@ export default function PedidosView() {
                   </td>
                   <td className="col-acoes-sticky">
                     <div className="prod-acoes">
+                      {podeImprimirEtiqueta(p) && (
+                        <button type="button" title={impressas[p.id] ? t('pedidos.etiqueta.reimprimir') : t('pedidos.etiqueta.imprimir')} aria-label={impressas[p.id] ? t('pedidos.etiqueta.reimprimir') : t('pedidos.etiqueta.imprimir')} onClick={() => setParaImprimir([p])}><Icon name="printer" size={16} /></button>
+                      )}
                       <button type="button" title={t('pedidos.verPedido')} onClick={() => setSelecionado(p)}><Icon name="eye" size={16} /></button>
                     </div>
                   </td>
@@ -202,7 +333,17 @@ export default function PedidosView() {
         </div>
       </div>
 
-      {selecionado && <PedidoDrawer pedido={selecionado} onClose={() => setSelecionado(null)} />}
+      {selecionado && (
+        <PedidoDrawer
+          pedido={selecionado}
+          impressaEm={impressas[selecionado.id] ?? null}
+          onImprimirEtiqueta={() => setParaImprimir([selecionado])}
+          onClose={() => setSelecionado(null)}
+        />
+      )}
+      {paraImprimir && (
+        <EtiquetaModal pedidos={paraImprimir} impressas={impressas} onClose={() => setParaImprimir(null)} onImpresso={registrarImpressao} />
+      )}
     </div>
   );
 }

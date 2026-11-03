@@ -104,6 +104,17 @@ const CIDADES = ['São Paulo, SP', 'Rio de Janeiro, RJ', 'Belo Horizonte, MG', '
 
 // { status do pedido, status do pagamento }, proporção parecida com o print
 // (maioria Entregue/Aprovado, um punhado em cada estado intermediário).
+const CICLO_STATUS_SHOPEE: { status: StatusPedido; pagamento: StatusPagamento }[] = [
+  { status: 'Enviado', pagamento: 'Aprovado' },
+  { status: 'Pago', pagamento: 'Aprovado' },
+  { status: 'Entregue', pagamento: 'Aprovado' },
+  { status: 'Pago', pagamento: 'Aprovado' },
+  { status: 'Pendente', pagamento: 'Pendente' },
+  { status: 'Enviado', pagamento: 'Aprovado' },
+  { status: 'Pago', pagamento: 'Aprovado' },
+  { status: 'Cancelado', pagamento: 'Reembolsado' },
+];
+
 const CICLO_STATUS: { status: StatusPedido; pagamento: StatusPagamento }[] = [
   { status: 'Pago', pagamento: 'Aprovado' },
   { status: 'Enviado', pagamento: 'Pendente' },
@@ -133,10 +144,11 @@ function montarTimeline(status: StatusPedido, dataBase: number): EtapaTimeline[]
 export function gerarPedidos(qtd: number): Pedido<MarketplacePedidoBr>[] {
   const agora = Date.now();
   return Array.from({ length: qtd }, (_, i) => {
-    const ciclo = CICLO_STATUS[i % CICLO_STATUS.length];
     const comprador = NOMES_COMPRADORES[i % NOMES_COMPRADORES.length];
     const produto = PRODUTOS_PEDIDO[i % PRODUTOS_PEDIDO.length];
     const marketplace: MarketplacePedidoBr = i % 3 === 1 ? 'Shopee' : 'Mercado Livre';
+    // Pedidos Shopee: mais Pago/Enviado que no ciclo geral, pra tela mostrar várias etiquetas liberadas.
+    const ciclo = marketplace === 'Shopee' ? CICLO_STATUS_SHOPEE[((i - 1) / 3) % CICLO_STATUS_SHOPEE.length] : CICLO_STATUS[i % CICLO_STATUS.length];
     const qtdItem = 2;
     const frete = 18.5;
     const valorTotal = produto.preco * qtdItem;
