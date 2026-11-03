@@ -62,11 +62,11 @@ export default function PedidosView() {
   const PEDIDOS_KPIS = pedidosKpisDoIdioma(idioma);
   const [busca, setBusca] = useState('');
   const [periodo, setPeriodo] = useState(PERIODOS[0]);
-  const [conta, setConta] = useState(CONTAS[1]);
+  const [conta, setConta] = useState(TODAS);
   // Trocar de idioma com a tela aberta: a conta escolhida pode não existir no
-  // novo idioma (ex.: uma conta do Mercado Livre em EN), então volta pra conta padrão.
+  // novo idioma (ex.: uma conta do Mercado Livre em EN), então volta pra "Todas".
   useEffect(() => {
-    setConta((atual) => (CONTAS.includes(atual) ? atual : CONTAS[1]));
+    setConta((atual) => (CONTAS.includes(atual) ? atual : TODAS));
   }, [CONTAS]);
   function emBreve(acao: string) {
     if (en) alert(`Coming soon: ${ACOES_EN[acao] ?? acao}.`);
