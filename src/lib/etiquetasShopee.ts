@@ -35,6 +35,19 @@ export function podeImprimirEtiqueta(p: Pedido): boolean {
   return ehPedidoShopee(p) && motivoInelegivel(p) === null;
 }
 
+export type StatusEtiqueta = 'a-emitir' | 'emitida' | 'indisponivel';
+
+/**
+ * Status da coluna Etiquetas. Null para pedido de outro marketplace.
+ * Emitida vence os demais: o selo some só se o histórico for apagado, e a
+ * reemissão continua liberada enquanto o pedido for elegível.
+ */
+export function statusEtiqueta(p: Pedido, impressas: Record<string, string>): StatusEtiqueta | null {
+  if (!ehPedidoShopee(p)) return null;
+  if (impressas[p.id]) return 'emitida';
+  return motivoInelegivel(p) ? 'indisponivel' : 'a-emitir';
+}
+
 /**
  * Simula a geração. Pedido cujo id termina em 2 devolve "código ainda não
  * gerado" na primeira tentativa, pra exercitar o lote parcial. Na nova

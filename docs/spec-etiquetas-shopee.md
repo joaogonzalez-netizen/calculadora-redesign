@@ -146,6 +146,11 @@ Todo texto novo precisa de entrada PT/ES/EN em `src/lib/i18n.ts`. Na versão atu
 
 Código: `src/views/PedidosView.tsx`, `src/components/pedidos/EtiquetaModal.tsx`, `src/components/pedidos/PedidoDrawer.tsx`, `src/lib/etiquetasShopee.ts`, textos `pedidos.etiqueta.*` em `src/lib/i18n.ts`.
 
+- **Coluna fixa "Etiquetas" (revisão):** primeira coluna da tabela, presa à esquerda, com o checkbox e o status da etiqueta. Fica visível mesmo com filtro em outro canal (pedidos fora da Shopee mostram "—"). Só nos mercados PT/ES. Status:
+  - **A emitir:** Shopee elegível, ainda sem emissão.
+  - **Emitida:** tag com a data. O checkbox e o ícone de impressora continuam ativos, então dá para emitir de novo.
+  - **Indisponível:** Shopee não elegível, com o motivo em texto abaixo.
+- **Filtro "Etiqueta":** Todas, A emitir, Emitida, Indisponível. Combina com os outros filtros e limpa a seleção ao mudar. Os motivos que antes ficavam sob o nome do pedido e o selo sob o status foram para essa coluna.
 - **Limite do lote:** a tabela mostra 10 pedidos por página, então o limite de 50 não é atingível e não foi implementado. Entra quando houver seleção entre páginas.
 - **Falha simulada:** o pedido com id terminando em 2 devolve "código ainda não gerado" na primeira tentativa. Na nova tentativa passa. É regra de mock.
 - **Baixar PDF:** mostra aviso "Em breve".

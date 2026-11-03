@@ -9,11 +9,11 @@ import PopoverList from '../components/produtos/PopoverList';
 import PedidoDrawer from '../components/pedidos/PedidoDrawer';
 import EtiquetaModal from '../components/pedidos/EtiquetaModal';
 import {
-  ehPedidoShopee,
   gravarImpressas,
   lerImpressas,
   motivoInelegivel,
   podeImprimirEtiqueta,
+  statusEtiqueta,
 } from '../lib/etiquetasShopee';
 
 const PERIODOS = ['Maio 2026', 'Abril 2026', 'Março 2026'];
@@ -27,6 +27,9 @@ const CONTAS_POR_IDIOMA: Record<Idioma, ContaMarketplace[]> = {
 };
 const TODAS = 'Todas';
 const STATUS_OPTS = ['Todos', 'Pago', 'Enviado', 'Pendente', 'Cancelado', 'Entregue'];
+// Filtro de etiqueta Shopee: 'todas' ou um StatusEtiqueta.
+const ETQ_TODAS = 'todas';
+const ETQ_OPTS = [ETQ_TODAS, 'a-emitir', 'emitida', 'indisponivel'];
 
 const STATUS_CLASSE: Record<Pedido['status'], string> = {
   Pago: 'ped-status-pago',
@@ -70,6 +73,7 @@ export default function PedidosView() {
     else alertaEmBreve(acao);
   }
   const [status, setStatus] = useState(STATUS_OPTS[0]);
+  const [filtroEtiqueta, setFiltroEtiqueta] = useState(ETQ_TODAS);
   const [selecionado, setSelecionado] = useState<Pedido | null>(null);
   // Etiquetas Shopee: seleção em lote, pedidos no modal e histórico de impressão.
   const [marcados, setMarcados] = useState<Set<string>>(new Set());
@@ -85,8 +89,9 @@ export default function PedidosView() {
     }
     if (conta !== TODAS) lista = lista.filter((p) => p.conta === conta);
     if (status !== 'Todos') lista = lista.filter((p) => p.status === status);
+    if (filtroEtiqueta !== ETQ_TODAS) lista = lista.filter((p) => statusEtiqueta(p, impressas) === filtroEtiqueta);
     return lista;
-  }, [PEDIDOS, busca, conta, status]);
+  }, [PEDIDOS, busca, conta, status, filtroEtiqueta, impressas]);
 
   const exibidos = pedidos.slice(0, 10);
 
@@ -95,7 +100,8 @@ export default function PedidosView() {
   const elegiveisNaPagina = exibidos.filter(podeImprimirEtiqueta);
   const todosMarcados = elegiveisNaPagina.length > 0 && marcadosVisiveis.length === elegiveisNaPagina.length;
   const algunsMarcados = marcadosVisiveis.length > 0 && !todosMarcados;
-  const temShopee = exibidos.some(ehPedidoShopee);
+  // Shopee só existe nos mercados PT/ES; a coluna fica fixa mesmo que o filtro mostre só outros canais.
+  const colEtiq = !en;
 
   useEffect(() => {
     if (marcarTodosRef.current) marcarTodosRef.current.indeterminate = algunsMarcados;
@@ -103,7 +109,7 @@ export default function PedidosView() {
 
   useEffect(() => {
     setMarcados(new Set());
-  }, [busca, conta, status, idioma]);
+  }, [busca, conta, status, filtroEtiqueta, idioma]);
 
   function alternarMarcado(id: string) {
     setMarcados((atual) => {
@@ -207,6 +213,15 @@ export default function PedidosView() {
         <PopoverList label={t('pedidos.filtroPeriodo')} options={PERIODOS} value={periodo} onChange={setPeriodo} getLabel={traduzirPeriodo} />
         <PopoverList label={t('pedidos.filtroConta')} options={CONTAS} value={conta} onChange={setConta} renderItem={renderConta} />
         <PopoverList label={t('pedidos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={setStatus} getLabel={traduzirStatus} />
+        {colEtiq && (
+          <PopoverList
+            label={t('pedidos.etiqueta.filtro')}
+            options={ETQ_OPTS}
+            value={filtroEtiqueta}
+            onChange={setFiltroEtiqueta}
+            getLabel={(v) => (v === ETQ_TODAS ? t('pedidos.etiqueta.filtroTodas') : t('pedidos.etiqueta.status.' + v))}
+          />
+        )}
       </div>
 
       {marcadosVisiveis.length > 0 && (
@@ -227,16 +242,19 @@ export default function PedidosView() {
           <table className="prod-table">
             <thead>
               <tr>
-                {temShopee && (
-                  <th className="col-check">
-                    <input
-                      ref={marcarTodosRef}
-                      type="checkbox"
-                      checked={todosMarcados}
-                      disabled={elegiveisNaPagina.length === 0}
-                      onChange={alternarTodos}
-                      aria-label={t('pedidos.etiqueta.selecionarTodos')}
-                    />
+                {colEtiq && (
+                  <th className="col-etiq">
+                    <div className="etq-cel">
+                      <input
+                        ref={marcarTodosRef}
+                        type="checkbox"
+                        checked={todosMarcados}
+                        disabled={elegiveisNaPagina.length === 0}
+                        onChange={alternarTodos}
+                        aria-label={t('pedidos.etiqueta.selecionarTodos')}
+                      />
+                      <span>{t('pedidos.etiqueta.coluna')}</span>
+                    </div>
                   </th>
                 )}
                 <th>{t('pedidos.colunaPedido')}</th><th>{t('pedidos.colunaMarketplace')}</th><th>{t('pedidos.colunaComprador')}</th><th>{t('pedidos.colunaStatus')}</th><th>{t('pedidos.colunaPagamento')}</th><th>{t('pedidos.colunaValorTotal')}</th><th className="col-acoes-sticky">{t('pedidos.colunaAcoes')}</th>
@@ -245,33 +263,41 @@ export default function PedidosView() {
             <tbody>
               {exibidos.map((p) => (
                 <tr key={p.id}>
-                  {temShopee && (
-                    <td className="col-check">
-                      {ehPedidoShopee(p) && (
-                        <input
-                          type="checkbox"
-                          checked={marcados.has(p.id)}
-                          disabled={!podeImprimirEtiqueta(p)}
-                          onChange={() => alternarMarcado(p.id)}
-                          aria-label={`${t('pedidos.etiqueta.selecionarPedido')} ${p.id}`}
-                          aria-describedby={podeImprimirEtiqueta(p) ? undefined : 'etq-motivo-' + p.id}
-                        />
-                      )}
+                  {colEtiq && (
+                    <td className="col-etiq">
+                      {(() => {
+                        const st = statusEtiqueta(p, impressas);
+                        if (!st) return <span className="etq-sem" aria-label={t('pedidos.etiqueta.semEtiqueta')}>—</span>;
+                        return (
+                          <div className="etq-cel">
+                            <input
+                              type="checkbox"
+                              checked={marcados.has(p.id)}
+                              disabled={!podeImprimirEtiqueta(p)}
+                              onChange={() => alternarMarcado(p.id)}
+                              aria-label={`${t('pedidos.etiqueta.selecionarPedido')} ${p.id}`}
+                              aria-describedby={'etq-st-' + p.id}
+                            />
+                            <div className="etq-st" id={'etq-st-' + p.id}>
+                              <span className={'etq-tag etq-tag-' + st}>{t('pedidos.etiqueta.status.' + st)}</span>
+                              {st === 'emitida' && <small>{t('pedidos.etiqueta.emitidaEm').replace('{data}', dataImpressao(impressas[p.id]))}</small>}
+                              {st === 'indisponivel' && <small>{motivoTexto(p)}</small>}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </td>
                   )}
                   <td>
                     <div className="prod-name">{p.produto}</div>
                     <div className="prod-sku">#{p.codigoMlb} · {p.qtd} {en ? 'units' : 'un.'} · {p.data}</div>
-                    {ehPedidoShopee(p) && !podeImprimirEtiqueta(p) && <div className="ped-etiq-motivo" id={'etq-motivo-' + p.id}>{motivoTexto(p)}</div>}
                   </td>
                   <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                   <td>
                     <div className="prod-name">{p.comprador}</div>
                     <div className="prod-sku">{p.compradorHandle}</div>
                   </td>
-                  <td><span className={'ped-status ' + STATUS_CLASSE[p.status]}>{en ? traduzirStatus(p.status) : p.status}</span>
-                    {impressas[p.id] && ehPedidoShopee(p) && <div className="ped-etiq-selo">{t('pedidos.etiqueta.impressaEm').replace('{data}', dataImpressao(impressas[p.id]))}</div>}
-                  </td>
+                  <td><span className={'ped-status ' + STATUS_CLASSE[p.status]}>{en ? traduzirStatus(p.status) : p.status}</span></td>
                   <td><span className={'ped-status ' + PAGAMENTO_CLASSE[p.pagamento]}>{en ? traduzirPagamento(p.pagamento) : p.pagamento}</span></td>
                   <td>
                     <b>{brl(p.valorTotal)}</b>
