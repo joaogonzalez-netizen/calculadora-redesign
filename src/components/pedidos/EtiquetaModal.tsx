@@ -21,6 +21,8 @@ interface Props {
 
 type Fase = 'config' | 'gerando' | 'resultado';
 
+const ETIQUETAS_POR_FOLHA_A4 = 4;
+
 function Barras({ codigo }: { codigo: string }) {
   const barras: { x: number; w: number }[] = [];
   let x = 0;
@@ -85,7 +87,10 @@ export default function EtiquetaModal({ pedidos, impressas, onClose, onImpresso 
   const origemRef = useRef<Element | null>(document.activeElement);
 
   const jaImpressas = pedidos.filter((p) => impressas[p.id]).length;
-  const pedidoPrevia = pedidos[Math.min(indice, pedidos.length - 1)];
+  // A4 leva 4 etiquetas A6 por folha (2×2); a térmica leva 1 por etiqueta.
+  const porFolha = formato === 'a4' ? ETIQUETAS_POR_FOLHA_A4 : 1;
+  const totalPaginas = Math.ceil(pedidos.length / porFolha);
+  const visiveis = pedidos.slice(indice * porFolha, (indice + 1) * porFolha);
   const falhas = resultados.filter((r) => r.erro);
   const okCount = resultados.length - falhas.length;
 
@@ -119,6 +124,7 @@ export default function EtiquetaModal({ pedidos, impressas, onClose, onImpresso 
 
   function escolherFormato(f: FormatoEtiqueta) {
     setFormato(f);
+    setIndice(0);
     gravarFormato(f);
   }
 
@@ -181,14 +187,24 @@ export default function EtiquetaModal({ pedidos, impressas, onClose, onImpresso 
                 <p className="hint etq-nota">{t('pedidos.etiqueta.previaAviso')}</p>
               </div>
               <div className="etq-previa-col">
-                <div className={'etq-folha ' + (formato === 'a4' ? 'etq-folha-a4' : 'etq-folha-a6')}>
-                  <Etiqueta pedido={pedidoPrevia} />
-                </div>
-                {pedidos.length > 1 && (
+                {formato === 'a4' ? (
+                  <div className="etq-folha etq-folha-a4">
+                    {Array.from({ length: ETIQUETAS_POR_FOLHA_A4 }, (_, i) => (
+                      <div className="etq-slot" key={i}>
+                        {visiveis[i] && <Etiqueta pedido={visiveis[i]} />}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="etq-folha etq-folha-a6">
+                    <Etiqueta pedido={visiveis[0]} />
+                  </div>
+                )}
+                {totalPaginas > 1 && (
                   <div className="etq-nav">
-                    <button type="button" className="page-btn" onClick={() => setIndice((i) => Math.max(0, i - 1))} disabled={indice === 0} aria-label={t('pedidos.etiqueta.anterior')}>‹</button>
-                    <span aria-live="polite">{t('pedidos.etiqueta.posicao').replace('{i}', String(indice + 1)).replace('{n}', String(pedidos.length))}</span>
-                    <button type="button" className="page-btn" onClick={() => setIndice((i) => Math.min(pedidos.length - 1, i + 1))} disabled={indice === pedidos.length - 1} aria-label={t('pedidos.etiqueta.proxima')}>›</button>
+                    <button type="button" className="page-btn" onClick={() => setIndice((i) => Math.max(0, i - 1))} disabled={indice === 0} aria-label={t(formato === 'a4' ? 'pedidos.etiqueta.folhaAnterior' : 'pedidos.etiqueta.anterior')}>‹</button>
+                    <span aria-live="polite">{t(formato === 'a4' ? 'pedidos.etiqueta.posicaoFolha' : 'pedidos.etiqueta.posicao').replace('{i}', String(indice + 1)).replace('{n}', String(totalPaginas))}</span>
+                    <button type="button" className="page-btn" onClick={() => setIndice((i) => Math.min(totalPaginas - 1, i + 1))} disabled={indice === totalPaginas - 1} aria-label={t(formato === 'a4' ? 'pedidos.etiqueta.folhaProxima' : 'pedidos.etiqueta.proxima')}>›</button>
                   </div>
                 )}
               </div>

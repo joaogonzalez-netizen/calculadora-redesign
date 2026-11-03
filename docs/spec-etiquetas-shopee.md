@@ -77,7 +77,7 @@ Quem pode ser selecionado:
 Uma tela só, três blocos, de cima para baixo:
 
 1. **Resumo.** "3 etiquetas · conta gonzalez.3d". Se algum pedido do lote tiver sido impresso antes, aviso discreto: "2 já foram impressas. Reimprimir não gera novo código."
-2. **Formato.** Dois cartões selecionáveis: "Térmica A6 (10×15 cm)" e "A4". O padrão é o último usado, guardado por vendedor. Texto de apoio curto sob cada um: térmica para etiqueta adesiva, A4 para impressora comum. Se A4 for escolhido, o preview mostra a etiqueta no tamanho real dentro da folha.
+2. **Formato.** Dois cartões selecionáveis: "Térmica A6 (10×15 cm)" e "A4". O padrão é o último usado, guardado por vendedor. Texto de apoio curto sob cada um: térmica para etiqueta adesiva, A4 para impressora comum. Se A4 for escolhido, o preview mostra a folha com 4 etiquetas A6 (2×2, 105×148 mm cada) e a navegação passa a ser por folha ("Folha 1 de 2"). Um lote de 7 etiquetas vira 2 folhas, a última com células vazias. O arranjo de 4 por folha é decisão do protótipo, a confirmar com a A4 que a Central da Shopee gera.
 3. **Preview.** Primeira etiqueta do lote, com navegação "1 de 3". O preview é o arquivo oficial, sem edição.
 
 Rodapé: "Cancelar" e o botão primário "Imprimir 3 etiquetas". Alternativa secundária: "Baixar PDF".

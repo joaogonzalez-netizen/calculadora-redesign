@@ -1995,8 +1995,12 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .etq-previa-col{display:flex;flex-direction:column;align-items:center;gap:10px;}
 .etq-folha{background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(20,24,26,.1);overflow:hidden;width:100%;}
 .etq-folha-a6{max-width:240px;aspect-ratio:2/3;}
-.etq-folha-a4{max-width:270px;aspect-ratio:210/297;padding:0;}
-.etq-folha-a4 .etq-label-box{width:47.6%;border-width:0 1px 1px 0;}
+.etq-folha-a4{max-width:270px;aspect-ratio:210/297;padding:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+/* Cada célula é um A6 (105×148 mm); a etiqueta preenche a célula. */
+.etq-slot{min-width:0;min-height:0;border:0 dashed #c9cecb;}
+.etq-slot:nth-child(odd){border-right-width:1px;}
+.etq-slot:nth-child(-n+2){border-bottom-width:1px;}
+.etq-folha-a4 .etq-label-box{aspect-ratio:auto;height:100%;}
 .etq-nav{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-2);}
 .etq-nav .page-btn{min-width:44px;min-height:44px;}
 /* A caixa é o container das unidades cqw: a etiqueta escala igual em A6 e dentro da folha A4. */
