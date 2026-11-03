@@ -278,11 +278,21 @@ export default function PedidosView() {
                               aria-label={`${t('pedidos.etiqueta.selecionarPedido')} ${p.id}`}
                               aria-describedby={'etq-st-' + p.id}
                             />
-                            <div className="etq-st" id={'etq-st-' + p.id}>
-                              <span className={'etq-tag etq-tag-' + st}>{t('pedidos.etiqueta.status.' + st)}</span>
-                              {st === 'emitida' && <small>{t('pedidos.etiqueta.emitidaEm').replace('{data}', dataImpressao(impressas[p.id]))}</small>}
-                              {st === 'indisponivel' && <small>{motivoTexto(p)}</small>}
-                            </div>
+                            {(() => {
+                              const dica = st === 'emitida'
+                                ? t('pedidos.etiqueta.impressaEm').replace('{data}', dataImpressao(impressas[p.id]))
+                                : st === 'indisponivel' ? motivoTexto(p) : '';
+                              return (
+                                <span
+                                  id={'etq-st-' + p.id}
+                                  className={'etq-tag etq-tag-' + st + (dica ? ' etq-tag-dica' : '')}
+                                  tabIndex={dica ? 0 : undefined}
+                                >
+                                  {t('pedidos.etiqueta.status.' + st)}
+                                  {dica && <span className="etq-tip" role="tooltip">{dica}</span>}
+                                </span>
+                              );
+                            })()}
                           </div>
                         );
                       })()}
