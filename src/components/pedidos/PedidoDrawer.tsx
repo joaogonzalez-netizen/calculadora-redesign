@@ -1,5 +1,6 @@
 import type { Pedido } from '../../lib/pedidosMock';
-import { brl } from '../../lib/format';
+import { brl, localeNumeros } from '../../lib/format';
+import { ehPedidoShopee, motivoInelegivel, podeImprimirEtiqueta } from '../../lib/etiquetasShopee';
 import { classeTagMarketplace } from '../../lib/marketplaceTag';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
@@ -23,9 +24,25 @@ function traduzirPagamento(t: (chave: string) => string, s: string) {
   return s;
 }
 
-export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onClose: () => void }) {
+// Posição da etapa "Etiqueta gerada" em montarTimeline (lib/pedidosMock.ts).
+const ETAPA_ETIQUETA = 2;
+
+interface Props {
+  pedido: Pedido;
+  /** Só a tela Pedidos imprime etiqueta; sem o callback o drawer não mostra a ação (ex.: Fila de produção). */
+  impressaEm?: string | null;
+  onImprimirEtiqueta?: () => void;
+  onClose: () => void;
+}
+
+export default function PedidoDrawer({ pedido, impressaEm = null, onImprimirEtiqueta, onClose }: Props) {
   const { t, idioma } = useI18n();
   const en = idioma === 'en';
+  const shopee = ehPedidoShopee(pedido) && !!onImprimirEtiqueta;
+  const podeEtiqueta = shopee && podeImprimirEtiqueta(pedido);
+  const motivo = shopee ? motivoInelegivel(pedido) : null;
+  const rotuloEtiqueta = impressaEm ? t('pedidos.etiqueta.reimprimir') : t('pedidos.etiqueta.imprimir');
+  const dataImpressao = impressaEm ? new Date(impressaEm).toLocaleDateString(localeNumeros(), { day: '2-digit', month: '2-digit' }) : '';
   const taxaValor = pedido.valorTotal * pedido.taxaPct;
   const margemLiquida = pedido.valorTotal + pedido.frete - taxaValor;
 
@@ -104,6 +121,11 @@ export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onCl
                   <div>
                     <b>{etapa.label}</b>
                     <div className="ped-info-meta">{etapa.data}{etapa.detalhe ? ' · ' + etapa.detalhe : ''}</div>
+                    {idx === ETAPA_ETIQUETA && podeEtiqueta && (
+                      <button type="button" className="btn-outline ped-etiq-inline" onClick={onImprimirEtiqueta}>
+                        <Icon name="printer" size={14} /> {rotuloEtiqueta}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -112,6 +134,15 @@ export default function PedidoDrawer({ pedido, onClose }: { pedido: Pedido; onCl
         </div>
 
         <div className="ped-drawer-footer">
+          {shopee && (
+            <div className="ped-etiq-rodape">
+              <button type="button" className="btn-dark" onClick={onImprimirEtiqueta} disabled={!podeEtiqueta} aria-describedby={motivo ? 'ped-etiq-motivo' : undefined}>
+                <Icon name="printer" size={16} /> {rotuloEtiqueta}
+              </button>
+              {motivo && <span className="ped-etiq-motivo" id="ped-etiq-motivo">{t('pedidos.etiqueta.motivo.' + motivo)}</span>}
+              {impressaEm && <span className="ped-etiq-selo">{t('pedidos.etiqueta.impressaEm').replace('{data}', dataImpressao)}</span>}
+            </div>
+          )}
           <button type="button" className="btn-outline" onClick={() => (en ? alert('Coming soon: copy tracking number.') : alertaEmBreve('copiar código de rastreio'))}>{t('pedidos.copiarRastreio')}</button>
           <button type="button" className="btn-dark" onClick={() => (en ? alert('Coming soon: open order on the marketplace.') : alertaEmBreve('abrir pedido no marketplace'))}>{t('pedidos.abrirNoMarketplace')}</button>
         </div>

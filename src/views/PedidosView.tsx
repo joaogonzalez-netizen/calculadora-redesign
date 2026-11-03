@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CONTAS_PEDIDOS_BR, CONTAS_PEDIDOS_US, pedidosDoIdioma, pedidosKpisDoIdioma, type ContaMarketplace, type Pedido } from '../lib/pedidosMock';
 import { brl, localeNumeros } from '../lib/format';
 import type { Idioma } from '../lib/i18n';
@@ -7,6 +7,14 @@ import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
 import PopoverList from '../components/produtos/PopoverList';
 import PedidoDrawer from '../components/pedidos/PedidoDrawer';
+import EtiquetaModal from '../components/pedidos/EtiquetaModal';
+import {
+  ehPedidoShopee,
+  gravarImpressas,
+  lerImpressas,
+  motivoInelegivel,
+  podeImprimirEtiqueta,
+} from '../lib/etiquetasShopee';
 
 const PERIODOS = ['Maio 2026', 'Abril 2026', 'Março 2026'];
 // Contas conectadas por idioma: EN (mercado americano) só tem Etsy e TikTok Shop.
@@ -63,6 +71,11 @@ export default function PedidosView() {
   }
   const [status, setStatus] = useState(STATUS_OPTS[0]);
   const [selecionado, setSelecionado] = useState<Pedido | null>(null);
+  // Etiquetas Shopee: seleção em lote, pedidos no modal e histórico de impressão.
+  const [marcados, setMarcados] = useState<Set<string>>(new Set());
+  const [paraImprimir, setParaImprimir] = useState<Pedido[] | null>(null);
+  const [impressas, setImpressas] = useState<Record<string, string>>(lerImpressas);
+  const marcarTodosRef = useRef<HTMLInputElement>(null);
 
   const pedidos = useMemo(() => {
     let lista = [...PEDIDOS];
@@ -76,6 +89,54 @@ export default function PedidosView() {
   }, [PEDIDOS, busca, conta, status]);
 
   const exibidos = pedidos.slice(0, 10);
+
+  // Só entra na seleção o que ainda está na tela: filtro ou idioma novo descartam o resto.
+  const marcadosVisiveis = exibidos.filter((p) => marcados.has(p.id) && podeImprimirEtiqueta(p));
+  const elegiveisNaPagina = exibidos.filter(podeImprimirEtiqueta);
+  const todosMarcados = elegiveisNaPagina.length > 0 && marcadosVisiveis.length === elegiveisNaPagina.length;
+  const algunsMarcados = marcadosVisiveis.length > 0 && !todosMarcados;
+  const temShopee = exibidos.some(ehPedidoShopee);
+
+  useEffect(() => {
+    if (marcarTodosRef.current) marcarTodosRef.current.indeterminate = algunsMarcados;
+  }, [algunsMarcados]);
+
+  useEffect(() => {
+    setMarcados(new Set());
+  }, [busca, conta, status, idioma]);
+
+  function alternarMarcado(id: string) {
+    setMarcados((atual) => {
+      const novo = new Set(atual);
+      if (novo.has(id)) novo.delete(id);
+      else novo.add(id);
+      return novo;
+    });
+  }
+  function alternarTodos() {
+    setMarcados(todosMarcados ? new Set() : new Set(elegiveisNaPagina.map((p) => p.id)));
+  }
+  function registrarImpressao(ids: string[]) {
+    const agora = new Date().toISOString();
+    setImpressas((atual) => {
+      const novo = { ...atual };
+      for (const id of ids) novo[id] = agora;
+      gravarImpressas(novo);
+      return novo;
+    });
+    setMarcados((atual) => {
+      const novo = new Set(atual);
+      for (const id of ids) novo.delete(id);
+      return novo;
+    });
+  }
+  function dataImpressao(iso: string) {
+    return new Date(iso).toLocaleDateString(localeNumeros(), { day: '2-digit', month: '2-digit' });
+  }
+  function motivoTexto(p: Pedido) {
+    const m = motivoInelegivel(p);
+    return m ? t('pedidos.etiqueta.motivo.' + m) : '';
+  }
 
   function traduzirPeriodo(v: string) {
     if (v === 'Maio 2026') return t('pedidos.periodoMaio2026');
@@ -148,28 +209,69 @@ export default function PedidosView() {
         <PopoverList label={t('pedidos.filtroStatus')} options={STATUS_OPTS} value={status} onChange={setStatus} getLabel={traduzirStatus} />
       </div>
 
+      {marcadosVisiveis.length > 0 && (
+        <div className="ped-bulk" role="region" aria-label={t('pedidos.etiqueta.titulo')}>
+          <span aria-live="polite"><b>{marcadosVisiveis.length === 1 ? t('pedidos.etiqueta.selecionadosUma') : t('pedidos.etiqueta.selecionados').replace('{n}', String(marcadosVisiveis.length))}</b></span>
+          <div className="ped-bulk-acoes">
+            <button type="button" className="btn-outline" onClick={() => setMarcados(new Set())}>{t('pedidos.etiqueta.limpar')}</button>
+            <button type="button" className="btn-dark" onClick={() => setParaImprimir(marcadosVisiveis)}>
+              <Icon name="printer" size={16} /> {t('pedidos.etiqueta.imprimirEtiquetas')}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="card">
         <div className="card-body" style={{ padding: 0 }}>
           <div className="table-scroll-x">
           <table className="prod-table">
             <thead>
               <tr>
+                {temShopee && (
+                  <th className="col-check">
+                    <input
+                      ref={marcarTodosRef}
+                      type="checkbox"
+                      checked={todosMarcados}
+                      disabled={elegiveisNaPagina.length === 0}
+                      onChange={alternarTodos}
+                      aria-label={t('pedidos.etiqueta.selecionarTodos')}
+                    />
+                  </th>
+                )}
                 <th>{t('pedidos.colunaPedido')}</th><th>{t('pedidos.colunaMarketplace')}</th><th>{t('pedidos.colunaComprador')}</th><th>{t('pedidos.colunaStatus')}</th><th>{t('pedidos.colunaPagamento')}</th><th>{t('pedidos.colunaValorTotal')}</th><th className="col-acoes-sticky">{t('pedidos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
               {exibidos.map((p) => (
                 <tr key={p.id}>
+                  {temShopee && (
+                    <td className="col-check">
+                      {ehPedidoShopee(p) && (
+                        <input
+                          type="checkbox"
+                          checked={marcados.has(p.id)}
+                          disabled={!podeImprimirEtiqueta(p)}
+                          onChange={() => alternarMarcado(p.id)}
+                          aria-label={`${t('pedidos.etiqueta.selecionarPedido')} ${p.id}`}
+                          aria-describedby={podeImprimirEtiqueta(p) ? undefined : 'etq-motivo-' + p.id}
+                        />
+                      )}
+                    </td>
+                  )}
                   <td>
                     <div className="prod-name">{p.produto}</div>
                     <div className="prod-sku">#{p.codigoMlb} · {p.qtd} {en ? 'units' : 'un.'} · {p.data}</div>
+                    {ehPedidoShopee(p) && !podeImprimirEtiqueta(p) && <div className="ped-etiq-motivo" id={'etq-motivo-' + p.id}>{motivoTexto(p)}</div>}
                   </td>
                   <td><span className={'mp-tag ' + classeTagMarketplace(p.marketplace)}>{p.marketplace}</span></td>
                   <td>
                     <div className="prod-name">{p.comprador}</div>
                     <div className="prod-sku">{p.compradorHandle}</div>
                   </td>
-                  <td><span className={'ped-status ' + STATUS_CLASSE[p.status]}>{en ? traduzirStatus(p.status) : p.status}</span></td>
+                  <td><span className={'ped-status ' + STATUS_CLASSE[p.status]}>{en ? traduzirStatus(p.status) : p.status}</span>
+                    {impressas[p.id] && ehPedidoShopee(p) && <div className="ped-etiq-selo">{t('pedidos.etiqueta.impressaEm').replace('{data}', dataImpressao(impressas[p.id]))}</div>}
+                  </td>
                   <td><span className={'ped-status ' + PAGAMENTO_CLASSE[p.pagamento]}>{en ? traduzirPagamento(p.pagamento) : p.pagamento}</span></td>
                   <td>
                     <b>{brl(p.valorTotal)}</b>
@@ -177,6 +279,9 @@ export default function PedidosView() {
                   </td>
                   <td className="col-acoes-sticky">
                     <div className="prod-acoes">
+                      {podeImprimirEtiqueta(p) && (
+                        <button type="button" title={impressas[p.id] ? t('pedidos.etiqueta.reimprimir') : t('pedidos.etiqueta.imprimir')} aria-label={impressas[p.id] ? t('pedidos.etiqueta.reimprimir') : t('pedidos.etiqueta.imprimir')} onClick={() => setParaImprimir([p])}><Icon name="printer" size={16} /></button>
+                      )}
                       <button type="button" title={t('pedidos.verPedido')} onClick={() => setSelecionado(p)}><Icon name="eye" size={16} /></button>
                     </div>
                   </td>
@@ -202,7 +307,17 @@ export default function PedidosView() {
         </div>
       </div>
 
-      {selecionado && <PedidoDrawer pedido={selecionado} onClose={() => setSelecionado(null)} />}
+      {selecionado && (
+        <PedidoDrawer
+          pedido={selecionado}
+          impressaEm={impressas[selecionado.id] ?? null}
+          onImprimirEtiqueta={() => setParaImprimir([selecionado])}
+          onClose={() => setSelecionado(null)}
+        />
+      )}
+      {paraImprimir && (
+        <EtiquetaModal pedidos={paraImprimir} impressas={impressas} onClose={() => setParaImprimir(null)} onImpresso={registrarImpressao} />
+      )}
     </div>
   );
 }

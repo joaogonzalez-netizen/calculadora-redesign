@@ -1940,6 +1940,80 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .ped-drawer-badges{display:flex;gap:8px;padding:0 22px 16px;border-bottom:1px solid var(--border);}
 .ped-drawer-footer{display:flex;gap:10px;padding:16px 22px 22px;border-top:1px solid var(--border);margin-top:auto;}
 .ped-drawer-footer button{flex:1;}
+.ped-drawer-footer{flex-wrap:wrap;}
+
+/* Etiquetas Shopee: seleção em lote, barra de ação e modal de impressão */
+.col-check{width:44px;text-align:center;}
+.col-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer;}
+.col-check input[type=checkbox]:disabled{cursor:not-allowed;}
+.ped-etiq-motivo{font-size:11.5px;color:var(--text-2);margin-top:2px;}
+.ped-etiq-selo{font-size:11.5px;color:var(--primary-dark);margin-top:2px;font-weight:600;}
+.ped-bulk{
+  position:sticky;top:64px;z-index:15;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:var(--primary-tint);border:1px solid var(--primary);border-radius:var(--radius-m);padding:10px 14px;margin-bottom:12px;
+}
+.ped-bulk b{color:var(--primary-dark);font-size:13.5px;}
+.ped-bulk-acoes{display:flex;gap:8px;}
+.ped-bulk-acoes button,.etq-footer button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;}
+.ped-etiq-rodape{flex:1 1 100%;display:flex;flex-direction:column;gap:6px;}
+.ped-etiq-rodape button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;}
+.ped-etiq-rodape button:disabled{opacity:.5;cursor:not-allowed;}
+.ped-etiq-inline{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;font-size:12.5px;}
+
+.modal-center.etq-modal{width:760px;max-width:92vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.etq-modal h4{margin:0;padding-right:36px;font-size:20px;}
+.etq-modal .modal-levar-x{min-width:44px;min-height:44px;justify-content:center;align-items:center;}
+.etq-modal:focus{outline:none;}
+.etq-resumo{margin:0;}
+.etq-aviso{margin:0;}
+.etq-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+@media (max-width:700px){ .etq-grid{grid-template-columns:1fr;} }
+.etq-formatos{border:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+.etq-formatos legend{padding:0;margin-bottom:10px;}
+.etq-formato{
+  display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--border);border-radius:var(--radius-m);
+  padding:14px 16px;cursor:pointer;background:var(--surface);transition:.15s;min-height:44px;
+}
+.etq-formato:hover{border-color:var(--text-3);}
+.etq-formato.active{border-color:var(--primary);background:var(--primary-tint);}
+.etq-formato:focus-within{outline:2px solid var(--primary);outline-offset:2px;}
+.etq-formato input{margin-top:3px;accent-color:var(--primary);width:18px;height:18px;flex-shrink:0;}
+.etq-formato b{display:block;font-size:14px;color:var(--text-1);}
+.etq-formato small{display:block;font-size:12px;color:var(--text-2);margin-top:3px;}
+.etq-nota{margin-top:12px;}
+.etq-previa-col{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.etq-folha{background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(20,24,26,.1);overflow:hidden;width:100%;}
+.etq-folha-a6{max-width:240px;aspect-ratio:2/3;}
+.etq-folha-a4{max-width:270px;aspect-ratio:210/297;padding:0;}
+.etq-folha-a4 .etq-label-box{width:47.6%;border-width:0 1px 1px 0;}
+.etq-nav{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-2);}
+.etq-nav .page-btn{min-width:44px;min-height:44px;}
+/* A caixa é o container das unidades cqw: a etiqueta escala igual em A6 e dentro da folha A4. */
+.etq-label-box{container-type:inline-size;aspect-ratio:2/3;width:100%;border:0 solid #14181a;background:#fff;}
+.etq-label{
+  width:100%;height:100%;color:#14181a;
+  padding:5cqw;display:flex;flex-direction:column;gap:3cqw;font-size:4.2cqw;line-height:1.25;box-sizing:border-box;
+}
+.etq-topo{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.6cqw solid #14181a;padding-bottom:2cqw;}
+.etq-topo b{font-size:7cqw;}
+.etq-barras{width:100%;height:18cqw;color:#14181a;}
+.etq-codigo{text-align:center;font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:5cqw;letter-spacing:.1em;}
+.etq-bloco{display:flex;flex-direction:column;border-top:.3cqw solid #14181a;padding-top:2cqw;}
+.etq-bloco small{font-size:3.2cqw;font-weight:700;letter-spacing:.06em;}
+.etq-bloco b{font-size:5.4cqw;}
+.etq-rodape{margin-top:auto;display:flex;justify-content:space-between;font-size:3.6cqw;border-top:.3cqw solid #14181a;padding-top:2cqw;}
+.etq-gerando{display:flex;flex-direction:column;align-items:center;gap:14px;padding:36px 0;}
+.etq-gerando p{margin:0;}
+.etq-spinner{width:32px;height:32px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--primary);animation:etq-gira .8s linear infinite;}
+@keyframes etq-gira{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion:reduce){.etq-spinner{animation-duration:2.4s;}}
+.etq-res{display:flex;gap:10px;align-items:flex-start;border-radius:var(--radius-m);padding:12px 14px;font-size:13.5px;}
+.etq-res-ok{background:var(--primary-tint);color:var(--primary-dark);align-items:center;font-weight:600;}
+.etq-res-falha{background:#fdecec;color:#7a1f1f;flex-direction:column;}
+.etq-res-titulo{display:flex;gap:8px;align-items:center;}
+.etq-res-falha ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;}
+.etq-res-falha li{display:flex;flex-direction:column;gap:1px;font-size:13px;}
+.etq-footer{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px;}
 
 .ped-section{margin-bottom:22px;}
 .ped-section .divider-label{margin-bottom:14px;}
