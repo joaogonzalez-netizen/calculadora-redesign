@@ -8,6 +8,7 @@ const CANAL_LABEL_KEYS: Record<Canal, string> = {
   'Venda direta': 'calc.canalVendaDireta',
   'Mercado Livre': 'calc.canalMercadoLivre',
   'Mercado Livre Argentina': 'calc.canalMercadoLivreArgentina',
+  'Mercado Livre México': 'calc.canalMercadoLivreMexico',
   'Shopee': 'calc.canalShopee',
   'Etsy': 'calc.canalEtsy',
   'TikTok Shop': 'calc.canalTiktokShop',

@@ -25,6 +25,7 @@ export function fmtMoeda(v: number, moeda: Moeda): string {
   if (moeda === 'USD') return idiomaFormato === 'en' ? '$' + num : 'US$ ' + num;
   if (moeda === 'EUR') return '€ ' + num;
   if (moeda === 'ARS') return 'AR$ ' + num;
+  if (moeda === 'MXN') return 'MX$ ' + num;
   return 'R$ ' + num;
 }
 
@@ -32,5 +33,6 @@ export function moedaSimbolo(moeda: Moeda): string {
   if (moeda === 'USD') return idiomaFormato === 'en' ? '$' : 'US$';
   if (moeda === 'EUR') return '€';
   if (moeda === 'ARS') return 'AR$';
+  if (moeda === 'MXN') return 'MX$';
   return 'R$';
 }

@@ -7,6 +7,7 @@ const OPTS: { m: Moeda; label: string }[] = [
   { m: 'USD', label: 'US$' },
   { m: 'EUR', label: '€' },
   { m: 'ARS', label: 'AR$' },
+  { m: 'MXN', label: 'MX$' },
 ];
 
 export default function MoedaTopoCard() {

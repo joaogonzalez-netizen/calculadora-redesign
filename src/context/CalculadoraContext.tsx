@@ -33,6 +33,8 @@ function estadoInicial(): CalculoState {
     mlPesoEmbalagem: 0.3, mlImposto: 0, mlAds: 0, mlExtras: 0,
     mlArCategoria: '', mlArTipo: 'classico', mlArComissaoManual: false,
     mlArComissao: 0, mlArPesoEmbalagem: 0.3,
+    mlMxCategoria: '', mlMxTipo: 'classico', mlMxComissaoManual: false,
+    mlMxComissao: 0, mlMxPesoEmbalagem: 0.3, mlMxFreteGratis: false,
     shopeeTipo: 'cnpj', shopeeCpfAlto: false, shopeeFrete: 0,
     shopeeCampanhaDestaque: false, shopeeComissaoExtra: 5,
     shopeeCupomProprio: false, shopeeCupomValor: 0,

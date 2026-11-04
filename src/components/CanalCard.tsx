@@ -31,6 +31,38 @@ const ML_CATEGORIAS: { value: string; labelKey: string }[] = [
   { value: 'outra', labelKey: 'calc.catOutraCategoria' },
 ];
 
+// Mercado Livre México, comissão por categoria (Clásica|Premium). Nomes oficiais
+// em espanhol, sem tradução. Fonte terceirizada, pendente de validação no simulador do ML.
+const ML_MX_CATEGORIAS: { value: string; label: string }[] = [
+  { value: 'celulares|10|14.5', label: 'Celulares y Telefonía' },
+  { value: 'computacion|10|14.5', label: 'Computación' },
+  { value: 'electronica|10|12.5', label: 'Electrónica, Audio y Video' },
+  { value: 'camaras|10|14.5', label: 'Cámaras y Accesorios' },
+  { value: 'consolas|10|14.5', label: 'Consolas y Videojuegos' },
+  { value: 'agro|10|14.5', label: 'Agro' },
+  { value: 'alimentos|10|14.5', label: 'Alimentos y Bebidas' },
+  { value: 'antiguedades|10|14.5', label: 'Antigüedades y Colecciones' },
+  { value: 'instrumentos|10|14.5', label: 'Instrumentos Musicales' },
+  { value: 'vehiculos|12|16.5', label: 'Accesorios para Vehículos' },
+  { value: 'industrias|12|16.5', label: 'Industrias y Oficinas' },
+  { value: 'herramientas|13.5|18', label: 'Herramientas' },
+  { value: 'belleza|14|18.5', label: 'Belleza y Cuidado Personal' },
+  { value: 'salud|14|18.5', label: 'Salud y Equipamiento Médico' },
+  { value: 'hogar|15|19.5', label: 'Hogar, Muebles y Jardín' },
+  { value: 'deportes|15|19.5', label: 'Deportes y Fitness' },
+  { value: 'bebes|15|19.5', label: 'Bebés' },
+  { value: 'construccion|15|19.5', label: 'Construcción' },
+  { value: 'electrodomesticos|15|19.5', label: 'Electrodomésticos' },
+  { value: 'joyas|15|19.5', label: 'Joyas y Relojes' },
+  { value: 'juguetes|15|19.5', label: 'Juegos y Juguetes' },
+  { value: 'mascotas|15|19.5', label: 'Mascotas' },
+  { value: 'arte|15|19.5', label: 'Arte, Papelería y Mercería' },
+  { value: 'libros|15|19.5', label: 'Libros, Revistas y Cómics' },
+  { value: 'musica|15|19.5', label: 'Música, Películas y Series' },
+  { value: 'recuerdos|15|19.5', label: 'Recuerdos, Cotillón y Fiestas' },
+  { value: 'ropa|15|19.5', label: 'Ropa, Bolsas y Calzado' },
+];
+
 // Mercado Livre Argentina, comissão por categoria (Clásica|Premium). Fonte
 // terceirizada, ainda não validada oficialmente (ver aviso na UI, spec Argentina v1).
 const ML_AR_CATEGORIAS: { value: string; labelKey: string }[] = [
@@ -118,6 +150,30 @@ export default function CanalCard() {
     const [, classico, premium] = state.mlCategoria.split('|');
     set('mlComissao', (state.mlTipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
     set('mlComissaoManual', false);
+  }
+
+  function onMlMxCategoriaChange(v: string) {
+    set('mlMxCategoria', v);
+    const outra = v === 'outra';
+    set('mlMxComissaoManual', outra);
+    if (outra) { set('mlMxComissao', 0); return; }
+    if (!v) return;
+    const [, classico, premium] = v.split('|');
+    set('mlMxComissao', (state.mlMxTipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
+  }
+
+  function setMlMxTipo(tipo: 'classico' | 'premium') {
+    set('mlMxTipo', tipo);
+    if (state.mlMxComissaoManual || !state.mlMxCategoria || state.mlMxCategoria === 'outra') return;
+    const [, classico, premium] = state.mlMxCategoria.split('|');
+    set('mlMxComissao', (tipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
+  }
+
+  function restaurarMlMxComissaoAutomatica() {
+    if (!state.mlMxCategoria || state.mlMxCategoria === 'outra') return;
+    const [, classico, premium] = state.mlMxCategoria.split('|');
+    set('mlMxComissao', (state.mlMxTipo === 'premium' ? parseFloat(premium) : parseFloat(classico)) || 0);
+    set('mlMxComissaoManual', false);
   }
 
   function restaurarMlArComissaoAutomatica() {
@@ -354,6 +410,73 @@ export default function CanalCard() {
               <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? usd(resultado.taxas.freteInfo.custo) : '-'}</b></div>
             </div>
             <div className="hint">{t('calc.mlArgentinaCalculadoAposClicarHint')}</div>
+          </div>
+        </div>
+      )}
+
+      {state.canalAtivo === 'Mercado Livre México' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlTipoAnuncio1')}</label>
+            <div className="toggle-cards cols-2">
+              <div className={'toggle-card' + (state.mlMxTipo === 'classico' ? ' active' : '')} onClick={() => setMlMxTipo('classico')}><b>{t('calc.classico')}</b><span>{t('calc.classicoDesc')}</span></div>
+              <div className={'toggle-card' + (state.mlMxTipo === 'premium' ? ' active' : '')} onClick={() => setMlMxTipo('premium')}><b>{t('calc.premium')}</b><span>{t('calc.premiumDesc')}</span></div>
+            </div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlCategoriaDoAnuncio2')}</label>
+            <select
+              id="mlMxCategoria"
+              value={state.mlMxCategoria}
+              onChange={(e) => onMlMxCategoriaChange(e.target.value)}
+              className={errorIds.has('mlMxCategoria') ? 'input-error' : ''}
+            >
+              <option value="">{t('calc.escolhaCategorias')}</option>
+              {ML_MX_CATEGORIAS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+            {state.mlMxCategoria && state.mlMxCategoria !== 'outra' && !state.mlMxComissaoManual && (
+              <div className="mini-table mini-table-muted" style={{ marginTop: 10 }}>
+                <div className="mini-row">
+                  <span>{t('calc.comissaoMlLabel')}</span>
+                  <span><b>{state.mlMxComissao}%</b>{' '}<button type="button" className="link-btn" onClick={() => set('mlMxComissaoManual', true)}>{t('calc.editar')}</button></span>
+                </div>
+              </div>
+            )}
+            {state.mlMxComissaoManual && (
+              <div className="row2" style={{ marginTop: 10, alignItems: 'flex-end' }}>
+                <div className="field"><label>{t('calc.comissaoPct')}</label><input type="number" step="0.1" value={state.mlMxComissao || ''} onChange={(e) => set('mlMxComissao', parseFloat(e.target.value) || 0)} /></div>
+                {state.mlMxCategoria && state.mlMxCategoria !== 'outra' && (
+                  <button type="button" className="link-btn" style={{ marginBottom: 12 }} onClick={restaurarMlMxComissaoAutomatica}>{t('calc.restaurarAutomatico')}</button>
+                )}
+              </div>
+            )}
+            <div className="hint">{t('calc.mlMxDadosVigentesAviso')}</div>
+          </div>
+
+          <div className="field">
+            <label style={{ textTransform: 'uppercase', fontSize: 11.5, letterSpacing: '.06em', color: 'var(--text-3)' }}>{t('calc.mlFrete3')}</label>
+            <div className="callout">
+              <b>{t('calc.comoFunciona')}</b>
+              {t('calc.mlMxFreteCalloutTexto')}
+              {' '}<a href="https://www.mercadolibre.com.mx/ayuda/40538" target="_blank" rel="noreferrer">{t('calc.verTabelaOficial')}</a>
+            </div>
+            <div className="field">
+              <label>{t('calc.pesoEmbalagemEnvio')}</label>
+              <div className="suffix-wrap"><input type="number" step="0.1" value={state.mlMxPesoEmbalagem} onChange={(e) => set('mlMxPesoEmbalagem', parseFloat(e.target.value) || 0)} /><span className="sfx">kg</span></div>
+              <div className="hint">{t('calc.mlMxPesoHint')}</div>
+            </div>
+            <div className="mini-table">
+              <div className="mini-row"><span>{t('calc.faixaDePeso')}</span><b>{resultado?.taxas.freteInfo?.faixaPesoLabel ?? '-'}</b></div>
+              <div className="mini-row"><span>{t('calc.faixaPrecoAnuncio')}</span><b>{resultado?.taxas.freteInfo?.faixaPrecoLabel ?? '-'}</b></div>
+              <div className="mini-row"><span>{t('calc.custoFreteEstimado')}</span><b>{resultado?.taxas.freteInfo ? fmtMoeda(resultado.taxas.freteInfo.custo, 'MXN') : '-'}</b></div>
+            </div>
+            <label className="toggle-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 12, cursor: 'pointer' }}>
+              <span><b>{t('calc.mlMxFreteGratis')}</b><br /><span className="hint">{t('calc.mlMxFreteGratisDesc')}</span></span>
+              <input type="checkbox" checked={state.mlMxFreteGratis} onChange={(e) => set('mlMxFreteGratis', e.target.checked)} />
+            </label>
+            <div className="hint">{t('calc.mlMxReputacaoNota')}</div>
+            <div className="hint">{t('calc.mlMxCalculadoAposClicarHint')}</div>
           </div>
         </div>
       )}

@@ -129,6 +129,70 @@ export function getMlArFreteEstimado(pesoKg: number, preco: number): MlFreteInfo
   return { faixaPesoLabel: faixa.label, faixaPrecoLabel, custo };
 }
 
+// Mercado Livre México, custo dos Envíos por faixa de peso × faixa de preço (MX$).
+// Fonte oficial: mercadolibre.com.mx/ayuda/40538 (capturado 04/11/2026), vale pra
+// produtos novos, MercadoLíderes e reputação verde (valores já com 50% de desconto).
+// O frete é cobrado em toda venda. Abaixo de $299 o frete grátis é opcional e,
+// ligado, usa só a tarifa por peso da faixa "$299 a $498,99".
+const ML_MX_FAIXAS_PRECO: { max: number; label: string }[] = [
+  { max: 98.99, label: 'Até $ 98,99' },
+  { max: 198.99, label: '$ 99 a $ 198,99' },
+  { max: 298.99, label: '$ 199 a $ 298,99' },
+  { max: 498.99, label: '$ 299 a $ 498,99' },
+  { max: 998.99, label: '$ 499 a $ 998,99' },
+  { max: Infinity, label: 'A partir de $ 999' },
+];
+const ML_MX_FRETE_TABELA: { max: number; label: string; v: number[] }[] = [
+  { max: 0.3, label: 'Até 0,3 kg', v: [25, 32, 35, 52.4, 65.5, 65.5] },
+  { max: 0.5, label: '0,3 a 0,5 kg', v: [28.5, 34, 38, 56, 70, 70] },
+  { max: 1, label: '0,5 a 1 kg', v: [33, 38, 39, 59.6, 74.5, 74.5] },
+  { max: 2, label: '1 a 2 kg', v: [35, 40, 41, 67.6, 84.5, 84.5] },
+  { max: 3, label: '2 a 3 kg', v: [37, 46, 48, 76, 88.5, 95] },
+  { max: 4, label: '3 a 4 kg', v: [39, 50, 54, 82.4, 95.5, 103] },
+  { max: 5, label: '4 a 5 kg', v: [40, 53, 59, 88, 102.5, 110] },
+  { max: 7, label: '5 a 7 kg', v: [45, 59, 70, 98, 122.5, 122.5] },
+  { max: 9, label: '7 a 9 kg', v: [51, 67, 81, 111.6, 139.5, 139.5] },
+  { max: 12, label: '9 a 12 kg', v: [59, 78, 96, 129.2, 161.5, 161.5] },
+  { max: 15, label: '12 a 15 kg', v: [69, 92, 113, 152, 190, 190] },
+  { max: 20, label: '15 a 20 kg', v: [81, 108, 140, 178, 222.5, 222.5] },
+  { max: 30, label: '20 a 30 kg', v: [102, 137, 195, 225.2, 281.5, 281.5] },
+  { max: 40, label: '30 a 40 kg', v: [126, 170, 250, 279.2, 349, 349] },
+  { max: 50, label: '40 a 50 kg', v: [163, 220, 305, 361.2, 451.5, 451.5] },
+  { max: 60, label: '50 a 60 kg', v: [183, 247, 334, 405.6, 507, 507] },
+  { max: 70, label: '60 a 70 kg', v: [188, 254, 363, 416.4, 520.5, 520.5] },
+  { max: 80, label: '70 a 80 kg', v: [196, 264, 392, 433.6, 542, 542] },
+  { max: 90, label: '80 a 90 kg', v: [220, 297, 421, 487.6, 609.5, 609.5] },
+  { max: 100, label: '90 a 100 kg', v: [254, 343, 450, 562.4, 703, 703] },
+  { max: 125, label: '100 a 125 kg', v: [288, 389, 523, 637.2, 796.5, 796.5] },
+  { max: 150, label: '125 a 150 kg', v: [382, 516, 694, 846, 1057.5, 1057.5] },
+  { max: 175, label: '150 a 175 kg', v: [476, 643, 865, 1054.8, 1318.5, 1318.5] },
+  { max: 200, label: '175 a 200 kg', v: [570, 770, 1036, 1263.6, 1579.5, 1579.5] },
+  { max: 225, label: '200 a 225 kg', v: [664, 897, 1207, 1472.4, 1840.5, 1840.5] },
+  { max: 250, label: '225 a 250 kg', v: [758, 1024, 1378, 1681.2, 2101.5, 2101.5] },
+  { max: 275, label: '250 a 275 kg', v: [852, 1151, 1549, 1890, 2362.5, 2362.5] },
+  { max: 300, label: '275 a 300 kg', v: [946, 1278, 1720, 2098.4, 2623, 2623] },
+  { max: 325, label: '300 a 325 kg', v: [1040, 1406, 1892, 2308, 2885, 2885] },
+  { max: 350, label: '325 a 350 kg', v: [1134, 1533, 2063, 2516.8, 3146, 3146] },
+  { max: Infinity, label: 'Acima de 350 kg', v: [1134, 1533, 2063, 2516.8, 3146, 3146] },
+];
+export const ML_MX_FRETE_GRATIS_MAX = 299;
+
+export function getMlMxFreteEstimado(pesoKg: number, preco: number, freteGratis: boolean): MlFreteInfo {
+  const faixa = ML_MX_FRETE_TABELA.find((f) => pesoKg <= f.max) ?? ML_MX_FRETE_TABELA[ML_MX_FRETE_TABELA.length - 1];
+  let idxPreco = ML_MX_FAIXAS_PRECO.findIndex((f) => preco <= f.max);
+  if (idxPreco === -1) idxPreco = ML_MX_FAIXAS_PRECO.length - 1;
+  // Frete grátis opcional: tarifa fixa por peso (a da faixa $299 a $498,99), sem faixa de preço.
+  if (freteGratis && preco < ML_MX_FRETE_GRATIS_MAX) {
+    return { faixaPesoLabel: faixa.label, faixaPrecoLabel: 'Frete grátis (< $ 299)', custo: faixa.v[3] };
+  }
+  return { faixaPesoLabel: faixa.label, faixaPrecoLabel: ML_MX_FAIXAS_PRECO[idxPreco].label, custo: faixa.v[idxPreco] };
+}
+
+// "Ropa, Bolsas y Calzado" Premium: 19,5% até $999 e 18% a partir de $1.000.
+export const ML_MX_ROPA_ID = 'ropa';
+export const ML_MX_ROPA_PREMIUM_PCT_ALTO = 18;
+export const ML_MX_ROPA_QUEBRA = 1000;
+
 function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
   if (s.canalAtivo === 'Venda direta') {
     return { pct: s.taxaCartaoPct / 100, fixo: 0 };
@@ -136,6 +200,14 @@ function taxasDoCanal(preco: number, s: CalculoState): CanalTaxas {
   if (s.canalAtivo === 'Mercado Livre Argentina') {
     const comissaoPct = s.mlArComissao / 100;
     const frete = getMlArFreteEstimado(s.mlArPesoEmbalagem, preco);
+    return { pct: comissaoPct, fixo: frete.custo, freteInfo: frete };
+  }
+  if (s.canalAtivo === 'Mercado Livre México') {
+    // Sem cargo fijo: só comissão + frete, mesma estrutura de Brasil e Argentina.
+    const ropaPremiumAlto = !s.mlMxComissaoManual && s.mlMxCategoria.split('|')[0] === ML_MX_ROPA_ID
+      && s.mlMxTipo === 'premium' && preco >= ML_MX_ROPA_QUEBRA;
+    const comissaoPct = (ropaPremiumAlto ? ML_MX_ROPA_PREMIUM_PCT_ALTO : s.mlMxComissao) / 100;
+    const frete = getMlMxFreteEstimado(s.mlMxPesoEmbalagem, preco, s.mlMxFreteGratis);
     return { pct: comissaoPct, fixo: frete.custo, freteInfo: frete };
   }
   if (s.canalAtivo === 'Mercado Livre') {
@@ -184,6 +256,7 @@ export function validar(s: CalculoState): ValidacaoFaltando[] {
   if (semPreco) faltando.push({ labelKey: 'calc.campoPrecoDoFilamento', id: 'filamentoList' });
   if (s.modoPrec === 'preco' && s.precoVenda === 0) faltando.push({ labelKey: 'calc.campoPrecoDeVenda', id: 'precoVenda' });
   if (s.canalAtivo === 'Mercado Livre Argentina' && !s.mlArCategoria) faltando.push({ labelKey: 'calc.campoCategoriaMercadoLivre', id: 'mlArCategoria' });
+  if (s.canalAtivo === 'Mercado Livre México' && !s.mlMxCategoria) faltando.push({ labelKey: 'calc.campoCategoriaMercadoLivre', id: 'mlMxCategoria' });
   if (s.canalAtivo === 'Mercado Livre' && !s.mlCategoria) faltando.push({ labelKey: 'calc.campoCategoriaMercadoLivre', id: 'mlCategoria' });
   return faltando;
 }
