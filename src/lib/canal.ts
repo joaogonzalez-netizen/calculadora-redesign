@@ -3,12 +3,13 @@
 // por canal do Histórico (CanalFiltro).
 import type { Canal } from '../types';
 
-export const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Mercado Livre Argentina', 'Shopee', 'Etsy', 'TikTok Shop'];
+export const CANAIS: Canal[] = ['Venda direta', 'Mercado Livre', 'Mercado Livre Argentina', 'Mercado Livre México', 'Shopee', 'Etsy', 'TikTok Shop'];
 
 export const CANAL_LABEL_KEYS: Record<Canal, string> = {
   'Venda direta': 'calc.canalVendaDireta',
   'Mercado Livre': 'calc.canalMercadoLivre',
   'Mercado Livre Argentina': 'calc.canalMercadoLivreArgentina',
+  'Mercado Livre México': 'calc.canalMercadoLivreMexico',
   'Shopee': 'calc.canalShopee',
   'Etsy': 'calc.canalEtsy',
   'TikTok Shop': 'calc.canalTiktokShop',
@@ -20,6 +21,7 @@ export const CANAL_COR: Record<Canal, { bg: string; fg: string }> = {
   'Venda direta': { bg: '#E3F5EC', fg: '#0B6B43' },
   'Mercado Livre': { bg: '#FFF3BF', fg: '#6B5200' },
   'Mercado Livre Argentina': { bg: '#DCEBFA', fg: '#154C85' },
+  'Mercado Livre México': { bg: '#D9F2EC', fg: '#0B5E4A' },
   'Shopee': { bg: '#FFE5D6', fg: '#9A3A0A' },
   'Etsy': { bg: '#EBE3FA', fg: '#4F2A9A' },
   'TikTok Shop': { bg: '#FCE1EC', fg: '#A01653' },

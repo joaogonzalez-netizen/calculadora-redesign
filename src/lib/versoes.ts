@@ -42,7 +42,7 @@ export const GERADOR_MARKETPLACES_VISIVEIS: Record<Idioma, string[]> = {
 // é o que aparece pras versões ES/EN, não o canal Brasil relabelado.
 export const CALC_CANAIS_VISIVEIS: Record<Idioma, Canal[]> = {
   pt: ['Venda direta', 'Mercado Livre', 'Shopee', 'TikTok Shop'],
-  es: ['Venda direta', 'Mercado Livre Argentina'],
+  es: ['Venda direta', 'Mercado Livre Argentina', 'Mercado Livre México'],
   en: ['Venda direta', 'Etsy', 'TikTok Shop'],
 };
 

@@ -1,8 +1,8 @@
 // Schemas per PRD seção 5/6, preservar nomes de campos exatamente.
 
-export type Canal = 'Venda direta' | 'Mercado Livre' | 'Mercado Livre Argentina' | 'Shopee' | 'Etsy' | 'TikTok Shop';
+export type Canal = 'Venda direta' | 'Mercado Livre' | 'Mercado Livre Argentina' | 'Mercado Livre México' | 'Shopee' | 'Etsy' | 'TikTok Shop';
 export type ModoPrec = 'preco' | 'margem';
-export type Moeda = 'BRL' | 'USD' | 'EUR' | 'ARS';
+export type Moeda = 'BRL' | 'USD' | 'EUR' | 'ARS' | 'MXN';
 export type CustoCategoria = 'Embalagem' | 'Mão de obra' | 'Acabamento' | 'Outro' | 'Outras';
 export type PgtoId = 'debito' | 'credito' | 'pix' | 'custom';
 export type MlTipo = 'classico' | 'premium';
@@ -161,6 +161,14 @@ export interface CalculoState {
   mlArComissaoManual: boolean;
   mlArComissao: number;
   mlArPesoEmbalagem: number;
+
+  // Mercado Livre México (canal próprio, mesma estrutura do Brasil/Argentina)
+  mlMxCategoria: string;
+  mlMxTipo: MlTipo;
+  mlMxComissaoManual: boolean;
+  mlMxComissao: number;
+  mlMxPesoEmbalagem: number;
+  mlMxFreteGratis: boolean; // opcional abaixo de $299
 
   // Shopee
   shopeeTipo: ShopeeTipo;

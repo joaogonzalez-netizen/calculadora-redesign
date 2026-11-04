@@ -28,7 +28,7 @@ const CATS_LABEL_KEYS: Record<CustoCategoria, string> = {
 };
 const TIPOS_FIL = ['PLA', 'PETG', 'ABS', 'TPU', 'Resina'];
 const MOEDAS: { m: Moeda; label: string }[] = [
-  { m: 'BRL', label: 'R$' }, { m: 'USD', label: 'US$' }, { m: 'EUR', label: '€' }, { m: 'ARS', label: 'AR$' },
+  { m: 'BRL', label: 'R$' }, { m: 'USD', label: 'US$' }, { m: 'EUR', label: '€' }, { m: 'ARS', label: 'AR$' }, { m: 'MXN', label: 'MX$' },
 ];
 
 export default function PreferenciasView() {
