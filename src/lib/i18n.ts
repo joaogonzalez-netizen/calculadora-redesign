@@ -6,7 +6,19 @@
 // depois troque o texto fixo pelo t('chave') no componente.
 export type Idioma = 'pt' | 'en' | 'es';
 
+export type RegiaoEs = 'ar' | 'mx';
+
 export const IDIOMA_PADRAO: Idioma = 'pt';
+export const REGIAO_ES_PADRAO: RegiaoEs = 'ar';
+export const REGIAO_ES_STORAGE_KEY = 'stlseller_regiao_es';
+
+// Opções da aba Idioma em Configurações: ES se divide por mercado (México/Argentina).
+export const OPCOES_IDIOMA: { id: string; idioma: Idioma; regiao?: RegiaoEs; label: string; bandeira: string }[] = [
+  { id: 'pt', idioma: 'pt', label: 'Português (Brasil)', bandeira: '🇧🇷' },
+  { id: 'en', idioma: 'en', label: 'English', bandeira: '🇺🇸' },
+  { id: 'es-mx', idioma: 'es', regiao: 'mx', label: 'Español (México)', bandeira: '🇲🇽' },
+  { id: 'es-ar', idioma: 'es', regiao: 'ar', label: 'Español (Argentina)', bandeira: '🇦🇷' },
+];
 export const IDIOMA_STORAGE_KEY = 'stlseller_idioma';
 
 export const IDIOMAS_DISPONIVEIS: { id: Idioma; label: string; bandeira: string }[] = [
@@ -837,6 +849,9 @@ const pt: Dicionario = {
   'config.subtituloGeral': 'Gerencie suas conexões com marketplaces e as extensões do STLSeller',
   'config.abaMarketplaces': 'Marketplaces',
   'config.abaExtensoes': 'Extensões',
+  'config.abaIdioma': 'Idioma',
+  'config.idiomaDesc': 'Escolha o idioma e o mercado. Isso libera os canais de venda, a moeda e os impostos de cada versão.',
+  'config.idiomaAtivo': 'Ativo',
   'config.conecteParaSincronizar': 'Conecte para sincronizar produtos e pedidos.',
   'config.extSubtitulo': 'Extensões do navegador que levam o STLSeller para onde você trabalha.',
   'config.extCopiadorNome': 'Copiador de anúncios',
@@ -2265,6 +2280,9 @@ const en: Dicionario = {
   'config.subtituloGeral': 'Manage your marketplace connections and STLSeller extensions',
   'config.abaMarketplaces': 'Marketplaces',
   'config.abaExtensoes': 'Extensions',
+  'config.abaIdioma': 'Language',
+  'config.idiomaDesc': 'Choose the language and market. This unlocks the sales channels, currency and taxes of each version.',
+  'config.idiomaAtivo': 'Active',
   'config.conecteParaSincronizar': 'Connect to sync products and orders.',
   'config.extSubtitulo': 'Browser extensions that bring STLSeller to where you work.',
   'config.extCopiadorNome': 'Listing copier',
@@ -4179,6 +4197,9 @@ const es: Dicionario = {
   'config.subtituloGeral': 'Gestioná tus conexiones con marketplaces y las extensiones de STLSeller',
   'config.abaMarketplaces': 'Marketplaces',
   'config.abaExtensoes': 'Extensiones',
+  'config.abaIdioma': 'Idioma',
+  'config.idiomaDesc': 'Elegí el idioma y el mercado. Esto habilita los canales de venta, la moneda y los impuestos de cada versión.',
+  'config.idiomaAtivo': 'Activo',
   'config.conecteParaSincronizar': 'Conectá para sincronizar productos y pedidos.',
   'config.extSubtitulo': 'Extensiones del navegador que llevan STLSeller adonde trabajás.',
   'config.extCopiadorNome': 'Copiador de anuncios',

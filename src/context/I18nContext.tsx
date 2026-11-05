@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { IDIOMA_PADRAO, IDIOMA_STORAGE_KEY, traduzir, type Idioma } from '../lib/i18n';
+import { IDIOMA_PADRAO, IDIOMA_STORAGE_KEY, REGIAO_ES_PADRAO, REGIAO_ES_STORAGE_KEY, traduzir, type Idioma, type RegiaoEs } from '../lib/i18n';
 import { definirIdiomaFormato } from '../lib/format';
 
 interface Ctx {
   idioma: Idioma;
-  setIdioma: (i: Idioma) => void;
+  regiaoEs: RegiaoEs;
+  setIdioma: (i: Idioma, regiao?: RegiaoEs) => void;
   t: (chave: string) => string;
 }
 
@@ -15,12 +16,22 @@ function lerIdiomaSalvo(): Idioma {
   return salvo === 'pt' || salvo === 'en' || salvo === 'es' ? salvo : IDIOMA_PADRAO;
 }
 
+function lerRegiaoSalva(): RegiaoEs {
+  const salva = localStorage.getItem(REGIAO_ES_STORAGE_KEY);
+  return salva === 'ar' || salva === 'mx' ? salva : REGIAO_ES_PADRAO;
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [idioma, setIdiomaState] = useState<Idioma>(lerIdiomaSalvo);
 
-  function setIdioma(i: Idioma) {
+  const [regiaoEs, setRegiaoEs] = useState<RegiaoEs>(lerRegiaoSalva);
+
+  function setIdioma(i: Idioma, regiao?: RegiaoEs) {
     setIdiomaState(i);
     localStorage.setItem(IDIOMA_STORAGE_KEY, i);
+    if (!regiao) return;
+    setRegiaoEs(regiao);
+    localStorage.setItem(REGIAO_ES_STORAGE_KEY, regiao);
   }
 
   // Antes de renderizar os filhos: formatação de moeda/número já sai no idioma certo.
@@ -30,7 +41,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return traduzir(idioma, chave);
   }
 
-  return <I18nCtx.Provider value={{ idioma, setIdioma, t }}>{children}</I18nCtx.Provider>;
+  return <I18nCtx.Provider value={{ idioma, regiaoEs, setIdioma, t }}>{children}</I18nCtx.Provider>;
 }
 
 export function useI18n() {
