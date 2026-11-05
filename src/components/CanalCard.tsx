@@ -5,7 +5,7 @@ import { useI18n } from '../context/I18nContext';
 import { useMoeda } from '../context/MoedaContext';
 import type { Canal, PgtoId } from '../types';
 import { brl, fmtMoeda, moedaSimbolo } from '../lib/format';
-import { CALC_CANAIS_VISIVEIS, MOSTRAR_PIX } from '../lib/versoes';
+import { canaisVisiveis, MOSTRAR_PIX } from '../lib/versoes';
 import { getTiktokFaixa, getTiktokTaxaServicoFrete, precoParaLojaEfetivo } from '../lib/calc';
 import { CANAIS, CANAL_LABEL_KEYS } from '../lib/canal';
 import Card from './Card';
@@ -94,9 +94,9 @@ export default function CanalCard() {
   const [vigenciaAberta, setVigenciaAberta] = useState(false);
   const { state, set, errorIds, resultado } = useCalculadora();
   const { prefs } = useLibrarias();
-  const { t, idioma } = useI18n();
+  const { t, idioma, regiaoEs } = useI18n();
   const { moeda } = useMoeda();
-  const canaisVisiveis = CANAIS.filter((c) => CALC_CANAIS_VISIVEIS[idioma].includes(c));
+  const canaisDoMercado = CANAIS.filter((c) => canaisVisiveis(idioma, regiaoEs).includes(c));
 
   function selectCanal(canal: Canal) {
     set('canalAtivo', canal);
@@ -193,7 +193,7 @@ export default function CanalCard() {
   return (
     <Card icon="⌂" title={t('calc.canalDeVenda')}>
       <div className="chip-row">
-        {canaisVisiveis.map((c) => (
+        {canaisDoMercado.map((c) => (
           <button key={c} type="button" className={'chip' + (state.canalAtivo === c ? ' active' : '')} onClick={() => selectCanal(c)}>{t(CANAL_LABEL_KEYS[c])}</button>
         ))}
       </div>

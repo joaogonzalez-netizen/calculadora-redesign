@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Idioma } from '../lib/i18n';
+import { OPCOES_IDIOMA, type Idioma } from '../lib/i18n';
 import { readJson, writeJson } from '../lib/storage';
 import { MARKETPLACES_CONECTADOS_KEY, marcarOnboardingManual } from '../lib/onboarding';
 import { useI18n } from '../context/I18nContext';
@@ -34,7 +34,11 @@ const MARKETPLACES_CONFIG_EN: MarketplaceConfig[] = [
   { id: 'tiktok', nome: 'TikTok Shop', cor: '#111111', formato: 'quadrado', conectadoInicial: false },
 ];
 
+// Versão ES (México/Argentina): só Mercado Libre, sem Shopee/Amazon.
+const MARKETPLACES_CONFIG_ES: MarketplaceConfig[] = MARKETPLACES_CONFIG.filter((m) => m.id === 'ml');
+
 function marketplacesDoIdioma(idioma: Idioma): MarketplaceConfig[] {
+  if (idioma === 'es') return MARKETPLACES_CONFIG_ES;
   return idioma === 'en' ? MARKETPLACES_CONFIG_EN : MARKETPLACES_CONFIG;
 }
 
@@ -77,10 +81,11 @@ interface CadastroForm {
 
 const CADASTRO_INICIAL: CadastroForm = { nomeLoja: '', email: '', documento: '', telefone: '', aceitaTermos: false };
 
-type AbaConfig = 'marketplaces' | 'extensoes';
+type AbaConfig = 'marketplaces' | 'extensoes' | 'idioma';
 const ABAS: { id: AbaConfig; chave: string }[] = [
   { id: 'marketplaces', chave: 'config.abaMarketplaces' },
   { id: 'extensoes', chave: 'config.abaExtensoes' },
+  { id: 'idioma', chave: 'config.abaIdioma' },
 ];
 
 // Extensão do Chrome "Copiador de anúncios". Ainda não está na Chrome Web
@@ -99,7 +104,7 @@ interface ConfiguracoesProps {
 }
 
 export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: ConfiguracoesProps) {
-  const { t, idioma } = useI18n();
+  const { t, idioma, regiaoEs, setIdioma } = useI18n();
   const en = idioma === 'en';
   const MARKETPLACES_CONFIG = marketplacesDoIdioma(idioma);
   const [estado, setEstado] = useState<Record<string, EstadoMp>>(() => estadoInicial(MARKETPLACES_CONFIG));
@@ -179,7 +184,7 @@ export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: Co
         {ABAS.map((a) => (
           <button key={a.id} type="button" role="tab" aria-selected={aba === a.id} className={'chip' + (aba === a.id ? ' active' : '')} onClick={() => setAba(a.id)}>
             {t(a.chave)}
-            <span className="cfg-aba-contador">{a.id === 'marketplaces' ? `${conectados}/${MARKETPLACES_CONFIG.length}` : (copiadorInstalado ? 1 : 0)}</span>
+            {a.id !== 'idioma' && <span className="cfg-aba-contador">{a.id === 'marketplaces' ? `${conectados}/${MARKETPLACES_CONFIG.length}` : (copiadorInstalado ? 1 : 0)}</span>}
           </button>
         ))}
       </div>
@@ -217,6 +222,33 @@ export default function ConfiguracoesView({ onChange, onIrParaMeusAnuncios }: Co
                     )}
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {aba === 'idioma' && (
+        <>
+          <p className="cfg-aba-desc">{t('config.idiomaDesc')}</p>
+          <div className="config-mp-grid" role="radiogroup">
+            {OPCOES_IDIOMA.map((o) => {
+              const ativo = o.idioma === idioma && (o.idioma !== 'es' || o.regiao === regiaoEs);
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={ativo}
+                  className={'config-mp-card' + (ativo ? ' conectado' : '')}
+                  style={{ textAlign: 'left', cursor: 'pointer' }}
+                  onClick={() => setIdioma(o.idioma, o.regiao)}
+                >
+                  <div className="config-mp-head">
+                    <div className="config-mp-nome"><span style={{ fontSize: 22 }}>{o.bandeira}</span>{o.label}</div>
+                    {ativo && <span className="config-status-pill"><i className="config-status-dot" />{t('config.idiomaAtivo')}</span>}
+                  </div>
+                </button>
               );
             })}
           </div>

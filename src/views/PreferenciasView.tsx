@@ -36,17 +36,17 @@ export default function PreferenciasView() {
     impressoras, setImpressoras, filamentos, setFilamentos, custosPadrao, setCustosPadrao,
     prefs, setPrefs,
   } = useLibrarias();
-  const { t, idioma } = useI18n();
+  const { t, idioma, regiaoEs } = useI18n();
 
   const [tab, setTab] = useState<Tab>('moeda');
 
   // Buffer local, só grava em `prefs` (localStorage) ao clicar "Salvar preferências",
   // igual ao protótipo. As bibliotecas (impressoras/filamentos/custos) já são live.
-  const [moeda, setMoedaBuf] = useState<Moeda>(moedaDasPrefs(prefs, idioma));
+  const [moeda, setMoedaBuf] = useState<Moeda>(moedaDasPrefs(prefs, idioma, regiaoEs));
   const [kwh, setKwh] = useState(String(prefs.kwh));
   const [impressoraSel, setImpressoraSel] = useState(prefs.impressora);
   const [filamentoSel, setFilamentoSel] = useState(prefs.filamento);
-  const [imposto, setImposto] = useState(String(impostoDasPrefs(prefs, idioma)));
+  const [imposto, setImposto] = useState(String(impostoDasPrefs(prefs, idioma, regiaoEs)));
   const [margem, setMargem] = useState(String(prefs.margem));
   const [taxaDebito, setTaxaDebito] = useState(String(prefs.taxaDebito));
   const [taxaCredito, setTaxaCredito] = useState(String(prefs.taxaCredito));
@@ -56,10 +56,10 @@ export default function PreferenciasView() {
 
   // Imposto e moeda têm padrão próprio na versão ES, trocar de idioma recarrega os buffers.
   useEffect(() => {
-    setMoedaBuf(moedaDasPrefs(prefs, idioma));
-    setImposto(String(impostoDasPrefs(prefs, idioma)));
+    setMoedaBuf(moedaDasPrefs(prefs, idioma, regiaoEs));
+    setImposto(String(impostoDasPrefs(prefs, idioma, regiaoEs)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idioma]);
+  }, [idioma, regiaoEs]);
   const simbolo = moedaSimbolo(moeda);
 
   function salvar() {

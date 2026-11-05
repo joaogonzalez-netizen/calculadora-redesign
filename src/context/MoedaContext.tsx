@@ -13,8 +13,8 @@ const MoedaCtx = createContext<Ctx | null>(null);
 
 export function MoedaProvider({ children }: { children: ReactNode }) {
   const { prefs } = useLibrarias();
-  const { idioma } = useI18n();
-  const moedaPadrao = moedaDasPrefs(prefs, idioma);
+  const { idioma, regiaoEs } = useI18n();
+  const moedaPadrao = moedaDasPrefs(prefs, idioma, regiaoEs);
   const [moeda, setMoeda] = useState<Moeda>(moedaPadrao);
   // Trocar de idioma (AR$ no ES) ou salvar outra moeda nas Preferências volta o seletor pro padrão.
   useEffect(() => setMoeda(moedaPadrao), [moedaPadrao]);

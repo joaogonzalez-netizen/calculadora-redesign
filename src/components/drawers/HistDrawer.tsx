@@ -4,7 +4,7 @@ import { brl } from '../../lib/format';
 import { getHistorico, saveHistoricoArr } from '../../lib/storage';
 import type { Canal } from '../../types';
 import { CANAIS, CANAL_LABEL_KEYS } from '../../lib/canal';
-import { CALC_CANAIS_VISIVEIS } from '../../lib/versoes';
+import { canaisVisiveis } from '../../lib/versoes';
 import { useCalculadora } from '../../context/CalculadoraContext';
 import { useI18n } from '../../context/I18nContext';
 
@@ -17,7 +17,7 @@ interface Props {
 
 export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculadora }: Props) {
   const { restaurarHistorico, patch } = useCalculadora();
-  const { t, idioma } = useI18n();
+  const { t, idioma, regiaoEs } = useI18n();
   const [nome, setNome] = useState('');
   const [copiando, setCopiando] = useState(false);
 
@@ -54,7 +54,7 @@ export default function HistDrawer({ entry, onClose, onChange, onAbrirNaCalculad
     onAbrirNaCalculadora();
     onClose();
   }
-  const outrosCanais = CANAIS.filter((c) => CALC_CANAIS_VISIVEIS[idioma].includes(c) && c !== entry.marketplace);
+  const outrosCanais = CANAIS.filter((c) => canaisVisiveis(idioma, regiaoEs).includes(c) && c !== entry.marketplace);
 
   const filLines = entry.filamentoItems && entry.filamentoItems.length
     ? entry.filamentoItems.map((f, i) => (

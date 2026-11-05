@@ -62,7 +62,7 @@ const CalculadoraCtx = createContext<Ctx | null>(null);
 
 export function CalculadoraProvider({ children }: { children: ReactNode }) {
   const { prefs, filamentos, impressoras, custosPadrao } = useLibrarias();
-  const { idioma } = useI18n();
+  const { idioma, regiaoEs } = useI18n();
   const [state, setState] = useState<CalculoState>(estadoInicial);
   const [errorIds, setErrorIds] = useState<Set<string>>(new Set());
   const aplicouPrefs = useRef(false);
@@ -76,7 +76,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
       const next: CalculoState = {
         ...prev,
         precoKwh: prefs.kwh || prev.precoKwh,
-        imposto: impostoDasPrefs(prefs, idioma),
+        imposto: impostoDasPrefs(prefs, idioma, regiaoEs),
         margemDesejada: prefs.margem || prev.margemDesejada,
         pgtoPixTaxa: prefs.taxaPix ?? prev.pgtoPixTaxa,
         pgtoPixDesconto: prefs.descontoPix ?? prev.pgtoPixDesconto,
@@ -104,7 +104,7 @@ export function CalculadoraProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Trocar de idioma troca o imposto padrão junto (IVA 21% no ES).
-  const impostoPadrao = impostoDasPrefs(prefs, idioma);
+  const impostoPadrao = impostoDasPrefs(prefs, idioma, regiaoEs);
   const idiomaAnterior = useRef(idioma);
   useEffect(() => {
     if (idiomaAnterior.current === idioma) return;
