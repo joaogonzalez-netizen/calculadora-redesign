@@ -9,6 +9,7 @@ import {
 } from '../../lib/etiquetasShopee';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
+import EtiquetaShopee from './EtiquetaShopee';
 
 interface Props {
   pedidos: Pedido[];
@@ -22,53 +23,6 @@ interface Props {
 type Fase = 'config' | 'gerando' | 'resultado';
 
 const ETIQUETAS_POR_FOLHA_A4 = 4;
-
-function Barras({ codigo }: { codigo: string }) {
-  const barras: { x: number; w: number }[] = [];
-  let x = 0;
-  for (const ch of codigo + codigo) {
-    const c = ch.charCodeAt(0);
-    const w = 1 + (c % 3);
-    barras.push({ x, w });
-    x += w + 1 + ((c >> 2) % 2);
-  }
-  return (
-    <svg className="etq-barras" viewBox={`0 0 ${x} 40`} preserveAspectRatio="none" role="img" aria-label={codigo}>
-      {barras.map((b, i) => <rect key={i} x={b.x} y={0} width={b.w} height={40} fill="currentColor" />)}
-    </svg>
-  );
-}
-
-// Imitação do arquivo oficial. O texto fica em português de propósito: a
-// etiqueta real da Shopee não muda de idioma com o app.
-function Etiqueta({ pedido }: { pedido: Pedido }) {
-  return (
-    <div className="etq-label-box">
-    <div className="etq-label">
-      <div className="etq-topo">
-        <b>Shopee Xpress</b>
-        <span>Standard</span>
-      </div>
-      <Barras codigo={pedido.envioCodigo} />
-      <div className="etq-codigo">{pedido.envioCodigo}</div>
-      <div className="etq-bloco">
-        <small>DESTINATÁRIO</small>
-        <b>{pedido.comprador}</b>
-        <span>{pedido.destinoCidade}</span>
-        <span>CEP {pedido.destinoCep}</span>
-      </div>
-      <div className="etq-bloco">
-        <small>REMETENTE</small>
-        <span>{pedido.conta}</span>
-      </div>
-      <div className="etq-rodape">
-        <span>Pedido {pedido.id.slice(-8)}</span>
-        <span>0,3 kg</span>
-      </div>
-    </div>
-    </div>
-  );
-}
 
 function plural(t: (c: string) => string, chave: string, n: number, extra: Record<string, string> = {}) {
   let texto = n === 1 ? t(chave + 'Uma') : t(chave);
@@ -191,13 +145,13 @@ export default function EtiquetaModal({ pedidos, impressas, onClose, onImpresso 
                   <div className="etq-folha etq-folha-a4">
                     {Array.from({ length: ETIQUETAS_POR_FOLHA_A4 }, (_, i) => (
                       <div className="etq-slot" key={i}>
-                        {visiveis[i] && <Etiqueta pedido={visiveis[i]} />}
+                        {visiveis[i] && <EtiquetaShopee pedido={visiveis[i]} />}
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="etq-folha etq-folha-a6">
-                    <Etiqueta pedido={visiveis[0]} />
+                    <EtiquetaShopee pedido={visiveis[0]} />
                   </div>
                 )}
                 {totalPaginas > 1 && (

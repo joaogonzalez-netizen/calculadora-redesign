@@ -1970,6 +1970,8 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .etq-tag-a-emitir{background:#fff3d6;color:#7a5600;}
 .etq-tag-emitida{background:var(--primary-tint-strong);color:var(--primary-dark);}
 .etq-tag-indisponivel{background:#eceeed;color:#4a514d;}
+.etq-tag-emitir-nf{background:#e3edff;color:#1f4fa8;}
+.etq-tag-em-breve{background:#eef0f6;color:#4b5470;}
 .ped-etiq-motivo{font-size:11.5px;color:var(--text-2);margin-top:2px;}
 .ped-etiq-selo{font-size:11.5px;color:var(--primary-dark);margin-top:2px;font-weight:600;}
 .ped-bulk{
@@ -1984,13 +1986,13 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .ped-etiq-rodape button:disabled{opacity:.5;cursor:not-allowed;}
 .ped-etiq-inline{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;font-size:12.5px;}
 
-.modal-center.etq-modal{width:760px;max-width:92vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.modal-center.etq-modal{width:860px;max-width:92vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
 .etq-modal h4{margin:0;padding-right:36px;font-size:20px;}
 .etq-modal .modal-levar-x{min-width:44px;min-height:44px;justify-content:center;align-items:center;}
 .etq-modal:focus{outline:none;}
 .etq-resumo{margin:0;}
 .etq-aviso{margin:0;}
-.etq-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+.etq-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;}
 @media (max-width:700px){ .etq-grid{grid-template-columns:1fr;} }
 .etq-formatos{border:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
 .etq-formatos legend{padding:0;margin-bottom:10px;}
@@ -2007,29 +2009,53 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .etq-nota{margin-top:12px;}
 .etq-previa-col{display:flex;flex-direction:column;align-items:center;gap:10px;}
 .etq-folha{background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(20,24,26,.1);overflow:hidden;width:100%;}
-.etq-folha-a6{max-width:240px;aspect-ratio:2/3;}
-.etq-folha-a4{max-width:270px;aspect-ratio:210/297;padding:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+.etq-folha-a6{max-width:330px;aspect-ratio:2/3;}
+.etq-folha-a4{max-width:330px;aspect-ratio:210/297;padding:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
 /* Cada célula é um A6 (105×148 mm); a etiqueta preenche a célula. */
 .etq-slot{min-width:0;min-height:0;border:0 dashed #c9cecb;}
 .etq-slot:nth-child(odd){border-right-width:1px;}
 .etq-slot:nth-child(-n+2){border-bottom-width:1px;}
-.etq-folha-a4 .etq-label-box{aspect-ratio:auto;height:100%;}
+/* A célula A6 é um pouco mais larga que 10×15: a etiqueta mantém a proporção e fica centralizada. */
+.etq-folha-a4 .etq-label-box{aspect-ratio:2/3;height:100%;width:auto;margin:0 auto;}
 .etq-nav{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-2);}
 .etq-nav .page-btn{min-width:44px;min-height:44px;}
 /* A caixa é o container das unidades cqw: a etiqueta escala igual em A6 e dentro da folha A4. */
 .etq-label-box{container-type:inline-size;aspect-ratio:2/3;width:100%;border:0 solid #14181a;background:#fff;}
 .etq-label{
-  width:100%;height:100%;color:#14181a;
-  padding:5cqw;display:flex;flex-direction:column;gap:3cqw;font-size:4.2cqw;line-height:1.25;box-sizing:border-box;
+  width:100%;height:100%;color:#000;background:#fff;display:flex;flex-direction:column;box-sizing:border-box;
+  font-size:3.1cqw;line-height:1.25;padding:2.5cqw 3cqw 2cqw;gap:1.6cqw;
 }
-.etq-topo{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.6cqw solid #14181a;padding-bottom:2cqw;}
-.etq-topo b{font-size:7cqw;}
-.etq-barras{width:100%;height:18cqw;color:#14181a;}
-.etq-codigo{text-align:center;font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:5cqw;letter-spacing:.1em;}
-.etq-bloco{display:flex;flex-direction:column;border-top:.3cqw solid #14181a;padding-top:2cqw;}
-.etq-bloco small{font-size:3.2cqw;font-weight:700;letter-spacing:.06em;}
-.etq-bloco b{font-size:5.4cqw;}
-.etq-rodape{margin-top:auto;display:flex;justify-content:space-between;font-size:3.6cqw;border-top:.3cqw solid #14181a;padding-top:2cqw;}
+.etq-label b{font-weight:700;}
+.etq-sec{border-bottom:.5cqw solid #000;padding-bottom:1.6cqw;}
+.etq-faixa{align-self:flex-start;background:#000;color:#fff;font-size:2.7cqw;font-weight:800;letter-spacing:.04em;padding:.4cqw 1.6cqw;margin-left:-3cqw;border-radius:0 .8cqw .8cqw 0;}
+.etq-qr{display:block;color:#000;background:#fff;}
+.etq-barras{display:block;width:100%;height:12cqw;color:#000;}
+.etq-dest{display:flex;justify-content:space-between;gap:2cqw;}
+.etq-dest-txt{display:flex;flex-direction:column;gap:.5cqw;min-width:0;flex:1;}
+.etq-nome{font-size:4.4cqw;}
+.etq-dest-lado{display:flex;flex-direction:column;align-items:flex-end;gap:1cqw;flex:0 0 21cqw;}
+.etq-shopee{font-size:3.4cqw;font-weight:800;letter-spacing:-.01em;}
+.etq-dest-lado .etq-qr{width:21cqw;height:21cqw;}
+.etq-r{background:#000;color:#fff;font-size:5cqw;font-weight:800;line-height:1;padding:.8cqw 2.4cqw;border-radius:.6cqw;}
+.etq-rota{display:flex;align-items:center;justify-content:space-between;gap:3cqw;}
+.etq-rota-qr{display:flex;flex-direction:column;align-items:center;gap:.8cqw;flex:0 0 21cqw;text-align:center;font-weight:700;font-size:2.8cqw;}
+.etq-rota-qr .etq-qr{width:21cqw;height:21cqw;}
+.etq-rota-codigos{display:flex;flex-direction:column;gap:1.8cqw;flex:1;}
+.etq-rota-codigos b{background:#000;color:#fff;text-align:center;font-size:9.5cqw;line-height:1;padding:2.2cqw 1cqw;border-radius:1cqw;white-space:nowrap;}
+.etq-coleta{display:flex;align-items:center;justify-content:space-between;gap:3cqw;}
+.etq-coleta-cod{display:flex;flex-direction:column;gap:.6cqw;flex:1;font-size:2.6cqw;}
+.etq-coleta-txt{font-size:5.4cqw;letter-spacing:.02em;}
+.etq-rem{display:flex;justify-content:space-between;gap:2cqw;}
+.etq-rem-txt{display:flex;flex-direction:column;gap:.5cqw;min-width:0;flex:1;}
+.etq-rem-lado{display:flex;flex-direction:column;align-items:flex-end;gap:1cqw;flex:0 0 17cqw;}
+.etq-rem-lado .etq-qr{width:17cqw;height:17cqw;}
+.etq-hub{border:.6cqw solid #000;font-size:3cqw;font-weight:800;line-height:1.1;text-align:center;padding:.8cqw 2cqw;border-radius:.8cqw;}
+.etq-danfe{margin-top:auto;display:flex;flex-direction:column;gap:.9cqw;border-top:.5cqw solid #000;padding-top:1cqw;}
+.etq-danfe-titulo{text-align:center;font-size:3.1cqw;font-weight:800;}
+.etq-danfe-meta{display:flex;justify-content:space-between;gap:1cqw;font-size:2.4cqw;}
+.etq-danfe-chave{text-align:center;font-size:2.5cqw;letter-spacing:.02em;word-break:break-all;}
+.etq-danfe .etq-barras{height:9cqw;}
+.etq-danfe-item{font-size:2.5cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .etq-gerando{display:flex;flex-direction:column;align-items:center;gap:14px;padding:36px 0;}
 .etq-gerando p{margin:0;}
 .etq-spinner{width:32px;height:32px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--primary);animation:etq-gira .8s linear infinite;}
