@@ -29,7 +29,7 @@ const TODAS = 'Todas';
 const STATUS_OPTS = ['Todos', 'Pago', 'Enviado', 'Pendente', 'Cancelado', 'Entregue'];
 // Filtro de etiqueta Shopee: 'todas' ou um StatusEtiqueta.
 const ETQ_TODAS = 'todas';
-const ETQ_OPTS = [ETQ_TODAS, 'a-emitir', 'emitida', 'indisponivel'];
+const ETQ_OPTS = [ETQ_TODAS, 'a-emitir', 'emitir-nf', 'emitida', 'indisponivel'];
 
 const STATUS_CLASSE: Record<Pedido['status'], string> = {
   Pago: 'ped-status-pago',
@@ -281,7 +281,7 @@ export default function PedidosView() {
                             {(() => {
                               const dica = st === 'emitida'
                                 ? t('pedidos.etiqueta.impressaEm').replace('{data}', dataImpressao(impressas[p.id]))
-                                : st === 'indisponivel' ? motivoTexto(p) : '';
+                                : st === 'indisponivel' ? motivoTexto(p) : st === 'emitir-nf' ? t('pedidos.etiqueta.dica.emitirNf') : '';
                               return (
                                 <span
                                   id={'etq-st-' + p.id}

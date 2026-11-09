@@ -5,7 +5,7 @@
 import type { Pedido } from './pedidosMock';
 
 export type FormatoEtiqueta = 'termica-a6' | 'a4';
-export type MotivoInelegivel = 'pendente' | 'cancelado' | 'entregue';
+export type MotivoInelegivel = 'pendente' | 'cancelado' | 'entregue' | 'notaFiscal';
 export type ErroEtiqueta = 'codigo' | 'falha';
 
 export interface ResultadoEtiqueta {
@@ -28,6 +28,8 @@ export function motivoInelegivel(p: Pedido): MotivoInelegivel | null {
   if (p.status === 'Pendente') return 'pendente';
   if (p.status === 'Cancelado') return 'cancelado';
   if (p.status === 'Entregue') return 'entregue';
+  // A Shopee só libera a etiqueta depois da nota fiscal enviada, e a nota é emitida na loja do vendedor.
+  if (p.nfEnviada === false) return 'notaFiscal';
   return null;
 }
 
@@ -124,7 +126,7 @@ export function dadosDaEtiqueta(p: Pedido): DadosEtiqueta {
   };
 }
 
-export type StatusEtiqueta = 'a-emitir' | 'emitida' | 'indisponivel';
+export type StatusEtiqueta = 'a-emitir' | 'emitir-nf' | 'emitida' | 'indisponivel';
 
 /**
  * Status da coluna Etiquetas. Null para pedido de outro marketplace.
@@ -134,7 +136,9 @@ export type StatusEtiqueta = 'a-emitir' | 'emitida' | 'indisponivel';
 export function statusEtiqueta(p: Pedido, impressas: Record<string, string>): StatusEtiqueta | null {
   if (!ehPedidoShopee(p)) return null;
   if (impressas[p.id]) return 'emitida';
-  return motivoInelegivel(p) ? 'indisponivel' : 'a-emitir';
+  const motivo = motivoInelegivel(p);
+  if (motivo === 'notaFiscal') return 'emitir-nf';
+  return motivo ? 'indisponivel' : 'a-emitir';
 }
 
 /**

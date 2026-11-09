@@ -46,6 +46,8 @@ export const CONTAS_PEDIDOS_US: ContaMarketplace[] = [
 
 export interface Pedido<M extends string = MarketplacePedidoBr | MarketplacePedidoUs> {
   id: string;
+  /** Shopee: a nota fiscal já foi enviada à Shopee. Ela é emitida só na loja do vendedor, nunca pelo STLSeller. */
+  nfEnviada?: boolean;
   codigoMlb: string;
   produto: string;
   qtd: number;
@@ -180,6 +182,8 @@ export function gerarPedidos(qtd: number): Pedido<MarketplacePedidoBr>[] {
       rastreio: 'BR' + String(1234567890 + i) + 'XX',
       itens: [{ nome: produto.nome, qtd: qtdItem, precoUnit: produto.preco, cor: 'Preto' }],
       timeline: montarTimeline(ciclo.status, dataBase),
+      // Um dos pedidos Shopee pagos ainda espera a nota, pra tela mostrar o estado.
+      nfEnviada: marketplace === 'Shopee' ? !(ciclo.status === 'Pago' && (((i - 1) / 3) % CICLO_STATUS_SHOPEE.length) === 3) : undefined,
     };
   });
 }

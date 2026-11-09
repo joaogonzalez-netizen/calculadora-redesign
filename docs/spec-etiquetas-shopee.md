@@ -81,6 +81,7 @@ Quem pode ser selecionado:
 | Status Pago ou Enviado | Sim | Pendente: "Aguardando pagamento". Cancelado: "Pedido cancelado" |
 | Código de envio existe | Sim | "Código de envio ainda não gerado" |
 | Entregue | Não | "Pedido já entregue" |
+| Nota fiscal enviada à Shopee | Sim | Status "Emitir nota fiscal": "Emita a nota fiscal na Shopee para liberar a etiqueta" |
 
 ### 3.3 Modal de impressão
 
@@ -145,7 +146,7 @@ Todo texto novo precisa de entrada PT/ES/EN em `src/lib/i18n.ts`. Na versão atu
 | Ponto | O que o backend precisa entregar |
 |---|---|
 | Arquivo da etiqueta | PDF (ou ZPL) por pedido e em lote, no formato escolhido |
-| Elegibilidade | Status do envio e se o código já foi gerado, por pedido |
+| Elegibilidade | Status do envio, se o código já foi gerado e **se a nota fiscal já foi enviada à Shopee**, por pedido |
 | Marcar impressa | Registro de data e usuário, para o selo e o aviso de reimpressão |
 | Limite do lote | Limite da API da Shopee, para trocar o 50 do protótipo |
 | Impressora térmica | Se o formato é ZPL, e como lidar com a opção da Central |
@@ -190,6 +191,7 @@ Código: `src/views/PedidosView.tsx`, `src/components/pedidos/EtiquetaModal.tsx`
 
 - **Coluna fixa "Etiquetas" (revisão):** primeira coluna da tabela, presa à esquerda, com o checkbox e o status da etiqueta. Fica visível mesmo com filtro em outro canal (pedidos fora da Shopee mostram "—"). Só nos mercados PT/ES. Status:
   - **A emitir:** Shopee elegível, ainda sem emissão.
+  - **Emitir nota fiscal:** pedido Shopee pago ou enviado cuja nota fiscal ainda não foi enviada. A Shopee só libera a etiqueta depois da nota, e a nota é emitida **apenas na loja do vendedor na Shopee**: o STLSeller não emite nota fiscal. Checkbox desabilitado, e a tag mostra o tooltip "A nota fiscal é emitida na sua loja da Shopee. A etiqueta libera depois que ela for enviada." No drawer o botão de imprimir fica desabilitado com o mesmo motivo. Quando a nota é enviada na Shopee e o pedido sincroniza, o status passa a A emitir.
   - **Emitida:** tag com a data. O checkbox e o ícone de impressora continuam ativos, então dá para emitir de novo.
   - **Indisponível:** Shopee não elegível, com o motivo em texto abaixo.
 - **Filtro "Etiqueta":** Todas, A emitir, Emitida, Indisponível. Combina com os outros filtros e limpa a seleção ao mudar. Os motivos que antes ficavam sob o nome do pedido e o selo sob o status foram para essa coluna.
@@ -198,6 +200,7 @@ Código: `src/views/PedidosView.tsx`, `src/components/pedidos/EtiquetaModal.tsx`
 - **Baixar PDF:** mostra aviso "Em breve".
 - **Preview:** a etiqueta simulada fica sempre em português, como a oficial.
 - **Persistência:** formato e impressas ficam em `localStorage` (`stlseller_etiqueta_formato`, `stlseller_etiquetas_impressas`). No real, a data de impressão vai para o backend (seção 7).
+- **Nota fiscal (mock):** o campo `nfEnviada` do pedido Shopee simula se a nota já foi enviada. Um dos pedidos pagos do mock nasce com a nota pendente. No contrato real, esse dado vem da Shopee (seção 7); a ação de emitir nota nunca fica no STLSeller.
 - **Preview da etiqueta:** segue a anatomia da etiqueta real (seção 1), com dados fictícios. QR e códigos de barras são desenhos sem leitura. O preview não traz o PDF de verdade.
 - **Fila de produção:** reusa o `PedidoDrawer`, que só mostra a impressão quando recebe o callback.
 - **Foco:** ao concluir um lote, o foco cai no `body`, porque o botão de origem some com a barra de ação. A corrigir.
