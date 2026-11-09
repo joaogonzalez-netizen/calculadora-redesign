@@ -3,7 +3,7 @@ import type { View } from '../App';
 import { USUARIO } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
 import { MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS } from '../lib/versoes';
-import Icon, { LogoMark, type IconName } from './Icon';
+import Icon, { type IconName } from './Icon';
 
 interface Props {
   view: View;
@@ -51,11 +51,6 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
       <button type="button" className="sidebar-toggle" onClick={onToggleCollapsed} aria-label={collapsed ? t('nav.expandirMenu') : t('nav.recolherMenu')}>
         <Icon name="chevron" size={14} />
       </button>
-
-      <div className="logo-row">
-        <LogoMark />
-        <div className="logo-text"><span>STL</span>SELLER</div>
-      </div>
 
       <div className="nav-scroll">
         {mostrarPrimeirosPassos && (

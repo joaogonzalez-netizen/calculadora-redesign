@@ -91,6 +91,10 @@ const pt: Dicionario = {
 
   'topbar.creditos': 'créditos',
   'topbar.notificacoes': 'Notificações',
+  'header.loja': 'Loja',
+  'header.cursosAoVivo': 'Cursos ao vivo',
+  'header.feedback': 'Feedback',
+  'header.usuario': 'Minha conta',
   'topbar.title.dashboard': 'Painel',
   'topbar.title.produtos': 'Anúncios marketplace',
   'topbar.title.calculadora': 'Calculadora de preços',
@@ -3079,6 +3083,10 @@ const en: Dicionario = {
 
   'topbar.creditos': 'credits',
   'topbar.notificacoes': 'Notifications',
+  'header.loja': 'Store',
+  'header.cursosAoVivo': 'Live courses',
+  'header.feedback': 'Feedback',
+  'header.usuario': 'My account',
   'topbar.title.dashboard': 'Dashboard',
   'topbar.title.produtos': 'Marketplace listings',
   'topbar.title.calculadora': 'Price calculator',
@@ -3439,6 +3447,10 @@ const es: Dicionario = {
 
   'topbar.creditos': 'créditos',
   'topbar.notificacoes': 'Notificaciones',
+  'header.loja': 'Tienda',
+  'header.cursosAoVivo': 'Cursos en vivo',
+  'header.feedback': 'Feedback',
+  'header.usuario': 'Mi cuenta',
   'topbar.title.dashboard': 'Panel',
   'topbar.title.produtos': 'Anuncios marketplace',
   'topbar.title.calculadora': 'Calculadora de precios',

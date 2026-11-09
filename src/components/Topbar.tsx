@@ -1,8 +1,6 @@
 import type { View } from '../App';
-import { CREDITOS } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
 import Icon from './Icon';
-import IdiomaSwitcher from './IdiomaSwitcher';
 
 const CHAVES_TITULO: Record<View, string> = {
   dashboard: 'topbar.title.dashboard',
@@ -36,27 +34,17 @@ interface Props {
   onNovaConversa?: () => void;
 }
 
+// Com o novo header (logo, ecossistema, créditos e conta), a barra de título
+// só aparece quando há uma ação própria da tela: nova conversa no Assistente.
 export default function Topbar({ view, onNovaConversa }: Props) {
-  const { t, idioma } = useI18n();
+  const { t } = useI18n();
+  if (!onNovaConversa) return null;
   return (
     <div className="topbar">
       <div className="topbar-titulo">
         <h2>{t(CHAVES_TITULO[view])}</h2>
-        {onNovaConversa && (
-          <button type="button" className="topbar-nova-conversa" onClick={onNovaConversa}>
-            <Icon name="pencil" size={14} /> {t('assist.novaConversa')}
-          </button>
-        )}
-      </div>
-      <div className="top-actions">
-        <IdiomaSwitcher />
-        <div className="credits-pill">
-          <Icon name="creditos" size={15} />
-          <b>{idioma === 'en' ? CREDITOS.replace('.', ',') : CREDITOS}</b> <span>{t('topbar.creditos')}</span>
-        </div>
-        <button type="button" className="bell" aria-label={t('topbar.notificacoes')}>
-          <Icon name="sino" size={17} />
-          <span className="bell-dot" />
+        <button type="button" className="topbar-nova-conversa" onClick={onNovaConversa}>
+          <Icon name="pencil" size={14} /> {t('assist.novaConversa')}
         </button>
       </div>
     </div>
