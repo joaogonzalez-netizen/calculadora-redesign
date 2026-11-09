@@ -126,15 +126,16 @@ export function dadosDaEtiqueta(p: Pedido): DadosEtiqueta {
   };
 }
 
-export type StatusEtiqueta = 'a-emitir' | 'emitir-nf' | 'emitida' | 'indisponivel';
+export type StatusEtiqueta = 'a-emitir' | 'emitir-nf' | 'emitida' | 'indisponivel' | 'em-breve';
 
 /**
- * Status da coluna Etiquetas. Null para pedido de outro marketplace.
+ * Status da coluna Etiquetas. Pedido do Mercado Livre é "em breve" (a emissão ainda não chegou ao canal);
+ * null para qualquer outro marketplace.
  * Emitida vence os demais: o selo some só se o histórico for apagado, e a
  * reemissão continua liberada enquanto o pedido for elegível.
  */
 export function statusEtiqueta(p: Pedido, impressas: Record<string, string>): StatusEtiqueta | null {
-  if (!ehPedidoShopee(p)) return null;
+  if (!ehPedidoShopee(p)) return p.marketplace === 'Mercado Livre' ? 'em-breve' : null;
   if (impressas[p.id]) return 'emitida';
   const motivo = motivoInelegivel(p);
   if (motivo === 'notaFiscal') return 'emitir-nf';

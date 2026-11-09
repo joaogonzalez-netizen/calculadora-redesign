@@ -189,11 +189,12 @@ Implicações para esta spec: o PDF de lote (A4 com 4 por folha) é montado por 
 
 Código: `src/views/PedidosView.tsx`, `src/components/pedidos/EtiquetaModal.tsx`, `src/components/pedidos/PedidoDrawer.tsx`, `src/lib/etiquetasShopee.ts`, textos `pedidos.etiqueta.*` em `src/lib/i18n.ts`.
 
-- **Coluna fixa "Etiquetas" (revisão):** primeira coluna da tabela, presa à esquerda, com o checkbox e o status da etiqueta. Fica visível mesmo com filtro em outro canal (pedidos fora da Shopee mostram "—"). Só nos mercados PT/ES. Status:
+- **Coluna fixa "Etiquetas" (revisão):** primeira coluna da tabela, presa à esquerda, com o checkbox e o status da etiqueta. Fica visível mesmo com filtro em outro canal (pedidos do Mercado Livre mostram "Em breve"). Só nos mercados PT/ES. Status:
   - **A emitir:** Shopee elegível, ainda sem emissão.
   - **Emitir nota fiscal:** pedido Shopee pago ou enviado cuja nota fiscal ainda não foi enviada. A Shopee só libera a etiqueta depois da nota, e a nota é emitida **apenas na loja do vendedor na Shopee**: o STLSeller não emite nota fiscal. Checkbox desabilitado, e a tag mostra o tooltip "A nota fiscal é emitida na sua loja da Shopee. A etiqueta libera depois que ela for enviada." No drawer o botão de imprimir fica desabilitado com o mesmo motivo. Quando a nota é enviada na Shopee e o pedido sincroniza, o status passa a A emitir.
   - **Emitida:** tag com a data. O checkbox e o ícone de impressora continuam ativos, então dá para emitir de novo.
   - **Indisponível:** Shopee não elegível, com o motivo em texto abaixo.
+  - **Em breve:** pedido do Mercado Livre. A emissão de etiquetas ainda não chegou a esse canal: checkbox desabilitado e tooltip "Este pedido é do Mercado Livre. Em breve vamos emitir as etiquetas dele por aqui." O filtro "Etiqueta" também tem a opção "Em breve". Pedidos de outros canais (Etsy, TikTok Shop) seguem sem status.
 - **Filtro "Etiqueta":** Todas, A emitir, Emitida, Indisponível. Combina com os outros filtros e limpa a seleção ao mudar. Os motivos que antes ficavam sob o nome do pedido e o selo sob o status foram para essa coluna.
 - **Limite do lote:** a tabela mostra 10 pedidos por página, então o limite de 50 não é atingível e não foi implementado. Entra quando houver seleção entre páginas.
 - **Falha simulada:** o pedido com id terminando em 2 devolve "código ainda não gerado" na primeira tentativa. Na nova tentativa passa. É regra de mock.

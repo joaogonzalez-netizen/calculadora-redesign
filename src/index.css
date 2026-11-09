@@ -1971,6 +1971,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .etq-tag-emitida{background:var(--primary-tint-strong);color:var(--primary-dark);}
 .etq-tag-indisponivel{background:#eceeed;color:#4a514d;}
 .etq-tag-emitir-nf{background:#e3edff;color:#1f4fa8;}
+.etq-tag-em-breve{background:#eef0f6;color:#4b5470;}
 .ped-etiq-motivo{font-size:11.5px;color:var(--text-2);margin-top:2px;}
 .ped-etiq-selo{font-size:11.5px;color:var(--primary-dark);margin-top:2px;font-weight:600;}
 .ped-bulk{
