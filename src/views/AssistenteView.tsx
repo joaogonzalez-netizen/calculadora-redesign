@@ -96,9 +96,14 @@ export default function AssistenteView({ onNavegar, onConversaAtiva }: Props) {
 
   // A pergunta presa no topo fica logo abaixo da topbar (que também é sticky).
   useEffect(() => {
-    const topbar = document.querySelector<HTMLElement>('.topbar');
-    if (topbar) document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
-  }, []);
+    // A barra "Nova conversa" só entra depois que a conversa abre, então mede no frame seguinte.
+    const frame = requestAnimationFrame(() => {
+      const barras = document.querySelectorAll<HTMLElement>('.app-header, .topbar');
+      const altura = Array.from(barras).reduce((soma, el) => soma + el.offsetHeight, 0);
+      if (altura) document.documentElement.style.setProperty('--topbar-h', altura + 'px');
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [conversaAtiva]);
 
   // Nova pergunta: rola até o bloco dela (e não até o fim da resposta).
   const ultimoTurnoRef = useRef<HTMLElement>(null);

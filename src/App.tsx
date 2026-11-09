@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import PasswordGate from './components/PasswordGate';
 import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 import Topbar from './components/Topbar';
 import AppFooter from './components/AppFooter';
 import DashboardView from './views/DashboardView';
@@ -115,6 +116,8 @@ function AppShell() {
   }, [viewOculta, onboardingEncerrado]);
 
   return (
+    <div className="app-shell">
+    <Header />
     <div className={'app' + (collapsed ? ' sidebar-collapsed' : '')}>
       <Sidebar
         view={view}
@@ -171,6 +174,7 @@ function AppShell() {
         </div>
         <AppFooter />
       </div>
+    </div>
     </div>
   );
 }
