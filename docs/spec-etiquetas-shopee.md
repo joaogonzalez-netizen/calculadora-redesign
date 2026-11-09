@@ -15,7 +15,7 @@ Fora do escopo:
 
 - Gerar etiqueta própria (layout, campos, logo). A Shopee pede que a etiqueta não seja alterada nem coberta.
 - Mercado Livre, Etsy e TikTok Shop.
-- DANFE ou nota fiscal na mesma folha.
+- Emitir a nota fiscal. A etiqueta real traz a DANFE simplificada impressa no rodapé (seção 1), mas a nota vem pronta de quem a emite; o STLSeller só mostra e imprime o arquivo.
 - Organizar envio (agendar coleta ou postagem). Esta spec assume que o código de envio já existe.
 
 Premissa do protótipo (PRODUCT.md): não há integração real. O PDF da etiqueta é simulado. A seção 7 lista o que o contrato real precisará entregar.
@@ -32,8 +32,18 @@ Fonte: guias de terceiros (Bling, UpSeller, Ginee). **Não há especificação o
 | Papel | Adesivo resistente a água e borrão |
 | Regra de integridade | Nenhuma área coberta, nenhum texto adicionado, formato não alterado |
 | Elemento crítico | Código de barras legível |
-| Conteúdo usual | Serviço (Shopee Xpress), código de barras e rastreio, remetente, destinatário com CEP, número do pedido (esta lista é a anatomia usual de etiquetas de envio, a confirmar) |
+| Conteúdo | Ver a anatomia abaixo, conferida em uma etiqueta térmica real de exemplo (03/11/2026) |
 | Impressora térmica | Opção na Central do Vendedor que pode quebrar integradores sem ZPL |
+
+**Anatomia da etiqueta térmica real (10×15 cm, de cima para baixo)**
+
+1. **Destinatário:** tarja preta "DESTINATÁRIO", nome em negrito, endereço, bairro, CEP e número do pedido. À direita, a marca Shopee, um QR e uma caixa preta com "R".
+2. **Rota de triagem:** QR com o nome da cidade de destino embaixo, e duas caixas pretas grandes com os códigos de rota (por exemplo "SP18 -2" e "LMS-03").
+3. **Coleta:** código de barras com o código de rastreio embaixo e a palavra "COLETA" ao lado.
+4. **Remetente:** tarja "REMETENTE", nome da loja, endereço, CEP e "Envio previsto". À direita, um QR e uma caixa com a sigla do hub (por exemplo "SOC PR1").
+5. **DANFE simplificada:** título "DANFE SIMPLIFICADO - ETIQUETA", linha com saída, NF, série e emissão, chave de acesso de 44 dígitos, código de barras e a descrição do item com a quantidade.
+
+O preview do protótipo segue essa ordem (`src/components/pedidos/EtiquetaShopee.tsx`). Nome, endereço, rota, NF e chave do preview são inventados e estáveis por pedido (`dadosDaEtiqueta`, em `src/lib/etiquetasShopee.ts`). O arquivo real vem pronto da Shopee.
 
 Consequência de UX: o app **não desenha** a etiqueta. Mostra um preview do arquivo oficial, escolhe formato e ajuda a imprimir.
 
@@ -140,6 +150,38 @@ Todo texto novo precisa de entrada PT/ES/EN em `src/lib/i18n.ts`. Na versão atu
 | Limite do lote | Limite da API da Shopee, para trocar o 50 do protótipo |
 | Impressora térmica | Se o formato é ZPL, e como lidar com a opção da Central |
 
+### Referência de integração (relato de Leonardo Donadel, 03/11/2026)
+
+Relato de quem já emite etiquetas pela Open Platform v2 da Shopee (stack Node/Express, React e Postgres com Prisma). Não foi verificado por nós: conferir na documentação oficial antes de implementar.
+
+**Assinatura:** HMAC-SHA256 com o `crypto` nativo do Node, sem SDK.
+
+**Sequência para gerar a etiqueta**
+
+1. `/api/v2/order/get_order_detail`: devolve o `package_number`.
+2. `/api/v2/logistics/get_tracking_number`: rastreio, só para quem ainda não tem.
+3. `/api/v2/logistics/create_shipping_document`: pede a etiqueta, tipo `THERMAL_AIR_WAYBILL`.
+4. `/api/v2/logistics/get_shipping_document_result`: consulta repetida até o status ficar `READY`.
+5. `/api/v2/logistics/download_shipping_document`: baixa o arquivo.
+
+Cuidado: às vezes o resultado vem `READY` e o download ainda falha, então o passo 5 precisa de nova tentativa com espera. Isso casa com o estado "código ainda não gerado" do protótipo.
+
+**Formato:** a térmica vem em ZPL, mas na prática é uma imagem só (bitmap de 816×1218 pixels, 10×15 cm a 203 dpi) comprimida em Z64.
+
+**Conversão de ZPL para PDF, dois caminhos**
+
+- Labelary (`api.labelary.com`): API gratuita com limite de cerca de 3 requisições por segundo. Em lote, com nova tentativa no erro 429.
+- Local: extrai o bitmap do ZPL e coloca direto numa página de PDF com `pdf-lib`. Sem rede e sem limite, e é o caminho mais usado por eles. Se o ZPL vier num formato diferente, volta para o Labelary.
+
+**Bibliotecas citadas:** `pdf-lib` (monta e junta PDFs, várias lojas viram um PDF só), `node-fetch`, e no front `html5-qrcode` ou `qr-scanner` para bipar com a câmera na conferência.
+
+**Impressão**
+
+- Local: PDF em escala 100% pelo CUPS até a térmica USB.
+- Remota (sistema na nuvem): uma "ponte" no computador da empresa consulta uma fila a cada 2 segundos e envia o ZPL cru para a impressora na porta 9100 (TCP).
+
+Implicações para esta spec: o PDF de lote (A4 com 4 por folha) é montado por nós a partir dos bitmaps; "Baixar PDF" e "Imprimir" são caminhos diferentes (PDF em escala 100% contra ZPL cru); e a impressão direta na térmica exige a ponte, o que reforça a pergunta em aberto sobre abrir o PDF ou imprimir direto.
+
 ---
 
 ## 8. Protótipo implementado (desvios desta spec)
@@ -156,6 +198,7 @@ Código: `src/views/PedidosView.tsx`, `src/components/pedidos/EtiquetaModal.tsx`
 - **Baixar PDF:** mostra aviso "Em breve".
 - **Preview:** a etiqueta simulada fica sempre em português, como a oficial.
 - **Persistência:** formato e impressas ficam em `localStorage` (`stlseller_etiqueta_formato`, `stlseller_etiquetas_impressas`). No real, a data de impressão vai para o backend (seção 7).
+- **Preview da etiqueta:** segue a anatomia da etiqueta real (seção 1), com dados fictícios. QR e códigos de barras são desenhos sem leitura. O preview não traz o PDF de verdade.
 - **Fila de produção:** reusa o `PedidoDrawer`, que só mostra a impressão quando recebe o callback.
 - **Foco:** ao concluir um lote, o foco cai no `body`, porque o botão de origem some com a barra de ação. A corrigir.
 
