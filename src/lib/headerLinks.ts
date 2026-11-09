@@ -1,7 +1,7 @@
 import type { Idioma } from './i18n';
 
 // Links do header para o ecossistema STLFLIX, por idioma (pt = pt-BR, en = raiz).
-export type EcoLinkId = 'stlflix' | 'stlai' | 'cursos';
+export type EcoLinkId = 'stlflix' | 'stlai' | 'academy' | 'cursos';
 
 const LINKS: Record<EcoLinkId, Record<Idioma, string>> = {
   stlflix: {
@@ -13,6 +13,11 @@ const LINKS: Record<EcoLinkId, Record<Idioma, string>> = {
     pt: 'https://ai.stlflix.com/pt-BR',
     es: 'https://ai.stlflix.com/es',
     en: 'https://ai.stlflix.com/',
+  },
+  academy: {
+    pt: 'https://platform.stlflix.com/pt-BR/stlacademy',
+    es: 'https://platform.stlflix.com/es/stlacademy',
+    en: 'https://platform.stlflix.com/stlacademy',
   },
   cursos: {
     pt: 'https://platform.stlflix.com/pt-BR/stlacademy/live',

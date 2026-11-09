@@ -19,7 +19,7 @@ export default function Header() {
           <nav className="eco-pills" aria-label="STLFLIX">
             <a className="eco-pill eco-stlflix" href={linkEcossistema('stlflix', idioma)} target="_blank" rel="noopener noreferrer">STLFLIX</a>
             <a className="eco-pill eco-stlai" href={linkEcossistema('stlai', idioma)} target="_blank" rel="noopener noreferrer">STLAI</a>
-            <span className="eco-pill eco-stlacademy">STLACADEMY</span>
+            <a className="eco-pill eco-stlacademy" href={linkEcossistema('academy', idioma)} target="_blank" rel="noopener noreferrer">STLACADEMY</a>
           </nav>
           <span className="app-header-divider" aria-hidden="true" />
           <button type="button" className="header-loja">
