@@ -2025,7 +2025,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 }
 .etq-label b{font-weight:700;}
 .etq-sec{border-bottom:.5cqw solid #000;padding-bottom:1.6cqw;}
-.etq-tag{align-self:flex-start;background:#000;color:#fff;font-size:2.7cqw;font-weight:800;letter-spacing:.04em;padding:.4cqw 1.6cqw;margin-left:-3cqw;border-radius:0 .8cqw .8cqw 0;}
+.etq-faixa{align-self:flex-start;background:#000;color:#fff;font-size:2.7cqw;font-weight:800;letter-spacing:.04em;padding:.4cqw 1.6cqw;margin-left:-3cqw;border-radius:0 .8cqw .8cqw 0;}
 .etq-qr{display:block;color:#000;background:#fff;}
 .etq-barras{display:block;width:100%;height:12cqw;color:#000;}
 .etq-dest{display:flex;justify-content:space-between;gap:2cqw;}

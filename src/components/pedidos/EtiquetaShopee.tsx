@@ -61,7 +61,7 @@ export default function EtiquetaShopee({ pedido }: { pedido: Pedido }) {
       <div className="etq-label">
         <section className="etq-sec etq-dest">
           <div className="etq-dest-txt">
-            <span className="etq-tag">DESTINATÁRIO</span>
+            <span className="etq-faixa">DESTINATÁRIO</span>
             <b className="etq-nome">{d.destinatario.nome}</b>
             <span>{d.destinatario.endereco}</span>
             <span><b>Bairro:</b> {d.destinatario.bairro}</span>
@@ -96,7 +96,7 @@ export default function EtiquetaShopee({ pedido }: { pedido: Pedido }) {
 
         <section className="etq-sec etq-rem">
           <div className="etq-rem-txt">
-            <span className="etq-tag">REMETENTE</span>
+            <span className="etq-faixa">REMETENTE</span>
             <b>{d.remetente.nome}</b>
             <span>{d.remetente.endereco}</span>
             <span><b>CEP:</b> {d.remetente.cep}</span>
