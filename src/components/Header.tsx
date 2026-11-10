@@ -1,6 +1,8 @@
 import { linkEcossistema } from '../lib/headerLinks';
 import { useI18n } from '../context/I18nContext';
 import IdiomaSwitcher from './IdiomaSwitcher';
+import Icon from './Icon';
+import { useTema } from '../lib/tema';
 import logo from '../assets/header/logo-stlseller.svg';
 import iconFeedback from '../assets/header/icon-feedback.svg';
 import iconLoja from '../assets/header/icon-loja.svg';
@@ -10,6 +12,7 @@ import iconUsuario from '../assets/header/icon-usuario.svg';
 
 export default function Header() {
   const { t, idioma } = useI18n();
+  const { tema, alternar } = useTema();
   return (
     <header className="app-header">
       <div className="app-header-bar">
@@ -35,6 +38,15 @@ export default function Header() {
           <button type="button" className="header-pill">
             <img src={iconFeedback} alt="" width={16} height={16} />
             <span>{t('header.feedback')}</span>
+          </button>
+          <button
+            type="button"
+            className="header-icon-btn header-theme-toggle"
+            onClick={alternar}
+            aria-label={tema === 'dark' ? t('header.temaClaro') : t('header.temaEscuro')}
+            title={tema === 'dark' ? t('header.temaClaro') : t('header.temaEscuro')}
+          >
+            <Icon name={tema === 'dark' ? 'sun' : 'moon'} size={18} />
           </button>
           <IdiomaSwitcher />
           <button type="button" className="header-icon-btn header-sino" aria-label={t('topbar.notificacoes')}>
