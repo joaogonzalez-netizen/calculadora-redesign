@@ -2927,3 +2927,48 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 :root[data-theme="dark"] .fe-toast{background:var(--surface-3);color:var(--text-1);border:1px solid var(--border-strong);box-shadow:0 8px 24px rgba(0,0,0,.5);}
 :root[data-theme="dark"] .info-dot .tt,
 :root[data-theme="dark"] .etq-tip{background:var(--surface-3);color:var(--text-1);border:1px solid var(--border-strong);}
+
+/* Reportar item (Buscador) + menu Reports do Finder */
+.busc-report-modal{display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow-y:auto;}
+.busc-report-modal h4{margin:0;padding-right:36px;}
+.busc-report-modal .modal-levar-x{position:absolute;top:18px;right:18px;}
+.busc-report-item{display:flex;align-items:center;gap:10px;background:var(--hover);border-radius:var(--radius-m);padding:10px 12px;}
+.busc-report-emoji{font-size:22px;line-height:1;flex:0 0 auto;}
+.busc-report-nome{font-size:13px;font-weight:600;color:var(--text-1);}
+.busc-report-bloco{display:flex;flex-direction:column;gap:8px;}
+.busc-report-label{font-size:13px;font-weight:700;color:var(--text-1);}
+.busc-report-sub{font-size:12px;color:var(--text-3);font-weight:600;}
+.busc-report-opcoes{display:flex;flex-direction:column;gap:8px;}
+.busc-report-opcao{
+  display:flex;align-items:center;gap:10px;text-align:left;font-family:inherit;font-size:13.5px;font-weight:600;
+  background:var(--surface);color:var(--text-1);border:1px solid var(--border-strong);border-radius:var(--radius-m);padding:11px 14px;cursor:pointer;
+}
+.busc-report-opcao:hover{border-color:var(--text-3);}
+.busc-report-opcao.active{border-color:var(--primary);background:var(--primary-tint);}
+.busc-report-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-strong);flex:0 0 auto;box-sizing:border-box;}
+.busc-report-opcao.active .busc-report-radio{border-color:var(--primary);background:radial-gradient(circle,var(--primary) 45%,transparent 50%);}
+.busc-report-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.busc-report-chip{
+  font-family:inherit;font-size:12.5px;font-weight:700;background:var(--surface);color:var(--text-2);
+  border:1px solid var(--border-strong);border-radius:999px;padding:6px 14px;cursor:pointer;
+}
+.busc-report-chip:hover{border-color:var(--text-3);}
+.busc-report-chip.active{background:var(--primary-tint);border-color:var(--primary);color:var(--primary-dark);}
+.busc-report-contador{align-self:flex-end;font-size:11.5px;color:var(--text-3);}
+.busc-report-aviso{margin:0;}
+.busc-report-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.busc-report-footer .cl-footer{margin:0;padding:0;}
+.busc-report-footer button[disabled]{opacity:.45;cursor:not-allowed;}
+.busc-toast{
+  position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:200;
+  background:var(--text-1);color:var(--surface);font-size:13.5px;font-weight:600;
+  padding:12px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(20,24,26,.28);
+}
+.busc-reports-filtros{margin:18px 0 16px;}
+.busc-reports-tabela{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);overflow:hidden;box-shadow:var(--shadow-card);}
+.busc-reports-item{display:flex;align-items:center;gap:10px;min-width:220px;}
+.busc-reports-cat{display:flex;flex-direction:column;gap:6px;min-width:170px;}
+.busc-reports-cat select{padding:6px 10px;font-size:12.5px;}
+.busc-reports-acoes{display:flex;gap:8px;flex-wrap:wrap;}
+.busc-beta-pill svg{vertical-align:-1px;}
+.busc-reports-filtros .chip.sm{flex:0 0 auto;white-space:nowrap;padding:8px 16px;}

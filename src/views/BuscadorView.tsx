@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import ReportarItemModal from '../components/buscador/ReportarItemModal';
+import { criarReport, idsOcultosPara, lerReports, reportsRestantesHoje, type NovoReport } from '../lib/finderReports';
+import { USUARIO } from '../lib/dashboardMock';
 import { PRODUTOS_BUSCA, DROPS_STLAI, DROPS_STLFLIX, DESTAQUES_STLFLIX, type ProdutoBusca, type DropVitrine } from '../lib/buscadorMock';
 import enfeitesFamilia from '../assets/buscador/enfeites-familia.png';
 import { BUSCADOR_FAVORITOS_KEY, readJson, writeJson } from '../lib/storage';
@@ -25,6 +28,37 @@ export default function BuscadorView({ onFavoritar }: Props) {
   // Idade máxima do anúncio em dias ('' = qualquer).
   const [idade, setIdade] = useState('');
   const [aba, setAba] = useState<Aba>('todos');
+  // Reports: itens reportados somem da busca deste seller (e a lista negra some pra todos).
+  const [reports, setReports] = useState(() => lerReports());
+  const [reportando, setReportando] = useState<ProdutoBusca | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const timerAviso = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timerAviso.current), []);
+
+  function mostrarAviso(msg: string) {
+    setAviso(msg);
+    window.clearTimeout(timerAviso.current);
+    timerAviso.current = window.setTimeout(() => setAviso(null), 3500);
+  }
+
+  function enviarReport(novo: NovoReport) {
+    const r = criarReport(novo);
+    setReportando(null);
+    if (r.ok) {
+      setReports(lerReports());
+      mostrarAviso(t('report.obrigado'));
+      return;
+    }
+    mostrarAviso(r.erro === 'limite' ? t('report.limite') : t('report.jaReportou'));
+  }
+
+  function abrirReport(p: ProdutoBusca) {
+    if (reportsRestantesHoje(USUARIO.id) === 0) {
+      mostrarAviso(t('report.limite'));
+      return;
+    }
+    setReportando(p);
+  }
 
   function alternarFavorito(id: string) {
     setFavoritos((prev) => {
@@ -38,7 +72,8 @@ export default function BuscadorView({ onFavoritar }: Props) {
   const vitrine = aba === 'personalizaveis' || aba === 'drops';
 
   const produtos = useMemo(() => {
-    let lista = PRODUTOS_BUSCA;
+    const ocultos = idsOcultosPara(USUARIO.id, reports);
+    let lista = PRODUTOS_BUSCA.filter((p) => !ocultos.has(p.id));
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase();
       lista = lista.filter((p) => p.nome.toLowerCase().includes(termo));
@@ -46,7 +81,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
     if (idade) lista = lista.filter((p) => p.diasNoAr <= Number(idade));
     if (somenteFavoritos) lista = lista.filter((p) => favoritos.includes(p.id));
     return lista;
-  }, [busca, idade, somenteFavoritos, favoritos]);
+  }, [busca, idade, somenteFavoritos, favoritos, reports]);
 
   return (
     <div>
@@ -161,12 +196,22 @@ export default function BuscadorView({ onFavoritar }: Props) {
       ) : (
         <div className="busc-grid">
           {produtos.map((p) => (
-            <ProdutoBuscaCard key={p.id} produto={p} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} />
+            <ProdutoBuscaCard key={p.id} produto={p} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} onReportar={() => abrirReport(p)} />
           ))}
         </div>
       )}
         </>
       )}
+
+      {reportando && (
+        <ReportarItemModal
+          produto={reportando}
+          restantes={reportsRestantesHoje(USUARIO.id)}
+          onClose={() => setReportando(null)}
+          onEnviar={enviarReport}
+        />
+      )}
+      {aviso && <div className="busc-toast" role="status">{aviso}</div>}
     </div>
   );
 }
@@ -229,7 +274,7 @@ function DropCard({ drop, marca }: { drop: DropVitrine; marca: Marca }) {
   );
 }
 
-function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito }: { produto: ProdutoBusca; favorito: boolean; onAlternarFavorito: () => void }) {
+function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito, onReportar }: { produto: ProdutoBusca; favorito: boolean; onAlternarFavorito: () => void; onReportar: () => void }) {
   const { t } = useI18n();
   return (
     <div className="busc-card">
@@ -241,6 +286,7 @@ function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito }: { produto: 
         )}
         <span className="busc-card-bandeira">{produto.paisBandeira}</span>
         <div className="busc-card-acoes">
+          <button type="button" title={t('buscador.reportar')} aria-label={t('buscador.reportar')} className="busc-card-acao-btn" onClick={onReportar}><Icon name="flag" size={14} /></button>
           <button type="button" title={t('buscador.remover')} className="busc-card-acao-btn"><Icon name="trash" size={14} /></button>
           <button
             type="button"

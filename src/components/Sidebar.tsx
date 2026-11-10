@@ -3,6 +3,7 @@ import type { View } from '../App';
 import { USUARIO } from '../lib/dashboardMock';
 import { useI18n } from '../context/I18nContext';
 import { MOSTRAR_MENUS_PRINCIPAIS, MOSTRAR_CONFIGURACOES, MOSTRAR_FEIRAS } from '../lib/versoes';
+import { ehModerador } from '../lib/finderReports';
 import Icon, { type IconName } from './Icon';
 
 interface Props {
@@ -100,6 +101,7 @@ export default function Sidebar({ view, onNavigate, histCount, collapsed, onTogg
           );
         })}
         <NavItem icon="buscador" label={t('nav.buscadorProdutos')} active={view === 'buscador'} collapsed={collapsed} onClick={() => onNavigate('buscador')} />
+        {ehModerador() && <NavItem icon="flag" label={t('nav.finderReports')} active={view === 'finder-reports'} collapsed={collapsed} onClick={() => onNavigate('finder-reports')} />}
         {mostrarFeiras && <NavItem icon="pedidos" label={t('nav.filaPedidos')} active={view === 'fila-pedidos'} collapsed={collapsed} onClick={() => onNavigate('fila-pedidos')} />}
 
         {mostrarFeiras && (
