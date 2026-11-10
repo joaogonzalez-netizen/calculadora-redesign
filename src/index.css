@@ -2914,3 +2914,16 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
   --text-1:#14181a;--text-2:#4a514d;--text-3:#4a514d;
   background:#fff;color:#14181a;border-color:#46505a;
 }
+/* Dark mode: botões pretos viram verde preenchido, com borda clara */
+:root[data-theme="dark"] .btn-dark,
+:root[data-theme="dark"] .onb-promo-banner .btn-dark.pill,
+:root[data-theme="dark"] .onb-tool-card .btn-dark.pill,
+:root[data-theme="dark"] .ger-img-medidas-btn,
+:root[data-theme="dark"] .ger-txt-idioma-tabs button.active{background:var(--primary-fill);color:#fff;border:1px solid #2fd68c;}
+:root[data-theme="dark"] .btn-dark:hover:not(:disabled),
+:root[data-theme="dark"] .ger-img-medidas-btn:hover{background:#0f9560;filter:none;}
+:root[data-theme="dark"] .btn-dark:disabled{background:var(--surface-3);color:var(--text-3);border:1px solid var(--border-strong);}
+/* toasts e tooltips escuros: superfície elevada com borda */
+:root[data-theme="dark"] .fe-toast{background:var(--surface-3);color:var(--text-1);border:1px solid var(--border-strong);box-shadow:0 8px 24px rgba(0,0,0,.5);}
+:root[data-theme="dark"] .info-dot .tt,
+:root[data-theme="dark"] .etq-tip{background:var(--surface-3);color:var(--text-1);border:1px solid var(--border-strong);}
