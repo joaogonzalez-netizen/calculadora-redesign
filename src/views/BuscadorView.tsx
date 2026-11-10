@@ -125,7 +125,8 @@ export default function BuscadorView({ onFavoritar }: Props) {
       {aba === 'personalizaveis' && (
         <>
           <div className="busc-drop-grid">
-            {DROPS_STLAI.map((d, i) => <DropCard key={d.id} drop={{ ...d, imagem: i === 0 ? enfeitesFamilia : undefined }} marca="ai" />)}
+            {DROPS_STLAI.slice(0, 3).map((d, i) => <DropCard key={d.id} drop={{ ...d, imagem: i === 0 ? enfeitesFamilia : undefined }} marca="ai" />)}
+            <VerTodosCard marca="ai" />
           </div>
           <p className="busc-nota">{t('buscador.stlai.nota')}</p>
         </>
@@ -135,11 +136,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
         <>
           <div className="busc-drop-grid">
             {DROPS_STLFLIX.map((d) => <DropCard key={d.id} drop={d} marca="flix" />)}
-            <div className="busc-drop-vertodos busc-marca-flix">
-              <div className="busc-drop-vertodos-icone"><Icon name="layers" size={24} /></div>
-              <strong>{t('buscador.flix.verTodos')}</strong>
-              <span>{t('buscador.flix.verTodosDesc')}</span>
-            </div>
+            <VerTodosCard marca="flix" />
           </div>
           <h3 className="busc-drop-destaque">{t('buscador.flix.destaque')}</h3>
           <div className="busc-drop-grid">
@@ -195,6 +192,18 @@ function VitrineIntro({ marca }: { marca: Marca }) {
         <div className="busc-intro-nota-titulo"><Icon name="info" size={14} />{t('buscador.comoOrdenamos')}</div>
         <p>{t(`buscador.${k}.ordenaDesc`)}</p>
       </div>
+    </div>
+  );
+}
+
+function VerTodosCard({ marca }: { marca: Marca }) {
+  const { t } = useI18n();
+  const k = marca === 'ai' ? 'stlai' : 'flix';
+  return (
+    <div className={'busc-drop-vertodos busc-marca-' + marca}>
+      <div className="busc-drop-vertodos-icone"><Icon name={marca === 'ai' ? 'spark' : 'layers'} size={24} /></div>
+      <strong>{t(`buscador.${k}.verTodos`)}</strong>
+      <span>{t(`buscador.${k}.verTodosDesc`)}</span>
     </div>
   );
 }
