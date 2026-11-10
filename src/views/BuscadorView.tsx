@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
-import { PRODUTOS_BUSCA, type ProdutoBusca } from '../lib/buscadorMock';
+import { PRODUTOS_BUSCA, DROPS_STLAI, DROPS_STLFLIX, DESTAQUES_STLFLIX, type ProdutoBusca, type DropVitrine } from '../lib/buscadorMock';
+import enfeitesFamilia from '../assets/buscador/enfeites-familia.png';
 import { BUSCADOR_FAVORITOS_KEY, readJson, writeJson } from '../lib/storage';
 import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
+
+type Aba = 'todos' | 'ml' | 'mlar' | 'etsy' | 'shopee' | 'personalizaveis' | 'drops';
 
 interface Props {
   onFavoritar: () => void;
@@ -21,6 +24,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
   const [somenteFavoritos, setSomenteFavoritos] = useState(false);
   // Idade máxima do anúncio em dias ('' = qualquer).
   const [idade, setIdade] = useState('');
+  const [aba, setAba] = useState<Aba>('todos');
 
   function alternarFavorito(id: string) {
     setFavoritos((prev) => {
@@ -30,6 +34,8 @@ export default function BuscadorView({ onFavoritar }: Props) {
     });
     onFavoritar();
   }
+
+  const vitrine = aba === 'personalizaveis' || aba === 'drops';
 
   const produtos = useMemo(() => {
     let lista = PRODUTOS_BUSCA;
@@ -60,16 +66,23 @@ export default function BuscadorView({ onFavoritar }: Props) {
 
       <div className="busc-tabs-row">
         <div className="busc-tabs">
-          <span className="busc-tab active">{t('buscador.tabTodos')}</span>
-          <span className="busc-tab">{t('buscador.tabMercadoLivre')}</span>
-          <span className="busc-tab">{t('buscador.tabEtsy')}</span>
-          <span className="busc-tab">
-            {t('buscador.tabShopee')}
-            <span className="busc-tab-tag">{t('buscador.emConstrucao')}</span>
-          </span>
+          <Tab ativo={aba === 'todos'} onClick={() => setAba('todos')}>{t('buscador.tabTodos')}</Tab>
+          <Tab ativo={aba === 'ml'} onClick={() => setAba('ml')}>{t('buscador.tabMercadoLivre')}</Tab>
+          <Tab ativo={aba === 'mlar'} onClick={() => setAba('mlar')}>{t('buscador.tabMercadoLivreAr')}</Tab>
+          <Tab ativo={aba === 'etsy'} onClick={() => setAba('etsy')}>{t('buscador.tabEtsy')}</Tab>
+          <Tab ativo={aba === 'shopee'} onClick={() => setAba('shopee')}>{t('buscador.tabShopee')}</Tab>
+          <Tab ativo={aba === 'personalizaveis'} marca="ai" onClick={() => setAba('personalizaveis')}>
+            <Icon name="spark" size={15} />{t('buscador.tabPersonalizaveis')}
+          </Tab>
+          <Tab ativo={aba === 'drops'} marca="flix" onClick={() => setAba('drops')}>
+            <Icon name="layers" size={15} />{t('buscador.tabDrops')}
+          </Tab>
         </div>
         <span className="pill-btn busc-stl-link">{t('buscador.buscadorStls')}</span>
       </div>
+
+      {aba === 'personalizaveis' && <VitrineIntro marca="ai" />}
+      {aba === 'drops' && <VitrineIntro marca="flix" />}
 
       <div className="busc-filters-row">
         <div className="cl-search busc-search">
@@ -96,7 +109,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
           <option value="365">{t('buscador.idade365')}</option>
         </select>
         <select className="busc-select" defaultValue="mais-vendidos">
-          <option value="mais-vendidos">{t('buscador.maisVendidos')}</option>
+          <option value="mais-vendidos">{vitrine ? t('buscador.maiorDemanda') : t('buscador.maisVendidos')}</option>
           <option value="menor-preco">{t('buscador.menorPreco')}</option>
           <option value="maior-preco">{t('buscador.maiorPreco')}</option>
         </select>
@@ -104,9 +117,37 @@ export default function BuscadorView({ onFavoritar }: Props) {
       </div>
 
       <div className="busc-count-row">
-        <span className="hint">{t('buscador.produtosContagem')}</span>
+        <span className="hint">
+          {aba === 'personalizaveis' ? t('buscador.stlai.contagem') : aba === 'drops' ? t('buscador.flix.contagem') : t('buscador.produtosContagem')}
+        </span>
       </div>
 
+      {aba === 'personalizaveis' && (
+        <>
+          <div className="busc-drop-grid">
+            {DROPS_STLAI.slice(0, 3).map((d, i) => <DropCard key={d.id} drop={{ ...d, imagem: i === 0 ? enfeitesFamilia : undefined }} marca="ai" />)}
+            <VerTodosCard marca="ai" />
+          </div>
+          <p className="busc-nota">{t('buscador.stlai.nota')}</p>
+        </>
+      )}
+
+      {aba === 'drops' && (
+        <>
+          <div className="busc-drop-grid">
+            {DROPS_STLFLIX.map((d) => <DropCard key={d.id} drop={d} marca="flix" />)}
+            <VerTodosCard marca="flix" />
+          </div>
+          <h3 className="busc-drop-destaque">{t('buscador.flix.destaque')}</h3>
+          <div className="busc-drop-grid">
+            {DESTAQUES_STLFLIX.map((d) => <DropCard key={d.id} drop={d} marca="flix" />)}
+          </div>
+          <p className="busc-nota">{t('buscador.flix.nota')}</p>
+        </>
+      )}
+
+      {!vitrine && (
+        <>
       <div className="busc-secao-head">
         <div>
           <h3>{t('buscador.subindoAgora')}</h3>
@@ -124,6 +165,66 @@ export default function BuscadorView({ onFavoritar }: Props) {
           ))}
         </div>
       )}
+        </>
+      )}
+    </div>
+  );
+}
+
+type Marca = 'ai' | 'flix';
+
+function Tab({ ativo, marca, onClick, children }: { ativo: boolean; marca?: Marca; onClick: () => void; children: React.ReactNode }) {
+  const cls = 'busc-tab' + (marca ? ' busc-tab-' + marca : '') + (ativo ? ' active' : '');
+  return <button type="button" className={cls} onClick={onClick}>{children}</button>;
+}
+
+function VitrineIntro({ marca }: { marca: Marca }) {
+  const { t } = useI18n();
+  const k = marca === 'ai' ? 'stlai' : 'flix';
+  return (
+    <div className={'busc-intro busc-marca-' + marca}>
+      <div className="busc-intro-icone"><Icon name={marca === 'ai' ? 'spark' : 'layers'} size={22} /></div>
+      <div className="busc-intro-texto">
+        <h2>{t(`buscador.${k}.titulo`)}</h2>
+        <p>{t(`buscador.${k}.desc`)}</p>
+      </div>
+      <div className="busc-intro-nota">
+        <div className="busc-intro-nota-titulo"><Icon name="info" size={14} />{t('buscador.comoOrdenamos')}</div>
+        <p>{t(`buscador.${k}.ordenaDesc`)}</p>
+      </div>
+    </div>
+  );
+}
+
+function VerTodosCard({ marca }: { marca: Marca }) {
+  const { t } = useI18n();
+  const k = marca === 'ai' ? 'stlai' : 'flix';
+  return (
+    <div className={'busc-drop-vertodos busc-marca-' + marca}>
+      <div className="busc-drop-vertodos-icone"><Icon name={marca === 'ai' ? 'spark' : 'layers'} size={24} /></div>
+      <strong>{t(`buscador.${k}.verTodos`)}</strong>
+      <span>{t(`buscador.${k}.verTodosDesc`)}</span>
+    </div>
+  );
+}
+
+function DropCard({ drop, marca }: { drop: DropVitrine; marca: Marca }) {
+  const { t } = useI18n();
+  const k = marca === 'ai' ? 'stlai' : 'flix';
+  return (
+    <div className={'busc-drop busc-marca-' + marca}>
+      <div className="busc-drop-imagem">
+        {drop.imagem ? <img src={drop.imagem} alt="" /> : <span className="busc-drop-emoji">{drop.emoji}</span>}
+        <span className="busc-drop-badge"><Icon name={marca === 'ai' ? 'spark' : 'layers'} size={14} />{t(`buscador.${k}.badge`)}</span>
+        <button type="button" className="busc-drop-fav" aria-label={t('buscador.favoritar')}><Icon name="heart" size={17} /></button>
+      </div>
+      <div className="busc-drop-nome" title={drop.nome}>{drop.nome}</div>
+      <div className="busc-drop-desc" title={drop.descricao}>{drop.descricao}</div>
+      <div className="busc-drop-metrica">
+        <Icon name="trend" size={13} />
+        {marca === 'ai' ? `${drop.metrica} ${t('buscador.vendasNicho')}` : `${drop.metrica} ${t('buscador.downloads')}`}
+      </div>
+      <button type="button" className="busc-drop-cta"><Icon name={marca === 'ai' ? 'spark' : 'download'} size={15} />{t(`buscador.${k}.cta`)}</button>
     </div>
   );
 }

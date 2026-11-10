@@ -34,3 +34,35 @@ export const PRODUTOS_BUSCA: ProdutoBusca[] = [
   { id: 'b13', nome: 'Organizador de Cabos e Carregadores para Escritório', imagem: '🔌', precoAtual: 27.90, vendas: 512, marketplace: 'Mercado Livre', paisBandeira: '🇧🇷', diasNoAr: 150 },
   { id: 'b14', nome: 'Vaso Autoirrigável com Reservatório de Água Interno', imagem: '🌱', precoAtual: 47.90, precoOriginal: 62.90, descontoPct: 24, vendas: 1096, marketplace: 'Shopee', paisBandeira: '🇧🇷', diasNoAr: 33 },
 ];
+
+/** Vitrines "Personalizáveis" (STLAI) e "Modelos STLFLIX". Só o primeiro card
+ * tem a imagem real do design; os demais usam emoji sobre fundo de marca. */
+export interface DropVitrine {
+  id: string;
+  nome: string;
+  descricao: string;
+  imagem?: string;
+  emoji: string;
+  /** Vendas no nicho (STLAI) ou downloads (STLFLIX), já formatado. */
+  metrica: string;
+}
+
+export const DROPS_STLAI: DropVitrine[] = [
+  { id: 'ai1', nome: 'Enfeites da Família', descricao: 'Fotos viram caricatura · trem, guirlanda, pet', emoji: '🎄', metrica: '1,1 mil' },
+  { id: 'ai2', nome: 'Chaveiro com Nome', descricao: 'Nome em relevo · fontes e cores à escolha', emoji: '🔑', metrica: '3,2 mil' },
+  { id: 'ai3', nome: 'Luminária com Foto', descricao: 'Litofania a partir de qualquer foto', emoji: '💡', metrica: '860' },
+  { id: 'ai4', nome: 'Topo de Bolo Personalizado', descricao: 'Nome, idade e tema da festa', emoji: '🎂', metrica: '540' },
+];
+
+export const DROPS_STLFLIX: DropVitrine[] = [
+  { id: 'fx1', nome: 'Cantinho Sagrado', descricao: 'Modelo 372 · altares e imagens para decorar', emoji: '⛪', metrica: '4,8 mil' },
+  { id: 'fx2', nome: 'Estátuas de Luz Sagrada', descricao: 'Modelo 365 · estátuas com LED embutido', emoji: '🕯️', metrica: '3,1 mil' },
+  { id: 'fx3', nome: 'Modwall', descricao: 'Modelo 352 · painéis modulares de parede', emoji: '🧱', metrica: '2,4 mil' },
+];
+
+export const DESTAQUES_STLFLIX: DropVitrine[] = [
+  { id: 'fd1', nome: 'Santa com LED', descricao: 'Cantinho Sagrado', emoji: '🕊️', metrica: '1,2 mil' },
+  { id: 'fd2', nome: 'Anjo da Guarda', descricao: 'Estátuas de Luz Sagrada', emoji: '😇', metrica: '980' },
+  { id: 'fd3', nome: 'Painel Hexagonal', descricao: 'Modwall', emoji: '⬡', metrica: '870' },
+  { id: 'fd4', nome: 'Oratório de Parede', descricao: 'Cantinho Sagrado', emoji: '🛐', metrica: '760' },
+];

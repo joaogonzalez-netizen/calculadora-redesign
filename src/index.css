@@ -2755,3 +2755,38 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 .app-header .idioma-switcher-btn span:nth-child(2){display:none;}
 @media (max-width:1280px){ .eco-pills,.app-header-left .app-header-divider:nth-of-type(2){display:none;} }
 @media (max-width:1100px){ :root{--header-h:64px;} .app-header-bar{padding:16px 20px;} .header-loja,.header-cursos{display:none;} }
+
+/* Vitrines Personalizáveis (STLAI, roxo) e Drops STLFLIX (azul). */
+.busc-marca-ai{--m:#7c3aed;--m-dark:#5b21b6;--m-bg:#faf7ff;--m-line:#e4d7fd;--m-tint:#f3eefe;--m-ink:#2e1065;--m-img:#d9c8fb;}
+.busc-marca-flix{--m:#2563eb;--m-dark:#1e40af;--m-bg:#f5f9ff;--m-line:#cfe0fd;--m-tint:#eaf2ff;--m-ink:#10285c;--m-img:#bcd3fb;}
+.busc-tab{font-family:inherit;cursor:pointer;}
+.busc-tab-ai.active{background:#7c3aed;border-color:#7c3aed;}
+.busc-tab-flix.active{background:#2563eb;border-color:#2563eb;}
+.busc-intro{display:flex;align-items:center;gap:18px;background:var(--m-bg);border:1px solid var(--m-line);border-radius:16px;padding:22px;margin:0 0 26px;}
+.busc-intro-icone{flex:0 0 48px;height:48px;border-radius:24px;background:var(--m);color:#fff;display:flex;align-items:center;justify-content:center;}
+.busc-intro-texto{flex:1;min-width:0;color:var(--m-ink);}
+.busc-intro-texto h2{font-size:19px;font-weight:700;margin:0 0 4px;}
+.busc-intro-texto p{font-size:15px;max-width:540px;margin:0;}
+.busc-intro-nota{flex:0 0 330px;background:#fff;border:1px solid var(--m-line);border-radius:12px;padding:14px;color:var(--m-ink);}
+.busc-intro-nota-titulo{display:flex;align-items:center;gap:6px;color:var(--m);font-size:13px;font-weight:700;margin-bottom:6px;}
+.busc-intro-nota p{font-size:13px;line-height:19px;margin:0;}
+.busc-drop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:25px;margin-bottom:26px;}
+.busc-drop{display:flex;flex-direction:column;gap:10px;min-width:0;}
+.busc-drop-imagem{position:relative;aspect-ratio:1;border:1px solid var(--m-img);border-radius:14px;overflow:hidden;background:var(--m-tint);display:flex;align-items:center;justify-content:center;}
+.busc-drop-imagem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.busc-drop-emoji{font-size:72px;line-height:1;}
+.busc-drop-badge{position:absolute;top:9px;left:9px;display:flex;align-items:center;gap:6px;background:#fff;color:var(--m-dark);font-size:12px;font-weight:600;padding:8px;border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,.14);}
+.busc-drop-badge svg{color:var(--m);}
+.busc-drop-fav{position:absolute;top:9px;right:9px;width:34px;height:34px;border-radius:17px;border:none;background:#fff;color:var(--text-1);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.12);cursor:pointer;}
+.busc-drop-nome{font-size:16px;font-weight:700;color:#14181a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.busc-drop-desc{font-size:13px;color:#6b7270;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.busc-drop-metrica{align-self:flex-start;display:flex;align-items:center;gap:5px;background:var(--m-tint);color:var(--m-dark);font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;}
+.busc-drop-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;border:1.5px solid var(--m);border-radius:10px;background:transparent;color:var(--m);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.busc-drop-cta:hover,.busc-drop:hover .busc-drop-cta{background:var(--m);color:#fff;}
+.busc-drop-vertodos{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:28px;border:1px dashed var(--m-line);border-radius:14px;background:var(--m-bg);color:var(--m-ink);min-height:300px;}
+.busc-drop-vertodos-icone{width:56px;height:56px;border-radius:28px;background:var(--m);color:#fff;display:flex;align-items:center;justify-content:center;}
+.busc-drop-vertodos strong{font-size:16px;}
+.busc-drop-vertodos span{font-size:13px;color:#6b7270;}
+.busc-drop-destaque{font-size:18px;font-weight:700;margin:34px 0 16px;}
+.busc-nota{font-size:12px;color:var(--text-3);margin:0 0 20px;}
+@media (max-width:900px){.busc-intro{flex-wrap:wrap}.busc-intro-nota{flex:1 1 100%}}
