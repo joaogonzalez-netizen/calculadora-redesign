@@ -35,7 +35,7 @@ export const PRODUTOS_BUSCA: ProdutoBusca[] = [
   { id: 'b14', nome: 'Vaso Autoirrigável com Reservatório de Água Interno', imagem: '🌱', precoAtual: 47.90, precoOriginal: 62.90, descontoPct: 24, vendas: 1096, marketplace: 'Shopee', paisBandeira: '🇧🇷', diasNoAr: 33 },
 ];
 
-/** Vitrines "Personalizáveis" (STLAI) e "Drops STLFLIX". Só o primeiro card
+/** Vitrines "Personalizáveis" (STLAI) e "Modelos STLFLIX". Só o primeiro card
  * tem a imagem real do design; os demais usam emoji sobre fundo de marca. */
 export interface DropVitrine {
   id: string;
@@ -55,9 +55,9 @@ export const DROPS_STLAI: DropVitrine[] = [
 ];
 
 export const DROPS_STLFLIX: DropVitrine[] = [
-  { id: 'fx1', nome: 'Cantinho Sagrado', descricao: 'Drop 372 · altares e imagens para decorar', emoji: '⛪', metrica: '4,8 mil' },
-  { id: 'fx2', nome: 'Estátuas de Luz Sagrada', descricao: 'Drop 365 · estátuas com LED embutido', emoji: '🕯️', metrica: '3,1 mil' },
-  { id: 'fx3', nome: 'Modwall', descricao: 'Drop 352 · painéis modulares de parede', emoji: '🧱', metrica: '2,4 mil' },
+  { id: 'fx1', nome: 'Cantinho Sagrado', descricao: 'Modelo 372 · altares e imagens para decorar', emoji: '⛪', metrica: '4,8 mil' },
+  { id: 'fx2', nome: 'Estátuas de Luz Sagrada', descricao: 'Modelo 365 · estátuas com LED embutido', emoji: '🕯️', metrica: '3,1 mil' },
+  { id: 'fx3', nome: 'Modwall', descricao: 'Modelo 352 · painéis modulares de parede', emoji: '🧱', metrica: '2,4 mil' },
 ];
 
 export const DESTAQUES_STLFLIX: DropVitrine[] = [
