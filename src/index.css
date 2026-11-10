@@ -34,27 +34,31 @@
   color-scheme:light;
 }
 :root[data-theme="dark"]{
-  --primary:#27c27f;
+  --primary:#2fd68c;
   --primary-dark:#4fdb9c;
-  --primary-tint:#12281d;
+  --primary-tint:#0f2a1e;
   --primary-tint-strong:#183a29;
   --secondary:#2bc7b6;
-  --accent:#e0a82e;
-  --page-bg:#0e1112;
-  --surface:#171b1d;
-  --surface-2:#1c2124;
-  --surface-3:#242a2d;
-  --hover:#242a2d;
-  --border:#2a3033;
-  --border-strong:#394044;
-  --text-1:#eceeed;
-  --text-2:#a3aba8;
-  --text-3:#97a09c;
+  --accent:#ffa94d;
+  --page-bg:#0a0d0e;
+  --surface:#14181a;
+  --surface-2:#1a1f22;
+  --surface-3:#262d31;
+  --hover:#262d31;
+  --border:#2f373b;
+  --border-strong:#46505a;
+  --text-1:#f6f8f7;
+  --text-2:#c0c8c5;
+  --text-3:#aab3b0;
   --red:#ff6b6b;
   --red-tint:#3a1c1c;
   --shadow-card:0 1px 2px rgba(0,0,0,.4), 0 8px 20px rgba(0,0,0,.3);
   --chart-grid:#2a3033;
   color-scheme:dark;
+  --violet:#b69cff;
+  --violet-tint:#241b40;
+  --orange:#ffa94d;
+  --orange-tint:#34210d;
 }
 :root[data-theme="dark"] .app-header-bar img:not(.app-header-logo){filter:invert(1) hue-rotate(180deg);}
 :root[data-theme="dark"] .app-header-logo{filter:brightness(0) invert(1);}
@@ -2837,3 +2841,62 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 :root[data-theme="dark"] .dre-colorido .dre-receita .dre-label,:root[data-theme="dark"] .dre-colorido .dre-receita .dre-valor{color:#9db9f5;}
 :root[data-theme="dark"] .dre-alerta{background:#2e2410;color:#e6b94d;}
 :root[data-theme="dark"] .fe-prog-bar{background:var(--surface-3);}
+
+/* Dark mode: contraste + acentos roxo/laranja */
+:root[data-theme="dark"] .prod-table thead tr,
+:root[data-theme="dark"] .prod-table thead .col-acoes-sticky,
+:root[data-theme="dark"] .prod-table thead .col-etiq{background:var(--violet-tint);}
+:root[data-theme="dark"] .prod-table th{color:var(--violet);}
+:root[data-theme="dark"] .prod-table tbody tr:hover td{background:var(--surface-2);}
+:root[data-theme="dark"] .prod-table td{border-top-color:var(--border-strong);}
+:root[data-theme="dark"] :focus-visible{outline:2px solid var(--violet);outline-offset:2px;}
+:root[data-theme="dark"] input:focus,:root[data-theme="dark"] select:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(182,156,255,.22);}
+:root[data-theme="dark"] .chip.active{color:#04140c;}
+/* labels (tags) em tabelas: fundo translúcido + texto claro saturado */
+:root[data-theme="dark"] .status-ativo{background:rgba(47,214,140,.16);color:#5ff0a8;}
+:root[data-theme="dark"] .status-pausado,
+:root[data-theme="dark"] .tag-note,
+:root[data-theme="dark"] .filtro-ativo-chip,
+:root[data-theme="dark"] .etq-tag-a-emitir,
+:root[data-theme="dark"] .marcadores-contador.cheio{background:var(--orange-tint);color:#ffc078;}
+:root[data-theme="dark"] .status-esgotado{background:rgba(255,107,107,.16);color:#ff9a9a;}
+:root[data-theme="dark"] .mp-tag-ml{background:rgba(255,199,64,.16);color:#ffd666;}
+:root[data-theme="dark"] .mp-tag-shopee{background:rgba(255,107,107,.16);color:#ff9d96;}
+:root[data-theme="dark"] .mp-tag-etsy{background:rgba(255,145,64,.18);color:#ffb27a;}
+:root[data-theme="dark"] .mp-tag-tiktok{background:rgba(96,165,250,.18);color:#8dbdff;}
+:root[data-theme="dark"] .etq-tag-indisponivel{background:var(--surface-3);color:var(--text-2);}
+:root[data-theme="dark"] .etq-tag-emitir-nf{background:rgba(96,165,250,.18);color:#9cc5ff;}
+:root[data-theme="dark"] .etq-tag-em-breve{background:var(--violet-tint);color:var(--violet);}
+:root[data-theme="dark"] .etq-res-falha,
+:root[data-theme="dark"] .pub-status-icone{background:rgba(255,107,107,.16);color:#ff9a9a;}
+:root[data-theme="dark"] .ped-status-pago,
+:root[data-theme="dark"] .ped-status-pendente,
+:root[data-theme="dark"] .ped-taxa-inline{color:var(--orange);}
+:root[data-theme="dark"] .ped-status-enviado{color:#8dbdff;}
+:root[data-theme="dark"] .ped-status-cancelado{color:#ff9a9a;}
+:root[data-theme="dark"] .ped-status-entregue{color:#5ff0a8;}
+:root[data-theme="dark"] .alert,
+:root[data-theme="dark"] .marcadores-aviso-cheio,
+:root[data-theme="dark"] .ger-img-aviso,
+:root[data-theme="dark"] .pub-aviso-warn,
+:root[data-theme="dark"] .logo-sugerido,
+:root[data-theme="dark"] .ger-rascunho-banner.so-copia,
+:root[data-theme="dark"] .canal-vigencia,
+:root[data-theme="dark"] .preco-panel-margem.m-gold,
+:root[data-theme="dark"] .roas-card.m-gold,
+:root[data-theme="dark"] .resumo-tile.destaque.m-gold{background:var(--orange-tint);color:#ffc078;}
+:root[data-theme="dark"] .ger-med-remover:hover,
+:root[data-theme="dark"] .pub-btn-descartar:hover{background:rgba(255,107,107,.16);}
+:root[data-theme="dark"] .cl-close:hover,
+:root[data-theme="dark"] .pub-close:hover,
+:root[data-theme="dark"] .logo-cor:hover:not(:disabled){background:var(--surface-3);}
+:root[data-theme="dark"] .logo-progresso-bolinha{background:var(--surface-3);}
+:root[data-theme="dark"] .camada-material,:root[data-theme="dark"] .mesa-legenda-dot.camada-material{background:#4a545a;}
+/* feiras */
+:root[data-theme="dark"] .fe-col,:root[data-theme="dark"] .fe-stepper button{background:var(--surface-3);}
+:root[data-theme="dark"] .fe-metrics div,:root[data-theme="dark"] .fe-inline-add,:root[data-theme="dark"] .fe-outro{background:var(--surface-2);}
+:root[data-theme="dark"] .fe-drawer-body{background:var(--page-bg);}
+:root[data-theme="dark"] .fe-prod-linha:hover,:root[data-theme="dark"] .fe-sel-dia:hover{background:var(--hover);}
+:root[data-theme="dark"] .fe-btn-wa{background:rgba(47,214,140,.16);color:#5ff0a8;}
+:root[data-theme="dark"] .fe-btn-wa:hover{background:rgba(47,214,140,.26);}
+:root[data-theme="dark"] .fe-bar-row.fe-perdido .fe-fill{background:#4a545a;}
