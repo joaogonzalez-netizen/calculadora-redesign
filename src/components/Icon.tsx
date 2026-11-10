@@ -12,10 +12,17 @@ export type IconName =
   | 'folder' | 'tag' | 'plus' | 'clock' | 'lock' | 'flag' | 'check' | 'bolt' | 'crown' | 'volume' | 'list'
   | 'copy' | 'message' | 'thumbUp' | 'home' | 'leaf' | 'alert' | 'box'
   | 'instagram' | 'facebook' | 'tiktok' | 'pinterest' | 'play'
-  | 'spark' | 'layers' | 'trend' | 'info'
+  | 'moon' | 'sun' | 'spark' | 'layers' | 'trend' | 'info'
   | 'heart' | 'trash' | 'send' | 'download' | 'pencil' | 'printer';
 
 const PATHS: Record<IconName, ReactElement> = {
+  moon: <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />,
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
   spark: <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" />,
   layers: (
     <>
