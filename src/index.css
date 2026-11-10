@@ -2908,3 +2908,9 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 /* Dark mode: verde de preenchimento em mais lugares */
 :root[data-theme="dark"] .nav-item.active{background:var(--primary-fill);color:#fff;}
 :root[data-theme="dark"] .busc-tab.active:not(.busc-tab-ai):not(.busc-tab-flix){background:var(--primary-fill);border-color:var(--primary-fill);color:#fff;}
+/* Etiqueta impressa: sempre papel branco com tinta preta, também no modo escuro */
+:root[data-theme="dark"] .etq-folha{
+  --surface:#ffffff;--surface-2:#f4f5f4;--surface-3:#eceeec;--hover:#f4f5f4;--border:#d7dad8;--border-strong:#c3c9c5;
+  --text-1:#14181a;--text-2:#4a514d;--text-3:#4a514d;
+  background:#fff;color:#14181a;border-color:#46505a;
+}
