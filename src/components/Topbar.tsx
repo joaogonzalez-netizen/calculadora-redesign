@@ -14,6 +14,7 @@ const CHAVES_TITULO: Record<View, string> = {
   'gerador-meus': 'topbar.title.gerador-meus',
   pedidos: 'topbar.title.pedidos',
   buscador: 'topbar.title.buscador',
+  'finder-reports': 'topbar.title.finder-reports',
   assistente: 'topbar.title.assistente',
   'marketing-logo': 'topbar.title.marketing-logo',
   'marketing-banners': 'topbar.title.marketing-banners',

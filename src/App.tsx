@@ -16,6 +16,7 @@ import MeusAnunciosView from './views/MeusAnunciosView';
 import PedidosView from './views/PedidosView';
 import BuscadorView from './views/BuscadorView';
 import AssistenteView from './views/AssistenteView';
+import FinderReportsView from './views/FinderReportsView';
 import MarketingLogoView from './views/MarketingLogoView';
 import MarketingBannersView from './views/MarketingBannersView';
 import MarketingEtiquetasView from './views/MarketingEtiquetasView';
@@ -31,7 +32,7 @@ import { PARAM_ABRIR, type RascunhoShopee } from './lib/rascunhosShopee';
 import { rascunhoDoProduto } from './lib/copiarAnuncio';
 import { getOnboardingManual, marcarOnboardingManual, marcarOnboardingConcluido, onboardingConcluido } from './lib/onboarding';
 
-export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-catalogo' | 'feiras-eventos' | 'feiras-prospeccao' | 'fila-pedidos';
+export type View = 'dashboard' | 'produtos' | 'calculadora' | 'historico' | 'preferencias' | 'configuracoes' | 'primeirospassos' | 'gerador-criar' | 'gerador-meus' | 'pedidos' | 'buscador' | 'finder-reports' | 'assistente' | 'marketing-logo' | 'marketing-banners' | 'marketing-etiquetas' | 'marketing-decoracao' | 'feiras-painel' | 'feiras-negocios' | 'feiras-clientes' | 'feiras-catalogo' | 'feiras-eventos' | 'feiras-prospeccao' | 'fila-pedidos';
 
 function AppShell() {
   const { idioma } = useI18n();
@@ -130,7 +131,7 @@ function AppShell() {
       <div className="main">
         <Topbar view={view} onNovaConversa={view === 'assistente' && conversaAtiva ? novaConversa : undefined} />
         {/* O dashboard usa faixa larga; as telas da calculadora seguem em 900px. */}
-        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'assistente' || view === 'historico' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' || view.startsWith('feiras-') || view === 'fila-pedidos' ? ' content-wide' : '') + (view === 'historico' ? ' content-full' : '')}>
+        <div className={'content' + (view === 'dashboard' || view === 'produtos' || view === 'primeirospassos' || view === 'gerador-criar' || view === 'gerador-meus' || view === 'pedidos' || view === 'buscador' || view === 'finder-reports' || view === 'assistente' || view === 'historico' || view === 'marketing-logo' || view === 'marketing-banners' || view === 'marketing-etiquetas' || view === 'marketing-decoracao' || view.startsWith('feiras-') || view === 'fila-pedidos' ? ' content-wide' : '') + (view === 'historico' ? ' content-full' : '')}>
           {view === 'primeirospassos' && (
             <PrimeirosPassosView
               passosCompletos={passosCompletos}
@@ -165,6 +166,7 @@ function AppShell() {
           {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? rascunhoInicial?.id ?? 'novo'} rascunhoId={rascunhoId} rascunhoInicial={rascunhoInicial} onSalvarRascunho={aoSalvarRascunho} onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={(id) => { setRascunhoId(id ?? null); setView('gerador-criar'); }} />}
           {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
+          {view === 'finder-reports' && <FinderReportsView />}
           {view === 'assistente' && <AssistenteView key={assistenteKey} onNavegar={setView} onConversaAtiva={aoMudarConversa} />}
           {view === 'marketing-logo' && <MarketingLogoView />}
           {view === 'marketing-banners' && <MarketingBannersView />}
