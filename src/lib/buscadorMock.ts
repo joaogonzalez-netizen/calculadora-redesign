@@ -16,6 +16,8 @@ export interface ProdutoBusca {
   paisBandeira: string;
   /** Há quantos dias o anúncio foi publicado. */
   diasNoAr: number;
+  /** Material de impressão exibido no chip do card. */
+  material?: string;
 }
 
 export const PRODUTOS_BUSCA: ProdutoBusca[] = [
@@ -69,8 +71,11 @@ export const DESTAQUES_STLFLIX: DropVitrine[] = [
 
 /** Lista maior só pra exercitar a paginação no mock (a produção devolve page/limit/total).
  * Repete os produtos-base com ids únicos, vendas decrescentes e anúncios mais antigos. */
+const MATERIAIS_MOCK = ['Plástico', 'PLA', 'PETG', 'Resina'];
+
 export const PRODUTOS_BUSCA_LISTA: ProdutoBusca[] = Array.from({ length: 120 }, (_, i) => {
   const base = PRODUTOS_BUSCA[i % PRODUTOS_BUSCA.length];
-  if (i < PRODUTOS_BUSCA.length) return base;
-  return { ...base, id: `${base.id}-${i}`, vendas: Math.max(10, base.vendas - i * 7), diasNoAr: base.diasNoAr + i };
+  const material = MATERIAIS_MOCK[i % MATERIAIS_MOCK.length];
+  if (i < PRODUTOS_BUSCA.length) return { ...base, material };
+  return { ...base, material, id: `${base.id}-${i}`, vendas: Math.max(10, base.vendas - i * 7), diasNoAr: base.diasNoAr + i };
 });
