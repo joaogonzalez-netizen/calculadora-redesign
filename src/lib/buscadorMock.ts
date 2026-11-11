@@ -66,3 +66,11 @@ export const DESTAQUES_STLFLIX: DropVitrine[] = [
   { id: 'fd3', nome: 'Painel Hexagonal', descricao: 'Modwall', emoji: '⬡', metrica: '870' },
   { id: 'fd4', nome: 'Oratório de Parede', descricao: 'Cantinho Sagrado', emoji: '🛐', metrica: '760' },
 ];
+
+/** Lista maior só pra exercitar a paginação no mock (a produção devolve page/limit/total).
+ * Repete os produtos-base com ids únicos, vendas decrescentes e anúncios mais antigos. */
+export const PRODUTOS_BUSCA_LISTA: ProdutoBusca[] = Array.from({ length: 120 }, (_, i) => {
+  const base = PRODUTOS_BUSCA[i % PRODUTOS_BUSCA.length];
+  if (i < PRODUTOS_BUSCA.length) return base;
+  return { ...base, id: `${base.id}-${i}`, vendas: Math.max(10, base.vendas - i * 7), diasNoAr: base.diasNoAr + i };
+});

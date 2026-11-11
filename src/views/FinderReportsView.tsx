@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PRODUTOS_BUSCA } from '../lib/buscadorMock';
+import { PRODUTOS_BUSCA_LISTA } from '../lib/buscadorMock';
 import {
   CATEGORIAS_FINDER,
   decidirReport,
@@ -71,7 +71,7 @@ export default function FinderReportsView() {
             </thead>
             <tbody>
               {visiveis.map((r) => {
-                const produto = PRODUTOS_BUSCA.find((p) => p.id === r.produtoId);
+                const produto = PRODUTOS_BUSCA_LISTA.find((p) => p.id === r.produtoId);
                 return (
                   <tr key={r.id}>
                     <td>
