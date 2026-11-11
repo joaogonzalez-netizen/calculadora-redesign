@@ -178,13 +178,14 @@ export default function NegocioDrawer() {
             )}
           </div>
           </Secao>
-          {(!existente || aberto) && (
+          {(
             <Secao titulo={t('feiras.secao.produtos')} desc={t('feiras.neg.oQueQuer')}>
+              {existente?.etapa === 'fechado' && existente.pedidoId && <p className="fe-hint" style={{ margin: '0 0 10px' }}>{t('feiras.neg.ganhoSoCard')}</p>}
               <ItensEditor itens={itens} onChange={setItens} rotuloTotal={t('feiras.neg.valorEstimado')} />
               {db.produtos.length === 0 && <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--text-3)' }}>{t('feiras.neg.semProdutos')}</p>}
             </Secao>
           )}
-          {(!existente || aberto) && (
+          {(
             <Secao titulo={t('feiras.secao.combinado')}>
               <Field label={t('feiras.neg.combinado')}>
                 <textarea value={combinado} onChange={(e) => { setCombinado(e.target.value); setMsgEditada(null); }} placeholder={t('feiras.neg.combinadoEx')} rows={2} />

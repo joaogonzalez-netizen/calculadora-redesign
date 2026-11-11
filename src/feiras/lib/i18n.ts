@@ -604,6 +604,7 @@ const D: Record<string, [string, string]> = {
   'feiras.neg.fechado': ['Negócio fechado! Pedido criado na fila.', 'Deal won! Order created in the queue.'],
   'feiras.neg.verFila': ['Ver fila de produção', 'View production queue'],
   'feiras.neg.confirmarExcluir': ['Excluir esta negociação?', 'Delete this deal?'],
+  'feiras.neg.ganhoSoCard': ['Editar aqui altera só a negociação. Para mudar o pedido, use "Ver pedido".', 'Editing here changes the deal only. To change the order, use "View order".'],
   'feiras.neg.criar': ['Criar negociação', 'Create deal'],
   'feiras.neg.salvarAlt': ['Salvar alterações', 'Save changes'],
   'feiras.neg.fecharGerar': ['Fechar e gerar pedido', 'Close and create order'],

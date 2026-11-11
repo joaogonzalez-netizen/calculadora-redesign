@@ -2,13 +2,36 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import ReportarItemModal from '../components/buscador/ReportarItemModal';
 import { criarReport, idsOcultosPara, lerReports, reportsRestantesHoje, type NovoReport } from '../lib/finderReports';
 import { USUARIO } from '../lib/dashboardMock';
-import { PRODUTOS_BUSCA, DROPS_STLAI, DROPS_STLFLIX, DESTAQUES_STLFLIX, type ProdutoBusca, type DropVitrine } from '../lib/buscadorMock';
+import { PRODUTOS_BUSCA_LISTA, DROPS_STLAI, DROPS_STLFLIX, DESTAQUES_STLFLIX, type ProdutoBusca, type DropVitrine } from '../lib/buscadorMock';
 import enfeitesFamilia from '../assets/buscador/enfeites-familia.png';
 import { BUSCADOR_FAVORITOS_KEY, readJson, writeJson } from '../lib/storage';
 import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
+import Paginacao from '../components/buscador/Paginacao';
+import { PAGINA_TAM, limitarPagina } from '../lib/paginacao';
+import { MARKETPLACES_BUSCA, SEM_CATEGORIA, categoriaFinder, categoriaNativa, contarCategorias, type MarketplaceBusca } from '../lib/finderCategorias';
+
+const PARAMS_BUSCADOR = ['page', 'q', 'idade'] as const;
+
+function lerUrl() {
+  const p = new URLSearchParams(window.location.search);
+  return { busca: p.get('q') ?? '', idade: p.get('idade') ?? '', pagina: Number(p.get('page')) || 1 };
+}
 
 type Aba = 'todos' | 'ml' | 'mlar' | 'etsy' | 'shopee' | 'personalizaveis' | 'drops';
+
+// Mockup de UX das categorias do Finder: três versões alternáveis, no mesmo
+// padrão do seletor "Visualização" do Painel.
+type Variante = 'A' | 'B' | 'C';
+const VARIANTES: { key: Variante; chaveLabel: string; chaveNota: string }[] = [
+  { key: 'A', chaveLabel: 'buscador.varA', chaveNota: 'buscador.varNotaA' },
+  { key: 'B', chaveLabel: 'buscador.varB', chaveNota: 'buscador.varNotaB' },
+  { key: 'C', chaveLabel: 'buscador.varC', chaveNota: 'buscador.varNotaC' },
+];
+const VARIANTE_KEY = 'stlseller_finder_variante';
+const MARKETPLACE_DA_ABA: Partial<Record<Aba, MarketplaceBusca>> = { ml: 'Mercado Livre', etsy: 'Etsy', shopee: 'Shopee' };
+/** Versão C: itens mostrados por marketplace antes do "Ver todos". */
+const ITENS_POR_BLOCO = 6;
 
 interface Props {
   onFavoritar: () => void;
@@ -22,12 +45,34 @@ interface Props {
  * nesta versão, igual combinado no escopo da feature. */
 export default function BuscadorView({ onFavoritar }: Props) {
   const { t } = useI18n();
-  const [busca, setBusca] = useState('');
+  const [busca, setBusca] = useState(() => lerUrl().busca);
   const [favoritos, setFavoritos] = useState<string[]>(() => readJson(BUSCADOR_FAVORITOS_KEY, []));
   const [somenteFavoritos, setSomenteFavoritos] = useState(false);
   // Idade máxima do anúncio em dias ('' = qualquer).
-  const [idade, setIdade] = useState('');
-  const [aba, setAba] = useState<Aba>('todos');
+  const [idade, setIdade] = useState(() => lerUrl().idade);
+  const [pagina, setPagina] = useState(() => lerUrl().pagina);
+  const topoLista = useRef<HTMLDivElement>(null);
+  const primeiraRenderPagina = useRef(true);
+  const [aba, setAbaRaw] = useState<Aba>('todos');
+  const [variante, setVariante] = useState<Variante>(() => {
+    const salva = readJson<string>(VARIANTE_KEY, 'A');
+    return VARIANTES.some((v) => v.key === salva) ? (salva as Variante) : 'A';
+  });
+  // Categoria escolhida nos chips ('' = todas). Na versão A é a nativa do marketplace; em B e C, a do Finder.
+  const [catSel, setCatSel] = useState('');
+
+  function setAba(a: Aba) {
+    setAbaRaw(a);
+    setCatSel('');
+    setPagina(1);
+  }
+
+  function trocarVariante(v: Variante) {
+    setVariante(v);
+    writeJson(VARIANTE_KEY, v);
+    setCatSel('');
+    setPagina(1);
+  }
   // Reports: itens reportados somem da busca deste seller (e a lista negra some pra todos).
   const [reports, setReports] = useState(() => lerReports());
   const [reportando, setReportando] = useState<ProdutoBusca | null>(null);
@@ -71,17 +116,75 @@ export default function BuscadorView({ onFavoritar }: Props) {
 
   const vitrine = aba === 'personalizaveis' || aba === 'drops';
 
-  const produtos = useMemo(() => {
+  const extrairCategoria = variante === 'A' ? categoriaNativa : categoriaFinder;
+
+  const listaBase = useMemo(() => {
     const ocultos = idsOcultosPara(USUARIO.id, reports);
-    let lista = PRODUTOS_BUSCA.filter((p) => !ocultos.has(p.id));
+    let lista = PRODUTOS_BUSCA_LISTA.filter((p) => !ocultos.has(p.id));
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase();
       lista = lista.filter((p) => p.nome.toLowerCase().includes(termo));
     }
     if (idade) lista = lista.filter((p) => p.diasNoAr <= Number(idade));
     if (somenteFavoritos) lista = lista.filter((p) => favoritos.includes(p.id));
+    // Mercado Livre Argentina não tem itens no mock.
+    if (aba === 'mlar') return [];
+    const mkt = MARKETPLACE_DA_ABA[aba];
+    if (mkt) lista = lista.filter((p) => p.marketplace === mkt);
     return lista;
-  }, [busca, idade, somenteFavoritos, favoritos, reports]);
+  }, [busca, idade, somenteFavoritos, favoritos, reports, aba]);
+
+  const chipsCategoria = useMemo(() => contarCategorias(listaBase, extrairCategoria), [listaBase, extrairCategoria]);
+  const produtos = useMemo(
+    () => (catSel ? listaBase.filter((p) => extrairCategoria(p) === catSel) : listaBase),
+    [listaBase, catSel, extrairCategoria],
+  );
+  // Versão A só tem categorias quando há um marketplace escolhido (cada um tem a sua lista).
+  const mostrarChips = variante !== 'A' || aba === 'ml' || aba === 'etsy' || aba === 'shopee';
+
+  const totalPaginas = Math.max(1, Math.ceil(produtos.length / PAGINA_TAM));
+  const paginaAtual = limitarPagina(pagina, totalPaginas);
+  const inicio = (paginaAtual - 1) * PAGINA_TAM;
+  const produtosDaPagina = produtos.slice(inicio, inicio + PAGINA_TAM);
+
+  // Busca, filtro de idade e página vivem na URL: o botão voltar do navegador devolve a mesma página.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    PARAMS_BUSCADOR.forEach((k) => p.delete(k));
+    if (busca.trim()) p.set('q', busca);
+    if (idade) p.set('idade', idade);
+    if (paginaAtual > 1) p.set('page', String(paginaAtual));
+    const qs = p.toString();
+    if (qs === window.location.search.replace(/^\?/, '')) return;
+    window.history.pushState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+  }, [busca, idade, paginaAtual]);
+
+  useEffect(() => {
+    const aoVoltar = () => {
+      const u = lerUrl();
+      setBusca(u.busca);
+      setIdade(u.idade);
+      setPagina(u.pagina);
+    };
+    window.addEventListener('popstate', aoVoltar);
+    return () => {
+      window.removeEventListener('popstate', aoVoltar);
+      // Sair do Buscador não deixa parâmetros dele na URL das outras telas.
+      const p = new URLSearchParams(window.location.search);
+      PARAMS_BUSCADOR.forEach((k) => p.delete(k));
+      const qs = p.toString();
+      window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+    };
+  }, []);
+
+  // Trocar de página rola até o topo da listagem, não até o topo da tela.
+  useEffect(() => {
+    if (primeiraRenderPagina.current) {
+      primeiraRenderPagina.current = false;
+      return;
+    }
+    topoLista.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [paginaAtual]);
 
   return (
     <div>
@@ -90,10 +193,18 @@ export default function BuscadorView({ onFavoritar }: Props) {
           <h1>{t('buscador.titulo')} <span className="busc-beta-pill">{t('buscador.beta')}</span></h1>
           <p>{t('buscador.subtitulo')}</p>
         </div>
+        <div className="cluster-modo-row busc-var-row">
+          <span className="hint">{t('buscador.visualizacao')}</span>
+          <div className="cluster-modo-toggle painel-modo-toggle">
+            {VARIANTES.map((v) => (
+              <button key={v.key} type="button" className={variante === v.key ? 'active' : ''} onClick={() => trocarVariante(v.key)}>{t(v.chaveLabel)}</button>
+            ))}
+          </div>
+        </div>
         <button
           type="button"
           className={'pill-btn busc-fav-toggle' + (somenteFavoritos ? ' active' : '')}
-          onClick={() => setSomenteFavoritos((s) => !s)}
+          onClick={() => { setSomenteFavoritos((s) => !s); setPagina(1); }}
         >
           <Icon name="heart" size={14} filled={somenteFavoritos} /> {t('buscador.favoritos')}
         </button>
@@ -122,7 +233,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
       <div className="busc-filters-row">
         <div className="cl-search busc-search">
           <Icon name="search" size={15} />
-          <input type="text" placeholder={t('buscador.buscarPlaceholder')} value={busca} onChange={(e) => setBusca(e.target.value)} />
+          <input type="text" placeholder={t('buscador.buscarPlaceholder')} value={busca} onChange={(e) => { setBusca(e.target.value); setPagina(1); }} />
         </div>
         <div className="busc-preco-range">
           <span className="hint">{t('buscador.preco')}</span>
@@ -136,7 +247,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
           <option value="petg">PETG</option>
           <option value="resina">Resina</option>
         </select>
-        <select className="busc-select" value={idade} onChange={(e) => setIdade(e.target.value)} aria-label={t('buscador.idadeAnuncio')}>
+        <select className="busc-select" value={idade} onChange={(e) => { setIdade(e.target.value); setPagina(1); }} aria-label={t('buscador.idadeAnuncio')}>
           <option value="">{t('buscador.idadeAnuncio')}</option>
           <option value="7">{t('buscador.idade7')}</option>
           <option value="30">{t('buscador.idade30')}</option>
@@ -183,7 +294,20 @@ export default function BuscadorView({ onFavoritar }: Props) {
 
       {!vitrine && (
         <>
-      <div className="busc-secao-head">
+      <div className="busc-var-nota"><Icon name="info" size={14} />{t(VARIANTES.find((v) => v.key === variante)!.chaveNota)}</div>
+
+      {mostrarChips ? (
+        <div className="busc-cats" role="tablist">
+          <CategoriaChip ativo={catSel === ''} onClick={() => { setCatSel(''); setPagina(1); }} total={listaBase.length}>{t('buscador.catTodas')}</CategoriaChip>
+          {chipsCategoria.map((c) => (
+            <CategoriaChip key={c.nome} ativo={catSel === c.nome} sem={c.nome === SEM_CATEGORIA} onClick={() => { setCatSel(c.nome); setPagina(1); }} total={c.total}>{c.nome}</CategoriaChip>
+          ))}
+        </div>
+      ) : (
+        <p className="hint busc-cats-dica">{t('buscador.catEscolhaMkt')}</p>
+      )}
+
+      <div className="busc-secao-head" ref={topoLista}>
         <div>
           <h3>{t('buscador.subindoAgora')}</h3>
           <p className="hint">{t('buscador.produtosEmAlta')}</p>
@@ -193,13 +317,39 @@ export default function BuscadorView({ onFavoritar }: Props) {
 
       {produtos.length === 0 ? (
         <div className="busc-vazio">{somenteFavoritos ? t('buscador.nenhumFavorito') : t('buscador.nenhumResultado')}</div>
+      ) : variante === 'C' ? (
+        MARKETPLACES_BUSCA.map((m) => {
+          const doMarketplace = produtos.filter((p) => p.marketplace === m);
+          if (doMarketplace.length === 0) return null;
+          return (
+            <section key={m} className="busc-mkt-bloco">
+              <div className="busc-mkt-head">
+                <h4>{m} <span className="hint">· {doMarketplace.length} {t('buscador.catItens')}</span></h4>
+                <span className="busc-ver-todos">{t('buscador.verTodos')}</span>
+              </div>
+              <div className="busc-grid">
+                {doMarketplace.slice(0, ITENS_POR_BLOCO).map((p) => (
+                  <ProdutoBuscaCard key={p.id} produto={p} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} onReportar={() => abrirReport(p)} />
+                ))}
+              </div>
+            </section>
+          );
+        })
       ) : (
         <div className="busc-grid">
-          {produtos.map((p) => (
-            <ProdutoBuscaCard key={p.id} produto={p} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} onReportar={() => abrirReport(p)} />
+          {produtosDaPagina.map((p) => (
+            <ProdutoBuscaCard key={p.id} produto={p} mostrarMkt={variante === 'B' && aba === 'todos'} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} onReportar={() => abrirReport(p)} />
           ))}
         </div>
       )}
+      {variante !== 'C' && <Paginacao
+        pagina={paginaAtual}
+        totalPaginas={totalPaginas}
+        inicio={produtos.length === 0 ? 0 : inicio + 1}
+        fim={inicio + produtosDaPagina.length}
+        total={produtos.length}
+        onMudar={setPagina}
+      />}
         </>
       )}
 
@@ -274,7 +424,15 @@ function DropCard({ drop, marca }: { drop: DropVitrine; marca: Marca }) {
   );
 }
 
-function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito, onReportar }: { produto: ProdutoBusca; favorito: boolean; onAlternarFavorito: () => void; onReportar: () => void }) {
+function CategoriaChip({ ativo, sem, total, onClick, children }: { ativo: boolean; sem?: boolean; total: number; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" role="tab" aria-selected={ativo} className={'busc-cat-chip' + (ativo ? ' active' : '') + (sem ? ' sem' : '')} onClick={onClick}>
+      {children}<span className="busc-cat-count">{total}</span>
+    </button>
+  );
+}
+
+function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, onReportar }: { produto: ProdutoBusca; mostrarMkt?: boolean; favorito: boolean; onAlternarFavorito: () => void; onReportar: () => void }) {
   const { t } = useI18n();
   return (
     <div className="busc-card">
@@ -285,6 +443,7 @@ function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito, onReportar }:
           <span className="busc-badge-desconto">{produto.descontoPct}% {t('buscador.off')}</span>
         )}
         <span className="busc-card-bandeira">{produto.paisBandeira}</span>
+        {mostrarMkt && <span className="busc-card-mkt">{produto.marketplace}</span>}
         <div className="busc-card-acoes">
           <button type="button" title={t('buscador.reportar')} aria-label={t('buscador.reportar')} className="busc-card-acao-btn" onClick={onReportar}><Icon name="flag" size={14} /></button>
           <button type="button" title={t('buscador.remover')} className="busc-card-acao-btn"><Icon name="trash" size={14} /></button>
