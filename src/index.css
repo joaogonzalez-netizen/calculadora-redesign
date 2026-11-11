@@ -2271,6 +2271,20 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 }
 .busc-card-preco{font-size:13px;font-weight:800;color:var(--text-1);display:flex;align-items:baseline;gap:6px;}
 .busc-card-preco-original{font-size:10.5px;font-weight:600;color:var(--text-3);text-decoration:line-through;}
+/* Destaque de lucro e margem: bloco tingido pela faixa da margem (alta, média, baixa). */
+.busc-card-lucro{
+  --tom:var(--primary-dark);--tom-bg:var(--primary-tint);
+  position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:8px 10px 11px;
+  border-radius:11px;background:var(--tom-bg);overflow:hidden;
+}
+.busc-card-lucro.media{--tom:var(--accent);--tom-bg:color-mix(in srgb,var(--accent) 14%,var(--surface));}
+.busc-card-lucro.baixa{--tom:var(--red);--tom-bg:var(--red-tint);}
+.busc-lucro-col{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.busc-lucro-col-margem{align-items:flex-end;}
+.busc-lucro-rotulo{font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);}
+.busc-lucro-valor{font-family:var(--font-h);font-size:15px;font-weight:800;color:var(--tom);line-height:1.15;white-space:nowrap;}
+.busc-lucro-barra{position:absolute;left:0;right:0;bottom:0;height:3px;background:color-mix(in srgb,var(--tom) 18%,transparent);}
+.busc-lucro-barra i{display:block;height:100%;background:var(--tom);border-radius:0 3px 3px 0;}
 .busc-card-metricas{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
 .busc-card-vendas{
   display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;

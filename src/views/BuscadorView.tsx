@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import ReportarItemModal from '../components/buscador/ReportarItemModal';
 import { criarReport, idsOcultosPara, lerReports, reportsRestantesHoje, type NovoReport } from '../lib/finderReports';
 import { USUARIO } from '../lib/dashboardMock';
-import { PRODUTOS_BUSCA_LISTA, DROPS_STLAI, DROPS_STLFLIX, DESTAQUES_STLFLIX, type ProdutoBusca, type DropVitrine } from '../lib/buscadorMock';
+import { PRODUTOS_BUSCA_LISTA, lucroEstimado, DROPS_STLAI, DROPS_STLFLIX, DESTAQUES_STLFLIX, type ProdutoBusca, type DropVitrine } from '../lib/buscadorMock';
 import enfeitesFamilia from '../assets/buscador/enfeites-familia.png';
 import { BUSCADOR_FAVORITOS_KEY, readJson, writeJson } from '../lib/storage';
 import { useI18n } from '../context/I18nContext';
@@ -23,6 +23,7 @@ type Aba = 'todos' | 'ml' | 'mlar' | 'etsy' | 'shopee' | 'personalizaveis' | 'dr
 // Mockup de UX das categorias do Finder: três versões alternáveis, no mesmo
 // padrão do seletor "Visualização" do Painel.
 type Variante = 'A' | 'B' | 'C';
+type Ordem = 'mais-vendidos' | 'menor-preco' | 'maior-preco' | 'maior-lucro' | 'maior-margem';
 const VARIANTES: { key: Variante; chaveLabel: string; chaveNota: string }[] = [
   { key: 'A', chaveLabel: 'buscador.varA', chaveNota: 'buscador.varNotaA' },
   { key: 'B', chaveLabel: 'buscador.varB', chaveNota: 'buscador.varNotaB' },
@@ -60,6 +61,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
   });
   // Categoria escolhida nos chips ('' = todas). Na versão A é a nativa do marketplace; em B e C, a do Finder.
   const [catSel, setCatSel] = useState('');
+  const [ordem, setOrdem] = useState<Ordem>('mais-vendidos');
 
   function setAba(a: Aba) {
     setAbaRaw(a);
@@ -135,10 +137,19 @@ export default function BuscadorView({ onFavoritar }: Props) {
   }, [busca, idade, somenteFavoritos, favoritos, reports, aba]);
 
   const chipsCategoria = useMemo(() => contarCategorias(listaBase, extrairCategoria), [listaBase, extrairCategoria]);
-  const produtos = useMemo(
-    () => (catSel ? listaBase.filter((p) => extrairCategoria(p) === catSel) : listaBase),
-    [listaBase, catSel, extrairCategoria],
-  );
+  const produtos = useMemo(() => {
+    const filtrada = catSel ? listaBase.filter((p) => extrairCategoria(p) === catSel) : listaBase;
+    const chave: Record<Ordem, (p: ProdutoBusca) => number> = {
+      'mais-vendidos': (p) => -p.vendas,
+      'menor-preco': (p) => p.precoAtual,
+      'maior-preco': (p) => -p.precoAtual,
+      'maior-lucro': (p) => -lucroEstimado(p),
+      'maior-margem': (p) => -(p.margemPct ?? 0),
+    };
+    // "Mais vendidos" mantém a ordem da API (o mock repete produtos-base, ordená-los empilharia cópias).
+    if (ordem === 'mais-vendidos') return filtrada;
+    return [...filtrada].sort((a, b) => chave[ordem](a) - chave[ordem](b));
+  }, [listaBase, catSel, extrairCategoria, ordem]);
   // Versão A só tem categorias quando há um marketplace escolhido (cada um tem a sua lista).
   const mostrarChips = variante !== 'A' || aba === 'ml' || aba === 'etsy' || aba === 'shopee';
 
@@ -254,10 +265,12 @@ export default function BuscadorView({ onFavoritar }: Props) {
           <option value="90">{t('buscador.idade90')}</option>
           <option value="365">{t('buscador.idade365')}</option>
         </select>
-        <select className="busc-select" defaultValue="mais-vendidos">
+        <select className="busc-select" value={ordem} onChange={(e) => { setOrdem(e.target.value as Ordem); setPagina(1); }} aria-label={t('buscador.ordenar')}>
           <option value="mais-vendidos">{vitrine ? t('buscador.maiorDemanda') : t('buscador.maisVendidos')}</option>
           <option value="menor-preco">{t('buscador.menorPreco')}</option>
           <option value="maior-preco">{t('buscador.maiorPreco')}</option>
+          <option value="maior-lucro">{t('buscador.maiorLucro')}</option>
+          <option value="maior-margem">{t('buscador.maiorMargem')}</option>
         </select>
         <button type="button" className="ctl-btn">▽ {t('buscador.filtros')}</button>
       </div>
@@ -468,6 +481,19 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
           {brl(produto.precoAtual)}
           {produto.precoOriginal !== undefined && <span className="busc-card-preco-original">{brl(produto.precoOriginal)}</span>}
         </div>
+        {produto.margemPct !== undefined && (
+          <div className={'busc-card-lucro ' + faixaMargem(produto.margemPct)}>
+            <div className="busc-lucro-col">
+              <span className="busc-lucro-rotulo">{t('buscador.lucro')}</span>
+              <b className="busc-lucro-valor">{brl(lucroEstimado(produto))}</b>
+            </div>
+            <div className="busc-lucro-col busc-lucro-col-margem">
+              <span className="busc-lucro-rotulo">{t('buscador.margem')}</span>
+              <b className="busc-lucro-valor">{produto.margemPct}%</b>
+            </div>
+            <div className="busc-lucro-barra" aria-hidden="true"><i style={{ width: Math.min(100, produto.margemPct * 1.4) + '%' }} /></div>
+          </div>
+        )}
         <div className="busc-card-metricas">
           <span className="busc-card-vendas"><Icon name="pedidos" size={12} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</span>
           <span className="busc-chip-info busc-chip-idade"><Icon name="clock" size={11} /> {idadeCurta(produto.diasNoAr)}</span>
@@ -481,9 +507,19 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
   );
 }
 
+/** Faixa de cor da margem: alta (verde), média (âmbar) e baixa (vermelha). */
+function faixaMargem(pct: number) {
+  if (pct >= 35) return 'alta';
+  if (pct >= 20) return 'media';
+  return 'baixa';
+}
+
 function idadeCurta(dias: number) {
   if (dias < 30) return `${dias} dias`;
-  if (dias < 365) return `${Math.floor(dias / 30)} meses`;
+  if (dias < 365) {
+    const meses = Math.floor(dias / 30);
+    return `${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+  }
   const anos = Math.floor(dias / 365);
   return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
 }

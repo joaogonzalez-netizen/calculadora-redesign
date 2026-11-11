@@ -33,6 +33,8 @@ export interface ProdutoBusca {
   diasNoAr: number;
   /** Material de impressão exibido no chip do card. */
   material?: string;
+  /** Margem estimada (%) sobre o preço, já descontando material, energia e taxa do marketplace. */
+  margemPct?: number;
   /** Foto do produto; sem ela o card cai no emoji. */
   foto?: string;
 }
@@ -89,11 +91,21 @@ export const DESTAQUES_STLFLIX: DropVitrine[] = [
 
 /** Lista maior só pra exercitar a paginação no mock (a produção devolve page/limit/total).
  * Repete os produtos-base com ids únicos, vendas decrescentes e anúncios mais antigos. */
+/** Margem estimada por produto-base (mock); alterna faixas alta, média e baixa. */
+const MARGENS_MOCK = [44, 31, 52, 18, 36, 27, 61, 9, 48, 23, 39, 57, 14, 33, 46];
+
+export function lucroEstimado(p: ProdutoBusca): number {
+  return Math.round(p.precoAtual * ((p.margemPct ?? 0) / 100) * 100) / 100;
+}
+
 const MATERIAIS_MOCK = ['Plástico', 'PLA', 'PETG', 'Resina'];
 
 export const PRODUTOS_BUSCA_LISTA: ProdutoBusca[] = Array.from({ length: 120 }, (_, i) => {
   const base = PRODUTOS_BUSCA[i % PRODUTOS_BUSCA.length];
   const material = MATERIAIS_MOCK[i % MATERIAIS_MOCK.length];
-  if (i < PRODUTOS_BUSCA.length) return { ...base, material };
-  return { ...base, material, id: `${base.id}-${i}`, vendas: Math.max(10, base.vendas - i * 7), diasNoAr: base.diasNoAr + i };
+  const margemBase = MARGENS_MOCK[i % MARGENS_MOCK.length];
+  // As repetições do mock variam um pouco a margem pra a ordenação não empilhar cópias idênticas.
+  const margemPct = i < PRODUTOS_BUSCA.length ? margemBase : Math.min(70, Math.max(5, margemBase + ((i * 7) % 17) - 8));
+  if (i < PRODUTOS_BUSCA.length) return { ...base, material, margemPct };
+  return { ...base, material, margemPct, id: `${base.id}-${i}`, vendas: Math.max(10, base.vendas - i * 7), diasNoAr: base.diasNoAr + i };
 });
