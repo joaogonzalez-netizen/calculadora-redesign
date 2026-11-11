@@ -2229,52 +2229,55 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 /* Faixa horizontal com scroll, uma camada/categoria do Buscador. */
 .busc-row-scroll{display:flex;gap:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;}
 .busc-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:12px 12px 16px;
-  display:flex;flex-direction:column;flex:0 0 220px;width:220px;
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:6px 6px 10px;
+  display:flex;flex-direction:column;flex:0 0 190px;width:190px;min-width:0;
 }
 .busc-grid .busc-card{width:auto;flex:initial;}
 .busc-card-imagem{
-  position:relative;aspect-ratio:1/1;background:var(--surface-3);border:1px solid var(--border);border-radius:16px;
-  display:flex;align-items:center;justify-content:center;font-size:64px;overflow:hidden;
+  position:relative;aspect-ratio:1/1;background:var(--surface-3);border:1px solid var(--border);border-radius:13px;
+  display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;
 }
 .busc-card-emoji{line-height:1;}
-.busc-card-pills{position:absolute;top:10px;left:10px;right:56px;display:flex;flex-wrap:wrap;gap:6px;}
+.busc-card-foto{width:100%;height:100%;object-fit:cover;display:block;}
+.busc-card-pills{position:absolute;top:7px;left:7px;right:40px;display:flex;flex-wrap:wrap;gap:4px;}
 .busc-pill{
-  display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:var(--surface);
-  font-size:12px;font-weight:700;line-height:1;white-space:nowrap;box-shadow:0 1px 3px rgba(20,24,26,.12);
+  display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:999px;background:var(--surface);
+  font-size:10.5px;font-weight:700;line-height:1.2;white-space:nowrap;box-shadow:0 1px 3px rgba(20,24,26,.12);
 }
 .busc-pill-alta{color:var(--red);}
 .busc-pill-desconto{color:var(--accent);}
-.busc-pill-bandeira{font-size:13px;padding:5px 9px;}
+.busc-pill-bandeira{font-size:10.5px;padding:3px 6px;}
 .busc-card-fav{
-  position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:none;background:var(--surface);
+  position:absolute;top:7px;right:7px;width:26px;height:26px;border-radius:50%;border:none;background:var(--surface);
   color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 3px rgba(20,24,26,.12);
 }
 .busc-card-fav:hover{color:var(--text-1);}
 .busc-card-fav.active{color:var(--red);}
 .busc-card-vendedor{
-  position:absolute;left:10px;bottom:10px;width:26px;height:26px;border-radius:50%;background:#2a2e30;color:#fff;
+  position:absolute;left:7px;bottom:7px;width:20px;height:20px;border-radius:50%;background:#2a2e30;color:#fff;
   display:flex;align-items:center;justify-content:center;
 }
-.busc-card-acoes{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity .15s;}
+.busc-card-vendedor svg{width:11px;height:11px;}
+.busc-card-acoes{position:absolute;bottom:7px;right:7px;display:flex;gap:5px;opacity:0;transition:opacity .15s;}
 .busc-card:hover .busc-card-acoes,.busc-card:focus-within .busc-card-acoes{opacity:1;}
 .busc-card-acao-btn{
-  width:28px;height:28px;border-radius:50%;background:var(--surface);border:none;color:var(--text-2);cursor:pointer;
+  width:24px;height:24px;border-radius:50%;background:var(--surface);border:none;color:var(--text-2);cursor:pointer;
   display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(20,24,26,.15);
 }
 .busc-card-acao-btn:hover{background:var(--hover);color:var(--text-1);}
-.busc-card-body{padding:14px 4px 0;display:flex;flex-direction:column;gap:10px;}
+.busc-card-body{padding:9px 4px 0;display:flex;flex-direction:column;gap:6px;}
 .busc-card-nome{
-  font-size:15px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:12.5px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.busc-card-preco{font-size:20px;font-weight:800;color:var(--text-1);display:flex;align-items:baseline;gap:8px;}
-.busc-card-preco-original{font-size:12.5px;font-weight:600;color:var(--text-3);text-decoration:line-through;}
+.busc-card-preco{font-size:13px;font-weight:800;color:var(--text-1);display:flex;align-items:baseline;gap:6px;}
+.busc-card-preco-original{font-size:10.5px;font-weight:600;color:var(--text-3);text-decoration:line-through;}
+.busc-card-metricas{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
 .busc-card-vendas{
-  align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
-  background:var(--primary-tint);color:var(--primary-dark);font-size:14px;font-weight:600;
+  display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;
+  background:var(--primary-tint);color:var(--primary-dark);font-size:10.5px;font-weight:600;white-space:nowrap;
 }
-.busc-card-chips{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;min-height:28px;}
-.busc-chip-info{padding:5px 12px;border-radius:999px;background:var(--surface-3);color:var(--text-2);font-size:13px;font-weight:600;}
+.busc-card-chips{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px;min-height:18px;}
+.busc-chip-info{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--text-2);font-size:10.5px;font-weight:600;white-space:nowrap;}
 
 /* Assistente, v2: início com caixa central + 4 sugestões; conversa em turnos
    (pergunta presa no topo + resposta). Sem IA ainda, ver lib/assistenteRespostas.ts. */
@@ -3028,10 +3031,8 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 .busc-mkt-head h4{font-size:16px;font-weight:700;}
 
 /* Grade de produtos do Buscador (a regra original foi removida junto com o carrossel antigo). */
-.busc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:8px;}
-@media (max-width:1180px){ .busc-grid{grid-template-columns:repeat(3,1fr);} }
-@media (max-width:860px){ .busc-grid{grid-template-columns:repeat(2,1fr);} }
-@media (max-width:560px){ .busc-grid{grid-template-columns:1fr;} }
+.busc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:14px;margin-bottom:8px;}
+@media (max-width:560px){ .busc-grid{grid-template-columns:repeat(2,1fr);} }
 .busc-var-row{margin:6px 0 0;flex:0 0 auto;}
 .busc-var-row .hint{white-space:nowrap;} .busc-var-row .cluster-modo-toggle button{white-space:nowrap;}
 .busc-header-row{flex-wrap:wrap;} .busc-header-row .hero{flex:1 1 500px;min-width:0;} .busc-header-row .hero h1{white-space:nowrap;}

@@ -437,7 +437,7 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
   return (
     <div className="busc-card">
       <div className="busc-card-imagem">
-        <span className="busc-card-emoji">{produto.imagem}</span>
+        {produto.foto ? <img className="busc-card-foto" src={produto.foto} alt={produto.nome} loading="lazy" /> : <span className="busc-card-emoji">{produto.imagem}</span>}
         <div className="busc-card-pills">
           <span className="busc-pill busc-pill-alta"><Icon name="trend" size={13} /> {t('buscador.emAlta')}</span>
           {produto.descontoPct !== undefined && (
@@ -452,7 +452,7 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
           className={'busc-card-fav' + (favorito ? ' active' : '')}
           onClick={onAlternarFavorito}
         >
-          <Icon name="heart" size={18} filled={favorito} />
+          <Icon name="heart" size={15} filled={favorito} />
         </button>
         <span className="busc-card-vendedor" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z" /></svg>
@@ -468,7 +468,10 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
           {brl(produto.precoAtual)}
           {produto.precoOriginal !== undefined && <span className="busc-card-preco-original">{brl(produto.precoOriginal)}</span>}
         </div>
-        <div className="busc-card-vendas"><Icon name="pedidos" size={15} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</div>
+        <div className="busc-card-metricas">
+          <span className="busc-card-vendas"><Icon name="pedidos" size={12} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</span>
+          <span className="busc-chip-info busc-chip-idade"><Icon name="clock" size={11} /> {idadeCurta(produto.diasNoAr)}</span>
+        </div>
         <div className="busc-card-chips">
           {mostrarMkt && <span className="busc-chip-info">{produto.marketplace}</span>}
           {produto.material && <span className="busc-chip-info">{produto.material}</span>}
@@ -476,6 +479,13 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
       </div>
     </div>
   );
+}
+
+function idadeCurta(dias: number) {
+  if (dias < 30) return `${dias} dias`;
+  if (dias < 365) return `${Math.floor(dias / 30)} meses`;
+  const anos = Math.floor(dias / 365);
+  return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
 }
 
 function brl(v: number) {
