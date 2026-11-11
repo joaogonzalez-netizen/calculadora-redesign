@@ -2229,37 +2229,52 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 /* Faixa horizontal com scroll, uma camada/categoria do Buscador. */
 .busc-row-scroll{display:flex;gap:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;}
 .busc-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);box-shadow:var(--shadow-card);
-  overflow:hidden;display:flex;flex-direction:column;flex:0 0 220px;width:220px;
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:12px 12px 16px;
+  display:flex;flex-direction:column;flex:0 0 220px;width:220px;
 }
+.busc-grid .busc-card{width:auto;flex:initial;}
 .busc-card-imagem{
-  position:relative;aspect-ratio:1/1;background:var(--primary-tint);display:flex;align-items:center;justify-content:center;
-  font-size:56px;
+  position:relative;aspect-ratio:1/1;background:var(--surface-3);border:1px solid var(--border);border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:64px;overflow:hidden;
 }
 .busc-card-emoji{line-height:1;}
-.busc-badge-alta{
-  position:absolute;top:10px;left:10px;background:rgba(20,24,26,.82);color:#fff;font-size:10.5px;font-weight:700;
-  padding:4px 9px;border-radius:999px;white-space:nowrap;
+.busc-card-pills{position:absolute;top:10px;left:10px;right:56px;display:flex;flex-wrap:wrap;gap:6px;}
+.busc-pill{
+  display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:var(--surface);
+  font-size:12px;font-weight:700;line-height:1;white-space:nowrap;box-shadow:0 1px 3px rgba(20,24,26,.12);
 }
-.busc-badge-desconto{
-  position:absolute;top:38px;left:10px;background:var(--accent);color:#fff;font-size:10.5px;font-weight:800;
-  padding:4px 9px;border-radius:999px;white-space:nowrap;
+.busc-pill-alta{color:var(--red);}
+.busc-pill-desconto{color:var(--accent);}
+.busc-pill-bandeira{font-size:13px;padding:5px 9px;}
+.busc-card-fav{
+  position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:none;background:var(--surface);
+  color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 3px rgba(20,24,26,.12);
 }
-.busc-card-bandeira{position:absolute;top:10px;right:10px;font-size:16px;line-height:1;}
-.busc-card-acoes{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;}
+.busc-card-fav:hover{color:var(--text-1);}
+.busc-card-fav.active{color:var(--red);}
+.busc-card-vendedor{
+  position:absolute;left:10px;bottom:10px;width:26px;height:26px;border-radius:50%;background:#2a2e30;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.busc-card-acoes{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity .15s;}
+.busc-card:hover .busc-card-acoes,.busc-card:focus-within .busc-card-acoes{opacity:1;}
 .busc-card-acao-btn{
-  width:30px;height:30px;border-radius:50%;background:var(--surface);border:none;color:var(--text-2);
+  width:28px;height:28px;border-radius:50%;background:var(--surface);border:none;color:var(--text-2);cursor:pointer;
   display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(20,24,26,.15);
 }
 .busc-card-acao-btn:hover{background:var(--hover);color:var(--text-1);}
-.busc-card-acao-btn.active{color:var(--red);}
-.busc-card-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:8px;}
+.busc-card-body{padding:14px 4px 0;display:flex;flex-direction:column;gap:10px;}
 .busc-card-nome{
-  font-size:13px;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:15px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.busc-card-preco{font-size:15.5px;font-weight:800;color:var(--text-1);display:flex;align-items:baseline;gap:8px;}
-.busc-card-preco-original{font-size:12px;font-weight:600;color:var(--text-3);text-decoration:line-through;}
-.busc-card-vendas{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3);}
+.busc-card-preco{font-size:20px;font-weight:800;color:var(--text-1);display:flex;align-items:baseline;gap:8px;}
+.busc-card-preco-original{font-size:12.5px;font-weight:600;color:var(--text-3);text-decoration:line-through;}
+.busc-card-vendas{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+  background:var(--primary-tint);color:var(--primary-dark);font-size:14px;font-weight:600;
+}
+.busc-card-chips{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;min-height:28px;}
+.busc-chip-info{padding:5px 12px;border-radius:999px;background:var(--surface-3);color:var(--text-2);font-size:13px;font-weight:600;}
 
 /* Assistente, v2: início com caixa central + 4 sugestões; conversa em turnos
    (pergunta presa no topo + resposta). Sem IA ainda, ver lib/assistenteRespostas.ts. */
@@ -3008,7 +3023,6 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 .busc-cat-chip.sem{font-style:italic;color:var(--text-3);}
 .busc-cat-count{font-size:11.5px;font-weight:700;color:var(--text-3);}
 .busc-cat-chip.active .busc-cat-count{color:var(--primary-dark);}
-.busc-card-mkt{position:absolute;left:10px;bottom:10px;padding:3px 8px;font-size:10.5px;font-weight:700;color:var(--text-1);background:var(--surface);border:1px solid var(--border-strong);border-radius:999px;}
 .busc-mkt-bloco{margin-bottom:30px;}
 .busc-mkt-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;}
 .busc-mkt-head h4{font-size:16px;font-weight:700;}

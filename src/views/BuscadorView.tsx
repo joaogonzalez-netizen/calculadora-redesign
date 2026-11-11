@@ -438,23 +438,28 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
     <div className="busc-card">
       <div className="busc-card-imagem">
         <span className="busc-card-emoji">{produto.imagem}</span>
-        <span className="busc-badge-alta">🔥 {t('buscador.emAlta')}</span>
-        {produto.descontoPct !== undefined && (
-          <span className="busc-badge-desconto">{produto.descontoPct}% {t('buscador.off')}</span>
-        )}
-        <span className="busc-card-bandeira">{produto.paisBandeira}</span>
-        {mostrarMkt && <span className="busc-card-mkt">{produto.marketplace}</span>}
+        <div className="busc-card-pills">
+          <span className="busc-pill busc-pill-alta"><Icon name="trend" size={13} /> {t('buscador.emAlta')}</span>
+          {produto.descontoPct !== undefined && (
+            <span className="busc-pill busc-pill-desconto">{produto.descontoPct}% {t('buscador.off')}</span>
+          )}
+          <span className="busc-pill busc-pill-bandeira">{produto.paisBandeira}</span>
+        </div>
+        <button
+          type="button"
+          title={favorito ? t('buscador.desfavoritar') : t('buscador.favoritar')}
+          aria-label={favorito ? t('buscador.desfavoritar') : t('buscador.favoritar')}
+          className={'busc-card-fav' + (favorito ? ' active' : '')}
+          onClick={onAlternarFavorito}
+        >
+          <Icon name="heart" size={18} filled={favorito} />
+        </button>
+        <span className="busc-card-vendedor" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z" /></svg>
+        </span>
         <div className="busc-card-acoes">
           <button type="button" title={t('buscador.reportar')} aria-label={t('buscador.reportar')} className="busc-card-acao-btn" onClick={onReportar}><Icon name="flag" size={14} /></button>
-          <button type="button" title={t('buscador.remover')} className="busc-card-acao-btn"><Icon name="trash" size={14} /></button>
-          <button
-            type="button"
-            title={favorito ? t('buscador.desfavoritar') : t('buscador.favoritar')}
-            className={'busc-card-acao-btn' + (favorito ? ' active' : '')}
-            onClick={onAlternarFavorito}
-          >
-            <Icon name="heart" size={14} filled={favorito} />
-          </button>
+          <button type="button" title={t('buscador.remover')} aria-label={t('buscador.remover')} className="busc-card-acao-btn"><Icon name="trash" size={14} /></button>
         </div>
       </div>
       <div className="busc-card-body">
@@ -463,7 +468,11 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
           {brl(produto.precoAtual)}
           {produto.precoOriginal !== undefined && <span className="busc-card-preco-original">{brl(produto.precoOriginal)}</span>}
         </div>
-        <div className="busc-card-vendas"><Icon name="pedidos" size={13} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</div>
+        <div className="busc-card-vendas"><Icon name="pedidos" size={15} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</div>
+        <div className="busc-card-chips">
+          {mostrarMkt && <span className="busc-chip-info">{produto.marketplace}</span>}
+          {produto.material && <span className="busc-chip-info">{produto.material}</span>}
+        </div>
       </div>
     </div>
   );
