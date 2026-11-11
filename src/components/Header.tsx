@@ -12,7 +12,7 @@ import iconUsuario from '../assets/header/icon-usuario.svg';
 
 export default function Header() {
   const { t, idioma } = useI18n();
-  const { tema, alternar } = useTema();
+  const { modo, definir } = useTema();
   return (
     <header className="app-header">
       <div className="app-header-bar">
@@ -39,15 +39,11 @@ export default function Header() {
             <img src={iconFeedback} alt="" width={16} height={16} />
             <span>{t('header.feedback')}</span>
           </button>
-          <button
-            type="button"
-            className="header-icon-btn header-theme-toggle"
-            onClick={alternar}
-            aria-label={tema === 'dark' ? t('header.temaClaro') : t('header.temaEscuro')}
-            title={tema === 'dark' ? t('header.temaClaro') : t('header.temaEscuro')}
-          >
-            <Icon name={tema === 'dark' ? 'sun' : 'moon'} size={18} />
-          </button>
+          <div className="header-tema-seg" role="group" aria-label={t('header.tema')}>
+            <button type="button" className={modo === 'light' ? 'active' : ''} aria-pressed={modo === 'light'} onClick={() => definir('light')} title={t('header.temaClaroNome')}><Icon name="sun" size={14} /></button>
+            <button type="button" className={modo === 'dark1' ? 'active' : ''} aria-pressed={modo === 'dark1'} onClick={() => definir('dark1')} title={t('header.temaEscuro1')}><Icon name="moon" size={14} />1</button>
+            <button type="button" className={modo === 'dark2' ? 'active' : ''} aria-pressed={modo === 'dark2'} onClick={() => definir('dark2')} title={t('header.temaEscuro2')}><Icon name="moon" size={14} />2</button>
+          </div>
           <IdiomaSwitcher />
           <button type="button" className="header-icon-btn header-sino" aria-label={t('topbar.notificacoes')}>
             <img src={iconSino} alt="" width={20} height={20} />
