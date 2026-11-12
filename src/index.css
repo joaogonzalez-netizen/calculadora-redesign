@@ -2265,7 +2265,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
   display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(20,24,26,.15);
 }
 .busc-card-acao-btn:hover{background:var(--hover);color:var(--text-1);}
-.busc-card-body{padding:9px 4px 0;display:flex;flex-direction:column;gap:6px;}
+.busc-card-body{padding:11px 4px 0;display:flex;flex-direction:column;gap:10px;}
 .busc-card-nome{
   font-size:12.5px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
@@ -2274,23 +2274,33 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 /* Destaque de lucro e margem: bloco tingido pela faixa da margem (alta, média, baixa). */
 .busc-card-lucro{
   --tom:var(--primary-dark);--tom-bg:var(--primary-tint);
-  position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:8px 10px 11px;
-  border-radius:11px;background:var(--tom-bg);overflow:hidden;
+  position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:12px 10px 11px;
+  border-radius:11px;background:var(--tom-bg);
 }
+/* Vendas fica logo acima do bloco: encosta nele em vez de seguir o espaçamento do corpo. */
+.busc-card-metricas + .busc-card-lucro{margin-top:-6px;}
 .busc-card-lucro.media{--tom:var(--accent);--tom-bg:color-mix(in srgb,var(--accent) 14%,var(--surface));}
 .busc-card-lucro.baixa{--tom:var(--red);--tom-bg:var(--red-tint);}
+/* Tooltip único, como selo no canto superior direito do bloco. */
+.busc-lucro-dica{position:absolute;top:-6px;right:-5px;z-index:2;}
+.busc-lucro-dica .info-dot{
+  width:14px;height:14px;font-size:9px;font-weight:800;background:var(--tom);color:var(--surface);
+  border:2px solid var(--surface);box-sizing:content-box;
+}
+.busc-lucro-dica .info-dot .tt{width:210px;bottom:140%;left:auto;right:-6px;font-size:11.5px;font-weight:400;color:#fff;}
 .busc-lucro-col{display:flex;flex-direction:column;gap:1px;min-width:0;}
 .busc-lucro-col-margem{align-items:flex-end;}
 .busc-lucro-rotulo{font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);}
 .busc-lucro-valor{font-family:var(--font-h);font-size:15px;font-weight:800;color:var(--tom);line-height:1.15;white-space:nowrap;}
-.busc-lucro-barra{position:absolute;left:0;right:0;bottom:0;height:3px;background:color-mix(in srgb,var(--tom) 18%,transparent);}
+.busc-lucro-barra{position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:0 0 11px 11px;overflow:hidden;background:color-mix(in srgb,var(--tom) 18%,transparent);}
 .busc-lucro-barra i{display:block;height:100%;background:var(--tom);border-radius:0 3px 3px 0;}
-.busc-card-metricas{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
 .busc-card-vendas{
   display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;
   background:var(--primary-tint);color:var(--primary-dark);font-size:10.5px;font-weight:600;white-space:nowrap;
 }
-.busc-card-chips{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px;min-height:18px;}
+.busc-card-metricas{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.busc-card-chips{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;min-height:18px;}
+.busc-card-chips-dir{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto;justify-content:flex-end;}
 .busc-chip-info{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--text-2);font-size:10.5px;font-weight:600;white-space:nowrap;}
 
 /* Assistente, v2: início com caixa central + 4 sugestões; conversa em turnos
@@ -3045,7 +3055,7 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 .busc-mkt-head h4{font-size:16px;font-weight:700;}
 
 /* Grade de produtos do Buscador (a regra original foi removida junto com o carrossel antigo). */
-.busc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:14px;margin-bottom:8px;}
+.busc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:28px 14px;margin-bottom:8px;}
 @media (max-width:560px){ .busc-grid{grid-template-columns:repeat(2,1fr);} }
 .busc-var-row{margin:6px 0 0;flex:0 0 auto;}
 .busc-var-row .hint{white-space:nowrap;} .busc-var-row .cluster-modo-toggle button{white-space:nowrap;}
