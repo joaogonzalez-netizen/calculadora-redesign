@@ -7,6 +7,7 @@ import enfeitesFamilia from '../assets/buscador/enfeites-familia.png';
 import { BUSCADOR_FAVORITOS_KEY, readJson, writeJson } from '../lib/storage';
 import { useI18n } from '../context/I18nContext';
 import Icon from '../components/Icon';
+import InfoDot from '../components/InfoDot';
 import Paginacao from '../components/buscador/Paginacao';
 import { PAGINA_TAM, limitarPagina } from '../lib/paginacao';
 import { MARKETPLACES_BUSCA, SEM_CATEGORIA, categoriaFinder, categoriaNativa, contarCategorias, type MarketplaceBusca } from '../lib/finderCategorias';
@@ -351,7 +352,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
       ) : (
         <div className="busc-grid">
           {produtosDaPagina.map((p) => (
-            <ProdutoBuscaCard key={p.id} produto={p} mostrarMkt={variante === 'B' && aba === 'todos'} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} onReportar={() => abrirReport(p)} />
+            <ProdutoBuscaCard key={p.id} produto={p} favorito={favoritos.includes(p.id)} onAlternarFavorito={() => alternarFavorito(p.id)} onReportar={() => abrirReport(p)} />
           ))}
         </div>
       )}
@@ -445,7 +446,7 @@ function CategoriaChip({ ativo, sem, total, onClick, children }: { ativo: boolea
   );
 }
 
-function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, onReportar }: { produto: ProdutoBusca; mostrarMkt?: boolean; favorito: boolean; onAlternarFavorito: () => void; onReportar: () => void }) {
+function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito, onReportar }: { produto: ProdutoBusca; favorito: boolean; onAlternarFavorito: () => void; onReportar: () => void }) {
   const { t } = useI18n();
   return (
     <div className="busc-card">
@@ -481,8 +482,12 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
           {brl(produto.precoAtual)}
           {produto.precoOriginal !== undefined && <span className="busc-card-preco-original">{brl(produto.precoOriginal)}</span>}
         </div>
+        <div className="busc-card-metricas">
+          <span className="busc-card-vendas"><Icon name="pedidos" size={12} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</span>
+        </div>
         {produto.margemPct !== undefined && (
           <div className={'busc-card-lucro ' + faixaMargem(produto.margemPct)}>
+            <span className="busc-lucro-dica"><InfoDot text={t('buscador.lucroDica')} /></span>
             <div className="busc-lucro-col">
               <span className="busc-lucro-rotulo">{t('buscador.lucro')}</span>
               <b className="busc-lucro-valor">{brl(lucroEstimado(produto))}</b>
@@ -494,13 +499,11 @@ function ProdutoBuscaCard({ produto, mostrarMkt, favorito, onAlternarFavorito, o
             <div className="busc-lucro-barra" aria-hidden="true"><i style={{ width: Math.min(100, produto.margemPct * 1.4) + '%' }} /></div>
           </div>
         )}
-        <div className="busc-card-metricas">
-          <span className="busc-card-vendas"><Icon name="pedidos" size={12} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</span>
-          <span className="busc-chip-info busc-chip-idade"><Icon name="clock" size={11} /> {idadeCurta(produto.diasNoAr)}</span>
-        </div>
         <div className="busc-card-chips">
-          {mostrarMkt && <span className="busc-chip-info">{produto.marketplace}</span>}
-          {produto.material && <span className="busc-chip-info">{produto.material}</span>}
+          <span className="busc-chip-info busc-chip-idade"><Icon name="clock" size={11} /> {idadeCurta(produto.diasNoAr)}</span>
+          <div className="busc-card-chips-dir">
+            {produto.material && <span className="busc-chip-info">{produto.material}</span>}
+          </div>
         </div>
       </div>
     </div>
