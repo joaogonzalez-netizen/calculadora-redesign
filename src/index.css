@@ -1119,14 +1119,35 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .otim-nota{font-family:var(--font-h);font-size:30px;font-weight:800;flex:0 0 auto;line-height:1;}
 .otim-nota span{font-size:14px;font-weight:600;color:var(--text-3);}
 .otim-nota-label{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:3px;}
-.otim-card{border:1px solid var(--border);border-radius:var(--radius-m);padding:14px 16px;margin-bottom:10px;}
-.otim-card-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.otim-faixa{font-size:13px;font-weight:700;margin-bottom:6px;}
+.otim-intro{margin:0;line-height:1.5;}
+.otim-criterios{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--radius-m);}
+.otim-criterios li{display:flex;justify-content:space-between;gap:10px;padding:11px 14px;font-size:13px;color:var(--text-1);}
+.otim-criterios li + li{border-top:1px solid var(--border);}
+.otim-criterios b{font-size:12px;color:var(--text-3);font-weight:700;}
+.otim-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;}
+.otim-analisando{display:flex;align-items:center;gap:12px;font-size:13.5px;font-weight:600;color:var(--text-1);}
+.otim-passos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.otim-passos li{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-3);}
+.otim-passos li.atual{color:var(--text-1);font-weight:600;}
+.otim-passos li.feito{color:var(--text-1);}
+.otim-passo-icone{width:18px;height:18px;border-radius:50%;border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:var(--surface);}
+.otim-passos li.atual .otim-passo-icone{border-color:var(--primary);}
+.otim-passos li.feito .otim-passo-icone{background:var(--primary);border-color:var(--primary);}
+.otim-potencial{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-m);background:var(--primary-tint);color:var(--primary-dark);font-size:13px;font-weight:600;}
+.otim-regra{--tom:var(--primary-dark);border:1px solid var(--border);border-left:3px solid var(--tom);border-radius:var(--radius-m);padding:13px 15px;}
+.otim-regra.atencao{--tom:var(--accent);}
+.otim-regra.corrigir{--tom:var(--red);}
+.otim-regra-head{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.otim-regra-icone{width:18px;height:18px;border-radius:50%;background:var(--tom);color:var(--surface);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
 .otim-card-label{font-size:13px;font-weight:700;color:var(--text-1);}
-.otim-impacto{margin-left:auto;font-size:11px;font-weight:700;color:var(--primary-dark);background:var(--primary-tint);padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.otim-regra-pontos{margin-left:auto;font-size:12px;font-weight:700;color:var(--tom);white-space:nowrap;}
 .otim-problema{font-size:12.5px;color:var(--text-3);line-height:1.5;}
 .otim-sugestao{font-size:13px;color:var(--text-1);font-weight:600;line-height:1.5;margin-top:6px;}
-.otim-card-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.otim-copiar{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;}
+.otim-final{border:1px solid var(--border);border-radius:var(--radius-m);padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--surface-2);}
+.otim-final-titulo{font-size:14px;font-weight:700;color:var(--text-1);}
+.otim-final p{margin:0;font-size:12.5px;color:var(--text-3);line-height:1.5;}
+.otim-reanalisar{align-self:center;font-size:12.5px;}
 
 /* Drawer de detalhe do produto */
 .pd-tags{display:flex;gap:6px;margin-top:8px;}

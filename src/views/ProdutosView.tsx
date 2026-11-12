@@ -23,8 +23,6 @@ const CANAL_OPTS: Record<Idioma, string[]> = {
   es: ['Todos', 'Mercado Livre', 'Shopee'],
   en: ['Todos', 'Etsy', 'TikTok Shop'],
 };
-// Coluna "Otimizar" escondida por enquanto; é só voltar para true.
-const MOSTRAR_OTIMIZAR = false;
 // Coluna "Duplicar" (LevarAnuncioModal/PublicarAnuncioModal) só funciona entre
 // Mercado Livre e Shopee; o wizard de publicação não suporta Etsy/TikTok Shop,
 // então fica escondida na versão EN.
@@ -170,7 +168,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           <table className="prod-table">
             <thead>
               <tr>
-                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th>{mostrarDuplicar && <th>{t('produtos.colunaLevar')}</th>}{MOSTRAR_OTIMIZAR && <th>{t('produtos.colunaOtimizar')}</th>}<th>{t('produtos.colunaAcoes')}</th>
+                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th>{mostrarDuplicar && <th>{t('produtos.colunaLevar')}</th>}<th>{t('produtos.colunaOtimizar')}</th><th>{t('produtos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -205,13 +203,11 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                         <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setLevarProduto(p)}>{t('produtos.levarBtn' + destinoDaCopia(p).sufixo)}</button>
                       </td>
                     )}
-                    {MOSTRAR_OTIMIZAR && (
-                      <td>
-                        <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
-                          <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
-                        </button>
-                      </td>
-                    )}
+                    <td>
+                      <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
+                        <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
+                      </button>
+                    </td>
                     <td>
                       <div className="prod-acoes">
                         <button type="button" title={t('produtos.verDetalhes')} onClick={() => setDetalheProduto(p)}><Icon name="eye" size={16} /></button>
@@ -268,7 +264,13 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
           onIrParaConfiguracoes={() => { setPublicarProduto(null); onIrParaConfiguracoes?.(); }}
         />
       )}
-      {otimizarProduto && <OtimizarAnuncioDrawer produto={otimizarProduto} onClose={() => setOtimizarProduto(null)} />}
+      {otimizarProduto && (
+        <OtimizarAnuncioDrawer
+          produto={otimizarProduto}
+          onClose={() => setOtimizarProduto(null)}
+          onIrParaGerador={(p) => { setOtimizarProduto(null); onReescreverAnuncio?.(p); }}
+        />
+      )}
       {pausarProduto && (
         <PausarAnuncioModal
           produto={pausarProduto}
