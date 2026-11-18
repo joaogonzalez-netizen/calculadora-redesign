@@ -27,6 +27,8 @@ export interface ProdutoBusca {
   precoOriginal?: number;
   descontoPct?: number;
   vendas: number;
+  /** Vendas nos últimos 30 dias. O "Subindo agora" só mostra itens com mais de zero. */
+  vendas30d: number;
   marketplace: 'Mercado Livre' | 'Etsy' | 'Shopee';
   paisBandeira: string;
   /** Há quantos dias o anúncio foi publicado. */
@@ -39,7 +41,7 @@ export interface ProdutoBusca {
   foto?: string;
 }
 
-export const PRODUTOS_BUSCA: ProdutoBusca[] = [
+export const PRODUTOS_BUSCA: Omit<ProdutoBusca, 'vendas30d'>[] = [
   { id: 'b1', nome: 'Kit 3 Mini Vasinhos com Planta Artificial Decorativo', imagem: '🪴', foto: foto1, precoAtual: 24.90, precoOriginal: 34.90, descontoPct: 29, vendas: 1284, marketplace: 'Mercado Livre', paisBandeira: '🇧🇷', diasNoAr: 5 },
   { id: 'b2', nome: 'Porta Pincéis e Caneta Giratório Organizador de Mesa', imagem: '🖌️', foto: foto3, precoAtual: 39.90, vendas: 742, marketplace: 'Shopee', paisBandeira: '🇧🇷', diasNoAr: 18 },
   { id: 'b3', nome: 'Kit 2 Vasos Decorativos em Espiral Modernos', imagem: '🏺', foto: foto4, precoAtual: 54.90, precoOriginal: 69.90, descontoPct: 21, vendas: 2109, marketplace: 'Mercado Livre', paisBandeira: '🇧🇷', diasNoAr: 64 },
@@ -106,6 +108,9 @@ export const PRODUTOS_BUSCA_LISTA: ProdutoBusca[] = Array.from({ length: 120 }, 
   const margemBase = MARGENS_MOCK[i % MARGENS_MOCK.length];
   // As repetições do mock variam um pouco a margem pra a ordenação não empilhar cópias idênticas.
   const margemPct = i < PRODUTOS_BUSCA.length ? margemBase : Math.min(70, Math.max(5, margemBase + ((i * 7) % 17) - 8));
-  if (i < PRODUTOS_BUSCA.length) return { ...base, material, margemPct };
-  return { ...base, material, margemPct, id: `${base.id}-${i}`, vendas: Math.max(10, base.vendas - i * 7), diasNoAr: base.diasNoAr + i };
+  // Mock: anúncios parados (a cada 7º) não vendem nos últimos 30 dias e ficam fora do "Subindo agora".
+  const vendas30dDe = (vendas: number) => (i % 7 === 6 ? 0 : Math.max(1, Math.round(vendas * 0.3)));
+  if (i < PRODUTOS_BUSCA.length) return { ...base, material, margemPct, vendas30d: vendas30dDe(base.vendas) };
+  const vendas = Math.max(10, base.vendas - i * 7);
+  return { ...base, material, margemPct, id: `${base.id}-${i}`, vendas, vendas30d: vendas30dDe(vendas), diasNoAr: base.diasNoAr + i };
 });
