@@ -134,8 +134,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
 
   const listaBase = useMemo(() => {
     const ocultos = idsOcultosPara(USUARIO.id, reports);
-    // "Subindo agora": só produtos com venda nos últimos 30 dias, em todas as abas de marketplace.
-    let lista = PRODUTOS_BUSCA_LISTA.filter((p) => !ocultos.has(p.id) && p.vendas30d > 0);
+    let lista = PRODUTOS_BUSCA_LISTA.filter((p) => !ocultos.has(p.id));
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase();
       lista = lista.filter((p) => p.nome.toLowerCase().includes(termo));
@@ -145,13 +144,18 @@ export default function BuscadorView({ onFavoritar }: Props) {
     // Mercado Livre Argentina não tem itens no mock.
     if (aba === 'mlar') return [];
     const mkt = MARKETPLACE_DA_ABA[aba];
-    if (mkt) return lista.filter((p) => p.marketplace === mkt);
-    return intercalarMarketplaces(lista);
+    if (mkt) lista = lista.filter((p) => p.marketplace === mkt);
+    return lista;
   }, [busca, idade, somenteFavoritos, favoritos, reports, aba]);
 
+  // Os chips de categoria contam a lista toda do marketplace; só o "Subindo agora" aplica o corte de 30 dias.
   const chipsCategoria = useMemo(() => contarCategorias(listaBase, extrairCategoria), [listaBase, extrairCategoria]);
+  const listaSubindo = useMemo(() => {
+    const recentes = listaBase.filter((p) => p.vendas30d > 0);
+    return MARKETPLACE_DA_ABA[aba] ? recentes : intercalarMarketplaces(recentes);
+  }, [listaBase, aba]);
   const produtos = useMemo(() => {
-    const filtrada = catSel ? listaBase.filter((p) => extrairCategoria(p) === catSel) : listaBase;
+    const filtrada = catSel ? listaSubindo.filter((p) => extrairCategoria(p) === catSel) : listaSubindo;
     const chave: Record<Ordem, (p: ProdutoBusca) => number> = {
       'mais-vendidos': (p) => -p.vendas30d,
       'menor-preco': (p) => p.precoAtual,
@@ -162,7 +166,7 @@ export default function BuscadorView({ onFavoritar }: Props) {
     // "Mais vendidos" mantém a ordem da API (o mock repete produtos-base, ordená-los empilharia cópias).
     if (ordem === 'mais-vendidos') return filtrada;
     return [...filtrada].sort((a, b) => chave[ordem](a) - chave[ordem](b));
-  }, [listaBase, catSel, extrairCategoria, ordem]);
+  }, [listaSubindo, catSel, extrairCategoria, ordem]);
   // Versão A só tem categorias quando há um marketplace escolhido (cada um tem a sua lista).
   const mostrarChips = variante !== 'A' || aba === 'ml' || aba === 'etsy' || aba === 'shopee';
 
