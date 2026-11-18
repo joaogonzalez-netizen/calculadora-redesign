@@ -25,6 +25,9 @@ export interface RascunhoShopee {
   // De onde veio: a extensão do Chrome (padrão) ou "Duplicar → Reescrever com o
   // Seller" na lista de Produtos (rascunho só em memória, não vai pra Meus anúncios).
   origem?: 'extensao' | 'produto';
+  // Aceite do termo de responsabilidade no log (termoCopia.ts). Rascunhos da
+  // extensão sem ele foram copiados antes do termo e pedem o aceite ao abrir.
+  aceiteId?: string;
 }
 
 export type ModoCopia = 'copia' | 'ia';
@@ -35,6 +38,10 @@ export function modoDoRascunho(r: RascunhoShopee | null | undefined): ModoCopia 
 
 export function setModoRascunho(id: string, modo: ModoCopia) {
   saveRascunhosShopee(getRascunhosShopee().map((r) => (r.id === id ? { ...r, modo } : r)));
+}
+
+export function setAceiteRascunho(id: string, aceiteId: string) {
+  saveRascunhosShopee(getRascunhosShopee().map((r) => (r.id === id ? { ...r, aceiteId } : r)));
 }
 
 export const RASCUNHOS_SHOPEE_KEY = 'stlseller_rascunhos_shopee';
