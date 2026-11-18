@@ -35,6 +35,17 @@ const MARKETPLACE_DA_ABA: Partial<Record<Aba, MarketplaceBusca>> = { ml: 'Mercad
 /** Versão C: itens mostrados por marketplace antes do "Ver todos". */
 const ITENS_POR_BLOCO = 6;
 
+/** Aba "Todos": alterna os marketplaces (um de cada por vez) mantendo a ordem original dentro de cada um. */
+function intercalarMarketplaces(lista: ProdutoBusca[]): ProdutoBusca[] {
+  const filas = MARKETPLACES_BUSCA.map((m) => lista.filter((p) => p.marketplace === m));
+  const misturada: ProdutoBusca[] = [];
+  const maior = Math.max(0, ...filas.map((f) => f.length));
+  for (let i = 0; i < maior; i++) {
+    for (const fila of filas) if (i < fila.length) misturada.push(fila[i]);
+  }
+  return misturada;
+}
+
 interface Props {
   onFavoritar: () => void;
 }
@@ -123,7 +134,8 @@ export default function BuscadorView({ onFavoritar }: Props) {
 
   const listaBase = useMemo(() => {
     const ocultos = idsOcultosPara(USUARIO.id, reports);
-    let lista = PRODUTOS_BUSCA_LISTA.filter((p) => !ocultos.has(p.id));
+    // "Subindo agora": só produtos com venda nos últimos 30 dias, em todas as abas de marketplace.
+    let lista = PRODUTOS_BUSCA_LISTA.filter((p) => !ocultos.has(p.id) && p.vendas30d > 0);
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase();
       lista = lista.filter((p) => p.nome.toLowerCase().includes(termo));
@@ -133,15 +145,15 @@ export default function BuscadorView({ onFavoritar }: Props) {
     // Mercado Livre Argentina não tem itens no mock.
     if (aba === 'mlar') return [];
     const mkt = MARKETPLACE_DA_ABA[aba];
-    if (mkt) lista = lista.filter((p) => p.marketplace === mkt);
-    return lista;
+    if (mkt) return lista.filter((p) => p.marketplace === mkt);
+    return intercalarMarketplaces(lista);
   }, [busca, idade, somenteFavoritos, favoritos, reports, aba]);
 
   const chipsCategoria = useMemo(() => contarCategorias(listaBase, extrairCategoria), [listaBase, extrairCategoria]);
   const produtos = useMemo(() => {
     const filtrada = catSel ? listaBase.filter((p) => extrairCategoria(p) === catSel) : listaBase;
     const chave: Record<Ordem, (p: ProdutoBusca) => number> = {
-      'mais-vendidos': (p) => -p.vendas,
+      'mais-vendidos': (p) => -p.vendas30d,
       'menor-preco': (p) => p.precoAtual,
       'maior-preco': (p) => -p.precoAtual,
       'maior-lucro': (p) => -lucroEstimado(p),
@@ -483,7 +495,7 @@ function ProdutoBuscaCard({ produto, favorito, onAlternarFavorito, onReportar }:
           {produto.precoOriginal !== undefined && <span className="busc-card-preco-original">{brl(produto.precoOriginal)}</span>}
         </div>
         <div className="busc-card-metricas">
-          <span className="busc-card-vendas"><Icon name="pedidos" size={12} /> {produto.vendas.toLocaleString('pt-BR')} {t('buscador.vendas')}</span>
+          <span className="busc-card-vendas"><Icon name="pedidos" size={12} /> {produto.vendas30d.toLocaleString('pt-BR')} {t('buscador.vendas30d')}</span>
         </div>
         {produto.margemPct !== undefined && (
           <div className={'busc-card-lucro ' + faixaMargem(produto.margemPct)}>
