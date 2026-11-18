@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 import { fundoDeImagem } from '../../lib/rascunhosShopee';
@@ -8,13 +7,9 @@ interface Props {
   onAdicionar: () => void;
   onRemover: (idx: number) => void;
   onContinuar: () => void;
-  // Fluxo de apenas cópia: as fotos são as do anúncio copiado e não passam por IA.
-  modoCopia?: boolean;
-  // Aviso exibido logo acima do botão Continuar.
-  avisoCopia?: ReactNode;
 }
 
-export default function UploadStep({ imagens, onAdicionar, onRemover, onContinuar, modoCopia, avisoCopia }: Props) {
+export default function UploadStep({ imagens, onAdicionar, onRemover, onContinuar }: Props) {
   const { t } = useI18n();
   const podeContinuar = imagens.length >= 1;
   const cheio = imagens.length >= 5;
@@ -22,8 +17,8 @@ export default function UploadStep({ imagens, onAdicionar, onRemover, onContinua
   return (
     <>
       <div className="ger-info-card">
-        <b>{modoCopia ? t('gerador.imagensDoAnuncioCopiado') : t('gerador.comoFunciona')}</b>
-        <p>{modoCopia ? t('gerador.imagensDoAnuncioCopiadoDesc') : 'As suas imagens enviadas servirão como referências visuais para a IA. Ela as analisará para gerar textos publicitários, imagens de produtos em diferentes ângulos/contextos e vídeos narrados.'}</p>
+        <b>{t('gerador.comoFunciona')}</b>
+        <p>'As suas imagens enviadas servirão como referências visuais para a IA. Ela as analisará para gerar textos publicitários, imagens de produtos em diferentes ângulos/contextos e vídeos narrados.'</p>
       </div>
 
       <div className="ger-dropzone" onClick={() => !cheio && onAdicionar()}>
@@ -48,8 +43,6 @@ export default function UploadStep({ imagens, onAdicionar, onRemover, onContinua
           </div>
         ))}
       </div>
-
-      {avisoCopia && <div style={{ marginTop: 22 }}>{avisoCopia}</div>}
 
       <div className="ger-footer">
         <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={onContinuar}>{t('gerador.continuar')}</button>

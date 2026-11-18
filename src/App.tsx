@@ -163,7 +163,7 @@ function AppShell() {
           {view === 'historico' && <HistoricoView onChange={refreshHistCount} onAbrirNaCalculadora={() => setView('calculadora')} />}
           {view === 'preferencias' && <PreferenciasView />}
           {view === 'configuracoes' && <ConfiguracoesView onChange={refreshOnboarding} onIrParaMeusAnuncios={() => setView('gerador-meus')} />}
-          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? rascunhoInicial?.id ?? 'novo'} rascunhoId={rascunhoId} rascunhoInicial={rascunhoInicial} onSalvarRascunho={aoSalvarRascunho} onIrParaConfiguracoes={() => setView('configuracoes')} />}
+          {view === 'gerador-criar' && <CriarAnuncioView key={rascunhoId ?? rascunhoInicial?.id ?? 'novo'} rascunhoId={rascunhoId} rascunhoInicial={rascunhoInicial} onSalvarRascunho={aoSalvarRascunho} onVoltarMeusAnuncios={() => setView('gerador-meus')} onIrParaConfiguracoes={() => setView('configuracoes')} />}
           {view === 'gerador-meus' && <MeusAnunciosView onCriarAnuncio={(id) => { setRascunhoId(id ?? null); setView('gerador-criar'); }} />}
           {view === 'buscador' && <BuscadorView onFavoritar={aoFavoritarBuscador} />}
           {view === 'finder-reports' && <FinderReportsView />}

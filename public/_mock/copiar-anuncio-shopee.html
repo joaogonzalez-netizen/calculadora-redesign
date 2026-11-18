@@ -83,11 +83,6 @@ body.shopee .stl-fab{display:inline-flex}
 .spin{width:38px;height:38px;border:4px solid var(--gt);border-top-color:var(--g);border-radius:50%;margin:18px auto;animation:r 0.9s linear infinite}
 @keyframes r{to{transform:rotate(360deg)}}
 .center{text-align:center}
-.modo{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;font:inherit}
-.modo:hover{border-color:var(--g);background:var(--gt)}
-.modo b{display:block;font-size:15px;margin-bottom:4px}.modo span{display:block;color:#444;font-size:13px;line-height:1.45}
-.modo em{display:block;margin-top:6px;font-size:12px;color:#8a6d00;font-style:normal;font-weight:600}
-.warn{background:#fff8e6;border:1px solid #f3dd9b;color:#6b5200;border-radius:9px;padding:11px 13px;font-size:13px;line-height:1.5}
 /* toast na página */
 .toast{position:fixed;right:24px;bottom:94px;background:#fff;border-radius:12px;box-shadow:0 14px 44px rgba(0,0,0,.28);padding:14px 16px;display:none;gap:12px;align-items:center;z-index:60;border-left:5px solid var(--g);min-width:300px}
 .toast.on{display:flex}.toast b{display:block}
@@ -127,7 +122,7 @@ body.shopee .stl-fab{display:inline-flex}
 <div class="demo">
   <b>Simulação</b> · não é a extensão real
   <label><input type="checkbox" id="optLogado" checked> Usuário logado no STLSeller</label>
-  <label><input type="checkbox" id="optPrimeira" checked> Primeira cópia (mostra aviso de direitos)</label>
+  <label>Idioma <select id="optIdioma"><option value="pt">Português</option><option value="es">Español</option><option value="en">English</option></select></label>
   <span class="sp"></span>
   <button id="reset">↺ Reiniciar simulação</button>
 </div>
@@ -192,7 +187,7 @@ body.shopee .stl-fab{display:inline-flex}
 
 <!-- ============ OVERLAY DA EXTENSÃO ============ -->
 <div class="ov" id="ov"><div class="panel" id="panel"></div></div>
-<div class="toast" id="toast"><div><b>Anúncio copiado</b><span class="mut" id="toastMsg">Suporte de Celular 3D Premium</span></div><a id="verRasc">Ver rascunho</a></div>
+<div class="toast" id="toast"><div><b id="toastTitle">Anúncio copiado</b><span class="mut" id="toastMsg"></span></div><a id="verRasc">Ver rascunho</a></div>
 
 <script>
 const DESC = `Tenha mais conforto e praticidade no dia a dia com este suporte de celular produzido em impressão 3D de alta qualidade. Com design moderno e acabamento preto fosco, ele oferece excelente estabilidade para assistir vídeos, realizar videochamadas, estudar, trabalhar ou acompanhar receitas sem precisar segurar o aparelho.
@@ -222,73 +217,72 @@ Conteúdo da embalagem:
 Produto desenvolvido para oferecer praticidade, estabilidade e um excelente custo-benefício para o uso diário. Ideal para quem busca um suporte funcional, bonito e durável.`;
 const FOTOS = ['foto1.jpg','foto2.jpg','foto3.jpg'];
 const $ = s => document.querySelector(s);
-const state = { copiado:false, avisoVisto:false };
+
 
 $('#descOriginal').textContent = DESC;
 document.body.classList.add('shopee');
 FOTOS.forEach((f,i)=>{const d=document.createElement('div');d.style.backgroundImage=`url(${f})`;if(i==2)d.className='on';
   d.onclick=()=>{$('#mainImg').style.backgroundImage=`url(${f})`;document.querySelectorAll('#thumbs div').forEach(x=>x.classList.remove('on'));d.classList.add('on')};$('#thumbs').appendChild(d)});
 
+/* idioma: o mesmo que o usuário escolheu no STLSeller */
+const I={
+pt:{fab:'Copiar para o STLSeller',loginT:'Entrar no STLSeller',loginP:'Entre com a sua conta do STLSeller para copiar anúncios.',email:'E-mail',senha:'Senha',cancelar:'Cancelar',entrar:'Entrar',
+ impT:'Copiar para o STLSeller',imp:'Importando anúncio…',impD:'Título, descrição, preço, imagens, categoria, atributos e estoque.',
+ toast:'Anúncio copiado',toastMsg:'Revise e publique no STLSeller.',ver_r:'Revisar no STLSeller',fechar:'Fechar'},
+es:{fab:'Copiar a STLSeller',loginT:'Entrar a STLSeller',loginP:'Entrá con tu cuenta de STLSeller para copiar anuncios.',email:'Correo',senha:'Contraseña',cancelar:'Cancelar',entrar:'Entrar',
+ impT:'Copiar a STLSeller',imp:'Importando anuncio…',impD:'Título, descripción, precio, imágenes, categoría, atributos y stock.',
+ toast:'Anuncio copiado',toastMsg:'Revisá y publicá en STLSeller.',ver_r:'Revisar en STLSeller',fechar:'Cerrar'},
+en:{fab:'Copy to STLSeller',loginT:'Sign in to STLSeller',loginP:'Sign in with your STLSeller account to copy listings.',email:'Email',senha:'Password',cancelar:'Cancel',entrar:'Sign in',
+ impT:'Copy to STLSeller',imp:'Importing listing…',impD:'Title, description, price, images, category, attributes and stock.',
+ toast:'Listing copied',toastMsg:'Review and publish in STLSeller.',ver_r:'Review in STLSeller',fechar:'Close'}};
+const IDIOMA_KEY='stlseller_idioma';
+const lang=()=>{let v;try{v=localStorage.getItem(IDIOMA_KEY)}catch(e){}return I[v]?v:'pt'};
+const T=k=>I[lang()][k];
+$('#optIdioma').value=lang();
+$('#optIdioma').onchange=e=>{localStorage.setItem(IDIOMA_KEY,e.target.value);paint();close_()};
+function paint(){$('#btnCopiar').lastChild.textContent=T('fab');$('#toastTitle').textContent=T('toast');$('#toastMsg').textContent=T('toastMsg');$('#verRasc').textContent=T('ver_r');document.documentElement.lang=lang()==='pt'?'pt-BR':lang()}
+
 /* overlay */
 function open_(html){$('#panel').innerHTML=html;$('#ov').classList.add('on')}
 function close_(){$('#ov').classList.remove('on')}
 document.addEventListener('click',e=>{ if(e.target.dataset.close!==undefined) close_(); });
-const head=(t)=>`<div class="p-h"><span class="lg"></span>${t}<button class="x" data-close>×</button></div>`;
+const head=(t)=>`<div class="p-h"><span class="lg"></span>${t}<button class="x" data-close aria-label="${T('fechar')}">×</button></div>`;
+const USUARIO='joao.gonzalez@stlflix.com';
 
-/* 1. clique no botão */
+/* Um clique: copia e leva pro STLSeller. O termo de responsabilidade e a escolha (IA ou publicar) ficam lá. */
 $('#btnCopiar').onclick=()=>{
   $('#toast').classList.remove('on');
   if(!$('#optLogado').checked) return login();
-  if($('#optPrimeira').checked && !state.avisoVisto) return aviso();
-  if(state.copiado) return duplicado();
-  escolherModo();
+  importar();
 };
 function login(){
-  open_(head('Entrar no STLSeller')+`<div class="p-b"><p class="mut">Entre com a sua conta do STLSeller para copiar anúncios.</p>
-  <div class="fld"><label>E-mail</label><input value="joao.gonzalez@stlflix.com"></div>
-  <div class="fld"><label>Senha</label><input type="password" value="••••••••"></div></div>
-  <div class="p-f"><button class="btn" data-close>Cancelar</button><button class="btn pri" id="doLogin">Entrar</button></div>`);
+  open_(head(T('loginT'))+`<div class="p-b"><p class="mut">${T('loginP')}</p>
+  <div class="fld"><label>${T('email')}</label><input value="${USUARIO}"></div>
+  <div class="fld"><label>${T('senha')}</label><input type="password" value="••••••••"></div></div>
+  <div class="p-f"><button class="btn" data-close>${T('cancelar')}</button><button class="btn pri" id="doLogin">${T('entrar')}</button></div>`);
   $('#doLogin').onclick=()=>{$('#optLogado').checked=true;close_();$('#btnCopiar').click()};
 }
-function aviso(){
-  open_(head('Antes de copiar')+`<div class="p-b"><div class="warn"><b>Você é responsável pelo conteúdo copiado.</b><br>Imagens, textos e marcas pertencem ao vendedor original. Use o conteúdo copiado apenas se tiver direito de usá-lo.</div><p class="mut" style="margin-top:12px">Este aviso aparece só na primeira cópia.</p></div>
-  <div class="p-f"><button class="btn" data-close>Cancelar</button><button class="btn pri" id="okAviso">Entendi, copiar</button></div>`);
-  $('#okAviso').onclick=()=>{state.avisoVisto=true;$('#optPrimeira').checked=false;escolherModo()};
-}
-function escolherModo(){
-  open_(head('O que você quer fazer com este anúncio?')+`<div class="p-b">
-   <button class="modo" id="mCopia"><b>Apenas copiar</b><span>Salva como rascunho para você revisar as <u>imagens e informações</u> e publicar. <strong>Mantém as imagens originais, sem IA e sem gastar créditos.</strong></span><em>Fluxo curto: imagens → informações → publicar. Dá para gerar com IA depois.</em></button>
-   <button class="modo" id="mIa"><b>Copiar e criar com IA</b><span>Fluxo completo de geração: usa o anúncio como base para criar textos, <strong>imagens novas</strong> e vídeo.</span><em>Consome créditos (o custo é mostrado antes de confirmar).</em></button>
-  </div><div class="p-f"><button class="btn" data-close>Cancelar</button></div>`);
-  $('#mCopia').onclick=()=>importar('copia');
-  $('#mIa').onclick=()=>importar('ia');
-}
-function importar(modo){
-  open_(head('Copiar para o STLSeller')+`<div class="p-b center"><div class="spin"></div><p><b>Importando anúncio…</b></p><p class="mut">Título, descrição, preço, imagens, categoria, atributos e estoque.</p></div>`);
-  setTimeout(()=>{close_();salvarRascunho(modo);state.copiado=true;$('#toastMsg').textContent=modo==='copia'?'Apenas cópia: revise e publique, sem IA.':'Copiado para criar com IA no Gerador.';$('#toast').classList.add('on')},1800);
-}
-function duplicado(){
-  open_(head('Anúncio já copiado')+`<div class="p-b"><p>Você já copiou este anúncio para o STLSeller.</p><p class="mut">O que deseja fazer?</p></div>
-  <div class="p-f"><button class="btn" id="dVer">Ver o rascunho existente</button><button class="btn pri" id="dNovo">Criar outro rascunho</button></div>`);
-  $('#dVer').onclick=()=>{close_();irRascunho()};
-  $('#dNovo').onclick=()=>{close_();escolherModo()};
+function importar(){
+  open_(head(T('impT'))+`<div class="p-b center"><div class="spin"></div><p><b>${T('imp')}</b></p><p class="mut">${T('impD')}</p></div>`);
+  setTimeout(()=>{close_();salvarRascunho();$('#toast').classList.add('on')},1500);
 }
 const KEY='stlseller_rascunhos_shopee';
 const ATRIBUTOS=[['Tipo de garantia','Sem garantia'],['Material','Plástico'],['Quantidade da embalagem','1 unidade'],['Envio de','Santa Catarina']];
 /* Grava o rascunho no mesmo armazenamento que o STLSeller lê (a extensão real usaria a API). */
-function salvarRascunho(modo){
+function salvarRascunho(){
   let lista=[];try{lista=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
   lista.unshift({id:'shopee-'+Date.now(),titulo:'Suporte de Celular 3D Premium',descricao:DESC,preco:19.9,estoque:10,
     categoria:'Celulares e Dispositivos > Acessórios > Suportes para Celular',
     atributos:ATRIBUTOS.map(([nome,valor])=>({nome,valor})),
-    imagens:['foto3.jpg','foto2.jpg'].map(f=>'/_mock/'+f),origemUrl:'shopee.com.br/Suporte-de-Celular-3D-Premium-i.1043817226.24591873204',criadoEm:Date.now(),modo:modo||'ia'});
+    imagens:['foto3.jpg','foto2.jpg'].map(f=>'/_mock/'+f),origemUrl:'shopee.com.br/Suporte-de-Celular-3D-Premium-i.1043817226.24591873204',criadoEm:Date.now()});
   localStorage.setItem(KEY,JSON.stringify(lista));
 }
 /* A extensão abre o STLSeller numa aba nova, já em Meus anúncios. */
 function irRascunho(){$('#toast').classList.remove('on');window.open('/?abrir=meus-anuncios','_blank')}
 $('#verRasc').onclick=irRascunho;
 
-$('#reset').onclick=()=>{Object.assign(state,{copiado:false,avisoVisto:false});localStorage.removeItem(KEY);$('#optPrimeira').checked=true;$('#optLogado').checked=true;$('#toast').classList.remove('on');close_()};
+$('#reset').onclick=()=>{localStorage.removeItem(KEY);$('#optLogado').checked=true;$('#toast').classList.remove('on');close_()};
+paint();
 </script>
 </body>
 </html>

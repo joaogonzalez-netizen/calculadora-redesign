@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Icon from '../Icon';
 
@@ -76,13 +76,9 @@ interface Props {
   // Campos já conhecidos (ex.: vindos de um anúncio copiado da Shopee) que
   // sobrescrevem as sugestões mockadas da IA.
   inicial?: Partial<InfoState>;
-  // Modo "apenas copiar": não há próxima etapa de IA, o fim do fluxo é publicar ou salvar o rascunho.
-  // Aviso exibido logo acima dos botões de avançar/publicar.
-  avisoCopia?: ReactNode;
-  modoCopia?: { onPublicar: () => void; onSalvarRascunho: () => void };
 }
 
-export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCopia, avisoCopia }: Props) {
+export default function InformacoesStep({ onVoltar, onContinuar, inicial }: Props) {
   const { t } = useI18n();
   const [info, setInfo] = useState<InfoState>(() => ({ ...MOCK_INICIAL, ...inicial }));
   const [identificacaoConfirmada, setIdentificacaoConfirmada] = useState(false);
@@ -121,13 +117,10 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
     <>
       <button type="button" className="ger-voltar" onClick={onVoltar}><Icon name="chevron" size={14} /> {t('gerador.cancelarEVoltar')}</button>
 
-      {/* No fluxo de apenas cópia não há IA: os campos vêm do anúncio original. */}
-      {!modoCopia && (
-        <div className="ger-ia-banner">
-          <span><Icon name="gerador" size={16} /> {t('gerador.sugestoesIaAplicadas')}</span>
-          <button type="button" className="btn-outline" onClick={() => { setInfo({ ...MOCK_INICIAL, ...inicial }); desfazerConfirmacao(); }}>{t('gerador.reaplicarSugestoes')}</button>
-        </div>
-      )}
+      <div className="ger-ia-banner">
+        <span><Icon name="gerador" size={16} /> {t('gerador.sugestoesIaAplicadas')}</span>
+        <button type="button" className="btn-outline" onClick={() => { setInfo({ ...MOCK_INICIAL, ...inicial }); desfazerConfirmacao(); }}>{t('gerador.reaplicarSugestoes')}</button>
+      </div>
 
       <div className="card ger-subcard">
         <div className="card-body">
@@ -316,17 +309,8 @@ export default function InformacoesStep({ onVoltar, onContinuar, inicial, modoCo
       </div>
 
       {/* Só depois de confirmar nome e contexto, antes disso o foco é revisar a identificação. */}
-      {avisoCopia && identificacaoConfirmada && <div style={{ marginTop: 22 }}>{avisoCopia}</div>}
-
       <div className="ger-footer" style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-        {modoCopia ? (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <button type="button" className="btn-outline pill ger-btn" onClick={modoCopia.onSalvarRascunho}>{t('gerador.salvarRascunho')}</button>
-            <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={modoCopia.onPublicar}>{t('gerador.publicarAnuncio')}</button>
-          </div>
-        ) : (
-          <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={() => onContinuar({ largura: info.largura, altura: info.altura, comprimento: info.comprimento })}>{t('gerador.continuar')}</button>
-        )}
+        <button type="button" className="btn-dark pill ger-btn" disabled={!podeContinuar} onClick={() => onContinuar({ largura: info.largura, altura: info.altura, comprimento: info.comprimento })}>{t('gerador.continuar')}</button>
         {!podeContinuar && (
           <span className="hint">{t(identificacaoConfirmada ? 'gerador.camposFaltando' : 'gerador.confirmeParaContinuar')}</span>
         )}
