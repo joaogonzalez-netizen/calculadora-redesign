@@ -1,6 +1,8 @@
 /* Módulo Venda direta (feiras, eventos e lojas físicas). Todas as classes levam o prefixo fe-
    para não colidir com o CSS global do STLSeller. */
 .fe{--amber:#c58a00;--amber-tint:#fff6dc;--blue:#2563c9;--blue-tint:#e8f0fd;position:relative;}
+:root[data-theme="dark"] .fe{--amber:#ffa94d;--amber-tint:#34210d;--blue:#7db0ff;--blue-tint:#13244a;}
+:root[data-theme="dark"] .fe-badge.fe-amber{color:var(--amber);}
 .fe-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
 .fe-pill{display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;padding:7px 13px 7px 11px;font-size:13px;font-weight:600;color:var(--text-1);max-width:100%;}
 .fe-pill:hover{border-color:var(--text-3);}
