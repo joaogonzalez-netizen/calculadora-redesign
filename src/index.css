@@ -117,18 +117,18 @@ input,select{font-family:var(--font-b);}
 /* O menu rola inteiro (de Primeiros passos a Sistema) sem espremer nem cortar títulos e itens. */
 .nav-scroll > *{flex-shrink:0;}
 .nav-label{
-  font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;
-  padding:16px 10px 6px;white-space:nowrap;overflow:hidden;
+  font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.2px;
+  padding:16px 12px 6px;white-space:nowrap;overflow:hidden;
 }
 .nav-item{
-  display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;color:var(--text-2);
-  font-size:13.5px;font-weight:500;cursor:pointer;transition:.15s;width:100%;
+  display:flex;align-items:center;gap:11px;min-height:44px;padding:0 12px;border-radius:8px;color:var(--text-2);
+  font-size:14px;font-weight:400;cursor:pointer;transition:.15s;width:100%;
   background:none;border:none;text-align:left;white-space:nowrap;
 }
 .nav-item .ic{width:18px;height:18px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;opacity:.9;}
 .nav-item .nav-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 .nav-item:hover{background:var(--hover);color:var(--text-1);}
-.nav-item.active{background:var(--primary-tint);color:var(--primary-dark);font-weight:700;}
+.nav-item.active{background:var(--primary-tint);color:var(--text-1);font-weight:500;}
 .nav-item.muted{color:var(--text-3);cursor:default;}
 .nav-item.muted:hover{background:none;color:var(--text-3);}
 .nav-caret{font-size:10px;color:var(--text-3);transition:transform .15s;flex:0 0 auto;}
@@ -212,7 +212,7 @@ input,select{font-family:var(--font-b);}
 .app-footer a{color:var(--text-3);text-decoration:none;}
 .app-footer a:hover{color:var(--text-1);}
 .hero{margin-bottom:32px;}
-.hero h1{font-size:32px;font-weight:800;}
+.hero h1{font-size:36px;font-weight:700;}
 .hero h1 .accent{color:var(--primary);}
 .hero p{margin:10px 0 0;color:var(--text-2);font-size:14.5px;max-width:560px;}
 .hero-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;}
@@ -244,7 +244,7 @@ input,select{font-family:var(--font-b);}
 
 /* ---------- Cards ---------- */
 .card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
   box-shadow:var(--shadow-card);margin-bottom:20px;
 }
 .card-head{
@@ -276,6 +276,9 @@ input[type=text],input[type=number],input[type=url],select,textarea{
   border-radius:var(--radius-m);padding:12px 14px;font-size:14px;width:100%;transition:.15s;
 }
 textarea{font-family:var(--font-b);resize:vertical;min-height:90px;line-height:1.5;}
+/* Campos de formulário no padrão do SellerFull: 48px de altura, raio 11px. */
+.field input[type=text],.field input[type=number],.field input[type=url],.field select{height:48px;padding:0 16px;border-radius:11px;}
+.field textarea{padding:12px 16px;border-radius:11px;}
 /* Cresce junto com o texto digitado (altura ajustada via JS), sem o puxador
    de resize manual, que não faz sentido numa caixa que já se ajusta sozinha. */
 .ger-textarea-auto{resize:none;overflow:hidden;}
@@ -2872,8 +2875,8 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 .header-cursos{text-decoration:none;}
 .header-cursos:hover,.header-pill:hover{border-color:rgba(46,46,51,.45);}
 .header-pill{
-  display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:none;
-  border:1px solid rgba(46,46,51,.2);font:600 12px/18px var(--font-h);color:#2e2e33;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:none;
+  border:1px solid var(--primary);font:600 14px/20px var(--font-b);color:var(--primary-dark);white-space:nowrap;
 }
 .header-icon-btn{
   position:relative;width:30px;height:30px;border-radius:50%;border:none;background:none;padding:0;
