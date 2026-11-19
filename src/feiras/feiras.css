@@ -12,9 +12,11 @@
 .fe-pill .fe-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .fe-avatar{width:32px;height:32px;border-radius:50%;background:var(--primary-tint-strong);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:0 0 auto;}
 .fe-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
-.fe-page-head h1{font-size:24px;font-weight:800;}
-.fe-page-head p{color:var(--text-2);font-size:14px;margin-top:2px;}
+.fe-page-head h1{font-size:36px;font-weight:700;}
+.fe-page-head p{color:var(--text-2);font-size:16px;margin-top:2px;}
 .fe-page-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+/* Ações da página no padrão do SellerFull: botão em pílula de 48px. */
+.fe-page-actions .fe-btn{min-height:48px;border-radius:999px;padding:0 20px;font-size:16px;font-weight:500;}
 .fe-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid transparent;border-radius:var(--radius-m);padding:10px 16px;font-size:14px;font-weight:700;white-space:nowrap;transition:.15s;min-height:42px;}
 .fe-btn-primary{background:var(--primary-fill);color:#fff;}
 .fe-btn-primary:hover{background:var(--primary-dark);}
@@ -68,6 +70,7 @@
 .fe-search{position:relative;flex:1;min-width:200px;max-width:340px;}
 .fe-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);}
 .fe-search input{padding-left:38px;}
+.fe-search input,.fe-select-sm{min-height:44px;border-radius:11px;}
 .fe-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
 .fe-select-sm{border:1px solid var(--border-strong);background:var(--surface);border-radius:var(--radius-m);padding:9px 12px;font-size:14px;min-height:42px;color:var(--text-1);}
 .fe-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap;background:var(--surface-3);color:var(--text-2);}
@@ -204,7 +207,7 @@ button.fe-list-item{background:none;border:none;border-bottom:1px solid var(--bo
 .fe-grid-2{grid-template-columns:1fr;}
 }
 @media (max-width:860px){
-.fe-page-head h1{font-size:21px;}
+.fe-page-head h1{font-size:28px;}
 .fe-page-actions .fe-hide-m{display:none;}
 .fe-grid-kpi{gap:10px;}
 .fe-kpi{padding:14px 15px;}

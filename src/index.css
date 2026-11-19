@@ -2205,6 +2205,11 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 
 .busc-filters-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
 .busc-search{flex:1;min-width:220px;}
+/* Filtros do Buscador no padrão do SellerFull: 48px de altura, raio 11px, texto 14px. */
+.busc-filters-row .cl-search,.busc-filters-row .busc-select,.busc-filters-row .busc-preco-input,.busc-filters-row .ctl-btn{min-height:48px;border-radius:11px;border-color:var(--border);}
+.busc-filters-row .busc-select,.busc-filters-row .ctl-btn{font-size:14px;font-weight:400;}
+.busc-filters-row .cl-search{padding:0 16px;}
+.busc-filters-row .cl-search input{font-size:14px;}
 .busc-preco-range{display:flex;align-items:center;gap:8px;}
 .busc-preco-input{
   display:flex;align-items:center;gap:6px;border:1px solid var(--border-strong);border-radius:var(--radius-m);
