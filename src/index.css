@@ -1146,6 +1146,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .pd-count{font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);margin-left:6px;}
 .pd-gallery{display:flex;gap:8px;padding:0 22px;}
 .pd-img-ph{flex:1;aspect-ratio:1;border-radius:10px;background:repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px;}
+:root[data-theme="dark"] .pd-img-ph{background:repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface-2) 0% 50%) 0/14px 14px;}
 .pd-img-add{
   flex:1;aspect-ratio:1;border-radius:10px;border:1.5px dashed var(--primary-tint-strong);color:var(--primary-dark);
   display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;text-align:center;
