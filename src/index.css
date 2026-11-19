@@ -25,7 +25,7 @@
   /* largura da sidebar: usada também pelo offset da barra fixa da calculadora */
   --sidebar-w:260px;
   /* altura da barra do header */
-  --header-h:76px;
+  --header-h:88px;
   --chart-custos:#ef6d8c;
   --chart-grid:#eef0ef;
   --surface-2:#fafbfa;
@@ -117,18 +117,18 @@ input,select{font-family:var(--font-b);}
 /* O menu rola inteiro (de Primeiros passos a Sistema) sem espremer nem cortar títulos e itens. */
 .nav-scroll > *{flex-shrink:0;}
 .nav-label{
-  font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;
-  padding:16px 10px 6px;white-space:nowrap;overflow:hidden;
+  font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.2px;
+  padding:16px 12px 6px;white-space:nowrap;overflow:hidden;
 }
 .nav-item{
-  display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;color:var(--text-2);
-  font-size:13.5px;font-weight:500;cursor:pointer;transition:.15s;width:100%;
+  display:flex;align-items:center;gap:11px;min-height:44px;padding:0 12px;border-radius:8px;color:var(--text-2);
+  font-size:14px;font-weight:400;cursor:pointer;transition:.15s;width:100%;
   background:none;border:none;text-align:left;white-space:nowrap;
 }
 .nav-item .ic{width:18px;height:18px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;opacity:.9;}
 .nav-item .nav-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 .nav-item:hover{background:var(--hover);color:var(--text-1);}
-.nav-item.active{background:var(--primary-tint);color:var(--primary-dark);font-weight:700;}
+.nav-item.active{background:var(--primary-tint);color:var(--text-1);font-weight:500;}
 .nav-item.muted{color:var(--text-3);cursor:default;}
 .nav-item.muted:hover{background:none;color:var(--text-3);}
 .nav-caret{font-size:10px;color:var(--text-3);transition:transform .15s;flex:0 0 auto;}
@@ -212,7 +212,7 @@ input,select{font-family:var(--font-b);}
 .app-footer a{color:var(--text-3);text-decoration:none;}
 .app-footer a:hover{color:var(--text-1);}
 .hero{margin-bottom:32px;}
-.hero h1{font-size:32px;font-weight:800;}
+.hero h1{font-size:36px;font-weight:700;}
 .hero h1 .accent{color:var(--primary);}
 .hero p{margin:10px 0 0;color:var(--text-2);font-size:14.5px;max-width:560px;}
 .hero-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;}
@@ -244,7 +244,7 @@ input,select{font-family:var(--font-b);}
 
 /* ---------- Cards ---------- */
 .card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
   box-shadow:var(--shadow-card);margin-bottom:20px;
 }
 .card-head{
@@ -276,6 +276,9 @@ input[type=text],input[type=number],input[type=url],select,textarea{
   border-radius:var(--radius-m);padding:12px 14px;font-size:14px;width:100%;transition:.15s;
 }
 textarea{font-family:var(--font-b);resize:vertical;min-height:90px;line-height:1.5;}
+/* Campos de formulário no padrão do SellerFull: 48px de altura, raio 11px. */
+.field input[type=text],.field input[type=number],.field input[type=url],.field select{height:48px;padding:0 16px;border-radius:11px;}
+.field textarea{padding:12px 16px;border-radius:11px;}
 /* Cresce junto com o texto digitado (altura ajustada via JS), sem o puxador
    de resize manual, que não faz sentido numa caixa que já se ajusta sozinha. */
 .ger-textarea-auto{resize:none;overflow:hidden;}
@@ -2846,9 +2849,10 @@ a.btn-outline{text-decoration:none;display:inline-flex;align-items:center;justif
 /* ---------- Header (faixa promocional + marca, ecossistema e conta) ---------- */
 .app-header{
   position:sticky;top:0;z-index:40;background:var(--surface);
-  box-shadow:0 1px 0 rgba(20,24,26,.06),0 4px 24px rgba(20,24,26,.06);
+  border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong);
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
-.app-header-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 40px;}
+.app-header-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 40px;height:calc(var(--header-h) - 2px);}
 .app-header-left,.app-header-actions{display:flex;align-items:center;flex:0 0 auto;}
 .app-header-left{gap:16px;min-width:0;}
 .app-header-actions{gap:12px;}
@@ -2872,20 +2876,20 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 .header-cursos{text-decoration:none;}
 .header-cursos:hover,.header-pill:hover{border-color:rgba(46,46,51,.45);}
 .header-pill{
-  display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:none;
-  border:1px solid rgba(46,46,51,.2);font:600 12px/18px var(--font-h);color:#2e2e33;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:none;
+  border:1px solid var(--primary);font:600 14px/20px var(--font-b);color:var(--primary-dark);white-space:nowrap;
 }
 .header-icon-btn{
-  position:relative;width:30px;height:30px;border-radius:50%;border:none;background:none;padding:0;
+  position:relative;width:40px;height:40px;border-radius:50%;border:1px solid rgba(14,17,20,.08);background:none;padding:0;
   display:flex;align-items:center;justify-content:center;
 }
 .header-icon-btn:hover{background:var(--hover);}
-.header-sino-dot{position:absolute;left:18px;top:6px;width:6px;height:6px;border-radius:50%;background:#ec5267;}
+.header-sino-dot{position:absolute;right:9px;top:9px;width:6px;height:6px;border-radius:50%;background:#ec5267;}
 /* O seletor de idioma vira só bandeira + seta (48x24), como no desenho. */
 .app-header .idioma-switcher-btn{height:24px;padding:0 8px;gap:5px;border-color:rgba(46,46,51,.2);}
 .app-header .idioma-switcher-btn span:nth-child(2){display:none;}
 @media (max-width:1280px){ .eco-pills,.app-header-left .app-header-divider:nth-of-type(2){display:none;} }
-@media (max-width:1100px){ :root{--header-h:64px;} .app-header-bar{padding:16px 20px;} .header-loja,.header-cursos{display:none;} }
+@media (max-width:1100px){ :root{--header-h:64px;} .app-header-bar{padding:0 20px;} .header-loja,.header-cursos{display:none;} }
 
 /* Vitrines Personalizáveis (STLAI, roxo) e Drops STLFLIX (azul). */
 .busc-marca-ai{--m:#7c3aed;--m-dark:#5b21b6;--m-bg:#faf7ff;--m-line:#e4d7fd;--m-tint:#f3eefe;--m-ink:#2e1065;--m-img:#d9c8fb;}
@@ -3122,3 +3126,5 @@ a.eco-pill:hover{border-color:rgba(52,52,52,.45);}
 :root[data-theme="dark"] .ma-tag-origem{background:#222a55;color:#b5c0ff;}
 :root[data-theme="dark"] .rv-avisos{background:var(--orange-tint);border-color:#5a3d10;color:#ffc078;}
 :root[data-theme="dark"] .rv-risco-solto{color:#ffc078;}
+
+:root[data-theme="dark"] .header-icon-btn{border-color:var(--border);}
