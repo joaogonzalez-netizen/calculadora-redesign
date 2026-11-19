@@ -1,7 +1,7 @@
 /* Módulo Venda direta (feiras, eventos e lojas físicas). Todas as classes levam o prefixo fe-
    para não colidir com o CSS global do STLSeller. */
-.fe{--amber:#c58a00;--amber-tint:#fff6dc;--blue:#2563c9;--blue-tint:#e8f0fd;position:relative;}
-:root[data-theme="dark"] .fe{--amber:#ffa94d;--amber-tint:#34210d;--blue:#7db0ff;--blue-tint:#13244a;}
+.fe{--amber:#c58a00;--amber-text:#8a6100;--amber-tint:#fff6dc;--blue:#2563c9;--blue-tint:#e8f0fd;position:relative;}
+:root[data-theme="dark"] .fe{--amber:#ffa94d;--amber-tint:#34210d;--blue:#7db0ff;--blue-tint:#13244a;--amber-text:var(--amber);}
 :root[data-theme="dark"] .fe-badge.fe-amber{color:var(--amber);}
 .fe-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
 .fe-pill{display:flex;align-items:center;gap:8px;border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;padding:7px 13px 7px 11px;font-size:13px;font-weight:600;color:var(--text-1);max-width:100%;}
@@ -59,7 +59,7 @@
 .fe-seg button{flex:1;border:none;background:none;border-radius:9px;padding:9px 8px;font-size:13px;font-weight:600;color:var(--text-2);min-height:38px;white-space:nowrap;}
 .fe-seg button.fe-on{background:var(--surface);color:var(--text-1);box-shadow:0 1px 3px rgba(20,24,26,.12);}
 .fe-seg button.fe-on[data-t=quente]{color:var(--red);}
-.fe-seg button.fe-on[data-t=morno]{color:var(--amber);}
+.fe-seg button.fe-on[data-t=morno]{color:var(--amber-text);}
 .fe-seg button.fe-on[data-t=frio]{color:var(--blue);}
 .fe-chips{display:flex;gap:8px;flex-wrap:wrap;}
 .fe-chip{border:1px solid var(--border-strong);background:var(--surface);color:var(--text-2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;min-height:36px;}
@@ -77,7 +77,7 @@
 .fe-badge.fe-blue{background:var(--blue-tint);color:var(--blue);}
 .fe-temp{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;}
 .fe-temp.fe-quente{color:var(--red);}
-.fe-temp.fe-morno{color:var(--amber);}
+.fe-temp.fe-morno{color:var(--amber-text);}
 .fe-temp.fe-frio{color:var(--blue);}
 .fe-stage-tabs{display:none;}
 .fe-kanban{display:grid;grid-template-columns:repeat(6,minmax(232px,1fr));gap:12px;overflow-x:auto;padding-bottom:12px;align-items:start;}
@@ -97,7 +97,7 @@
 .fe-deal-actions{display:flex;gap:6px;}
 .fe-deal .fe-follow{font-size:11.5px;font-weight:600;color:var(--text-3);display:flex;align-items:center;gap:4px;}
 .fe-deal .fe-follow.fe-late{color:var(--red);}
-.fe-deal .fe-follow.fe-today{color:var(--amber);}
+.fe-deal .fe-follow.fe-today{color:var(--amber-text);}
 .fe-col-empty{font-size:12.5px;color:var(--text-3);text-align:center;padding:18px 8px;}
 .fe-tbl{width:100%;border-collapse:collapse;}
 .fe-tbl th{text-align:left;font-size:12px;color:var(--text-3);font-weight:700;padding:11px 16px;border-bottom:1px solid var(--border);white-space:nowrap;}
