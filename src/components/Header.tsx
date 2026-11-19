@@ -41,8 +41,7 @@ export default function Header() {
           </button>
           <div className="header-tema-seg" role="group" aria-label={t('header.tema')}>
             <button type="button" className={modo === 'light' ? 'active' : ''} aria-pressed={modo === 'light'} onClick={() => definir('light')} title={t('header.temaClaroNome')}><Icon name="sun" size={14} /></button>
-            <button type="button" className={modo === 'dark1' ? 'active' : ''} aria-pressed={modo === 'dark1'} onClick={() => definir('dark1')} title={t('header.temaEscuro1')}><Icon name="moon" size={14} />1</button>
-            <button type="button" className={modo === 'dark2' ? 'active' : ''} aria-pressed={modo === 'dark2'} onClick={() => definir('dark2')} title={t('header.temaEscuro2')}><Icon name="moon" size={14} />2</button>
+            <button type="button" className={modo === 'dark' ? 'active' : ''} aria-pressed={modo === 'dark'} onClick={() => definir('dark')} title={t('header.temaEscuro')}><Icon name="moon" size={14} /></button>
           </div>
           <IdiomaSwitcher />
           <button type="button" className="header-icon-btn header-sino" aria-label={t('topbar.notificacoes')}>
