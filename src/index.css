@@ -579,7 +579,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 /* ============================================================
    DASHBOARD
    ============================================================ */
-.content-wide .hero h1{font-size:38px;}
+.content-wide .hero h1{font-size:48px;}
 
 .painel-modo-toggle{margin-top:4px;flex:0 0 auto;}
 
@@ -780,8 +780,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 /* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:20px;}
 .kpi-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);
-  padding:20px 22px;box-shadow:var(--shadow-card);
+  background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  padding:24px;box-shadow:var(--shadow-card);
 }
 .kpi-head{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--text-1);margin-bottom:10px;}
 .kpi-value{display:flex;align-items:baseline;gap:5px;font-family:var(--font-h);}
@@ -956,6 +956,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 
 .prod-filters-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
 .prod-search{flex:1;min-width:220px;}
+/* Filtros no padrão do SellerFull: 44px de altura, raio 8px, texto 14px. */
+.prod-filters-row .ctl-btn,.prod-filters-row .cl-search{height:44px;border-radius:8px;border-color:var(--border);}
+.prod-filters-row .ctl-btn{padding:0 12px;font-size:14px;font-weight:400;}
+.prod-filters-row .cl-search{padding:0 16px;}
+.prod-filters-row .cl-search input{font-size:14px;}
 .cl-search{
   display:flex;align-items:center;gap:9px;border:1px solid var(--border-strong);border-radius:var(--radius-m);
   padding:10px 14px;color:var(--text-3);background:var(--surface);
