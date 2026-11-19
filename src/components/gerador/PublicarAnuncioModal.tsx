@@ -469,7 +469,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes, 
                 const selecionada = ordem !== -1;
                 return (
                   <button type="button" key={img.id} className={'pub-img-card' + (selecionada ? ' selecionada' : '')} onClick={() => toggleImagem(img.id)}>
-                    <div className="pub-img-media" style={{ background: 'repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px' }}>
+                    <div className="pub-img-media" style={{ background: 'repeating-conic-gradient(var(--ph-a) 0% 25%, var(--ph-b) 0% 50%) 0/14px 14px' }}>
                       {selecionada && <span className="pub-img-badge">{ordem + 1}</span>}
                       <span className="pub-img-check"><Icon name="check" size={12} /></span>
                     </div>
@@ -503,7 +503,7 @@ export default function PublicarAnuncioModal({ onFechar, onIrParaConfiguracoes, 
                   const ehCapa = form.capaId === id;
                   return (
                     <button type="button" role="radio" aria-checked={ehCapa} key={id} className={'pub-img-card pub-capa-card' + (ehCapa ? ' selecionada' : '')} onClick={() => set('capaId', id)}>
-                      <div className="pub-img-media" style={{ background: 'repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px' }}>
+                      <div className="pub-img-media" style={{ background: 'repeating-conic-gradient(var(--ph-a) 0% 25%, var(--ph-b) 0% 50%) 0/14px 14px' }}>
                         {ehCapa && <span className="pub-capa-selo">{t('publicar.capaSelo')}</span>}
                         <span className="pub-img-check"><Icon name="check" size={12} /></span>
                       </div>

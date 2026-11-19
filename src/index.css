@@ -34,6 +34,8 @@
   --primary-fill:var(--primary);
   --primary-fill-dark:var(--primary-dark);
   --ink:#14181a;
+  --ph-a:#f1f2f1;
+  --ph-b:#fafbfa;
   --warn-bg:#fff7e6;
   --warn-border:#f3e2b3;
   --warn-text:#8a6100;
@@ -66,6 +68,8 @@
   --primary-fill-dark:#075c38;
   --orange:#ffa94d;
   --orange-tint:#34210d;
+  --ph-a:var(--surface-3);
+  --ph-b:var(--surface-2);
 }
 :root[data-theme="dark"] .app-header-bar img:not(.app-header-logo){filter:invert(1) hue-rotate(180deg);}
 :root[data-theme="dark"] .app-header-logo{filter:brightness(0) invert(1);}
@@ -1145,8 +1149,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)
 .pd-section-title{font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:18px 22px 10px;}
 .pd-count{font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);margin-left:6px;}
 .pd-gallery{display:flex;gap:8px;padding:0 22px;}
-.pd-img-ph{flex:1;aspect-ratio:1;border-radius:10px;background:repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px;}
-:root[data-theme="dark"] .pd-img-ph{background:repeating-conic-gradient(var(--surface-3) 0% 25%, var(--surface-2) 0% 50%) 0/14px 14px;}
+.pd-img-ph{flex:1;aspect-ratio:1;border-radius:10px;background:repeating-conic-gradient(var(--ph-a) 0% 25%, var(--ph-b) 0% 50%) 0/14px 14px;}
 .pd-img-add{
   flex:1;aspect-ratio:1;border-radius:10px;border:1.5px dashed var(--primary-tint-strong);color:var(--primary-dark);
   display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;text-align:center;
@@ -1347,7 +1350,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 
 .ger-thumbs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:26px;}
 .ger-thumb{aspect-ratio:1;border-radius:var(--radius-m);overflow:hidden;position:relative;}
-.ger-thumb-vazio{width:100%;height:100%;background:repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px;}
+.ger-thumb-vazio{width:100%;height:100%;background:repeating-conic-gradient(var(--ph-a) 0% 25%, var(--ph-b) 0% 50%) 0/14px 14px;}
 .ger-thumb-fill{width:100%;height:100%;position:relative;}
 .ger-thumb-remover{
   position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;
@@ -2588,7 +2591,7 @@ button.marcador-chip-mini:hover{filter:brightness(1.1);}
 .mkt-decor-secao{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-m);}
 .mkt-decor-secao .mkt-decor-canvas{margin-top:0;}
 .mkt-decor-secao-carregando{
-  aspect-ratio:16/9;border-radius:var(--radius-m);background:repeating-conic-gradient(#f1f2f1 0% 25%, #fafbfa 0% 50%) 0/14px 14px;
+  aspect-ratio:16/9;border-radius:var(--radius-m);background:repeating-conic-gradient(var(--ph-a) 0% 25%, var(--ph-b) 0% 50%) 0/14px 14px;
 }
 
 /* Folhas de impressão das etiquetas, invisíveis na tela, só existem pro navegador
