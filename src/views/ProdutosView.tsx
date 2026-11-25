@@ -27,6 +27,8 @@ const CANAL_OPTS: Record<Idioma, string[]> = {
 // Mercado Livre e Shopee; o wizard de publicação não suporta Etsy/TikTok Shop,
 // então fica escondida na versão EN.
 const MOSTRAR_DUPLICAR: Record<Idioma, boolean> = { pt: true, es: true, en: false };
+// Coluna/botão "Otimizar" escondidos por enquanto (drawer e regras seguem no código).
+const MOSTRAR_OTIMIZAR = false;
 
 interface Props {
   filtroSemCustoInicial?: boolean;
@@ -135,8 +137,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
       </div>
 
       <div className="prod-actions-row">
-        <button type="button" className="btn-outline">{t('produtos.exportarCsv')}</button>
-        <button type="button" className="btn-dark">{t('produtos.sincronizarEstoque')}</button>
+        <button type="button" className="btn-dark">{t('produtos.sincronizarAnuncios')}</button>
       </div>
 
       <div className="kpi-grid prod-kpi-grid">
@@ -144,7 +145,7 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
         <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiProdutosAtivos')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.produtosAtivos.valor}</span><span className="kpi-dec">{unidade}</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.produtosAtivos.sub}</span></div></div>
         <div className="kpi-card"><div className="kpi-head"><span>{t('produtos.kpiEmEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.emEstoque.valor}</span><span className="kpi-dec">{unidade}</span></div><div className="kpi-foot"><span className="kpi-comp">{PRODUTOS_KPIS.emEstoque.sub}</span></div></div>
         <div className="kpi-card kpi-warn"><div className="kpi-head"><span>{t('produtos.kpiEstoqueBaixo')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.estoqueBaixo.valor}</span><span className="kpi-dec">{unidade}</span></div><div className="kpi-foot"><span className="kpi-comp warn">{PRODUTOS_KPIS.estoqueBaixo.sub}</span></div></div>
-        <div className="kpi-card kpi-danger"><div className="kpi-head"><span>{t('produtos.kpiSemEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.semEstoque.valor}</span><span className="kpi-dec">{en ? 'units' : 'pedidos'}</span></div><div className="kpi-foot"><span className="kpi-comp danger">{PRODUTOS_KPIS.semEstoque.sub}</span></div></div>
+        <div className="kpi-card kpi-danger"><div className="kpi-head"><span>{t('produtos.kpiSemEstoque')}</span></div><div className="kpi-value"><span className="kpi-int">{PRODUTOS_KPIS.semEstoque.valor}</span><span className="kpi-dec">{en ? 'units' : idioma === 'es' ? 'productos' : 'produtos'}</span></div><div className="kpi-foot"><span className="kpi-comp danger">{PRODUTOS_KPIS.semEstoque.sub}</span></div></div>
       </div>
 
       <div className="prod-filters-row">
@@ -165,10 +166,10 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
 
       <div className="card">
         <div className="card-body" style={{ padding: 0 }}>
-          <table className="prod-table">
+          <table className="prod-table prod-table-anuncios">
             <thead>
               <tr>
-                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th>{mostrarDuplicar && <th>{t('produtos.colunaLevar')}</th>}<th>{t('produtos.colunaOtimizar')}</th><th>{t('produtos.colunaAcoes')}</th>
+                <th>{t('produtos.colunaProduto')}</th><th>{t('produtos.colunaMarketplace')}</th><th>{t('produtos.colunaStatus')}</th><th>{t('produtos.colunaEstoque')}</th><th>{t('produtos.colunaVendidos')}</th><th>{t('produtos.colunaPreco')}</th><th>{t('produtos.colunaProducao')}</th>{mostrarDuplicar && <th>{t('produtos.colunaLevar')}</th>}{MOSTRAR_OTIMIZAR && <th>{t('produtos.colunaOtimizar')}</th>}<th>{t('produtos.colunaAcoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -203,11 +204,13 @@ export default function ProdutosView({ filtroSemCustoInicial, onFiltroSemCustoCo
                         <button type="button" className="btn-outline vincular-custo-btn" onClick={() => setLevarProduto(p)}>{t('produtos.levarBtn' + destinoDaCopia(p).sufixo)}</button>
                       </td>
                     )}
-                    <td>
-                      <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
-                        <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
-                      </button>
-                    </td>
+                    {MOSTRAR_OTIMIZAR && (
+                      <td>
+                        <button type="button" className="btn-outline otimizar-btn" onClick={() => setOtimizarProduto(p)}>
+                          <Icon name="otimizador" size={14} /> {t('produtos.otimizarBtn')}
+                        </button>
+                      </td>
+                    )}
                     <td>
                       <div className="prod-acoes">
                         <button type="button" title={t('produtos.verDetalhes')} onClick={() => setDetalheProduto(p)}><Icon name="eye" size={16} /></button>
